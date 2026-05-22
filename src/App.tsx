@@ -1393,15 +1393,15 @@ export default function App() {
 
               <form onSubmit={handleCreateTrade} className="flex flex-col flex-1 min-h-0 min-w-0" id="trade-form">
                 
-                <div className="overflow-y-auto flex-1 p-5 sm:p-8 space-y-6 sm:space-y-7">
+                <div className="overflow-y-auto flex-1 px-4 sm:px-8 py-5 sm:py-8 space-y-6 sm:space-y-7">
                   {/* BUY SELL TOGGLE & Pairs Selection */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
-                    <div>
+                    <div className="min-w-0">
                       <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Cặp ngoại tệ</label>
                       <select 
                         value={formPair}
                         onChange={(e) => setFormPair(e.target.value)}
-                        className="w-full p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-bold cursor-pointer"
+                        className="w-full px-2.5 py-3 sm:p-3.5 w-full shrink max-w-[100%] bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-bold cursor-pointer"
                       >
                       <option value="EUR/USD">EUR/USD</option>
                       <option value="GBP/USD">GBP/USD</option>
@@ -1413,7 +1413,7 @@ export default function App() {
                     </select>
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Hướng lệnh</label>
                     <div className="flex bg-gray-100 dark:bg-[#131314] p-1.5 rounded-[14px] border border-gray-200 dark:border-zinc-800">
                       <button 
@@ -1435,8 +1435,8 @@ export default function App() {
                 </div>
 
                 {/* Entry Price & Lots Size */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+                  <div className="min-w-0">
                     <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Giá vào lệnh *</label>
                     <input 
                       type="number" 
@@ -1445,11 +1445,11 @@ export default function App() {
                       placeholder="VD: 1.0854"
                       value={formEntryPrice}
                       onChange={(e) => setFormEntryPrice(e.target.value)}
-                      className="w-full p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono"
+                      className="w-full px-2.5 py-3 sm:p-3.5 w-full shrink max-w-[100%] bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono"
                     />
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Khối lượng (Lots) *</label>
                     <input 
                       type="number" 
@@ -1458,14 +1458,14 @@ export default function App() {
                       min="0.01"
                       value={formSize}
                       onChange={(e) => setFormSize(e.target.value)}
-                      className="w-full p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono font-bold"
+                      className="w-full px-2.5 py-3 sm:p-3.5 w-full shrink max-w-[100%] bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono font-bold"
                     />
                   </div>
                 </div>
 
                 {/* SL, TP Options */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+                  <div className="min-w-0">
                     <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Chặn lỗ</label>
                     <input 
                       type="number" 
@@ -1473,11 +1473,11 @@ export default function App() {
                       placeholder="Tùy chọn - SL"
                       value={formStopLoss}
                       onChange={(e) => setFormStopLoss(e.target.value)}
-                      className="w-full p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono"
+                      className="w-full px-2.5 py-3 sm:p-3.5 w-full shrink max-w-[100%] bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono"
                     />
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Chốt lời</label>
                     <input 
                       type="number" 
@@ -1485,14 +1485,14 @@ export default function App() {
                       placeholder="Tùy chọn - TP"
                       value={formTakeProfit}
                       onChange={(e) => setFormTakeProfit(e.target.value)}
-                      className="w-full p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono"
+                      className="w-full px-2.5 py-3 sm:p-3.5 w-full shrink max-w-[100%] bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono"
                     />
                   </div>
                 </div>
 
                 {/* Status Switch Open / Closed & Timeframe */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+                  <div className="min-w-0">
                     <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Trạng thái giao dịch</label>
                     <div className="flex bg-gray-100 dark:bg-[#131314] p-1.5 rounded-[14px] border border-gray-200 dark:border-zinc-800">
                       <button 
@@ -1512,12 +1512,12 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Khung thời gian</label>
                     <select 
                       value={formTimeframe}
                       onChange={(e) => setFormTimeframe(e.target.value)}
-                      className="w-full p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-bold cursor-pointer"
+                      className="w-full px-2.5 py-3 sm:p-3.5 w-full shrink max-w-[100%] bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-bold cursor-pointer"
                     >
                       <option value="M5">M5 (5 phút)</option>
                       <option value="M15">M15 (15 phút)</option>
@@ -1530,8 +1530,8 @@ export default function App() {
 
                 {/* Conditional exit fields if state is closed */}
                 {formStatus === "CLOSED" && (
-                  <div className="p-4 rounded-[20px] bg-gray-50/50 dark:bg-[#131314]/30 border border-gray-200/50 dark:border-zinc-800 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
+                  <div className="p-3 sm:p-5 rounded-[16px] sm:rounded-[20px] bg-gray-50/50 dark:bg-[#131314]/30 border border-gray-200/50 dark:border-zinc-800 grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+                    <div className="min-w-0">
                       <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Giá đóng lệnh</label>
                       <input 
                         type="number" 
@@ -1539,39 +1539,39 @@ export default function App() {
                         placeholder="VD: 1.0920"
                         value={formExitPrice}
                         onChange={(e) => setFormExitPrice(e.target.value)}
-                        className="w-full p-3.5 bg-white dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono"
+                        className="w-full px-2.5 py-3 sm:p-3.5 w-full shrink max-w-[100%] bg-white dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono"
                       />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Ngày đóng lệnh</label>
                       <input 
                         type="datetime-local" 
                         value={formExitDate}
                         onChange={(e) => setFormExitDate(e.target.value)}
-                        className="w-full p-3.5 bg-white dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all cursor-pointer"
+                        className="w-full px-2.5 py-3 sm:p-3.5 w-full shrink max-w-[100%] bg-white dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all cursor-pointer"
                       />
                     </div>
                   </div>
                 )}
 
                 {/* Entry Date & Tags Row */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+                  <div className="min-w-0">
                     <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Ngày vào lệnh</label>
                     <input 
                       type="datetime-local" 
                       value={formEntryDate}
                       onChange={(e) => setFormEntryDate(e.target.value)}
-                      className="w-full p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all cursor-pointer"
+                      className="w-full px-2.5 py-3 sm:p-3.5 w-full shrink max-w-[100%] bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all cursor-pointer"
                     />
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Chiến lược</label>
                     <select 
                       value={formTag}
                       onChange={(e) => setFormTag(e.target.value)}
-                      className="w-full p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-bold cursor-pointer"
+                      className="w-full px-2.5 py-3 sm:p-3.5 w-full shrink max-w-[100%] bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-bold cursor-pointer"
                     >
                       <option value="News-Trade">Giao dịch theo tin tức</option>
                       <option value="Trend-Follow">Đu theo xu hướng</option>
@@ -1589,7 +1589,7 @@ export default function App() {
                     placeholder="Tại sao bạn khớp lệnh này? Khung cảm xúc, phân tích kỹ thuật hoặc nhận định tin tức của bạn..."
                     value={formNotes}
                     onChange={(e) => setFormNotes(e.target.value)}
-                    className="w-full p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all"
+                    className="w-full px-2.5 py-3 sm:p-3.5 w-full shrink max-w-[100%] bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all"
                   ></textarea>
                 </div>
 
