@@ -2,7 +2,8 @@ const CACHE_NAME = "trade-journal-v1";
 const ASSETS = [
   "/",
   "/index.html",
-  "/manifest.json"
+  "/manifest.json",
+  "/icon.svg"
 ];
 
 // Install Event
