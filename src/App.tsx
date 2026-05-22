@@ -605,13 +605,13 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen ${darkMode ? "dark" : ""} bg-[#f0f4f9] dark:bg-google-dark-bg text-gray-800 dark:text-gray-100 transition-all duration-300 font-sans pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-6`} id="app-root-theme">
+    <div className={`min-h-screen ${darkMode ? "dark bg-google-dark-bg text-gray-100" : "bg-[#f0f4f9] text-gray-800"} transition-all duration-300 font-display pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-6`} id="app-root-theme">
       
       {/* Main Container */}
       <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 pt-[calc(1rem+env(safe-area-inset-top,0px))] md:pt-5 space-y-3.5 sm:space-y-6" id="app-grid-frame">
         
         {/* Google Workspace Style Tonal Top Header */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-6 bg-white dark:bg-google-dark-surface rounded-2xl border border-transparent shadow-sm space-y-4 md:space-y-0" id="google-m3-header">
+        <header className={`flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-6 ${darkMode ? "bg-google-dark-surface border-[#2e2f30]" : "bg-white border-transparent"} rounded-2xl border shadow-sm space-y-4 md:space-y-0`} id="google-m3-header">
           <div className="flex items-center gap-3 sm:gap-4">
             <div className="w-11 h-11 sm:w-12 sm:h-12 bg-google-blue-600 text-white rounded-2xl flex items-center justify-center shadow-md font-extrabold flex-shrink-0" id="logo-icon">
               <CloudLightning size={22} className="sm:w-6 sm:h-6" />
@@ -619,9 +619,9 @@ export default function App() {
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-950 dark:text-white font-display truncate">Quantum Trade</h1>
-                <span className="px-1.5 py-0.2 sm:px-2 sm:py-0.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider bg-google-blue-50 text-google-blue-600 dark:bg-google-blue-600/10 dark:text-google-blue-100 rounded-md flex-shrink-0">PRO</span>
+                <span className="px-2 py-0.5 text-xs font-bold uppercase tracking-wider bg-google-blue-50 text-google-blue-600 dark:bg-google-blue-600/10 dark:text-google-blue-100 rounded-md flex-shrink-0">PRO</span>
               </div>
-              <p className="text-[11px] sm:text-xs text-gray-400 dark:text-gray-400 mt-0.5 leading-snug truncate">
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 leading-snug truncate">
                 Đồng bộ hóa tin vĩ mô USD & nhật ký giao dịch hiệu năng cao
               </p>
             </div>
@@ -632,25 +632,25 @@ export default function App() {
             {/* Dynamic Light/Dark Switch under Material 3 */}
             <button 
               onClick={() => setDarkMode(!darkMode)}
-              className="p-2 sm:p-2.5 bg-gray-100 dark:bg-white/5 rounded-full hover:bg-gray-200 dark:hover:bg-white/10 transition-colors cursor-pointer"
+              className="p-2.5 sm:p-3 bg-gray-150 dark:bg-white/5 rounded-full hover:bg-gray-200 dark:hover:bg-white/10 transition-colors cursor-pointer"
               title="Giao diện sáng/tối"
               id="btn-darkmode"
             >
               {darkMode ? (
-                <Sun size={15} className="text-amber-450 dark:text-amber-400" />
+                <Sun size={16} className="text-amber-400" />
               ) : (
-                <Moon size={15} className="text-gray-600" />
+                <Moon size={16} className="text-gray-600" />
               )}
             </button>
 
             {/* Account size indicator in dynamic style */}
             <div className="text-right min-w-0">
-              <span className="text-[9px] sm:text-[10px] font-bold tracking-wider text-gray-400 dark:text-gray-500 uppercase block truncate">Số Dư Tài Khoản</span>
+              <span className="text-xs sm:text-xs font-extrabold tracking-wider text-gray-400 dark:text-gray-500 uppercase block truncate">Số Dư Tài Khoản</span>
               <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5 justify-end">
-                <span className="text-lg sm:text-xl font-extrabold text-gray-900 dark:text-white font-display truncate" id="live-balance-text">
+                <span className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white font-display truncate" id="live-balance-text">
                   ${summary.balance.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
                 </span>
-                <span className={`text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-bold flex items-center gap-0.5 flex-shrink-0 ${summary.pnl >= 0 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/10 text-rose-600 dark:text-rose-450'}`} id="summary-badge-pnl">
+                <span className={`text-xs sm:text-xs px-2 py-1 rounded-full font-bold flex items-center gap-0.5 flex-shrink-0 ${summary.pnl >= 0 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/10 text-rose-600 dark:text-rose-450'}`} id="summary-badge-pnl">
                   {summary.pnl >= 0 ? "+" : ""}${summary.pnl.toFixed(0)}
                 </span>
               </div>
@@ -671,37 +671,37 @@ export default function App() {
         </header>
 
         {/* Google-style Pill Navigation Tab Segment Manager */}
-        <div className="hidden md:flex justify-between items-center bg-white dark:bg-google-dark-surface p-1.5 rounded-full shadow-sm overflow-x-auto no-scrollbar" id="segmented-controller">
+        <div className={`hidden md:flex justify-between items-center ${darkMode ? "bg-google-dark-surface border-[#2e2f30]" : "bg-white border-transparent"} border p-1.5 rounded-full shadow-sm overflow-x-auto no-scrollbar`} id="segmented-controller">
           <div className="flex gap-1 sm:gap-1.5 flex-shrink-0">
             <button 
               onClick={() => setCurrentTab("dashboard")}
-              className={`px-3 sm:px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "dashboard" ? 'bg-google-blue-50 text-google-blue-600 dark:bg-google-blue-600/15 dark:text-blue-200 shadow-sm' : 'text-gray-500 hover:text-gray-800 dark:hover:text-white dark:text-gray-400'}`}
+              className={`px-4 sm:px-6 py-2.5 rounded-full text-sm font-extrabold transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "dashboard" ? 'bg-google-blue-50 text-google-blue-600 dark:bg-google-blue-600/15 dark:text-blue-200 shadow-sm' : 'text-gray-500 hover:text-gray-800 dark:hover:text-white dark:text-gray-400'}`}
             >
-              <BarChart2 size={14} className="flex-shrink-0" />
+              <BarChart2 size={16} className="flex-shrink-0" />
               <span>Tổng quan</span>
             </button>
             <button 
               onClick={() => setCurrentTab("journal")}
-              className={`px-3 sm:px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "journal" ? 'bg-google-blue-50 text-google-blue-600 dark:bg-google-blue-600/15 dark:text-blue-200 shadow-sm' : 'text-gray-500 hover:text-gray-800 dark:hover:text-white dark:text-gray-400'}`}
+              className={`px-4 sm:px-6 py-2.5 rounded-full text-sm font-extrabold transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "journal" ? 'bg-google-blue-50 text-google-blue-600 dark:bg-google-blue-600/15 dark:text-blue-200 shadow-sm' : 'text-gray-500 hover:text-gray-800 dark:hover:text-white dark:text-gray-400'}`}
             >
-              <FileText size={14} className="flex-shrink-0" />
-              <span>Nhật ký <span className="text-[10px] font-mono text-gray-400 dark:text-gray-500">({trades.length})</span></span>
+              <FileText size={16} className="flex-shrink-0" />
+              <span>Nhật ký <span className="text-xs font-mono text-gray-400 dark:text-gray-505">({trades.length})</span></span>
             </button>
             <button 
               onClick={() => setCurrentTab("calendar")}
-              className={`px-3 sm:px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "calendar" ? 'bg-google-blue-50 text-google-blue-600 dark:bg-google-blue-600/15 dark:text-blue-200 shadow-sm' : 'text-gray-500 hover:text-gray-800 dark:hover:text-white dark:text-gray-400'}`}
+              className={`px-4 sm:px-6 py-2.5 rounded-full text-sm font-extrabold transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "calendar" ? 'bg-google-blue-50 text-google-blue-600 dark:bg-google-blue-600/15 dark:text-blue-200 shadow-sm' : 'text-gray-500 hover:text-gray-800 dark:hover:text-white dark:text-gray-400'}`}
             >
-              <CalendarIcon size={14} className="flex-shrink-0" />
+              <CalendarIcon size={16} className="flex-shrink-0" />
               <span>Lịch tin tức</span>
             </button>
           </div>
           
           <button 
             onClick={handleOpenAddTrade}
-            className="hidden md:flex items-center gap-2 px-6 py-2 bg-google-blue-600 hover:bg-google-blue-700 text-white rounded-full text-xs font-bold shadow-sm hover:shadow transition-all cursor-pointer"
+            className="hidden md:flex items-center gap-2 px-6 py-2.5 bg-google-blue-600 hover:bg-google-blue-700 text-white rounded-full text-sm font-extrabold shadow-sm hover:shadow transition-all cursor-pointer"
             id="desktop-add-trade-btn"
           >
-            <Plus size={14} />
+            <Plus size={16} />
             Thêm Giao Dịch
           </button>
         </div>
@@ -711,36 +711,44 @@ export default function App() {
           <div className="space-y-6" id="dashboard-bento-section">
             
             {/* Numeric and graphs bento core statistics wrapper */}
-            <BentoStats trades={trades} />
+            <BentoStats trades={trades} darkMode={darkMode} />
 
             {/* Mixed Bento Row: Calendar Fast-View (Large 2/3) + Recent Trade Activities (Medium 1/3) */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" id="bento-two-columns-mixed">
               
               {/* Calendar Feed Fast-View Card */}
-              <div className="lg:col-span-2 p-4 sm:p-6 bg-white dark:bg-google-dark-surface rounded-2xl border border-transparent shadow-sm flex flex-col justify-between" id="bento-calendar-fastview">
+              <div className={`lg:col-span-2 p-5 sm:p-6 ${darkMode ? "bg-google-dark-surface border-[#2e2f30]" : "bg-white border-transparent"} rounded-2xl border shadow-sm flex flex-col justify-between`} id="bento-calendar-fastview">
                 <div>
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-100 dark:border-white/5 pb-4 mb-4 gap-3 sm:gap-0">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-150 dark:border-white/5 pb-4 mb-4 gap-3 sm:gap-0">
                     <div className="flex items-center gap-2.5">
                       <div className="p-2 bg-google-blue-50 dark:bg-google-blue-600/10 text-google-blue-600 rounded-xl flex-shrink-0">
-                        <CalendarIcon size={16} />
+                        <CalendarIcon size={18} />
                       </div>
                       <div className="min-w-0">
-                        <h4 className="text-sm sm:text-base font-bold text-gray-950 dark:text-white leading-tight">Điểm Tin Kinh Tế Nổi Bật</h4>
-                        <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-400 truncate">Các sự kiện vĩ mô tác động mạnh tới USD</p>
+                        <h4 className="text-base sm:text-lg font-bold text-gray-950 dark:text-white leading-tight">Điểm Tin Kinh Tế Nổi Bật</h4>
+                        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5 truncate">Các sự kiện vĩ mô tác động mạnh tới USD</p>
                       </div>
                     </div>
                     
-                    {/* Quick filter inside header - M3 layout */}
-                    <div className="flex bg-gray-100 dark:bg-zinc-850 p-1 rounded-xl w-full sm:w-auto mt-2 sm:mt-0 flex-shrink-0">
+                    {/* Quick filter inside header - Slate theme layout */}
+                    <div className={`flex ${darkMode ? 'bg-[#131314] border-[#2e2f30]' : 'bg-gray-100 border-transparent'} p-1 rounded-xl w-full sm:w-auto mt-2 sm:mt-0 flex-shrink-0 border`}>
                       <button 
                         onClick={() => setCalendarPeriodFilter("DAY")}
-                        className={`flex-1 sm:flex-initial text-center px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${calendarPeriodFilter === "DAY" ? 'bg-white dark:bg-google-dark-bg text-google-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        className={`flex-1 sm:flex-initial text-center px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                          calendarPeriodFilter === "DAY" 
+                            ? (darkMode ? 'bg-[#2e2f30] text-blue-300 shadow-xs' : 'bg-white text-google-blue-600 shadow-xs') 
+                            : (darkMode ? 'text-gray-450 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white' : 'text-gray-550 hover:text-gray-850')
+                        }`}
                       >
                         Hôm nay
                       </button>
                       <button 
                         onClick={() => setCalendarPeriodFilter("WEEK")}
-                        className={`flex-1 sm:flex-initial text-center px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${calendarPeriodFilter === "WEEK" ? 'bg-white dark:bg-google-dark-bg text-google-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        className={`flex-1 sm:flex-initial text-center px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                          calendarPeriodFilter === "WEEK" 
+                            ? (darkMode ? 'bg-[#2e2f30] text-blue-300 shadow-xs' : 'bg-[#f8f9fa] sm:bg-white text-google-blue-600 shadow-xs') 
+                            : (darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-550 hover:text-gray-850')
+                        }`}
                       >
                         Tuần này
                       </button>
@@ -749,14 +757,14 @@ export default function App() {
 
                   <div className="space-y-4 max-h-[350px] overflow-y-auto pr-1" id="fastview-events-scroller">
                     {loadingCalendar ? (
-                      <div className="py-12 text-center text-gray-400 space-y-2">
+                       <div className="py-12 text-center text-gray-400 space-y-2">
                         <RefreshCw className="animate-spin text-google-blue-600 mx-auto" size={24} />
-                        <p className="text-xs">Đang nạp cập nhật lịch kinh tế thực tế...</p>
+                        <p className="text-sm">Đang nạp cập nhật lịch kinh tế thực tế...</p>
                       </div>
                     ) : filteredEventsByFilters.length === 0 ? (
-                      <div className="py-12 text-center text-gray-400">
-                        <p className="text-xs">Không có tin tức USD nào tương thích bộ lọc đã chọn.</p>
-                        <p className="text-[10px] text-gray-500 mt-1">Lưu ý: Bạn có thể chọn tin có tác động thấp hơn ở tab Lịch Kinh Tế</p>
+                      <div className="py-12 text-center text-gray-500">
+                        <p className="text-sm">Không có tin tức USD nào tương thích bộ lọc đã chọn.</p>
+                        <p className="text-xs text-gray-400 mt-1.5">Lưu ý: Bạn có thể chọn tin có tác động thấp hơn ở tab Lịch Kinh Tế</p>
                       </div>
                     ) : (
                       filteredEventsByFilters.slice(0, 5).map((ev, idx) => {
@@ -765,14 +773,14 @@ export default function App() {
                         return (
                           <div 
                             key={`fast-ev-${idx}`}
-                            className="flex items-center justify-between p-3 bg-gray-50 dark:bg-google-dark-bg/40 rounded-xl border border-transparent hover:border-google-blue-600/10 transition-colors gap-2"
+                            className="flex items-center justify-between p-3.5 bg-gray-50 dark:bg-[#18191a] rounded-xl border border-transparent hover:border-google-blue-600/10 transition-colors gap-2"
                           >
-                            <div className="flex items-center gap-2 min-w-0">
-                              <div className={`w-1 h-8 rounded-full flex-shrink-0 ${styleInfo.indicator}`}></div>
+                            <div className="flex items-center gap-3.5 min-w-0">
+                              <div className={`w-1 h-9 rounded-full flex-shrink-0 ${styleInfo.indicator}`}></div>
                               <div className="min-w-0">
-                                <h5 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white tracking-tight truncate" title={ev.title}>{ev.title}</h5>
-                                <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5 text-[10px] text-gray-400 dark:text-gray-500">
-                                  <span className="font-mono">{ev.country}</span>
+                                <h5 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white tracking-tight truncate" title={ev.title}>{ev.title}</h5>
+                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                  <span className="font-mono bg-gray-200/50 dark:bg-white/5 px-1.5 py-0.5 rounded text-gray-600 dark:text-gray-300 font-bold">{ev.country}</span>
                                   <span>•</span>
                                   <span>DF: {ev.forecast || "N/A"}</span>
                                   <span>•</span>
@@ -781,11 +789,11 @@ export default function App() {
                               </div>
                             </div>
                             <div className="text-right flex-shrink-0">
-                              <span className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                              <span className="text-sm font-bold text-gray-800 dark:text-gray-200 block font-mono">
                                 {eventDate.toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit' })}
                               </span>
-                              <div className="mt-0.5">
-                                <span className={`text-[8px] sm:text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${styleInfo.text} ${styleInfo.bg}`}>
+                              <div className="mt-1">
+                                <span className={`text-[10px] sm:text-xs px-2 py-0.5 rounded font-extrabold uppercase tracking-wider ${styleInfo.text} ${styleInfo.bg}`}>
                                   {styleInfo.label}
                                 </span>
                               </div>
@@ -797,27 +805,27 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-white/5 flex justify-end items-center text-xs">
+                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-white/5 flex justify-end items-center text-sm">
                   <button 
                     onClick={() => setCurrentTab("calendar")}
-                    className="text-google-blue-600 hover:underline flex items-center gap-1 font-bold"
+                    className="text-google-blue-600 hover:underline flex items-center gap-1 font-extrabold"
                   >
-                    Xem lịch toàn bộ chi tiết <ChevronRight size={14} />
+                    Xem lịch toàn bộ chi tiết <ChevronRight size={16} />
                   </button>
                 </div>
               </div>
 
               {/* Recent Trade History Widget Panel */}
-              <div className="p-4 sm:p-6 bg-white dark:bg-google-dark-surface rounded-2xl border border-transparent shadow-sm flex flex-col justify-between" id="bento-recent-history">
+              <div className={`p-5 sm:p-6 ${darkMode ? "bg-google-dark-surface border-[#2e2f30]" : "bg-white border-transparent"} border rounded-2xl shadow-sm flex flex-col justify-between`} id="bento-recent-history">
                 <div>
                   <div className="flex justify-between items-center mb-4 gap-2">
-                    <h4 className="text-sm sm:text-base font-bold text-gray-950 dark:text-white truncate">Lệnh Gần Đây</h4>
-                    <span className="text-[10px] bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 px-2 py-0.5 rounded-full font-bold flex-shrink-0">Lịch Sử</span>
+                    <h4 className="text-base sm:text-lg font-extrabold text-gray-950 dark:text-white truncate">Lệnh Gần Đây</h4>
+                    <span className="text-xs bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-300 px-2.5 py-1 rounded-full font-bold flex-shrink-0">Lịch Sử</span>
                   </div>
-
+ 
                   <div className="space-y-3 max-h-[300px] overflow-y-auto" id="recent-trades-list">
                     {trades.length === 0 ? (
-                      <div className="text-center py-12 text-gray-400 text-xs">
+                      <div className="text-center py-12 text-gray-400 text-sm">
                         <BookOpen size={24} className="mx-auto text-gray-300 dark:text-gray-700 animate-pulse mb-2" />
                         Chưa có lịch sử giao dịch.
                       </div>
@@ -830,12 +838,12 @@ export default function App() {
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
-                              <span className="font-bold text-xs text-gray-800 dark:text-white">{t.pair}</span>
-                              <span className={`text-xs font-bold font-mono ${t.pnl >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                              <span className="font-extrabold text-sm text-gray-805 dark:text-white">{t.pair}</span>
+                              <span className={`text-sm font-black font-mono ${t.pnl >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
                                 {t.pnl >= 0 ? "+" : ""}${t.pnl.toLocaleString()}
                               </span>
                             </div>
-                            <div className="flex justify-between items-center text-[10px] text-gray-400 mt-0.5">
+                            <div className="flex justify-between items-center text-xs text-gray-400 dark:text-gray-500 mt-1">
                               <span>{t.size} Lots • {t.timeframe}</span>
                               <span className="italic">{t.status === "OPEN" ? "Đang Chạy" : "Đã Khớp"}</span>
                             </div>
@@ -845,11 +853,11 @@ export default function App() {
                     )}
                   </div>
                 </div>
-
+ 
                 <div className="mt-4 pt-4 border-t border-gray-100 dark:border-white/5">
                   <button 
                     onClick={() => setCurrentTab("journal")}
-                    className="w-full py-2 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 text-gray-700 dark:text-white rounded-full text-xs font-bold transition-all"
+                    className="w-full py-2.5 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 text-gray-750 dark:text-white rounded-full text-xs sm:text-sm font-extrabold transition-all"
                     id="bento-view-journal-btn"
                   >
                     Quản lý toàn bộ {trades.length} giao dịch
@@ -942,15 +950,15 @@ export default function App() {
                 ) : (
                   <table className="w-full text-left border-collapse min-w-[700px]">
                     <thead>
-                      <tr className="border-b border-gray-150 dark:border-white/5 text-[10px] font-bold uppercase text-gray-400 dark:text-gray-500 tracking-wider">
-                        <th className="py-3 px-4">Cặp / Trạng thái</th>
-                        <th className="py-3 px-4">Loại lệnh</th>
-                        <th className="py-3 px-4">Kích thước (Lots)</th>
-                        <th className="py-3 px-4">Điểm vào / Điểm ra</th>
-                        <th className="py-3 px-4">Chốt lời / Chặn lỗ</th>
-                        <th className="py-3 px-4">Ghi chú & Phân tích</th>
-                        <th className="py-3 px-4 text-right">Lời / Lỗ (USD)</th>
-                        <th className="py-3 px-4 text-center">Hành động</th>
+                      <tr className="border-b border-gray-150 dark:border-white/5 text-xs font-bold uppercase text-gray-500 dark:text-gray-400 tracking-wider">
+                        <th className="py-3.5 px-4">Cặp / Trạng thái</th>
+                        <th className="py-3.5 px-4">Loại lệnh</th>
+                        <th className="py-3.5 px-4">Kích thước (Lots)</th>
+                        <th className="py-3.5 px-4">Điểm vào / Điểm ra</th>
+                        <th className="py-3.5 px-4">Chốt lời / Chặn lỗ</th>
+                        <th className="py-3.5 px-4">Ghi chú & Phân tích</th>
+                        <th className="py-3.5 px-4 text-right">Lời / Lỗ (USD)</th>
+                        <th className="py-3.5 px-4 text-center">Hành động</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-white/5 text-sm">
@@ -959,10 +967,10 @@ export default function App() {
                           <td className="py-4 px-4">
                             <div className="flex items-center gap-3">
                               <div>
-                                <div className="font-bold text-gray-900 dark:text-white tracking-tight">{t.pair}</div>
-                                <div className="text-[10px] text-gray-400 uppercase font-bold mt-1">{t.timeframe || "M15"}</div>
+                                <div className="font-bold text-sm sm:text-base text-gray-900 dark:text-white tracking-tight">{t.pair}</div>
+                                <div className="text-xs text-gray-400 dark:text-gray-500 font-bold mt-1">{t.timeframe || "M15"}</div>
                               </div>
-                              <span className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${t.status === "OPEN" ? "bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400" : "bg-gray-100 text-gray-500 dark:bg-slate-800 dark:text-gray-400"}`}>
+                              <span className={`text-[10px] sm:text-xs px-2 py-0.5 rounded font-extrabold uppercase tracking-wide ${t.status === "OPEN" ? "bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400" : "bg-gray-100 text-gray-500 dark:bg-slate-800 dark:text-gray-400"}`}>
                                 {t.status}
                               </span>
                             </div>
@@ -972,7 +980,7 @@ export default function App() {
                               {t.type}
                             </span>
                           </td>
-                          <td className="py-4 px-4 font-mono font-bold dark:text-gray-200">
+                          <td className="py-4 px-4 font-mono font-bold dark:text-gray-205">
                             {t.size} Lots
                           </td>
                           <td className="py-4 px-4 font-mono text-xs text-gray-600 dark:text-gray-300">
@@ -1165,8 +1173,8 @@ export default function App() {
                     <CalendarIcon size={18} className="sm:size-5" />
                   </div>
                   <div>
-                    <h3 className="text-sm sm:text-base font-bold text-gray-950 dark:text-white">Lịch Tin Tức Vĩ Mô</h3>
-                    <p className="text-[10px] sm:text-xs text-gray-400">Chỉ số USD quan trọng</p>
+                    <h3 className="text-base sm:text-lg font-bold text-gray-950 dark:text-white">Lịch Tin Tức Vĩ Mô</h3>
+                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">Chỉ số USD quan trọng</p>
                   </div>
                 </div>
 
@@ -1174,65 +1182,73 @@ export default function App() {
                 <div className="grid grid-cols-[1.3fr_1.1fr_auto] gap-2 w-full sm:flex sm:flex-row sm:items-center sm:gap-1.5 sm:w-auto pb-1 sm:pb-0">
                   
                   {/* Segmented Period Selection */}
-                  <div className="flex bg-gray-100 dark:bg-zinc-850 p-1 rounded-xl w-full">
+                  <div className={`flex ${darkMode ? 'bg-[#131314] border-[#2e2f30]' : 'bg-gray-100 border-transparent'} p-1 rounded-xl w-full sm:w-auto border`}>
                     <button 
                       onClick={() => setCalendarPeriodFilter("DAY")}
-                      className={`flex-1 py-1.5 sm:px-3 text-xs font-bold rounded-lg transition-all cursor-pointer text-center ${calendarPeriodFilter === "DAY" ? 'bg-white dark:bg-google-dark-bg text-google-blue-600 shadow-xs' : 'text-gray-500 hover:text-gray-800'}`}
+                      className={`flex-1 py-1.5 sm:px-4 text-xs font-bold rounded-lg transition-all cursor-pointer text-center ${
+                        calendarPeriodFilter === "DAY" 
+                          ? (darkMode ? 'bg-[#2e2f30] text-blue-300 shadow-xs' : 'bg-white text-google-blue-600 shadow-xs') 
+                          : (darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-550 hover:text-gray-800')
+                      }`}
                     >
                       Hôm Nay
                     </button>
                     <button 
                       onClick={() => setCalendarPeriodFilter("WEEK")}
-                      className={`flex-1 py-1.5 sm:px-3 text-xs font-bold rounded-lg transition-all cursor-pointer text-center ${calendarPeriodFilter === "WEEK" ? 'bg-white dark:bg-google-dark-bg text-google-blue-600 shadow-xs' : 'text-gray-500 hover:text-gray-800'}`}
+                      className={`flex-1 py-1.5 sm:px-4 text-xs font-bold rounded-lg transition-all cursor-pointer text-center ${
+                        calendarPeriodFilter === "WEEK" 
+                          ? (darkMode ? 'bg-[#2e2f30] text-blue-300 shadow-xs' : 'bg-white text-google-blue-600 shadow-xs') 
+                          : (darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-550 hover:text-gray-800')
+                      }`}
                     >
                       Tuần Này
                     </button>
                   </div>
 
                   {/* Beautiful Dot Markers as Interactive Filters */}
-                  <div className="flex bg-gray-100 dark:bg-zinc-850 p-1 rounded-xl border border-transparent items-center justify-around w-full">
+                  <div className={`flex ${darkMode ? 'bg-[#131314] border-[#2e2f30]' : 'bg-gray-100 border-transparent'} p-1 rounded-xl border items-center justify-around w-full sm:w-auto sm:gap-1`}>
                     <button
                       onClick={() => setCalendarImpactFilter("ALL")}
-                      className={`px-2 py-1.5 rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer flex-1 ${
+                      className={`px-3 py-1.5 rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer flex-1 ${
                         calendarImpactFilter === "ALL" 
-                          ? 'bg-white dark:bg-google-dark-bg shadow-xs border border-gray-200/50 dark:border-white/10' 
+                          ? (darkMode ? 'bg-[#2e2f30] border-[#2e2f30] shadow-xs' : 'bg-white border-gray-200 shadow-xs border') 
                           : 'opacity-40 hover:opacity-95'
                       }`}
                       title="Tất cả tin tức (Đỏ, Vàng, Xanh)"
                     >
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
                     </button>
                     <button
                       onClick={() => setCalendarImpactFilter("MEDIUM")}
-                      className={`px-2 py-1.5 rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer flex-1 ${
+                      className={`px-3 py-1.5 rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer flex-1 ${
                         calendarImpactFilter === "MEDIUM" 
-                          ? 'bg-white dark:bg-google-dark-bg shadow-xs border border-gray-200/50 dark:border-white/10' 
+                          ? (darkMode ? 'bg-[#2e2f30] border-[#2e2f30] shadow-xs' : 'bg-white border-gray-200 shadow-xs border') 
                           : 'opacity-40 hover:opacity-95'
                       }`}
                       title="Tin từ trung bình trở lên (Đỏ, Vàng)"
                     >
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
                     </button>
                     <button
                       onClick={() => setCalendarImpactFilter("HIGH")}
-                      className={`px-2 py-1.5 rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer flex-1 ${
+                      className={`px-3 py-1.5 rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer flex-1 ${
                         calendarImpactFilter === "HIGH" 
-                          ? 'bg-white dark:bg-google-dark-bg shadow-xs border border-gray-200/50 dark:border-white/10' 
+                          ? (darkMode ? 'bg-[#2e2f30] border-[#2e2f30] shadow-xs' : 'bg-white border-gray-200 shadow-xs border') 
                           : 'opacity-40 hover:opacity-95'
                       }`}
                       title="Chỉ tin tức quan trọng (Đỏ)"
                     >
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
                     </button>
                   </div>
 
                   {/* Manual Refresh Call inside same line */}
                   <button 
                     onClick={syncCalendar}
-                    className="p-2.5 bg-gray-100 dark:bg-zinc-850 hover:bg-gray-200 dark:hover:bg-zinc-800 rounded-xl transition-all cursor-pointer flex items-center justify-center min-w-[36px] min-h-[36px]"
+                    className="p-2.5 bg-gray-100 dark:bg-[#131314] hover:bg-gray-200 dark:hover:bg-[#2e2f30] rounded-xl border border-transparent dark:border-[#2e2f30] transition-all cursor-pointer flex items-center justify-center min-w-[36px] min-h-[36px]"
                     title="Cập nhật nguồn tin tức mới nhất"
                   >
                     <RefreshCw size={14} className={refreshingCalendar ? "animate-spin text-google-blue-600" : "text-gray-500 dark:text-gray-400"} />
@@ -1255,8 +1271,8 @@ export default function App() {
               ) : (
                 <div className="space-y-8" id="calendar-days-feed">
                   {groupedEventsByDay.map(([dayName, events]) => (
-                    <div key={dayName} className="space-y-3">
-                      <h4 className="text-xs font-extrabold uppercase tracking-widest text-[#001d3d] dark:text-[#e0f1ff] bg-google-blue-50 dark:bg-google-blue-600/15 px-3 py-1.5 rounded-lg inline-block">
+                    <div key={dayName} className="space-y-4">
+                      <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-widest text-[#001d3d] dark:text-[#e0f1ff] bg-google-blue-50 dark:bg-google-blue-600/15 px-3 py-1.5 rounded-lg inline-block">
                         {dayName}
                       </h4>
 
@@ -1268,28 +1284,28 @@ export default function App() {
                           return (
                             <div 
                               key={`${dayName}-${index}`}
-                              className="p-3 sm:p-4 bg-gray-50 dark:bg-google-dark-bg/40 border border-transparent hover:border-google-blue-600/10 rounded-2xl flex flex-col justify-between transition-all"
+                              className="p-4 sm:p-5 bg-gray-50 dark:bg-google-dark-surface border border-transparent hover:border-google-blue-600/10 rounded-2xl flex flex-col justify-between transition-all"
                             >
                               <div className="flex justify-between items-start gap-2">
-                                <div className="flex gap-2 items-start">
-                                  <div className={`w-1 h-8 rounded-full mt-0.5 ${style.indicator}`}></div>
+                                <div className="flex gap-2.5 items-start">
+                                  <div className={`w-1 h-9 rounded-full mt-0.5 flex-shrink-0 ${style.indicator}`}></div>
                                   <div>
-                                    <h5 className="font-bold text-xs sm:text-sm tracking-tight text-gray-900 dark:text-white leading-tight">
+                                    <h5 className="font-bold text-sm sm:text-base tracking-tight text-gray-900 dark:text-white leading-tight">
                                       {ev.title}
                                     </h5>
-                                    <span className="text-[9px] sm:text-[10px] text-gray-400 dark:text-gray-500 uppercase font-mono tracking-wider">
+                                    <span className="text-xs text-gray-400 dark:text-gray-500 uppercase font-mono tracking-wider">
                                       {ev.country} • {timezoneOffsetStr}
                                     </span>
                                   </div>
                                 </div>
 
                                 <div className="text-right flex-shrink-0">
-                                  <span className="text-[11px] font-bold text-gray-650 dark:text-gray-300 flex items-center gap-0.5 justify-end">
-                                    <Clock size={10} className="text-gray-450" />
+                                  <span className="text-xs sm:text-sm font-bold text-gray-650 dark:text-gray-300 flex items-center gap-1 justify-end font-mono">
+                                    <Clock size={12} className="text-gray-450" />
                                     {evTime}
                                   </span>
-                                  <div className="mt-0.5">
-                                    <span className={`text-[8px] font-bold rounded px-1.5 py-0.2 sm:py-0.5 uppercase tracking-wide inline-block ${style.text} ${style.bg}`}>
+                                  <div className="mt-1">
+                                    <span className={`text-[10px] sm:text-xs font-extrabold rounded px-2 py-0.5 uppercase tracking-wider inline-block ${style.text} ${style.bg}`}>
                                       {style.label}
                                     </span>
                                   </div>
@@ -1297,18 +1313,18 @@ export default function App() {
                               </div>
 
                               {/* Forecast vs Previous display block */}
-                              <div className="mt-3 pt-2.5 border-t border-gray-100 dark:border-white/5 grid grid-cols-3 gap-1.5 text-center text-[11px]">
-                                <div className="bg-white dark:bg-slate-800 p-1.5 sm:p-2 rounded-xl border border-gray-150/40 dark:border-white/5">
-                                  <div className="text-[8px] sm:text-[9px] uppercase font-bold text-gray-400">Dự báo</div>
-                                  <div className="font-mono font-bold text-gray-800 dark:text-white mt-0.5 text-xs truncate">{ev.forecast || "-"}</div>
+                              <div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/5 grid grid-cols-3 gap-2 text-center text-xs sm:text-sm">
+                                <div className="bg-white dark:bg-[#131314] p-2 rounded-xl border border-gray-150/40 dark:border-white/5">
+                                  <div className="text-[10px] sm:text-xs uppercase font-extrabold text-gray-400">Dự báo</div>
+                                  <div className="font-mono font-bold text-gray-800 dark:text-white mt-1 text-xs sm:text-sm truncate">{ev.forecast || "-"}</div>
                                 </div>
-                                <div className="bg-white dark:bg-slate-800 p-1.5 sm:p-2 rounded-xl border border-gray-150/40 dark:border-white/5">
-                                  <div className="text-[8px] sm:text-[9px] uppercase font-bold text-gray-400">Kỳ trước</div>
-                                  <div className="font-mono font-bold text-gray-800 dark:text-white mt-0.5 text-xs truncate">{ev.previous || "-"}</div>
+                                <div className="bg-white dark:bg-[#131314] p-2 rounded-xl border border-gray-150/40 dark:border-white/5">
+                                  <div className="text-[10px] sm:text-xs uppercase font-extrabold text-gray-400">Kỳ trước</div>
+                                  <div className="font-mono font-bold text-gray-800 dark:text-white mt-1 text-xs sm:text-sm truncate">{ev.previous || "-"}</div>
                                 </div>
-                                <div className="bg-[#f0f9ff] dark:bg-indigo-950/20 p-1.5 sm:p-2 rounded-xl border border-[#bae6fd]/30">
-                                  <div className="text-[8px] sm:text-[9px] uppercase font-bold text-sky-600 dark:text-sky-450">Thực tế</div>
-                                  <div className="font-mono font-bold text-sky-600 dark:text-sky-300 mt-0.5 text-xs truncate">{ev.actual || <span className="italic font-normal text-[9px] text-gray-400">Đợi tin</span>}</div>
+                                <div className="bg-[#f0f9ff] dark:bg-indigo-950/20 p-2 rounded-xl border border-[#bae6fd]/30">
+                                  <div className="text-[10px] sm:text-xs uppercase font-extrabold text-sky-605 dark:text-sky-400">Thực tế</div>
+                                  <div className="font-mono font-bold text-sky-600 dark:text-sky-300 mt-1 text-xs sm:text-sm truncate">{ev.actual || <span className="italic font-normal text-xs text-gray-400">Đợi tin</span>}</div>
                                 </div>
                               </div>
                             </div>
@@ -1347,45 +1363,42 @@ export default function App() {
                animate={{ opacity: 1, y: 0 }}
                exit={{ opacity: 0, y: 120 }}
                transition={{ type: "spring", damping: 26, stiffness: 220 }}
-               className="relative w-full max-w-2xl bg-white dark:bg-google-dark-surface p-5 sm:p-6 rounded-t-3xl sm:rounded-2xl border border-transparent shadow-2xl z-10 flex flex-col max-h-[92vh] sm:max-h-[90vh] overflow-y-auto pb-[calc(1.5rem+env(safe-area-inset-bottom,16px))] sm:pb-6"
+               className="relative w-full max-w-2xl bg-white dark:bg-google-dark-surface p-6 sm:p-8 rounded-2xl border border-gray-200/50 dark:border-[#2e2f30] shadow-2xl z-10 flex flex-col max-h-[92vh] sm:max-h-[90vh] overflow-y-auto pb-[calc(2rem+env(safe-area-inset-bottom,16px))] sm:pb-8"
                id="new-trade-modal-window"
             >
               
-              {/* Home indicator bar for iOS mobile drawers */}
-              <div className="w-12 h-1 bg-gray-200 dark:bg-zinc-800 rounded-full mx-auto mb-4 block sm:hidden"></div>
-
-              <div className="flex justify-between items-center border-b border-gray-100 dark:border-white/5 pb-4 mb-5">
-                <div className="flex items-center gap-2">
-                  <div className="p-2.5 bg-blue-100 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 rounded-xl">
-                    <Plus size={16} />
+              <div className="flex justify-between items-center border-b border-gray-150 dark:border-white/5 pb-4 mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-google-blue-50 text-google-blue-600 dark:bg-google-blue-600/15 dark:text-blue-300 rounded-xl">
+                    <Plus size={18} />
                   </div>
                   <div>
-                    <h3 className="text-base sm:text-lg font-extrabold text-gray-950 dark:text-white font-display">
+                    <h3 className="text-base sm:text-lg font-bold text-gray-950 dark:text-white font-display">
                       {editingTradeId ? "Cập Nhật Giao Dịch" : "Ghi Chép Giao Dịch Mới"}
                     </h3>
-                    <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500">
-                      {editingTradeId ? "Cập nhật các số liệu, ghi chú hoặc đóng trạng thái giao dịch" : "Giao dịch sẽ được đồng bộ hoá ngay với cơ sở dữ liệu"}
+                    <p className="text-[10px] sm:text-xs text-gray-405 dark:text-gray-450 mt-0.5">
+                      {editingTradeId ? "Cập nhật các số liệu, ghi chú hoặc tất toán giao dịch hiện tại" : "Ghi nhận nhật ký để theo dõi và hoàn thiện kỹ năng giao dịch"}
                     </p>
                   </div>
                 </div>
                 <button 
                   onClick={() => setIsAddOpen(false)}
-                  className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-500 transition-colors cursor-pointer"
+                  className="p-2.5 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-[#131314] dark:hover:bg-[#2e2f30] text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors cursor-pointer"
                 >
-                  <X size={14} />
+                  <X size={16} />
                 </button>
               </div>
 
-              <form onSubmit={handleCreateTrade} className="space-y-4">
+              <form onSubmit={handleCreateTrade} className="space-y-4 text-xs">
                 
                 {/* BUY SELL TOGGLE & Pairs Selection */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-black uppercase text-gray-500 dark:text-gray-400 mb-1">Cặp Tiền Ngoại Tệ</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-505 mb-1.5 block">Cặp Tiền Ngoại Tệ</label>
                     <select 
                       value={formPair}
                       onChange={(e) => setFormPair(e.target.value)}
-                      className="w-full p-3 bg-gray-50 dark:bg-slate-900/60 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 border border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white font-bold animate-pulse-once"
+                      className="w-full p-3 bg-gray-50 dark:bg-[#131314] hover:bg-gray-100/50 dark:hover:bg-[#18191a] rounded-xl text-sm focus:outline-none border border-gray-200 dark:border-[#2e3135] text-gray-900 dark:text-white font-bold cursor-pointer transition-colors"
                     >
                       <option value="EUR/USD">EUR/USD</option>
                       <option value="GBP/USD">GBP/USD</option>
@@ -1398,19 +1411,19 @@ export default function App() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-black uppercase text-gray-500 dark:text-gray-400 mb-1">Hướng Lệnh</label>
-                    <div className="flex bg-gray-50 dark:bg-slate-900/60 p-1 rounded-xl border border-gray-200 dark:border-slate-700">
+                    <label className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-505 mb-1.5 block">Hướng Lệnh (Side)</label>
+                    <div className="flex bg-gray-100 dark:bg-[#131314] p-1 rounded-xl border border-gray-200/50 dark:border-[#2e3135]">
                       <button 
                         type="button"
                         onClick={() => setFormType("BUY")}
-                        className={`flex-1 py-1.5 rounded-lg text-xs font-black uppercase transition-all ${formType === "BUY" ? 'bg-emerald-500 text-white shadow' : 'text-gray-400 dark:text-gray-500'}`}
+                        className={`flex-1 py-2 rounded-lg text-xs font-extrabold uppercase transition-all cursor-pointer ${formType === "BUY" ? 'bg-emerald-600 text-white shadow-xs' : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'}`}
                       >
                         MUA (BUY)
                       </button>
                       <button 
                         type="button"
                         onClick={() => setFormType("SELL")}
-                        className={`flex-1 py-1.5 rounded-lg text-xs font-black uppercase transition-all ${formType === "SELL" ? 'bg-rose-500 text-white shadow' : 'text-gray-400 dark:text-gray-500'}`}
+                        className={`flex-1 py-2 rounded-lg text-xs font-extrabold uppercase transition-all cursor-pointer ${formType === "SELL" ? 'bg-rose-600 text-white shadow-xs' : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'}`}
                       >
                         BÁN (SELL)
                       </button>
@@ -1419,9 +1432,9 @@ export default function App() {
                 </div>
 
                 {/* Entry Price & Lots Size */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-black uppercase text-gray-500 dark:text-gray-400 mb-1">Giá Vào Lệnh (Entry Price) *</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-505 mb-1.5 block">Giá Vào Lệnh (Entry Price) *</label>
                     <input 
                       type="number" 
                       step="any"
@@ -1429,12 +1442,12 @@ export default function App() {
                       placeholder="VD: 1.0854"
                       value={formEntryPrice}
                       onChange={(e) => setFormEntryPrice(e.target.value)}
-                      className="w-full p-2.5 bg-gray-50 dark:bg-slate-900/60 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 border border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white font-mono"
+                      className="w-full p-3 bg-gray-50 dark:bg-[#131314] hover:bg-gray-100/50 dark:hover:bg-[#18191a] rounded-xl text-sm focus:outline-none border border-gray-200 dark:border-[#2e3135] text-gray-900 dark:text-white font-mono transition-colors focus:border-google-blue-600 dark:focus:border-google-blue-100"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-black uppercase text-gray-500 dark:text-gray-400 mb-1">Khối Lượng Lots *</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-505 mb-1.5 block">Khối Lượng Lệnh (Lots) *</label>
                     <input 
                       type="number" 
                       step="0.01"
@@ -1442,54 +1455,54 @@ export default function App() {
                       min="0.01"
                       value={formSize}
                       onChange={(e) => setFormSize(e.target.value)}
-                      className="w-full p-2.5 bg-gray-50 dark:bg-slate-900/60 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 border border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white font-mono font-bold"
+                      className="w-full p-3 bg-gray-50 dark:bg-[#131314] hover:bg-gray-100/50 dark:hover:bg-[#18191a] rounded-xl text-sm focus:outline-none border border-gray-200 dark:border-[#2e3135] text-gray-900 dark:text-white font-mono font-bold transition-colors focus:border-google-blue-600 dark:focus:border-google-blue-100"
                     />
                   </div>
                 </div>
 
                 {/* SL, TP Options */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-black uppercase text-gray-500 dark:text-gray-400 mb-1">Chặn Lỗ (Stop Loss)</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-505 mb-1.5 block">Chặn Lỗ (Stop Loss)</label>
                     <input 
                       type="number" 
                       step="any"
-                      placeholder="Tùy chọn"
+                      placeholder="Tùy chọn - SL"
                       value={formStopLoss}
                       onChange={(e) => setFormStopLoss(e.target.value)}
-                      className="w-full p-2.5 bg-gray-50 dark:bg-slate-900/60 rounded-xl text-sm focus:outline-none border border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white font-mono"
+                      className="w-full p-3 bg-gray-50 dark:bg-[#131314] hover:bg-gray-100/50 dark:hover:bg-[#18191a] rounded-xl text-sm focus:outline-none border border-gray-200 dark:border-[#2e3135] text-gray-900 dark:text-white font-mono transition-colors focus:border-google-blue-600 dark:focus:border-google-blue-100"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-black uppercase text-gray-500 dark:text-gray-400 mb-1">Chốt Lời (Take Profit)</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-505 mb-1.5 block">Chốt Lời (Take Profit)</label>
                     <input 
                       type="number" 
                       step="any"
-                      placeholder="Tùy chọn"
+                      placeholder="Tùy chọn - TP"
                       value={formTakeProfit}
                       onChange={(e) => setFormTakeProfit(e.target.value)}
-                      className="w-full p-2.5 bg-gray-50 dark:bg-slate-900/60 rounded-xl text-sm focus:outline-none border border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white font-mono"
+                      className="w-full p-3 bg-gray-50 dark:bg-[#131314] hover:bg-gray-100/50 dark:hover:bg-[#18191a] rounded-xl text-sm focus:outline-none border border-gray-200 dark:border-[#2e3135] text-gray-900 dark:text-white font-mono transition-colors focus:border-google-blue-600 dark:focus:border-google-blue-100"
                     />
                   </div>
                 </div>
 
-                {/* Status Switch Open / Closed */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                {/* Status Switch Open / Closed & Timeframe */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-black uppercase text-gray-500 dark:text-gray-400 mb-1">Trạng thái Giao dịch</label>
-                    <div className="flex bg-gray-50 dark:bg-slate-900/60 p-1 rounded-xl border border-gray-200 dark:border-slate-700">
+                    <label className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-505 mb-1.5 block">Trạng thái Giao dịch</label>
+                    <div className="flex bg-gray-100 dark:bg-[#131314] p-1 rounded-xl border border-gray-200/50 dark:border-[#2e3135]">
                       <button 
                         type="button"
                         onClick={() => setFormStatus("CLOSED")}
-                        className={`flex-1 py-1.5 rounded-lg text-xs font-black uppercase transition-all ${formStatus === "CLOSED" ? 'bg-indigo-600 text-white shadow' : 'text-gray-400'}`}
+                        className={`flex-1 py-2 rounded-lg text-xs font-extrabold uppercase transition-all cursor-pointer ${formStatus === "CLOSED" ? 'bg-indigo-600 text-white shadow-xs' : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'}`}
                       >
                         ĐÃ KHỚP (CLOSED)
                       </button>
                       <button 
                         type="button"
                         onClick={() => setFormStatus("OPEN")}
-                        className={`flex-1 py-1.5 rounded-lg text-xs font-black uppercase transition-all ${formStatus === "OPEN" ? 'bg-cyan-600 text-white shadow' : 'text-gray-400'}`}
+                        className={`flex-1 py-2 rounded-lg text-xs font-extrabold uppercase transition-all cursor-pointer ${formStatus === "OPEN" ? 'bg-cyan-600 text-white shadow-xs' : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'}`}
                       >
                         ĐANG CHẠY (OPEN)
                       </button>
@@ -1497,11 +1510,11 @@ export default function App() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-black uppercase text-gray-500 dark:text-gray-400 mb-1">Khung thời gian (Timeframe)</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-505 mb-1.5 block">Khung thời gian (Timeframe)</label>
                     <select 
                       value={formTimeframe}
                       onChange={(e) => setFormTimeframe(e.target.value)}
-                      className="w-full p-2.5 bg-gray-50 dark:bg-slate-900/60 rounded-xl text-sm focus:outline-none border border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white"
+                      className="w-full p-3 bg-gray-50 dark:bg-[#131314] hover:bg-gray-100/50 dark:hover:bg-[#18191a] rounded-xl text-sm focus:outline-none border border-gray-200 dark:border-[#2e3135] text-gray-900 dark:text-white font-bold cursor-pointer transition-colors"
                     >
                       <option value="M5">M5 (5 phút)</option>
                       <option value="M15">M15 (15 phút)</option>
@@ -1514,48 +1527,48 @@ export default function App() {
 
                 {/* Conditional exit fields if state is closed */}
                 {formStatus === "CLOSED" && (
-                  <div className="p-4 rounded-2xl bg-indigo-50/40 dark:bg-slate-900/60 border border-indigo-150/40 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="p-4 rounded-xl bg-gray-50 dark:bg-[#131314]/50 border border-gray-200 dark:border-[#2e2f30] grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Giá Đóng Lệnh (Exit Price)</label>
+                      <label className="text-xs font-bold text-gray-400 dark:text-gray-500 mb-1.5 block">Giá Đóng Lệnh (Exit Price)</label>
                       <input 
                         type="number" 
                         step="any"
                         placeholder="VD: 1.0920"
                         value={formExitPrice}
                         onChange={(e) => setFormExitPrice(e.target.value)}
-                        className="w-full p-2.5 bg-white dark:bg-slate-800 rounded-xl text-sm focus:outline-none border border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white font-mono"
+                        className="w-full p-2.5 bg-white dark:bg-[#131314] hover:dark:bg-[#18191a] border border-gray-200 dark:border-[#2e3135] rounded-lg text-sm text-gray-900 dark:text-white font-mono focus:outline-none focus:border-google-blue-600 dark:focus:border-google-blue-100"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Ngày Giờ Đóng Lệnh</label>
+                      <label className="text-xs font-bold text-gray-400 dark:text-gray-500 mb-1.5 block">Ngày Giờ Đóng Lệnh</label>
                       <input 
                         type="datetime-local" 
                         value={formExitDate}
                         onChange={(e) => setFormExitDate(e.target.value)}
-                        className="w-full p-2.5 bg-white dark:bg-slate-800 rounded-xl text-xs focus:outline-none border border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white"
+                        className="w-full p-2.5 bg-white dark:bg-[#131314] hover:dark:bg-[#18191a] border border-gray-200 dark:border-[#2e3135] rounded-lg text-xs text-gray-900 dark:text-white focus:outline-none focus:border-google-blue-600 dark:focus:border-google-blue-100 cursor-pointer"
                       />
                     </div>
                   </div>
                 )}
 
                 {/* Entry Date & Tags Row */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-black uppercase text-gray-500 dark:text-gray-400 mb-1">Ngày Giờ Vào Lệnh</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-505 mb-1.5 block">Ngày Giờ Vào Lệnh</label>
                     <input 
                       type="datetime-local" 
                       value={formEntryDate}
                       onChange={(e) => setFormEntryDate(e.target.value)}
-                      className="w-full p-2.5 bg-gray-50 dark:bg-slate-900/60 rounded-xl text-xs focus:outline-none border border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white"
+                      className="w-full p-3 bg-gray-50 dark:bg-[#131314] hover:bg-gray-100/50 dark:hover:bg-[#18191a] rounded-xl text-xs focus:outline-none border border-gray-200 dark:border-[#2e3135] text-gray-950 dark:text-white transition-colors focus:border-google-blue-600 dark:focus:border-google-blue-100 cursor-pointer"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-black uppercase text-gray-500 dark:text-gray-400 mb-1">Chiến Lược/Tag</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-505 mb-1.5 block">Chiến Lược (Tag)</label>
                     <select 
                       value={formTag}
                       onChange={(e) => setFormTag(e.target.value)}
-                      className="w-full p-2.5 bg-gray-50 dark:bg-slate-900/60 rounded-xl text-sm focus:outline-none border border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white"
+                      className="w-full p-3 bg-gray-50 dark:bg-[#131314] hover:bg-gray-100/50 dark:hover:bg-[#18191a] rounded-xl text-sm focus:outline-none border border-gray-200 dark:border-[#2e3135] text-gray-905 dark:text-white font-bold cursor-pointer transition-colors"
                     >
                       <option value="News-Trade">Giao dịch theo Tin Tức (News-Trade)</option>
                       <option value="Trend-Follow">Xu Hướng (Trend-Follow)</option>
@@ -1567,48 +1580,53 @@ export default function App() {
 
                 {/* Notes Input */}
                 <div>
-                  <label className="block text-xs font-black uppercase text-gray-500 dark:text-gray-400 mb-1">Ghi chú & Nhật ký lí do khớp lệnh</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-505 mb-1.5 block">Ghi chú & Lý Do Vào Lệnh</label>
                   <textarea 
-                    rows={2}
-                    placeholder="Lí do vào lệnh, cảm xúc hay bài học rút ra..."
+                    rows={2.5}
+                    placeholder="Tại sao bạn khớp lệnh này? Khung cảm xúc, phân tích kỹ thuật hoặc nhận định tin tức của bạn..."
                     value={formNotes}
                     onChange={(e) => setFormNotes(e.target.value)}
-                    className="w-full p-3 bg-gray-50 dark:bg-slate-900/60 rounded-xl text-xs focus:outline-none border border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white"
+                    className="w-full p-3 bg-gray-50 dark:bg-[#131314] hover:bg-gray-100/50 dark:hover:bg-[#18191a] rounded-xl text-xs focus:outline-none border border-gray-200 dark:border-[#2e3135] text-gray-900 dark:text-white focus:border-google-blue-600 dark:focus:border-google-blue-100 transition-colors"
                   ></textarea>
                 </div>
 
                 {/* Rating selection (Stars) */}
-                <div>
-                  <label className="block text-xs font-black text-gray-500 dark:text-gray-400 mb-1">Chất lượng kỉ luật lệnh tự đánh giá</label>
-                  <div className="flex gap-2.5">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <button 
-                        key={i}
-                        type="button"
-                        onClick={() => setFormRating(i + 1)}
-                        className={`text-xl transition-transform active:scale-125 focus:outline-none`}
-                      >
-                        <span className={i < formRating ? "text-amber-500" : "text-gray-300 dark:text-slate-800"}>★</span>
-                      </button>
-                    ))}
-                    <span className="text-xs text-gray-400 self-center font-bold">({formRating}/5 điểm kỉ luật)</span>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3.5 bg-gray-50 dark:bg-[#131314]/30 rounded-xl border border-gray-200/50 dark:border-[#2e2f30]">
+                  <div>
+                    <span className="font-bold text-gray-900 dark:text-white text-xs block">Mức Độ Tuân Thủ Kỷ Luật</span>
+                    <span className="text-[10px] text-gray-400">Bạn có làm đúng kế hoạch giao dịch ban đầu không?</span>
+                  </div>
+                  <div className="flex gap-2.5 items-center">
+                    <div className="flex gap-1.5">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <button 
+                          key={i}
+                          type="button"
+                          onClick={() => setFormRating(i + 1)}
+                          className="text-xl transition-transform active:scale-125 focus:outline-none cursor-pointer"
+                        >
+                          <span className={i < formRating ? "text-amber-400 drop-shadow-xs font-bold" : "text-gray-250 dark:text-zinc-700 hover:text-gray-400"}>★</span>
+                        </button>
+                      ))}
+                    </div>
+                    <span className="text-xs text-gray-500 font-bold font-mono min-w-[45px]">({formRating}/5 sao)</span>
                   </div>
                 </div>
 
                 {/* Save controls */}
-                <div className="pt-4 border-t border-gray-150 dark:border-white/5 flex flex-col-reverse sm:flex-row gap-2.5 sm:gap-3 justify-end">
+                <div className="pt-4 border-t border-gray-150 dark:border-white/5 flex flex-col-reverse sm:flex-row gap-3 justify-end">
                   <button 
                     type="button"
                     onClick={() => setIsAddOpen(false)}
-                    className="w-full sm:w-auto px-4 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-gray-600 dark:text-white rounded-xl text-xs font-bold shadow-sm cursor-pointer transition-all text-center"
+                    className="w-full sm:w-auto px-6 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-[#131314] dark:hover:bg-[#2e2f30] text-gray-600 dark:text-gray-300 border border-transparent dark:border-[#2e3135] rounded-xl text-xs font-extrabold shadow-xs cursor-pointer transition-all text-center uppercase tracking-wider"
                   >
                     Hủy bỏ
                   </button>
                   <button 
                     type="submit"
-                    className="w-full sm:w-auto px-6 py-3 bg-google-blue-600 hover:bg-google-blue-700 text-white rounded-xl text-xs font-bold shadow active:scale-[0.98] transition-all cursor-pointer text-center"
+                    className="w-full sm:w-auto px-8 py-3 bg-google-blue-600 hover:bg-google-blue-700 text-white rounded-xl text-xs font-extrabold shadow-sm active:scale-[0.98] transition-all cursor-pointer text-center uppercase tracking-wider"
                   >
-                    {editingTradeId ? "Lưu Thay Đổi (Cập Nhật)" : "Ghi Nhớ Giao Dịch"}
+                    {editingTradeId ? "Cập Nhật" : "Ghi Lại Giao Dịch"}
                   </button>
                 </div>
 
@@ -1729,42 +1747,42 @@ export default function App() {
       {/* Floating Action Button (FAB) on Mobile - Floats right above the bottom nav bar */}
       <button 
         onClick={handleOpenAddTrade}
-        className="md:hidden fixed bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] right-4 w-12 h-12 bg-google-blue-600 hover:bg-google-blue-700 text-white rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-all z-40 cursor-pointer"
+        className="md:hidden fixed bottom-[calc(5.2rem+env(safe-area-inset-bottom,0px))] right-4 w-14 h-14 bg-google-blue-600 hover:bg-google-blue-700 text-white rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-all z-40 cursor-pointer"
         title="Thêm Giao Dịch"
       >
-        <Plus size={22} />
+        <Plus size={26} />
       </button>
 
       {/* Material 3 Bottom Navigation bar for mobile / bottom control menu */}
-      <footer className="md:hidden fixed bottom-0 left-0 right-0 pb-[env(safe-area-inset-bottom,0px)] h-[calc(4rem+env(safe-area-inset-bottom,0px))] bg-white/95 dark:bg-google-dark-surface/95 backdrop-blur-xl border-t border-gray-150/40 dark:border-white/5 flex items-center justify-around px-2 z-40 transition-colors" id="m3-bottom-nav">
+      <footer className={`md:hidden fixed bottom-0 left-0 right-0 pb-[env(safe-area-inset-bottom,0px)] h-[calc(4.5rem+env(safe-area-inset-bottom,0px))] border-t ${darkMode ? "bg-[#1f2021]/95 border-zinc-800" : "bg-white/95 border-gray-150/40"} backdrop-blur-xl flex items-center justify-around px-2 z-40 transition-colors`} id="m3-bottom-nav">
         <button 
           onClick={() => setCurrentTab("dashboard")}
-          className={`flex flex-col items-center gap-1 justify-center flex-1 py-1 ${currentTab === "dashboard" ? 'text-google-blue-600' : 'text-gray-400'}`}
+          className={`flex flex-col items-center gap-1.5 justify-center flex-1 py-1.5 ${currentTab === "dashboard" ? 'text-google-blue-600' : 'text-gray-400'}`}
         >
-          <div className={`px-4 py-1 rounded-full ${currentTab === "dashboard" ? 'bg-google-blue-50 dark:bg-google-blue-900/20' : ''}`}>
-            <BarChart2 size={18} />
+          <div className={`px-5 py-1.5 rounded-full ${currentTab === "dashboard" ? 'bg-google-blue-50 dark:bg-google-blue-900/30 text-google-blue-600 dark:text-blue-300' : ''}`}>
+            <BarChart2 size={20} />
           </div>
-          <span className="text-[9px] font-bold">Tổng quan</span>
+          <span className="text-xs font-extrabold tracking-wide">Tổng quan</span>
         </button>
         
         <button 
           onClick={() => setCurrentTab("journal")}
-          className={`flex flex-col items-center gap-1 justify-center flex-1 py-1 ${currentTab === "journal" ? 'text-google-blue-600' : 'text-gray-400'}`}
+          className={`flex flex-col items-center gap-1.5 justify-center flex-1 py-1.5 ${currentTab === "journal" ? 'text-google-blue-600' : 'text-gray-400'}`}
         >
-          <div className={`px-4 py-1 rounded-full ${currentTab === "journal" ? 'bg-google-blue-50 dark:bg-google-blue-900/20' : ''}`}>
-            <FileText size={18} />
+          <div className={`px-5 py-1.5 rounded-full ${currentTab === "journal" ? 'bg-google-blue-50 dark:bg-google-blue-900/30 text-google-blue-600 dark:text-blue-300' : ''}`}>
+            <FileText size={20} />
           </div>
-          <span className="text-[9px] font-bold">Nhật ký</span>
+          <span className="text-xs font-extrabold tracking-wide">Nhật ký</span>
         </button>
 
         <button 
           onClick={() => setCurrentTab("calendar")}
-          className={`flex flex-col items-center gap-1 justify-center flex-1 py-1 ${currentTab === "calendar" ? 'text-google-blue-600' : 'text-gray-400'}`}
+          className={`flex flex-col items-center gap-1.5 justify-center flex-1 py-1.5 ${currentTab === "calendar" ? 'text-google-blue-600' : 'text-gray-400'}`}
         >
-          <div className={`px-4 py-1 rounded-full ${currentTab === "calendar" ? 'bg-google-blue-50 dark:bg-google-blue-900/20' : ''}`}>
-            <CalendarIcon size={18} />
+          <div className={`px-5 py-1.5 rounded-full ${currentTab === "calendar" ? 'bg-google-blue-50 dark:bg-google-blue-900/30 text-google-blue-600 dark:text-blue-300' : ''}`}>
+            <CalendarIcon size={20} />
           </div>
-          <span className="text-[9px] font-bold">Lịch Tin</span>
+          <span className="text-xs font-extrabold tracking-wide">Lịch Tin</span>
         </button>
       </footer>
 

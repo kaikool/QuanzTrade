@@ -24,9 +24,10 @@ import {
 
 interface BentoStatsProps {
   trades: Trade[];
+  darkMode: boolean;
 }
 
-export function BentoStats({ trades }: BentoStatsProps) {
+export function BentoStats({ trades, darkMode }: BentoStatsProps) {
   const stats = useMemo(() => {
     const total = trades.length;
     if (total === 0) {
@@ -111,31 +112,31 @@ export function BentoStats({ trades }: BentoStatsProps) {
   return (
     <div className="space-y-6" id="google-bento-container-stats">
       {/* Material 3 Bento Cards Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" id="m3-stats-grid">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4" id="m3-stats-grid">
         
         {/* Net Profit card */}
         <motion.div 
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, delay: 0.05 }}
-          className="p-3 sm:p-5 rounded-2xl bg-white dark:bg-google-dark-surface border border-gray-100 dark:border-white/5 flex flex-col justify-between min-h-[105px] sm:min-h-[140px] shadow-sm hover:shadow-md transition-shadow duration-200"
+          className={`p-4 sm:p-6 rounded-2xl border ${darkMode ? "bg-google-dark-surface border-[#2e2f30]" : "bg-white border-gray-150/80"} flex flex-col justify-between min-h-[125px] sm:min-h-[155px] shadow-xs hover:shadow transition-all duration-250`}
           id="m3-card-pnl"
         >
           <div className="flex justify-between items-start gap-1">
-            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 font-display truncate">Net Profit</span>
-            <div className={`p-1 sm:p-1.5 rounded-full flex-shrink-0 ${stats.netPnl >= 0 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'}`}>
-              {stats.netPnl >= 0 ? <TrendingUp size={14} className="sm:w-4 sm:h-4" /> : <TrendingDown size={14} className="sm:w-4 sm:h-4" />}
+            <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 font-display truncate">Net Profit</span>
+            <div className={`p-1.5 sm:p-2 rounded-full flex-shrink-0 ${stats.netPnl >= 0 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'}`}>
+              {stats.netPnl >= 0 ? <TrendingUp size={16} className="sm:w-4.5 sm:h-4.5" /> : <TrendingDown size={16} className="sm:w-4.5 sm:h-4.5" />}
             </div>
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 mt-2">
             <h3 
-              className={`text-sm xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-extrabold tracking-tight font-display truncate ${stats.netPnl >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`} 
+              className={`text-lg xs:text-xl sm:text-2xl md:text-3xl font-black tracking-tight font-display truncate ${stats.netPnl >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-450'}`} 
               id="net-pnl-val"
               title={`${stats.netPnl >= 0 ? "+" : ""}${stats.netPnl.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
             >
               {stats.netPnl >= 0 ? "+" : ""}${stats.netPnl.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </h3>
-            <p className="text-[9px] sm:text-[11px] text-gray-400 mt-1 truncate">Lợi nhuận ròng</p>
+            <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-500 mt-1 font-medium truncate">Lợi nhuận ròng</p>
           </div>
         </motion.div>
 
@@ -144,20 +145,20 @@ export function BentoStats({ trades }: BentoStatsProps) {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, delay: 0.1 }}
-          className="p-3 sm:p-5 rounded-2xl bg-white dark:bg-google-dark-surface border border-gray-100 dark:border-white/5 flex flex-col justify-between min-h-[105px] sm:min-h-[140px] shadow-sm hover:shadow-md transition-shadow duration-200"
+          className={`p-4 sm:p-6 rounded-2xl border ${darkMode ? "bg-google-dark-surface border-[#2e2f30]" : "bg-white border-gray-150/80"} flex flex-col justify-between min-h-[125px] sm:min-h-[155px] shadow-xs hover:shadow transition-all duration-250`}
           id="m3-card-winrate"
         >
           <div className="flex justify-between items-start gap-1">
-            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 font-display truncate">Win Rate</span>
-            <div className="p-1 sm:p-1.5 rounded-full bg-blue-100 text-google-blue-600 dark:bg-google-blue-100/10 dark:text-google-blue-100 flex-shrink-0">
-              <Percent size={14} className="sm:w-4 sm:h-4" />
+            <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 font-display truncate">Win Rate</span>
+            <div className="p-1.5 sm:p-2 rounded-full bg-blue-100 text-google-blue-600 dark:bg-google-blue-100/10 dark:text-google-blue-200 flex-shrink-0">
+              <Percent size={16} className="sm:w-4.5 sm:h-4.5" />
             </div>
           </div>
-          <div className="min-w-0">
-            <h3 className="text-sm xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white font-display truncate" id="win-rate-val">
+          <div className="min-w-0 mt-2">
+            <h3 className="text-lg xs:text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-gray-900 dark:text-white font-display truncate" id="win-rate-val">
               {stats.winRate.toFixed(1)}%
             </h3>
-            <p className="text-[9px] sm:text-[11px] text-gray-500 dark:text-gray-400 mt-1 truncate">
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium truncate">
               {stats.winningTrades}T / {stats.totalTrades} Lệnh
             </p>
           </div>
@@ -168,20 +169,20 @@ export function BentoStats({ trades }: BentoStatsProps) {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, delay: 0.15 }}
-          className="p-3 sm:p-5 rounded-2xl bg-white dark:bg-google-dark-surface border border-gray-100 dark:border-white/5 flex flex-col justify-between min-h-[105px] sm:min-h-[140px] shadow-sm hover:shadow-md transition-shadow duration-200"
+          className={`p-4 sm:p-6 rounded-2xl border ${darkMode ? "bg-google-dark-surface border-[#2e2f30]" : "bg-white border-gray-150/80"} flex flex-col justify-between min-h-[125px] sm:min-h-[155px] shadow-xs hover:shadow transition-all duration-250`}
           id="m3-card-pf"
         >
           <div className="flex justify-between items-start gap-1">
-            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 font-display truncate">Profit Factor</span>
-            <div className="p-1 sm:p-1.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-100/10 dark:text-amber-400 flex-shrink-0">
-              <Activity size={14} className="sm:w-4 sm:h-4" />
+            <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 font-display truncate">Profit Factor</span>
+            <div className="p-1.5 sm:p-2 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-100/10 dark:text-amber-400 flex-shrink-0">
+              <Activity size={16} className="sm:w-4.5 sm:h-4.5" />
             </div>
           </div>
-          <div className="min-w-0">
-            <h3 className="text-sm xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white font-display truncate" id="pf-val">
+          <div className="min-w-0 mt-2">
+            <h3 className="text-lg xs:text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-gray-900 dark:text-white font-display truncate" id="pf-val">
               {stats.profitFactor.toFixed(2)}
             </h3>
-            <p className="text-[9px] sm:text-[11px] text-gray-500 dark:text-gray-400 mt-1 truncate">Hệ số lợi nhuận</p>
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium truncate">Hệ số lợi nhuận</p>
           </div>
         </motion.div>
 
@@ -190,20 +191,20 @@ export function BentoStats({ trades }: BentoStatsProps) {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, delay: 0.2 }}
-          className="p-3 sm:p-5 rounded-2xl bg-white dark:bg-google-dark-surface border border-gray-100 dark:border-white/5 flex flex-col justify-between min-h-[105px] sm:min-h-[140px] shadow-sm hover:shadow-md transition-shadow duration-200"
+          className={`p-4 sm:p-6 rounded-2xl border ${darkMode ? "bg-google-dark-surface border-[#2e2f30]" : "bg-white border-gray-150/80"} flex flex-col justify-between min-h-[125px] sm:min-h-[155px] shadow-xs hover:shadow transition-all duration-250`}
           id="m3-card-avg"
         >
           <div className="flex justify-between items-start gap-1">
-            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 font-display truncate">Avg Trade</span>
-            <div className={`p-1 sm:p-1.5 rounded-full flex-shrink-0 ${stats.averagePnl >= 0 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'}`}>
-              <Award size={14} className="sm:w-4 sm:h-4" />
+            <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 font-display truncate">Avg Trade</span>
+            <div className={`p-1.5 sm:p-2 rounded-full flex-shrink-0 ${stats.averagePnl >= 0 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'}`}>
+              <Award size={16} className="sm:w-4.5 sm:h-4.5" />
             </div>
           </div>
-          <div className="min-w-0">
-            <h3 className={`text-sm xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-extrabold tracking-tight font-display truncate ${stats.averagePnl >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`} id="avg-pnl-val">
+          <div className="min-w-0 mt-2">
+            <h3 className={`text-lg xs:text-xl sm:text-2xl md:text-3xl font-black tracking-tight font-display truncate ${stats.averagePnl >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`} id="avg-pnl-val">
               {stats.averagePnl >= 0 ? "+" : ""}${stats.averagePnl.toLocaleString("en-US", { maximumFractionDigits: 0 })}
             </h3>
-            <p className="text-[9px] sm:text-[11px] text-gray-500 dark:text-gray-400 mt-1 truncate">Lợi nhuận TB</p>
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium truncate">Lợi nhuận TB</p>
           </div>
         </motion.div>
       </div>
@@ -216,15 +217,15 @@ export function BentoStats({ trades }: BentoStatsProps) {
           initial={{ opacity: 0, scale: 0.99 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.35, delay: 0.25 }}
-          className="lg:col-span-2 p-4 sm:p-6 rounded-2xl bg-white dark:bg-google-dark-surface border border-gray-100 dark:border-white/5 flex flex-col justify-between min-h-[260px] sm:min-h-[350px] shadow-sm"
+          className={`lg:col-span-2 p-5 sm:p-6 rounded-2xl ${darkMode ? "bg-google-dark-surface border-[#2e2f30]" : "bg-white border-gray-150/85"} border flex flex-col justify-between min-h-[280px] sm:min-h-[370px] shadow-xs`}
           id="m3-chart-card-cumulative"
         >
           <div className="flex justify-between items-center mb-4 gap-2">
             <div>
-              <h4 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white font-display">Lợi Nhuận Tích Luỹ (USD)</h4>
-              <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">Sự tăng trưởng tài khoản theo thứ tự lệnh</p>
+              <h4 className="text-base sm:text-lg font-extrabold text-gray-950 dark:text-white font-display">Lợi Nhuận Tích Luỹ (USD)</h4>
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-medium">Sự tăng trưởng tài khoản theo thứ tự lệnh</p>
             </div>
-            <div className="text-[9px] sm:text-xs font-mono font-bold text-google-blue-600 dark:text-google-blue-400 bg-google-blue-50 dark:bg-google-blue-600/10 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full flex-shrink-0">
+            <div className="text-xs font-mono font-bold text-google-blue-600 dark:text-google-blue-300 bg-google-blue-50 dark:bg-google-blue-600/10 px-2.5 sm:px-3 py-1 rounded-full flex-shrink-0">
               Live Tracker
             </div>
           </div>
@@ -295,12 +296,12 @@ export function BentoStats({ trades }: BentoStatsProps) {
           initial={{ opacity: 0, scale: 0.99 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.35, delay: 0.3 }}
-          className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-google-dark-surface border border-gray-100 dark:border-white/5 flex flex-col justify-between shadow-sm"
+          className={`p-5 sm:p-6 rounded-2xl border ${darkMode ? "bg-google-dark-surface border-[#2e2f30]" : "bg-white border-gray-150/85"} flex flex-col justify-between shadow-xs`}
           id="m3-chart-card-distribution"
         >
           <div className="mb-4">
-            <h4 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white font-display">Tần Suất Giao Dịch</h4>
-            <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-sans">Các cặp tiền tệ thường dùng nhất</p>
+            <h4 className="text-base sm:text-lg font-extrabold text-gray-950 dark:text-white font-display">Tần Suất Giao Dịch</h4>
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Các cặp tiền tệ thường dùng nhất</p>
           </div>
 
           <div className="w-full h-40 sm:h-48 flex items-center justify-center mt-2">
@@ -348,14 +349,14 @@ export function BentoStats({ trades }: BentoStatsProps) {
           </div>
 
           {/* Quick Stats list */}
-          <div className="space-y-2 mt-4 pt-4 border-t border-gray-100 dark:border-white/5 text-xs text-gray-500 dark:text-gray-400 font-sans">
+          <div className="space-y-3.5 mt-4 pt-4 border-t border-gray-100 dark:border-white/5 text-sm text-gray-550 dark:text-gray-400 font-medium">
             <div className="flex justify-between items-center">
               <span>Giao dịch thắng lớn nhất:</span>
-              <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">+${stats.bestTrade.toLocaleString()}</span>
+              <span className="font-mono font-bold text-emerald-600 dark:text-emerald-450 text-base">+${stats.bestTrade.toLocaleString()}</span>
             </div>
             <div className="flex justify-between items-center">
               <span>Giao dịch lỗ lớn nhất:</span>
-              <span className="font-mono font-bold text-rose-500">${stats.worstTrade.toLocaleString()}</span>
+              <span className="font-mono font-bold text-rose-500 dark:text-rose-450 text-base">${stats.worstTrade.toLocaleString()}</span>
             </div>
           </div>
         </motion.div>
