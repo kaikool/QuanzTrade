@@ -611,9 +611,9 @@ export default function App() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-[calc(1rem+env(safe-area-inset-top,0px))] md:pt-5 space-y-3.5 sm:space-y-6" id="app-grid-frame">
         
         {/* Google Workspace Style Tonal Top Header */}
-        <header className={`flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-6 ${darkMode ? "bg-google-dark-surface" : "bg-white"} rounded-2xl shadow-sm space-y-4 md:space-y-0`} id="google-m3-header">
+        <header className={`flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-6 ${darkMode ? "bg-google-dark-surface" : "bg-white"} rounded-[24px] shadow-sm space-y-4 md:space-y-0`} id="google-m3-header">
           <div className="flex items-center gap-3 sm:gap-4">
-            <div className="w-11 h-11 sm:w-12 sm:h-12 bg-google-blue-600 text-white rounded-2xl flex items-center justify-center shadow-md font-extrabold flex-shrink-0" id="logo-icon">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 bg-google-blue-600 text-white rounded-[24px] flex items-center justify-center shadow-md font-extrabold flex-shrink-0" id="logo-icon">
               <CloudLightning size={22} className="sm:w-6 sm:h-6" />
             </div>
             <div className="min-w-0">
@@ -717,7 +717,7 @@ export default function App() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" id="bento-two-columns-mixed">
               
               {/* Calendar Feed Fast-View Card */}
-              <div className={`lg:col-span-2 p-5 sm:p-6 ${darkMode ? "bg-google-dark-surface" : "bg-white"} rounded-2xl shadow-sm flex flex-col justify-between`} id="bento-calendar-fastview">
+              <div className={`lg:col-span-2 p-5 sm:p-6 ${darkMode ? "bg-google-dark-surface" : "bg-white"} rounded-[24px] shadow-sm flex flex-col justify-between`} id="bento-calendar-fastview">
                 <div>
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-150 dark:border-white/5 pb-4 mb-4 gap-3 sm:gap-0">
                     <div className="flex items-center gap-2.5">
@@ -816,7 +816,7 @@ export default function App() {
               </div>
 
               {/* Recent Trade History Widget Panel */}
-              <div className={`p-5 sm:p-6 ${darkMode ? "bg-google-dark-surface" : "bg-white"} rounded-2xl shadow-sm flex flex-col justify-between`} id="bento-recent-history">
+              <div className={`p-5 sm:p-6 ${darkMode ? "bg-google-dark-surface" : "bg-white"} rounded-[24px] shadow-sm flex flex-col justify-between`} id="bento-recent-history">
                 <div>
                   <div className="flex justify-between items-center mb-4 gap-2">
                     <h4 className="text-base sm:text-lg font-extrabold text-gray-950 dark:text-white truncate">Lệnh Gần Đây</h4>
@@ -874,7 +874,7 @@ export default function App() {
         {currentTab === "journal" && (
           <div className="grid grid-cols-1 gap-6" id="journal-standalone-section">
             
-            <div className="p-4 sm:p-6 bg-white dark:bg-google-dark-surface rounded-2xl shadow-sm max-w-full overflow-hidden" id="journal-master-card">
+            <div className="p-4 sm:p-6 bg-white dark:bg-google-dark-surface rounded-[24px] shadow-sm max-w-full overflow-hidden" id="journal-master-card">
               
               {/* Journal controls header */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 dark:border-white/5 pb-3 mb-4 w-full min-w-0">
@@ -1067,7 +1067,7 @@ export default function App() {
                   filteredTrades.map((t) => (
                     <div 
                       key={`mob-trade-${t.id}`}
-                      className="p-4 bg-gray-50 dark:bg-slate-900/45 rounded-2xl border border-gray-150/15 dark:border-white/5 space-y-3"
+                      className="p-4 bg-gray-50 dark:bg-slate-900/45 rounded-[24px] border border-gray-150/15 dark:border-white/5 space-y-3"
                     >
                       <div className="flex justify-between items-start">
                         <div>
@@ -1165,11 +1165,11 @@ export default function App() {
         {currentTab === "calendar" && (
           <div className="space-y-6" id="calendar-master-view">
             
-            <div className="p-4 sm:p-6 bg-white dark:bg-google-dark-surface rounded-2xl shadow-sm max-w-full overflow-hidden" id="calendar-card">
+            <div className="p-4 sm:p-6 bg-white dark:bg-google-dark-surface rounded-[24px] shadow-sm max-w-full overflow-hidden" id="calendar-card">
               
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 dark:border-white/5 pb-3 mb-4 w-full min-w-0">
                 <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-google-blue-50 dark:bg-google-blue-600/15 text-google-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center font-bold flex-shrink-0">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-google-blue-50 dark:bg-google-blue-600/15 text-google-blue-600 rounded-xl sm:rounded-[24px] flex items-center justify-center font-bold flex-shrink-0">
                     <CalendarIcon size={18} className="sm:size-5" />
                   </div>
                   <div>
@@ -1284,7 +1284,7 @@ export default function App() {
                           return (
                             <div 
                               key={`${dayName}-${index}`}
-                              className="p-4 sm:p-5 bg-gray-50 dark:bg-[#1f2021]/60 hover:bg-gray-100 dark:hover:bg-[#1f2021]/90 rounded-2xl flex flex-col justify-between hover:scale-[1.01] transition-all duration-200"
+                              className="p-4 sm:p-5 bg-gray-50 dark:bg-[#1f2021]/60 hover:bg-gray-100 dark:hover:bg-[#1f2021]/90 rounded-[24px] flex flex-col justify-between hover:scale-[1.01] transition-all duration-200"
                             >
                               <div className="flex justify-between items-start gap-2">
                                 <div className="flex gap-2.5 items-start">
@@ -1657,7 +1657,7 @@ export default function App() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 120 }}
               transition={{ type: "spring", damping: 26, stiffness: 220 }}
-              className="relative w-full max-w-md bg-white dark:bg-google-dark-surface p-5 sm:p-6 rounded-t-3xl sm:rounded-2xl shadow-2xl z-10 text-xs pb-[calc(1.5rem+env(safe-area-inset-bottom,16px))] sm:pb-6"
+              className="relative w-full max-w-md bg-white dark:bg-google-dark-surface p-5 sm:p-6 rounded-t-3xl sm:rounded-[24px] shadow-2xl z-10 text-xs pb-[calc(1.5rem+env(safe-area-inset-bottom,16px))] sm:pb-6"
               id="settings-modal-window"
             >
               {/* Material Design 3 Bottom Sheet handle wrapper */}
@@ -1751,8 +1751,9 @@ export default function App() {
       {/* Floating Action Button (FAB) on Mobile - Floats right above the bottom nav bar */}
       <button 
         onClick={handleOpenAddTrade}
-        className="md:hidden fixed bottom-[calc(5.2rem+env(safe-area-inset-bottom,0px))] right-4 w-14 h-14 bg-google-blue-600 hover:bg-google-blue-700 text-white rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-all z-40 cursor-pointer"
+        className="md:hidden fixed bottom-[calc(5.2rem+env(safe-area-inset-bottom,0px))] right-4 w-14 h-14 bg-google-blue-600 hover:bg-google-blue-700 text-white rounded-[16px] flex items-center justify-center shadow-lg active:scale-95 transition-all z-40 cursor-pointer"
         title="Thêm Giao Dịch"
+        id="m3-fab"
       >
         <Plus size={26} />
       </button>
