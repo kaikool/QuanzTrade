@@ -26,7 +26,8 @@ import {
   Download,
   BellRing,
   BellOff,
-  Send
+  Send,
+  Pencil
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Trade, CalendarEvent } from "./types";
@@ -51,6 +52,12 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPairFilter, setSelectedPairFilter] = useState("ALL");
   const [selectedStatusFilter, setSelectedStatusFilter] = useState("ALL");
+  
+  // Edit & Supabase Database Configuration states
+  const [editingTradeId, setEditingTradeId] = useState<string | null>(null);
+  const [dbUrl, setDbUrl] = useState(() => localStorage.getItem("trade_app_supabase_url") || "");
+  const [dbAnon, setDbAnon] = useState(() => localStorage.getItem("trade_app_supabase_anon") || "");
+  const [supabaseConnected, setSupabaseConnected] = useState(false);
   
   // Tab control
   // On Desktop we show a majestic integrated Bento layout.
@@ -79,7 +86,9 @@ export default function App() {
   const [formExitDate, setFormExitDate] = useState("");
 
   // Darkmode (iOS style default light, with immersive toggle)
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    return localStorage.getItem("trade_app_dark_mode") === "true";
+  });
 
   // Progressive Web App (PWA) & Local Notification States
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -152,18 +161,18 @@ export default function App() {
           navigator.serviceWorker.ready.then((registration) => {
             registration.showNotification(title, {
               body,
-              icon: "https://img.icons8.com/color/192/000000/google-sheets.png",
+              icon: "https://img.icons8.com/fluency/192/000000/candlestick-chart.png",
               vibrate: [200, 100, 200],
-              badge: "https://img.icons8.com/color/192/000000/google-sheets.png"
+              badge: "https://img.icons8.com/fluency/192/000000/candlestick-chart.png"
             } as any);
           }).catch(() => {
-            new Notification(title, { body, icon: "https://img.icons8.com/color/192/000000/google-sheets.png" });
+            new Notification(title, { body, icon: "https://img.icons8.com/fluency/192/000000/candlestick-chart.png" });
           });
         } else {
-          new Notification(title, { body, icon: "https://img.icons8.com/color/192/000000/google-sheets.png" });
+          new Notification(title, { body, icon: "https://img.icons8.com/fluency/192/000000/candlestick-chart.png" });
         }
       } catch (err) {
-        new Notification(title, { body, icon: "https://img.icons8.com/color/192/000000/google-sheets.png" });
+        new Notification(title, { body, icon: "https://img.icons8.com/fluency/192/000000/candlestick-chart.png" });
       }
     }
   };
@@ -258,11 +267,14 @@ export default function App() {
     setFormExitDate(now.toISOString().slice(0, 16));
   }, []);
 
-  // Update body dark class
+  // Update body and html dark class & persist choice
   useEffect(() => {
+    localStorage.setItem("trade_app_dark_mode", darkMode ? "true" : "false");
     if (darkMode) {
+      document.documentElement.classList.add("dark");
       document.body.classList.add("dark");
     } else {
+      document.documentElement.classList.remove("dark");
       document.body.classList.remove("dark");
     }
   }, [darkMode]);
@@ -270,6 +282,99 @@ export default function App() {
   const loadTradesData = async () => {
     const list = await fetchTradesFromDB();
     setTrades(list);
+    
+    const { url, anonKey } = getSavedSupabaseKeys();
+    if (url && anonKey) {
+      setSupabaseConnected(true);
+    } else {
+      setSupabaseConnected(false);
+    }
+  };
+
+  const handleOpenAddTrade = () => {
+    setEditingTradeId(null);
+    setFormPair("EUR/USD");
+    setFormType("BUY");
+    setFormEntryPrice("");
+    setFormExitPrice("");
+    setFormSize("1.0");
+    setFormNotes("");
+    setFormTimeframe("H1");
+    setFormRating(5);
+    setFormStatus("CLOSED");
+    setFormTag("News-Trade");
+    setFormStopLoss("");
+    setFormTakeProfit("");
+    
+    const now = new Date();
+    const tzOffset = now.getTimezoneOffset() * 60000;
+    const localISO = (new Date(now.getTime() - tzOffset)).toISOString().slice(0, 16);
+    setFormEntryDate(localISO);
+    setFormExitDate(localISO);
+    
+    setIsAddOpen(true);
+  };
+
+  const handleBeginEditTrade = (trade: Trade) => {
+    setEditingTradeId(trade.id);
+    setFormPair(trade.pair);
+    setFormType(trade.type);
+    setFormEntryPrice(trade.entry_price.toString());
+    setFormExitPrice(trade.exit_price !== null ? trade.exit_price.toString() : "");
+    setFormSize(trade.size.toString());
+    setFormNotes(trade.notes || "");
+    setFormTimeframe(trade.timeframe || "H1");
+    setFormRating(trade.rating || 5);
+    setFormStatus(trade.status);
+    setFormTag(trade.tag || "News-Trade");
+    setFormStopLoss(trade.stop_loss ? trade.stop_loss.toString() : "");
+    setFormTakeProfit(trade.take_profit ? trade.take_profit.toString() : "");
+    
+    if (trade.entry_date) {
+      const eDate = new Date(trade.entry_date);
+      const tzOffset = eDate.getTimezoneOffset() * 60000;
+      const localISO = (new Date(eDate.getTime() - tzOffset)).toISOString().slice(0, 16);
+      setFormEntryDate(localISO);
+    }
+    
+    if (trade.exit_date) {
+      const exDate = new Date(trade.exit_date);
+      const tzOffset = exDate.getTimezoneOffset() * 60000;
+      const localISO = (new Date(exDate.getTime() - tzOffset)).toISOString().slice(0, 16);
+      setFormExitDate(localISO);
+    } else {
+      const now = new Date();
+      const tzOffset = now.getTimezoneOffset() * 60000;
+      const localISO = (new Date(now.getTime() - tzOffset)).toISOString().slice(0, 16);
+      setFormExitDate(localISO);
+    }
+
+    setIsAddOpen(true);
+  };
+
+  const testSupabaseConnection = async () => {
+    if (!dbUrl || !dbAnon) {
+      alert("Vui lòng điền đầy đủ Supabase URL và Anon Key!");
+      return;
+    }
+    try {
+      localStorage.setItem("trade_app_supabase_url", dbUrl.trim());
+      localStorage.setItem("trade_app_supabase_anon", dbAnon.trim());
+      const list = await fetchTradesFromDB();
+      setTrades(list);
+      setSupabaseConnected(true);
+      alert("Kết nối Supabase thành công! Dữ liệu đã được đồng bộ hóa và tải về.");
+    } catch (err: any) {
+      setSupabaseConnected(false);
+      alert("Kết nối thất bại. Lỗi: " + err.message);
+    }
+  };
+
+  const handleSaveSupabaseConfig = () => {
+    localStorage.setItem("trade_app_supabase_url", dbUrl.trim());
+    localStorage.setItem("trade_app_supabase_anon", dbAnon.trim());
+    loadTradesData();
+    alert("Đã lưu cấu hình kết nối Supabase thành công!");
   };
 
   const loadCalendarData = async () => {
@@ -315,15 +420,15 @@ export default function App() {
         ? (exitPriceNum - entryPriceNum) 
         : (entryPriceNum - exitPriceNum);
       
-      // Rough approximation for normal lots contract size
-      // Standard lot (100k units) -> 1 pip = $10 on EURUSD. E.g. difference * multiplier * size * $10
       calculatedPnl = difference * pipMultiplier * sizeNum * 10;
     } else {
       calculatedPnl = 0;
     }
 
+    const targetId = editingTradeId || "t" + Date.now();
+
     const createdTrade: Trade = {
-      id: "t" + Date.now(),
+      id: targetId,
       pair: formPair,
       type: formType,
       entry_price: entryPriceNum,
@@ -341,16 +446,22 @@ export default function App() {
       take_profit: tpNum
     };
 
-    await saveTradeToDB(createdTrade);
-    await loadTradesData();
-    setIsAddOpen(false);
+    try {
+      await saveTradeToDB(createdTrade);
+      await loadTradesData();
+      setIsAddOpen(false);
+      setEditingTradeId(null);
 
-    // Reset some form inputs
-    setFormNotes("");
-    setFormEntryPrice("");
-    setFormExitPrice("");
-    setFormStopLoss("");
-    setFormTakeProfit("");
+      // Reset form inputs
+      setFormNotes("");
+      setFormEntryPrice("");
+      setFormExitPrice("");
+      setFormStopLoss("");
+      setFormTakeProfit("");
+    } catch (err: any) {
+      console.error("Lỗi đồng bộ hoá:", err);
+      alert("Đồng bộ hoá thất bại: " + err.message);
+    }
   };
 
   const handleDeleteTrade = async (id: string) => {
@@ -497,7 +608,7 @@ export default function App() {
     <div className={`min-h-screen ${darkMode ? "dark" : ""} bg-[#f0f4f9] dark:bg-google-dark-bg text-gray-800 dark:text-gray-100 transition-all duration-300 font-sans pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-6`} id="app-root-theme">
       
       {/* Main Container */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-[calc(1.25rem+env(safe-area-inset-top,0px))] md:pt-5 space-y-6" id="app-grid-frame">
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 pt-[calc(1rem+env(safe-area-inset-top,0px))] md:pt-5 space-y-3.5 sm:space-y-6" id="app-grid-frame">
         
         {/* Google Workspace Style Tonal Top Header */}
         <header className="flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-6 bg-white dark:bg-google-dark-surface rounded-2xl border border-transparent shadow-sm space-y-4 md:space-y-0" id="google-m3-header">
@@ -552,8 +663,8 @@ export default function App() {
               id="avatar-button"
             >
               JD
-              <span className="absolute -bottom-0.5 -right-0.5 bg-google-blue-600 text-white rounded-full p-1 border border-white dark:border-google-dark-surface">
-                <Settings size={8} />
+              <span className="absolute -bottom-0.5 -right-0.5 bg-google-blue-600 text-white rounded-full p-1 border border-white dark:border-google-dark-surface shadow-xs text-xs animate-pulse-once">
+                <Settings size={12} />
               </span>
             </button>
           </div>
@@ -586,7 +697,7 @@ export default function App() {
           </div>
           
           <button 
-            onClick={() => setIsAddOpen(true)}
+            onClick={handleOpenAddTrade}
             className="hidden md:flex items-center gap-2 px-6 py-2 bg-google-blue-600 hover:bg-google-blue-700 text-white rounded-full text-xs font-bold shadow-sm hover:shadow transition-all cursor-pointer"
             id="desktop-add-trade-btn"
           >
@@ -797,7 +908,7 @@ export default function App() {
 
                   {/* Add trade trigger capsule */}
                   <button 
-                    onClick={() => setIsAddOpen(true)}
+                    onClick={handleOpenAddTrade}
                     className="px-2.5 py-1 sm:px-3.5 sm:py-1.5 bg-google-blue-600 hover:bg-google-blue-700 text-white rounded-lg text-[11px] sm:text-xs font-bold shadow-xs transition-all cursor-pointer flex-shrink-0"
                   >
                     + Thêm
@@ -911,14 +1022,24 @@ export default function App() {
                             </div>
                           </td>
                           <td className="py-4 px-4 text-center">
-                            <button 
-                              onClick={() => handleDeleteTrade(t.id)}
-                              className="p-2 rounded-xl bg-gray-50 dark:bg-slate-900 text-gray-400 hover:text-rose-500 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition-all cursor-pointer inline-flex items-center justify-center ios-active-bounce"
-                              title="Xoá thương vụ"
-                              id={`del-btn-${t.id}`}
-                            >
-                              <Trash2 size={14} />
-                            </button>
+                            <div className="flex items-center justify-center gap-1.5">
+                              <button 
+                                onClick={() => handleBeginEditTrade(t)}
+                                className="p-2 rounded-xl bg-gray-50 dark:bg-slate-900 text-gray-400 hover:text-google-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all cursor-pointer inline-flex items-center justify-center ios-active-bounce"
+                                title="Chỉnh sửa / Cập nhật trạng thái"
+                                id={`edit-btn-${t.id}`}
+                              >
+                                <Pencil size={14} />
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteTrade(t.id)}
+                                className="p-2 rounded-xl bg-gray-50 dark:bg-slate-900 text-gray-400 hover:text-rose-500 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition-all cursor-pointer inline-flex items-center justify-center ios-active-bounce"
+                                title="Xoá thương vụ"
+                                id={`del-btn-${t.id}`}
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -1005,13 +1126,22 @@ export default function App() {
                           </div>
                         </div>
 
-                        <button 
-                          onClick={() => handleDeleteTrade(t.id)}
-                          className="px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
-                        >
-                          <Trash2 size={11} />
-                          Xoá
-                        </button>
+                        <div className="flex gap-1.5">
+                          <button 
+                            onClick={() => handleBeginEditTrade(t)}
+                            className="px-2.5 py-1 rounded-lg bg-google-blue-50 hover:bg-google-blue-600 text-[10px] sm:text-xs text-google-blue-600 hover:text-white dark:bg-blue-950/40 dark:text-blue-300 font-bold transition-all flex items-center gap-1 cursor-pointer"
+                          >
+                            <Pencil size={11} />
+                            Sửa
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteTrade(t.id)}
+                            className="px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500 text-[10px] sm:text-xs text-rose-500 hover:text-white dark:bg-rose-950/30 dark:text-rose-400 font-bold transition-all flex items-center gap-1 cursor-pointer"
+                          >
+                            <Trash2 size={11} />
+                            Xoá
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))
@@ -1200,7 +1330,7 @@ export default function App() {
       {/* 5. GORGEOUS ADD TRADE PANEL DIRECTIVE MODAL */}
       <AnimatePresence>
         {isAddOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4" id="modal-container-root">
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" id="modal-container-root">
             
             {/* Dark background blur */}
             <motion.div 
@@ -1208,27 +1338,34 @@ export default function App() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsAddOpen(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+              className="absolute inset-0 bg-black/60 backdrop-blur-md animate-fade-in"
             ></motion.div>
 
             {/* Window panel container */}
             <motion.div 
-               initial={{ opacity: 0, scale: 0.95, y: 30 }}
-               animate={{ opacity: 1, scale: 1, y: 0 }}
-               exit={{ opacity: 0, scale: 0.95, y: 30 }}
-               transition={{ type: "spring", damping: 25 }}
-               className="relative w-full max-w-2xl bg-white dark:bg-google-dark-surface p-6 rounded-2xl border border-transparent shadow-2xl z-10 flex flex-col max-h-[90vh] overflow-y-auto"
+               initial={{ opacity: 0, y: 100 }}
+               animate={{ opacity: 1, y: 0 }}
+               exit={{ opacity: 0, y: 120 }}
+               transition={{ type: "spring", damping: 26, stiffness: 220 }}
+               className="relative w-full max-w-2xl bg-white dark:bg-google-dark-surface p-5 sm:p-6 rounded-t-3xl sm:rounded-2xl border border-transparent shadow-2xl z-10 flex flex-col max-h-[92vh] sm:max-h-[90vh] overflow-y-auto pb-[calc(1.5rem+env(safe-area-inset-bottom,16px))] sm:pb-6"
                id="new-trade-modal-window"
             >
               
+              {/* Home indicator bar for iOS mobile drawers */}
+              <div className="w-12 h-1 bg-gray-200 dark:bg-zinc-800 rounded-full mx-auto mb-4 block sm:hidden"></div>
+
               <div className="flex justify-between items-center border-b border-gray-100 dark:border-white/5 pb-4 mb-5">
                 <div className="flex items-center gap-2">
                   <div className="p-2.5 bg-blue-100 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 rounded-xl">
                     <Plus size={16} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-extrabold text-gray-950 dark:text-white font-display">Ghi Chép Giao Dịch Mới</h3>
-                    <p className="text-xs text-gray-400 dark:text-gray-500">Giao dịch sẽ được đồng bộ hoá ngay với cơ sở dữ liệu</p>
+                    <h3 className="text-base sm:text-lg font-extrabold text-gray-950 dark:text-white font-display">
+                      {editingTradeId ? "Cập Nhật Giao Dịch" : "Ghi Chép Giao Dịch Mới"}
+                    </h3>
+                    <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500">
+                      {editingTradeId ? "Cập nhật các số liệu, ghi chú hoặc đóng trạng thái giao dịch" : "Giao dịch sẽ được đồng bộ hoá ngay với cơ sở dữ liệu"}
+                    </p>
                   </div>
                 </div>
                 <button 
@@ -1471,7 +1608,7 @@ export default function App() {
                     type="submit"
                     className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow hover:shadow-lg transition-all cursor-pointer"
                   >
-                    Ghi nhớ Giao dịch
+                    {editingTradeId ? "Lưu Thay Đổi (Cập Nhật)" : "Ghi Nhớ Giao Dịch"}
                   </button>
                 </div>
 
@@ -1484,7 +1621,7 @@ export default function App() {
       {/* 6. CORNER SETTINGS MODAL */}
       <AnimatePresence>
         {isSettingsOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4" id="settings-modal-root">
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" id="settings-modal-root">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1494,14 +1631,18 @@ export default function App() {
             ></motion.div>
 
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              className="relative w-full max-w-md bg-white dark:bg-google-dark-surface p-6 rounded-2xl border border-transparent shadow-2xl z-10 text-xs"
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 120 }}
+              transition={{ type: "spring", damping: 26, stiffness: 220 }}
+              className="relative w-full max-w-md bg-white dark:bg-google-dark-surface p-5 sm:p-6 rounded-t-3xl sm:rounded-2xl border border-transparent shadow-2xl z-10 text-xs pb-[calc(1.5rem+env(safe-area-inset-bottom,16px))] sm:pb-6"
               id="settings-modal-window"
             >
+              {/* Home indicator bar for iOS mobile drawers */}
+              <div className="w-12 h-1 bg-gray-200 dark:bg-zinc-800 rounded-full mx-auto mb-4 block sm:hidden"></div>
+
               <div className="flex justify-between items-center pb-4 mb-4 border-b border-gray-100 dark:border-white/5">
-                <h4 className="text-base font-bold text-gray-950 dark:text-white">Cài Đặt Hệ Thống</h4>
+                <h4 className="text-sm sm:text-base font-bold text-gray-950 dark:text-white font-display">Cài Đặt Hệ Thống</h4>
                 <button 
                   onClick={() => setIsSettingsOpen(false)}
                   className="p-1.5 rounded-full bg-gray-100 font-bold hover:bg-gray-200 dark:bg-white/5 text-gray-500 cursor-pointer"
@@ -1554,6 +1695,57 @@ export default function App() {
                   </div>
                 </div>
 
+                <div className="border-t border-gray-100 dark:border-white/5 pt-4">
+                  <h5 className="font-bold text-gray-400 capitalize mb-2.5 flex items-center justify-between gap-1.5 font-sans">
+                    <span className="flex items-center gap-1.5 text-xs">
+                      <CloudLightning size={13} className="text-google-blue-600 animate-pulse" />
+                      Kết Nối Supabase Sync
+                    </span>
+                    <span className={`text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${supabaseConnected ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-gray-150 dark:bg-white/5 text-gray-400'}`}>
+                      {supabaseConnected ? "● Hoạt động" : "● Offline"}
+                    </span>
+                  </h5>
+                  
+                  <div className="space-y-3 p-3 bg-gray-50 dark:bg-white/5 rounded-xl border border-transparent font-sans">
+                    <div>
+                      <label className="block text-[8px] text-gray-500 uppercase tracking-wider font-bold mb-1">SUPABASE URL</label>
+                      <input 
+                        type="text" 
+                        value={dbUrl}
+                        onChange={(e) => setDbUrl(e.target.value)}
+                        placeholder="https://your-project.supabase.co"
+                        className="w-full px-2.5 py-1.5 bg-white dark:bg-google-dark-bg border border-gray-200 dark:border-white/5 rounded-lg focus:ring-1 focus:ring-google-blue-600 focus:outline-none font-mono text-[9px] text-gray-800 dark:text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[8px] text-gray-500 uppercase tracking-wider font-bold mb-1">SUPABASE ANON KEY</label>
+                      <input 
+                        type="password" 
+                        value={dbAnon}
+                        onChange={(e) => setDbAnon(e.target.value)}
+                        placeholder="your-anon-key-here"
+                        className="w-full px-2.5 py-1.5 bg-white dark:bg-google-dark-bg border border-gray-200 dark:border-white/5 rounded-lg focus:ring-1 focus:ring-google-blue-600 focus:outline-none font-mono text-[9px] text-gray-800 dark:text-white"
+                      />
+                    </div>
+                    <div className="flex gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={testSupabaseConnection}
+                        className="flex-1 py-1.5 bg-google-blue-50 hover:bg-google-blue-100 dark:bg-blue-950/20 dark:hover:bg-blue-950/35 text-google-blue-600 dark:text-blue-400 font-bold rounded-lg transition-colors cursor-pointer text-[10px]"
+                      >
+                        Thử kết nối
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleSaveSupabaseConfig}
+                        className="flex-1 py-1.5 bg-google-blue-600 hover:bg-google-blue-700 text-white font-bold rounded-lg transition-colors shadow-xs cursor-pointer text-[10px]"
+                      >
+                        Lưu cấu hình
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
                 {deferredPrompt && (
                   <div className="border-t border-gray-100 dark:border-white/5 pt-4">
                     <button
@@ -1585,7 +1777,7 @@ export default function App() {
 
       {/* Floating Action Button (FAB) on Mobile - Floats right above the bottom nav bar */}
       <button 
-        onClick={() => setIsAddOpen(true)}
+        onClick={handleOpenAddTrade}
         className="md:hidden fixed bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] right-4 w-12 h-12 bg-google-blue-600 hover:bg-google-blue-700 text-white rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-all z-40 cursor-pointer"
         title="Thêm Giao Dịch"
       >
