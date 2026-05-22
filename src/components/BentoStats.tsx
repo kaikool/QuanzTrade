@@ -119,7 +119,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, delay: 0.05 }}
-          className={`p-4 sm:p-6 rounded-2xl border ${darkMode ? "bg-google-dark-surface border-[#2e2f30]" : "bg-white border-gray-150/80"} flex flex-col justify-between min-h-[125px] sm:min-h-[155px] shadow-xs hover:shadow transition-all duration-250`}
+          className={`p-4 sm:p-6 rounded-2xl ${darkMode ? "bg-google-dark-surface" : "bg-white"} flex flex-col justify-between min-h-[125px] sm:min-h-[155px] shadow-sm hover:shadow-md transition-all duration-250`}
           id="m3-card-pnl"
         >
           <div className="flex justify-between items-start gap-1">
@@ -145,7 +145,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, delay: 0.1 }}
-          className={`p-4 sm:p-6 rounded-2xl border ${darkMode ? "bg-google-dark-surface border-[#2e2f30]" : "bg-white border-gray-150/80"} flex flex-col justify-between min-h-[125px] sm:min-h-[155px] shadow-xs hover:shadow transition-all duration-250`}
+          className={`p-4 sm:p-6 rounded-2xl ${darkMode ? "bg-google-dark-surface" : "bg-white"} flex flex-col justify-between min-h-[125px] sm:min-h-[155px] shadow-sm hover:shadow-md transition-all duration-250`}
           id="m3-card-winrate"
         >
           <div className="flex justify-between items-start gap-1">
@@ -169,7 +169,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, delay: 0.15 }}
-          className={`p-4 sm:p-6 rounded-2xl border ${darkMode ? "bg-google-dark-surface border-[#2e2f30]" : "bg-white border-gray-150/80"} flex flex-col justify-between min-h-[125px] sm:min-h-[155px] shadow-xs hover:shadow transition-all duration-250`}
+          className={`p-4 sm:p-6 rounded-2xl ${darkMode ? "bg-google-dark-surface" : "bg-white"} flex flex-col justify-between min-h-[125px] sm:min-h-[155px] shadow-sm hover:shadow-md transition-all duration-250`}
           id="m3-card-pf"
         >
           <div className="flex justify-between items-start gap-1">
@@ -191,7 +191,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, delay: 0.2 }}
-          className={`p-4 sm:p-6 rounded-2xl border ${darkMode ? "bg-google-dark-surface border-[#2e2f30]" : "bg-white border-gray-150/80"} flex flex-col justify-between min-h-[125px] sm:min-h-[155px] shadow-xs hover:shadow transition-all duration-250`}
+          className={`p-4 sm:p-6 rounded-2xl ${darkMode ? "bg-google-dark-surface" : "bg-white"} flex flex-col justify-between min-h-[125px] sm:min-h-[155px] shadow-sm hover:shadow-md transition-all duration-250`}
           id="m3-card-avg"
         >
           <div className="flex justify-between items-start gap-1">
@@ -217,7 +217,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
           initial={{ opacity: 0, scale: 0.99 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.35, delay: 0.25 }}
-          className={`lg:col-span-2 p-5 sm:p-6 rounded-2xl ${darkMode ? "bg-google-dark-surface border-[#2e2f30]" : "bg-white border-gray-150/85"} border flex flex-col justify-between min-h-[280px] sm:min-h-[370px] shadow-xs`}
+          className={`lg:col-span-2 p-5 sm:p-6 rounded-2xl ${darkMode ? "bg-google-dark-surface" : "bg-white"} flex flex-col justify-between min-h-[280px] sm:min-h-[370px] shadow-sm`}
           id="m3-chart-card-cumulative"
         >
           <div className="flex justify-between items-center mb-4 gap-2">
@@ -296,7 +296,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
           initial={{ opacity: 0, scale: 0.99 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.35, delay: 0.3 }}
-          className={`p-5 sm:p-6 rounded-2xl border ${darkMode ? "bg-google-dark-surface border-[#2e2f30]" : "bg-white border-gray-150/85"} flex flex-col justify-between shadow-xs`}
+          className={`p-5 sm:p-6 rounded-2xl ${darkMode ? "bg-google-dark-surface" : "bg-white"} flex flex-col justify-between shadow-sm`}
           id="m3-chart-card-distribution"
         >
           <div className="mb-4">

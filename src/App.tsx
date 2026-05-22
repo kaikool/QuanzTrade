@@ -611,7 +611,7 @@ export default function App() {
       <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 pt-[calc(1rem+env(safe-area-inset-top,0px))] md:pt-5 space-y-3.5 sm:space-y-6" id="app-grid-frame">
         
         {/* Google Workspace Style Tonal Top Header */}
-        <header className={`flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-6 ${darkMode ? "bg-google-dark-surface border-[#2e2f30]" : "bg-white border-transparent"} rounded-2xl border shadow-sm space-y-4 md:space-y-0`} id="google-m3-header">
+        <header className={`flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-6 ${darkMode ? "bg-google-dark-surface" : "bg-white"} rounded-2xl shadow-sm space-y-4 md:space-y-0`} id="google-m3-header">
           <div className="flex items-center gap-3 sm:gap-4">
             <div className="w-11 h-11 sm:w-12 sm:h-12 bg-google-blue-600 text-white rounded-2xl flex items-center justify-center shadow-md font-extrabold flex-shrink-0" id="logo-icon">
               <CloudLightning size={22} className="sm:w-6 sm:h-6" />
@@ -671,7 +671,7 @@ export default function App() {
         </header>
 
         {/* Google-style Pill Navigation Tab Segment Manager */}
-        <div className={`hidden md:flex justify-between items-center ${darkMode ? "bg-google-dark-surface border-[#2e2f30]" : "bg-white border-transparent"} border p-1.5 rounded-full shadow-sm overflow-x-auto no-scrollbar`} id="segmented-controller">
+        <div className={`hidden md:flex justify-between items-center ${darkMode ? "bg-google-dark-surface" : "bg-white"} p-1.5 rounded-full shadow-sm overflow-x-auto no-scrollbar`} id="segmented-controller">
           <div className="flex gap-1 sm:gap-1.5 flex-shrink-0">
             <button 
               onClick={() => setCurrentTab("dashboard")}
@@ -717,7 +717,7 @@ export default function App() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" id="bento-two-columns-mixed">
               
               {/* Calendar Feed Fast-View Card */}
-              <div className={`lg:col-span-2 p-5 sm:p-6 ${darkMode ? "bg-google-dark-surface border-[#2e2f30]" : "bg-white border-transparent"} rounded-2xl border shadow-sm flex flex-col justify-between`} id="bento-calendar-fastview">
+              <div className={`lg:col-span-2 p-5 sm:p-6 ${darkMode ? "bg-google-dark-surface" : "bg-white"} rounded-2xl shadow-sm flex flex-col justify-between`} id="bento-calendar-fastview">
                 <div>
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-150 dark:border-white/5 pb-4 mb-4 gap-3 sm:gap-0">
                     <div className="flex items-center gap-2.5">
@@ -816,7 +816,7 @@ export default function App() {
               </div>
 
               {/* Recent Trade History Widget Panel */}
-              <div className={`p-5 sm:p-6 ${darkMode ? "bg-google-dark-surface border-[#2e2f30]" : "bg-white border-transparent"} border rounded-2xl shadow-sm flex flex-col justify-between`} id="bento-recent-history">
+              <div className={`p-5 sm:p-6 ${darkMode ? "bg-google-dark-surface" : "bg-white"} rounded-2xl shadow-sm flex flex-col justify-between`} id="bento-recent-history">
                 <div>
                   <div className="flex justify-between items-center mb-4 gap-2">
                     <h4 className="text-base sm:text-lg font-extrabold text-gray-950 dark:text-white truncate">Lệnh Gần Đây</h4>
@@ -874,7 +874,7 @@ export default function App() {
         {currentTab === "journal" && (
           <div className="grid grid-cols-1 gap-6" id="journal-standalone-section">
             
-            <div className="p-4 sm:p-6 bg-white dark:bg-google-dark-surface rounded-2xl border border-transparent shadow-sm max-w-full overflow-hidden" id="journal-master-card">
+            <div className="p-4 sm:p-6 bg-white dark:bg-google-dark-surface rounded-2xl shadow-sm max-w-full overflow-hidden" id="journal-master-card">
               
               {/* Journal controls header */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 dark:border-white/5 pb-3 mb-4 w-full min-w-0">
@@ -1165,7 +1165,7 @@ export default function App() {
         {currentTab === "calendar" && (
           <div className="space-y-6" id="calendar-master-view">
             
-            <div className="p-4 sm:p-6 bg-white dark:bg-google-dark-surface rounded-2xl border border-transparent shadow-sm max-w-full overflow-hidden" id="calendar-card">
+            <div className="p-4 sm:p-6 bg-white dark:bg-google-dark-surface rounded-2xl shadow-sm max-w-full overflow-hidden" id="calendar-card">
               
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 dark:border-white/5 pb-3 mb-4 w-full min-w-0">
                 <div className="flex items-center gap-2">
@@ -1182,7 +1182,7 @@ export default function App() {
                 <div className="grid grid-cols-[1.3fr_1.1fr_auto] gap-2 w-full sm:flex sm:flex-row sm:items-center sm:gap-1.5 sm:w-auto pb-1 sm:pb-0">
                   
                   {/* Segmented Period Selection */}
-                  <div className={`flex ${darkMode ? 'bg-[#131314] border-[#2e2f30]' : 'bg-gray-100 border-transparent'} p-1 rounded-xl w-full sm:w-auto border`}>
+                  <div className={`flex ${darkMode ? 'bg-[#131314]' : 'bg-gray-100'} p-1 rounded-xl w-full sm:w-auto`}>
                     <button 
                       onClick={() => setCalendarPeriodFilter("DAY")}
                       className={`flex-1 py-1.5 sm:px-4 text-xs font-bold rounded-lg transition-all cursor-pointer text-center ${
@@ -1206,12 +1206,12 @@ export default function App() {
                   </div>
 
                   {/* Beautiful Dot Markers as Interactive Filters */}
-                  <div className={`flex ${darkMode ? 'bg-[#131314] border-[#2e2f30]' : 'bg-gray-100 border-transparent'} p-1 rounded-xl border items-center justify-around w-full sm:w-auto sm:gap-1`}>
+                  <div className={`flex ${darkMode ? 'bg-[#131314]' : 'bg-gray-100'} p-1 rounded-xl items-center justify-around w-full sm:w-auto sm:gap-1`}>
                     <button
                       onClick={() => setCalendarImpactFilter("ALL")}
                       className={`px-3 py-1.5 rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer flex-1 ${
                         calendarImpactFilter === "ALL" 
-                          ? (darkMode ? 'bg-[#2e2f30] border-[#2e2f30] shadow-xs' : 'bg-white border-gray-200 shadow-xs border') 
+                          ? (darkMode ? 'bg-[#2e2f30] text-blue-300 shadow-xs' : 'bg-white text-google-blue-600 shadow-xs') 
                           : 'opacity-40 hover:opacity-95'
                       }`}
                       title="Tất cả tin tức (Đỏ, Vàng, Xanh)"
@@ -1224,7 +1224,7 @@ export default function App() {
                       onClick={() => setCalendarImpactFilter("MEDIUM")}
                       className={`px-3 py-1.5 rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer flex-1 ${
                         calendarImpactFilter === "MEDIUM" 
-                          ? (darkMode ? 'bg-[#2e2f30] border-[#2e2f30] shadow-xs' : 'bg-white border-gray-200 shadow-xs border') 
+                          ? (darkMode ? 'bg-[#2e2f30] text-blue-300 shadow-xs' : 'bg-white text-google-blue-600 shadow-xs') 
                           : 'opacity-40 hover:opacity-95'
                       }`}
                       title="Tin từ trung bình trở lên (Đỏ, Vàng)"
@@ -1236,7 +1236,7 @@ export default function App() {
                       onClick={() => setCalendarImpactFilter("HIGH")}
                       className={`px-3 py-1.5 rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer flex-1 ${
                         calendarImpactFilter === "HIGH" 
-                          ? (darkMode ? 'bg-[#2e2f30] border-[#2e2f30] shadow-xs' : 'bg-white border-gray-200 shadow-xs border') 
+                          ? (darkMode ? 'bg-[#2e2f30] text-blue-300 shadow-xs' : 'bg-white text-google-blue-600 shadow-xs') 
                           : 'opacity-40 hover:opacity-95'
                       }`}
                       title="Chỉ tin tức quan trọng (Đỏ)"
@@ -1248,7 +1248,7 @@ export default function App() {
                   {/* Manual Refresh Call inside same line */}
                   <button 
                     onClick={syncCalendar}
-                    className="p-2.5 bg-gray-100 dark:bg-[#131314] hover:bg-gray-200 dark:hover:bg-[#2e2f30] rounded-xl border border-transparent dark:border-[#2e2f30] transition-all cursor-pointer flex items-center justify-center min-w-[36px] min-h-[36px]"
+                    className="p-2.5 bg-gray-100 dark:bg-[#131314] hover:bg-gray-200 dark:hover:bg-[#2e2f30] rounded-xl transition-all cursor-pointer flex items-center justify-center min-w-[36px] min-h-[36px]"
                     title="Cập nhật nguồn tin tức mới nhất"
                   >
                     <RefreshCw size={14} className={refreshingCalendar ? "animate-spin text-google-blue-600" : "text-gray-500 dark:text-gray-400"} />
@@ -1284,7 +1284,7 @@ export default function App() {
                           return (
                             <div 
                               key={`${dayName}-${index}`}
-                              className="p-4 sm:p-5 bg-gray-50 dark:bg-google-dark-surface border border-transparent hover:border-google-blue-600/10 rounded-2xl flex flex-col justify-between transition-all"
+                              className="p-4 sm:p-5 bg-gray-50 dark:bg-[#1f2021]/60 hover:bg-gray-100 dark:hover:bg-[#1f2021]/90 rounded-2xl flex flex-col justify-between hover:scale-[1.01] transition-all duration-200"
                             >
                               <div className="flex justify-between items-start gap-2">
                                 <div className="flex gap-2.5 items-start">
@@ -1301,7 +1301,7 @@ export default function App() {
 
                                 <div className="text-right flex-shrink-0">
                                   <span className="text-xs sm:text-sm font-bold text-gray-650 dark:text-gray-300 flex items-center gap-1 justify-end font-mono">
-                                    <Clock size={12} className="text-gray-450" />
+                                    <Clock size={12} className="text-gray-400" />
                                     {evTime}
                                   </span>
                                   <div className="mt-1">
@@ -1313,17 +1313,17 @@ export default function App() {
                               </div>
 
                               {/* Forecast vs Previous display block */}
-                              <div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/5 grid grid-cols-3 gap-2 text-center text-xs sm:text-sm">
-                                <div className="bg-white dark:bg-[#131314] p-2 rounded-xl border border-gray-150/40 dark:border-white/5">
+                              <div className="mt-4 pt-3 border-t border-gray-150/20 dark:border-white/5 grid grid-cols-3 gap-2 text-center text-xs sm:text-sm">
+                                <div className="bg-white dark:bg-[#131314] p-2 rounded-xl">
                                   <div className="text-[10px] sm:text-xs uppercase font-extrabold text-gray-400">Dự báo</div>
                                   <div className="font-mono font-bold text-gray-800 dark:text-white mt-1 text-xs sm:text-sm truncate">{ev.forecast || "-"}</div>
                                 </div>
-                                <div className="bg-white dark:bg-[#131314] p-2 rounded-xl border border-gray-150/40 dark:border-white/5">
+                                <div className="bg-white dark:bg-[#131314] p-2 rounded-xl">
                                   <div className="text-[10px] sm:text-xs uppercase font-extrabold text-gray-400">Kỳ trước</div>
                                   <div className="font-mono font-bold text-gray-800 dark:text-white mt-1 text-xs sm:text-sm truncate">{ev.previous || "-"}</div>
                                 </div>
-                                <div className="bg-[#f0f9ff] dark:bg-indigo-950/20 p-2 rounded-xl border border-[#bae6fd]/30">
-                                  <div className="text-[10px] sm:text-xs uppercase font-extrabold text-sky-605 dark:text-sky-400">Thực tế</div>
+                                <div className="bg-[#f0f9ff] dark:bg-indigo-950/20 p-2 rounded-xl">
+                                  <div className="text-[10px] sm:text-xs uppercase font-extrabold text-sky-600 dark:text-sky-305">Thực tế</div>
                                   <div className="font-mono font-bold text-sky-600 dark:text-sky-300 mt-1 text-xs sm:text-sm truncate">{ev.actual || <span className="italic font-normal text-xs text-gray-400">Đợi tin</span>}</div>
                                 </div>
                               </div>
@@ -1363,7 +1363,7 @@ export default function App() {
                animate={{ opacity: 1, y: 0 }}
                exit={{ opacity: 0, y: 120 }}
                transition={{ type: "spring", damping: 26, stiffness: 220 }}
-               className="relative w-full max-w-2xl bg-white dark:bg-google-dark-surface p-6 sm:p-8 rounded-2xl border border-gray-200/50 dark:border-[#2e2f30] shadow-2xl z-10 flex flex-col max-h-[92vh] sm:max-h-[90vh] overflow-y-auto pb-[calc(2rem+env(safe-area-inset-bottom,16px))] sm:pb-8"
+               className="relative w-full max-w-2xl bg-white dark:bg-google-dark-surface p-6 sm:p-8 rounded-2xl shadow-2xl z-10 flex flex-col max-h-[92vh] sm:max-h-[90vh] overflow-y-auto pb-[calc(2rem+env(safe-area-inset-bottom,16px))] sm:pb-8"
                id="new-trade-modal-window"
             >
               
@@ -1654,7 +1654,7 @@ export default function App() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 120 }}
               transition={{ type: "spring", damping: 26, stiffness: 220 }}
-              className="relative w-full max-w-md bg-white dark:bg-google-dark-surface p-5 sm:p-6 rounded-t-3xl sm:rounded-2xl border border-transparent shadow-2xl z-10 text-xs pb-[calc(1.5rem+env(safe-area-inset-bottom,16px))] sm:pb-6"
+              className="relative w-full max-w-md bg-white dark:bg-google-dark-surface p-5 sm:p-6 rounded-t-3xl sm:rounded-2xl shadow-2xl z-10 text-xs pb-[calc(1.5rem+env(safe-area-inset-bottom,16px))] sm:pb-6"
               id="settings-modal-window"
             >
               {/* Material Design 3 Bottom Sheet handle wrapper */}
