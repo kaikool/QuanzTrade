@@ -731,16 +731,16 @@ export default function App() {
                     </div>
                     
                     {/* Quick filter inside header - M3 layout */}
-                    <div className="flex bg-gray-100 dark:bg-white/5 p-0.5 rounded-full self-end sm:self-auto flex-shrink-0">
+                    <div className="flex bg-gray-100 dark:bg-zinc-850 p-1 rounded-xl w-full sm:w-auto mt-2 sm:mt-0 flex-shrink-0">
                       <button 
                         onClick={() => setCalendarPeriodFilter("DAY")}
-                        className={`px-2.5 py-1 text-[11px] sm:text-xs font-semibold rounded-full ${calendarPeriodFilter === "DAY" ? 'bg-white dark:bg-google-dark-bg text-google-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        className={`flex-1 sm:flex-initial text-center px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${calendarPeriodFilter === "DAY" ? 'bg-white dark:bg-google-dark-bg text-google-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                       >
                         Hôm nay
                       </button>
                       <button 
                         onClick={() => setCalendarPeriodFilter("WEEK")}
-                        className={`px-2.5 py-1 text-[11px] sm:text-xs font-semibold rounded-full ${calendarPeriodFilter === "WEEK" ? 'bg-white dark:bg-google-dark-bg text-google-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        className={`flex-1 sm:flex-initial text-center px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${calendarPeriodFilter === "WEEK" ? 'bg-white dark:bg-google-dark-bg text-google-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                       >
                         Tuần này
                       </button>
@@ -877,14 +877,14 @@ export default function App() {
                   </h3>
                 </div>
 
-                <div className="flex flex-row items-center gap-1.5 overflow-x-auto no-scrollbar flex-nowrap w-full max-w-full sm:w-auto pb-1 sm:pb-0" style={{ WebkitOverflowScrolling: "touch" }}>
+                <div className="grid grid-cols-3 gap-2 w-full sm:flex sm:flex-row sm:items-center sm:gap-1.5 sm:w-auto pb-1 sm:pb-0">
                   {/* Pair filter select - M3 standard */}
-                  <div className="flex items-center gap-1 bg-gray-100 dark:bg-white/5 px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold flex-shrink-0">
-                    <Filter size={10} className="text-gray-450 sm:size-[11px]" />
+                  <div className="flex items-center justify-center gap-1.5 bg-gray-100 dark:bg-zinc-800/80 px-2 py-2.5 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-bold w-full sm:w-auto">
+                    <Filter size={11} className="text-gray-450 dark:text-gray-400" />
                     <select 
                       value={selectedPairFilter}
                       onChange={(e) => setSelectedPairFilter(e.target.value)}
-                      className="bg-transparent focus:outline-none cursor-pointer text-gray-700 dark:text-gray-300 font-bold max-w-[85px] sm:max-w-none truncate"
+                      className="bg-transparent focus:outline-none cursor-pointer text-gray-850 dark:text-gray-250 font-bold w-full sm:max-w-none text-center sm:text-left truncate text-xs"
                     >
                       <option value="ALL" className="bg-white dark:bg-google-dark-bg text-gray-900 dark:text-white">Cặp: Tất cả</option>
                       {uniquePairs.filter(p => p !== "ALL").map(p => (
@@ -894,14 +894,14 @@ export default function App() {
                   </div>
 
                   {/* Status filter select - M3 standard */}
-                  <div className="flex items-center gap-1 bg-gray-100 dark:bg-white/5 px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold flex-shrink-0">
+                  <div className="flex items-center justify-center gap-1.5 bg-gray-100 dark:bg-zinc-800/80 px-2 py-2.5 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-bold w-full sm:w-auto">
                     <select 
                       value={selectedStatusFilter}
                       onChange={(e) => setSelectedStatusFilter(e.target.value)}
-                      className="bg-transparent focus:outline-none cursor-pointer text-gray-700 dark:text-gray-300 font-bold max-w-[100px] sm:max-w-none truncate"
+                      className="bg-transparent focus:outline-none cursor-pointer text-gray-850 dark:text-gray-250 font-bold w-full sm:max-w-none text-center sm:text-left truncate text-xs"
                     >
-                      <option value="ALL" className="bg-white dark:bg-google-dark-bg text-gray-900 dark:text-white">Trạng thái: Tất cả</option>
-                      <option value="OPEN" className="bg-white dark:bg-google-dark-bg text-gray-900 dark:text-white">Đang Mở (OPEN)</option>
+                      <option value="ALL" className="bg-white dark:bg-google-dark-bg text-gray-900 dark:text-white">Tất cả lệnh</option>
+                      <option value="OPEN" className="bg-white dark:bg-google-dark-bg text-gray-900 dark:text-white">Lệnh Mở (OPEN)</option>
                       <option value="CLOSED" className="bg-white dark:bg-google-dark-bg text-gray-900 dark:text-white">Đã Đóng (CLOSED)</option>
                     </select>
                   </div>
@@ -909,7 +909,7 @@ export default function App() {
                   {/* Add trade trigger capsule */}
                   <button 
                     onClick={handleOpenAddTrade}
-                    className="px-2.5 py-1 sm:px-3.5 sm:py-1.5 bg-google-blue-600 hover:bg-google-blue-700 text-white rounded-lg text-[11px] sm:text-xs font-bold shadow-xs transition-all cursor-pointer flex-shrink-0"
+                    className="py-2.5 px-3.5 bg-google-blue-600 hover:bg-google-blue-700 text-white rounded-xl text-xs font-extrabold shadow-sm active:scale-95 transition-all cursor-pointer text-center w-full sm:w-auto"
                   >
                     + Thêm
                   </button>
@@ -1126,19 +1126,19 @@ export default function App() {
                           </div>
                         </div>
 
-                        <div className="flex gap-1.5">
+                        <div className="flex gap-2">
                           <button 
                             onClick={() => handleBeginEditTrade(t)}
-                            className="px-2.5 py-1 rounded-lg bg-google-blue-50 hover:bg-google-blue-600 text-[10px] sm:text-xs text-google-blue-600 hover:text-white dark:bg-blue-950/40 dark:text-blue-300 font-bold transition-all flex items-center gap-1 cursor-pointer"
+                            className="px-3.5 py-2 rounded-xl bg-google-blue-50 hover:bg-google-blue-600 text-xs text-google-blue-600 hover:text-white dark:bg-zinc-800 dark:hover:bg-google-blue-600 dark:text-blue-300 font-bold transition-all flex items-center gap-1.5 cursor-pointer"
                           >
-                            <Pencil size={11} />
+                            <Pencil size={12} />
                             Sửa
                           </button>
                           <button 
                             onClick={() => handleDeleteTrade(t.id)}
-                            className="px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500 text-[10px] sm:text-xs text-rose-500 hover:text-white dark:bg-rose-950/30 dark:text-rose-400 font-bold transition-all flex items-center gap-1 cursor-pointer"
+                            className="px-3.5 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500 text-xs text-rose-500 hover:text-white dark:bg-rose-950/35 dark:hover:bg-rose-600 dark:text-rose-400 font-bold transition-all flex items-center gap-1.5 cursor-pointer"
                           >
-                            <Trash2 size={11} />
+                            <Trash2 size={12} />
                             Xoá
                           </button>
                         </div>
@@ -1170,33 +1170,33 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Filters row - Single non-wrapped line on Mobile */}
-                <div className="flex flex-row items-center gap-1.5 overflow-x-auto no-scrollbar flex-nowrap w-full max-w-full sm:w-auto pb-1 sm:pb-0" style={{ WebkitOverflowScrolling: "touch" }}>
+                {/* Filters row - Highly responsive layout for Mobile */}
+                <div className="grid grid-cols-[1.3fr_1.1fr_auto] gap-2 w-full sm:flex sm:flex-row sm:items-center sm:gap-1.5 sm:w-auto pb-1 sm:pb-0">
                   
                   {/* Segmented Period Selection */}
-                  <div className="flex bg-gray-100 dark:bg-white/5 p-0.5 rounded-lg flex-shrink-0">
+                  <div className="flex bg-gray-100 dark:bg-zinc-850 p-1 rounded-xl w-full">
                     <button 
                       onClick={() => setCalendarPeriodFilter("DAY")}
-                      className={`px-2.5 py-1 text-[11px] sm:text-xs font-bold rounded-md transition-all cursor-pointer ${calendarPeriodFilter === "DAY" ? 'bg-white dark:bg-google-dark-bg text-google-blue-600 shadow-xs' : 'text-gray-500 hover:text-gray-800'}`}
+                      className={`flex-1 py-1.5 sm:px-3 text-xs font-bold rounded-lg transition-all cursor-pointer text-center ${calendarPeriodFilter === "DAY" ? 'bg-white dark:bg-google-dark-bg text-google-blue-600 shadow-xs' : 'text-gray-500 hover:text-gray-800'}`}
                     >
                       Hôm Nay
                     </button>
                     <button 
                       onClick={() => setCalendarPeriodFilter("WEEK")}
-                      className={`px-2.5 py-1 text-[11px] sm:text-xs font-bold rounded-md transition-all cursor-pointer ${calendarPeriodFilter === "WEEK" ? 'bg-white dark:bg-google-dark-bg text-google-blue-600 shadow-xs' : 'text-gray-500 hover:text-gray-800'}`}
+                      className={`flex-1 py-1.5 sm:px-3 text-xs font-bold rounded-lg transition-all cursor-pointer text-center ${calendarPeriodFilter === "WEEK" ? 'bg-white dark:bg-google-dark-bg text-google-blue-600 shadow-xs' : 'text-gray-500 hover:text-gray-800'}`}
                     >
                       Tuần Này
                     </button>
                   </div>
 
                   {/* Beautiful Dot Markers as Interactive Filters */}
-                  <div className="flex bg-gray-100 dark:bg-white/5 p-1 rounded-lg border border-gray-150/20 dark:border-white/5 flex-shrink-0 items-center gap-1">
+                  <div className="flex bg-gray-100 dark:bg-zinc-850 p-1 rounded-xl border border-transparent items-center justify-around w-full">
                     <button
                       onClick={() => setCalendarImpactFilter("ALL")}
-                      className={`px-1.5 py-1 sm:px-2 sm:py-1.5 rounded-md flex items-center gap-0.5 transition-all cursor-pointer ${
+                      className={`px-2 py-1.5 rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer flex-1 ${
                         calendarImpactFilter === "ALL" 
                           ? 'bg-white dark:bg-google-dark-bg shadow-xs border border-gray-200/50 dark:border-white/10' 
-                          : 'opacity-40 hover:opacity-90'
+                          : 'opacity-40 hover:opacity-95'
                       }`}
                       title="Tất cả tin tức (Đỏ, Vàng, Xanh)"
                     >
@@ -1206,10 +1206,10 @@ export default function App() {
                     </button>
                     <button
                       onClick={() => setCalendarImpactFilter("MEDIUM")}
-                      className={`px-1.5 py-1 sm:px-2 sm:py-1.5 rounded-md flex items-center gap-0.5 transition-all cursor-pointer ${
+                      className={`px-2 py-1.5 rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer flex-1 ${
                         calendarImpactFilter === "MEDIUM" 
                           ? 'bg-white dark:bg-google-dark-bg shadow-xs border border-gray-200/50 dark:border-white/10' 
-                          : 'opacity-40 hover:opacity-90'
+                          : 'opacity-40 hover:opacity-95'
                       }`}
                       title="Tin từ trung bình trở lên (Đỏ, Vàng)"
                     >
@@ -1218,10 +1218,10 @@ export default function App() {
                     </button>
                     <button
                       onClick={() => setCalendarImpactFilter("HIGH")}
-                      className={`px-1.5 py-1 sm:px-2 sm:py-1.5 rounded-md flex items-center gap-0.5 transition-all cursor-pointer ${
+                      className={`px-2 py-1.5 rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer flex-1 ${
                         calendarImpactFilter === "HIGH" 
                           ? 'bg-white dark:bg-google-dark-bg shadow-xs border border-gray-200/50 dark:border-white/10' 
-                          : 'opacity-40 hover:opacity-90'
+                          : 'opacity-40 hover:opacity-95'
                       }`}
                       title="Chỉ tin tức quan trọng (Đỏ)"
                     >
@@ -1232,10 +1232,10 @@ export default function App() {
                   {/* Manual Refresh Call inside same line */}
                   <button 
                     onClick={syncCalendar}
-                    className="p-2 sm:p-2.5 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 rounded-lg transition-all cursor-pointer flex-shrink-0"
+                    className="p-2.5 bg-gray-100 dark:bg-zinc-850 hover:bg-gray-200 dark:hover:bg-zinc-800 rounded-xl transition-all cursor-pointer flex items-center justify-center min-w-[36px] min-h-[36px]"
                     title="Cập nhật nguồn tin tức mới nhất"
                   >
-                    <RefreshCw size={12} className={refreshingCalendar ? "animate-spin text-google-blue-600" : "text-gray-500"} />
+                    <RefreshCw size={14} className={refreshingCalendar ? "animate-spin text-google-blue-600" : "text-gray-500 dark:text-gray-400"} />
                   </button>
                 </div>
               </div>
@@ -1596,17 +1596,17 @@ export default function App() {
                 </div>
 
                 {/* Save controls */}
-                <div className="pt-4 border-t border-gray-150 dark:border-white/5 flex gap-3 justify-end">
+                <div className="pt-4 border-t border-gray-150 dark:border-white/5 flex flex-col-reverse sm:flex-row gap-2.5 sm:gap-3 justify-end">
                   <button 
                     type="button"
                     onClick={() => setIsAddOpen(false)}
-                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-600 dark:text-white rounded-xl text-xs font-bold shadow-sm cursor-pointer transition-all"
+                    className="w-full sm:w-auto px-4 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-gray-600 dark:text-white rounded-xl text-xs font-bold shadow-sm cursor-pointer transition-all text-center"
                   >
                     Hủy bỏ
                   </button>
                   <button 
                     type="submit"
-                    className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow hover:shadow-lg transition-all cursor-pointer"
+                    className="w-full sm:w-auto px-6 py-3 bg-google-blue-600 hover:bg-google-blue-700 text-white rounded-xl text-xs font-bold shadow active:scale-[0.98] transition-all cursor-pointer text-center"
                   >
                     {editingTradeId ? "Lưu Thay Đổi (Cập Nhật)" : "Ghi Nhớ Giao Dịch"}
                   </button>
@@ -1695,56 +1695,7 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="border-t border-gray-100 dark:border-white/5 pt-4">
-                  <h5 className="font-bold text-gray-400 capitalize mb-2.5 flex items-center justify-between gap-1.5 font-sans">
-                    <span className="flex items-center gap-1.5 text-xs">
-                      <CloudLightning size={13} className="text-google-blue-600 animate-pulse" />
-                      Kết Nối Supabase Sync
-                    </span>
-                    <span className={`text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${supabaseConnected ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-gray-150 dark:bg-white/5 text-gray-400'}`}>
-                      {supabaseConnected ? "● Hoạt động" : "● Offline"}
-                    </span>
-                  </h5>
-                  
-                  <div className="space-y-3 p-3 bg-gray-50 dark:bg-white/5 rounded-xl border border-transparent font-sans">
-                    <div>
-                      <label className="block text-[8px] text-gray-500 uppercase tracking-wider font-bold mb-1">SUPABASE URL</label>
-                      <input 
-                        type="text" 
-                        value={dbUrl}
-                        onChange={(e) => setDbUrl(e.target.value)}
-                        placeholder="https://your-project.supabase.co"
-                        className="w-full px-2.5 py-1.5 bg-white dark:bg-google-dark-bg border border-gray-200 dark:border-white/5 rounded-lg focus:ring-1 focus:ring-google-blue-600 focus:outline-none font-mono text-[9px] text-gray-800 dark:text-white"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[8px] text-gray-500 uppercase tracking-wider font-bold mb-1">SUPABASE ANON KEY</label>
-                      <input 
-                        type="password" 
-                        value={dbAnon}
-                        onChange={(e) => setDbAnon(e.target.value)}
-                        placeholder="your-anon-key-here"
-                        className="w-full px-2.5 py-1.5 bg-white dark:bg-google-dark-bg border border-gray-200 dark:border-white/5 rounded-lg focus:ring-1 focus:ring-google-blue-600 focus:outline-none font-mono text-[9px] text-gray-800 dark:text-white"
-                      />
-                    </div>
-                    <div className="flex gap-2 pt-1">
-                      <button
-                        type="button"
-                        onClick={testSupabaseConnection}
-                        className="flex-1 py-1.5 bg-google-blue-50 hover:bg-google-blue-100 dark:bg-blue-950/20 dark:hover:bg-blue-950/35 text-google-blue-600 dark:text-blue-400 font-bold rounded-lg transition-colors cursor-pointer text-[10px]"
-                      >
-                        Thử kết nối
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleSaveSupabaseConfig}
-                        className="flex-1 py-1.5 bg-google-blue-600 hover:bg-google-blue-700 text-white font-bold rounded-lg transition-colors shadow-xs cursor-pointer text-[10px]"
-                      >
-                        Lưu cấu hình
-                      </button>
-                    </div>
-                  </div>
-                </div>
+
 
                 {deferredPrompt && (
                   <div className="border-t border-gray-100 dark:border-white/5 pt-4">
