@@ -62,7 +62,7 @@ export default function App() {
   // Tab control
   // On Desktop we show a majestic integrated Bento layout.
   // On Mobile, the tabs let users switch cleanly.
-  const [currentTab, setCurrentTab] = useState<"dashboard" | "journal" | "calendar" | "news">("dashboard");
+  const [currentTab, setCurrentTab] = useState<"dashboard" | "journal" | "calendar">("dashboard");
 
   // Economic Calendar UI Filters
   // Day / Week filter
@@ -95,10 +95,6 @@ export default function App() {
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(() => {
     return localStorage.getItem("pwa_notifications_enabled") === "true";
   });
-  
-  // News state
-  const [newsData, setNewsData] = useState<any[]>([]);
-  const [loadingNews, setLoadingNews] = useState(true);
   
   const [notifiedEvents, setNotifiedEvents] = useState<string[]>(() => {
     try {
@@ -265,10 +261,7 @@ export default function App() {
     loadTradesData();
     // Load calendar
     loadCalendarData();
-    // Load news
-    loadNewsData();
-
-    // Default dates on form
+// Default dates on form
     const now = new Date();
     setFormEntryDate(now.toISOString().slice(0, 16));
     setFormExitDate(now.toISOString().slice(0, 16));
@@ -399,22 +392,7 @@ export default function App() {
     }
   };
 
-  const loadNewsData = async () => {
-    setLoadingNews(true);
-    try {
-      const res = await fetch("/api/news");
-      const json = await res.json();
-      if (json && json.success) {
-        setNewsData(json.data);
-      }
-    } catch (e) {
-      console.error("Error loading news backend:", e);
-    } finally {
-      setLoadingNews(false);
-    }
-  };
-
-  const syncCalendar = async () => {
+const syncCalendar = async () => {
     setRefreshingCalendar(true);
     await loadCalendarData();
     setTimeout(() => setRefreshingCalendar(false), 800);
@@ -716,14 +694,7 @@ export default function App() {
               <CalendarIcon size={16} className="flex-shrink-0" />
               <span>Lịch tin tức</span>
             </button>
-            <button 
-              onClick={() => setCurrentTab("news")}
-              className={`px-4 sm:px-6 py-2.5 rounded-full text-sm font-extrabold transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "news" ? 'bg-google-blue-50 text-google-blue-600 dark:bg-google-blue-600/15 dark:text-blue-200' : 'text-gray-500 hover:text-gray-800 dark:hover:text-white dark:text-gray-400'}`}
-            >
-              <CloudLightning size={16} className="flex-shrink-0" />
-              <span>Tin tức vĩ mô</span>
-            </button>
-          </div>
+</div>
           
           <button 
             onClick={handleOpenAddTrade}
@@ -1370,66 +1341,6 @@ export default function App() {
           </div>
         )}
 
-        {/* 4. NEWS TAB SCREEN */}
-        {currentTab === "news" && (
-          <div className="space-y-6" id="news-master-view">
-            <div className="p-4 sm:p-6 bg-white dark:bg-google-dark-surface rounded-[24px] shadow-sm max-w-full overflow-hidden">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 dark:border-white/5 pb-3 mb-4 w-full min-w-0">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 sm:p-2.5 bg-google-blue-50 text-google-blue-600 dark:bg-google-blue-600/15 dark:text-blue-200 rounded-xl">
-                    <CloudLightning size={16} className="sm:w-5 sm:h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm sm:text-base font-bold text-gray-950 dark:text-white uppercase tracking-wider font-display">TIN TỨC THỊ TRƯỜNG / GLOBAL FEED</h3>
-                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">Nguồn cấp tin tức USD từ báo chí uy tín toàn cầu</p>
-                  </div>
-                </div>
-                <button 
-                  onClick={loadNewsData}
-                  className="p-2.5 bg-gray-100 dark:bg-[#131314] hover:bg-gray-200 dark:hover:bg-[#2e2f30] rounded-xl transition-all cursor-pointer flex items-center justify-center min-w-[36px] min-h-[36px]"
-                  title="Cập nhật tin tức"
-                >
-                  <RefreshCw size={14} className={loadingNews ? "animate-spin text-google-blue-600" : "text-gray-500 dark:text-gray-400"} />
-                </button>
-              </div>
-
-              {loadingNews ? (
-                <div className="py-20 text-center flex flex-col items-center justify-center space-y-4">
-                  <div className="w-10 h-10 border-4 border-gray-100 dark:border-zinc-800 border-t-google-blue-600 rounded-full animate-spin"></div>
-                  <p className="text-sm font-bold text-gray-400">Đang tải tin tức thị trường...</p>
-                </div>
-              ) : newsData.length === 0 ? (
-                 <div className="py-20 text-center">
-                    <p className="text-gray-500 font-bold">Hiện không có bản tin nào về USD.</p>
-                 </div>
-              ) : (
-                <div className="space-y-4">
-                   {newsData.map((ns, idx) => (
-                     <div key={idx} className="p-4 bg-gray-50 dark:bg-[#131314] border border-gray-100 dark:border-white/5 rounded-[20px] transition-all hover:shadow-md cursor-pointer" onClick={() => window.open(ns.url, '_blank')}>
-                       <div className="flex justify-between items-start gap-4">
-                         <div>
-                            <h4 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white hover:text-google-blue-600 dark:hover:text-google-blue-400 line-clamp-2">{ns.title}</h4>
-                            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-2 line-clamp-3">{ns.description}</p>
-                            <div className="flex items-center gap-3 mt-3">
-                              <span className="text-[10px] font-extrabold uppercase tracking-wider text-google-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded focus:outline-none">{ns.source || "News"}</span>
-                              <span className="text-[10px] text-gray-400 flex items-center gap-1 font-mono">
-                                <Clock size={10} />
-                                {new Date(ns.published_at).toLocaleString('vi-VN')}
-                              </span>
-                            </div>
-                         </div>
-                         <div className="hidden sm:flex text-gray-300 dark:text-gray-600">
-                           <ExternalLink size={16} />
-                         </div>
-                       </div>
-                     </div>
-                   ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
       </div>
 
       {/* 5. GORGEOUS ADD TRADE PANEL DIRECTIVE MODAL */}
@@ -1452,7 +1363,7 @@ export default function App() {
                animate={{ opacity: 1, y: 0 }}
                exit={{ opacity: 0, y: 120 }}
                transition={{ type: "spring", damping: 26, stiffness: 220 }}
-               className="relative w-full max-w-2xl bg-white dark:bg-google-dark-surface sm:rounded-[28px] rounded-t-[28px] shadow-2xl z-10 flex flex-col h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-hidden"
+               className="relative w-full max-w-2xl bg-white dark:bg-google-dark-surface sm:rounded-[28px] rounded-t-[28px] shadow-2xl z-10 flex flex-col h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-x-hidden overflow-y-hidden"
                id="new-trade-modal-window"
             >
               
@@ -1490,7 +1401,7 @@ export default function App() {
                       <select 
                         value={formPair}
                         onChange={(e) => setFormPair(e.target.value)}
-                        className="w-full px-2.5 py-3 sm:p-3.5 w-full shrink max-w-[100%] bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-bold cursor-pointer"
+                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-bold cursor-pointer"
                       >
                       <option value="EUR/USD">EUR/USD</option>
                       <option value="GBP/USD">GBP/USD</option>
@@ -1534,7 +1445,7 @@ export default function App() {
                       placeholder="VD: 1.0854"
                       value={formEntryPrice}
                       onChange={(e) => setFormEntryPrice(e.target.value)}
-                      className="w-full px-2.5 py-3 sm:p-3.5 w-full shrink max-w-[100%] bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono"
+                      className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono"
                     />
                   </div>
 
@@ -1547,7 +1458,7 @@ export default function App() {
                       min="0.01"
                       value={formSize}
                       onChange={(e) => setFormSize(e.target.value)}
-                      className="w-full px-2.5 py-3 sm:p-3.5 w-full shrink max-w-[100%] bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono font-bold"
+                      className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono font-bold"
                     />
                   </div>
                 </div>
@@ -1562,7 +1473,7 @@ export default function App() {
                       placeholder="Tùy chọn - SL"
                       value={formStopLoss}
                       onChange={(e) => setFormStopLoss(e.target.value)}
-                      className="w-full px-2.5 py-3 sm:p-3.5 w-full shrink max-w-[100%] bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono"
+                      className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono"
                     />
                   </div>
 
@@ -1574,7 +1485,7 @@ export default function App() {
                       placeholder="Tùy chọn - TP"
                       value={formTakeProfit}
                       onChange={(e) => setFormTakeProfit(e.target.value)}
-                      className="w-full px-2.5 py-3 sm:p-3.5 w-full shrink max-w-[100%] bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono"
+                      className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono"
                     />
                   </div>
                 </div>
@@ -1606,7 +1517,7 @@ export default function App() {
                     <select 
                       value={formTimeframe}
                       onChange={(e) => setFormTimeframe(e.target.value)}
-                      className="w-full px-2.5 py-3 sm:p-3.5 w-full shrink max-w-[100%] bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-bold cursor-pointer"
+                      className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-bold cursor-pointer"
                     >
                       <option value="M5">M5 (5 phút)</option>
                       <option value="M15">M15 (15 phút)</option>
@@ -1628,16 +1539,16 @@ export default function App() {
                         placeholder="VD: 1.0920"
                         value={formExitPrice}
                         onChange={(e) => setFormExitPrice(e.target.value)}
-                        className="w-full px-2.5 py-3 sm:p-3.5 w-full shrink max-w-[100%] bg-white dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono"
+                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-white dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono"
                       />
                     </div>
                     <div className="min-w-0">
                       <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Ngày đóng lệnh</label>
-                      <input 
-                        type="datetime-local" 
+                      <input
+                      type="datetime-local"
                         value={formExitDate}
                         onChange={(e) => setFormExitDate(e.target.value)}
-                        className="w-full px-2.5 py-3 sm:p-3.5 w-full shrink max-w-[100%] bg-white dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all cursor-pointer"
+                        className="w-full bg-white dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl px-2 py-3 sm:px-3 text-xs focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 text-gray-900 dark:text-white transition-all cursor-pointer"
                       />
                     </div>
                   </div>
@@ -1647,11 +1558,11 @@ export default function App() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
                   <div className="min-w-0">
                     <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Ngày vào lệnh</label>
-                    <input 
-                      type="datetime-local" 
+                    <input
+                      type="datetime-local"
                       value={formEntryDate}
                       onChange={(e) => setFormEntryDate(e.target.value)}
-                      className="w-full px-2.5 py-3 sm:p-3.5 w-full shrink max-w-[100%] bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all cursor-pointer"
+                      className="w-full bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl px-2 py-3 sm:px-3 text-xs focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 text-gray-900 dark:text-white transition-all cursor-pointer"
                     />
                   </div>
 
@@ -1660,7 +1571,7 @@ export default function App() {
                     <select 
                       value={formTag}
                       onChange={(e) => setFormTag(e.target.value)}
-                      className="w-full px-2.5 py-3 sm:p-3.5 w-full shrink max-w-[100%] bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-bold cursor-pointer"
+                      className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-bold cursor-pointer"
                     >
                       <option value="News-Trade">Giao dịch theo tin tức</option>
                       <option value="Trend-Follow">Đu theo xu hướng</option>
@@ -1678,7 +1589,7 @@ export default function App() {
                     placeholder="Tại sao bạn khớp lệnh này? Khung cảm xúc, phân tích kỹ thuật hoặc nhận định tin tức của bạn..."
                     value={formNotes}
                     onChange={(e) => setFormNotes(e.target.value)}
-                    className="w-full px-2.5 py-3 sm:p-3.5 w-full shrink max-w-[100%] bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all"
+                    className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all"
                   ></textarea>
                 </div>
 
@@ -1877,16 +1788,6 @@ export default function App() {
             <CalendarIcon size={20} />
           </div>
           <span className="text-xs font-extrabold tracking-wide">Lịch Tin</span>
-        </button>
-
-        <button 
-          onClick={() => setCurrentTab("news")}
-          className={`flex flex-col items-center gap-1.5 justify-center flex-1 py-1.5 ${currentTab === "news" ? 'text-google-blue-600' : 'text-gray-400'}`}
-        >
-          <div className={`px-5 py-1.5 rounded-full ${currentTab === "news" ? 'bg-google-blue-50 dark:bg-google-blue-900/30 text-google-blue-600 dark:text-blue-300' : ''}`}>
-            <CloudLightning size={20} />
-          </div>
-          <span className="text-xs font-extrabold tracking-wide">News</span>
         </button>
       </footer>
 

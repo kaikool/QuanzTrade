@@ -335,29 +335,6 @@ async function startServer() {
     }
   });
 
-  // API endpoint for News
-  app.get("/api/news", async (req, res) => {
-    try {
-       const Parser = (await import("rss-parser")).default;
-       const parser = new Parser();
-       const feed = await parser.parseURL("https://search.yahoo.com/mrss/;_ylt=AwrFeC6eij1o7ZYaGBjBGOd_;_ylu=Y29sbwNiZjEEcG9zAzEEdnRpZAMEc2VjA3Ny?p=USD+economy+forex+fed&fr=sfp&type=rss");
-       
-       const mappedData = feed.items.map((item: any, index: number) => ({
-         id: String(index),
-         title: item.title,
-         description: item.contentSnippet || item.content,
-         url: item.link,
-         published_at: new Date(item.pubDate || Date.now()).toISOString(),
-         source: "Yahoo Finance News"
-       }));
-
-       return res.json({ success: true, source: "rss_feed", data: mappedData.slice(0, 15) });
-    } catch (error: any) {
-       console.error("News fetch error:", error);
-       return res.status(500).json({ success: false, error: error.message });
-    }
-  });
-
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
