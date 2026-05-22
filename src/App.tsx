@@ -857,7 +857,7 @@ export default function App() {
                 <div className="mt-4 pt-4 border-t border-gray-100 dark:border-white/5">
                   <button 
                     onClick={() => setCurrentTab("journal")}
-                    className="w-full py-2.5 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 text-gray-750 dark:text-white rounded-full text-xs sm:text-sm font-extrabold transition-all"
+                    className="w-full py-2.5 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 text-gray-700 dark:text-white rounded-full text-xs sm:text-sm font-extrabold transition-all"
                     id="bento-view-journal-btn"
                   >
                     Quản lý toàn bộ {trades.length} giao dịch
@@ -1060,7 +1060,7 @@ export default function App() {
               <div className="block md:hidden space-y-3" id="trades-mobile-scroller">
                 {filteredTrades.length === 0 ? (
                   <div className="text-center py-12 text-gray-400 text-xs">
-                    <BookOpen size={36} className="mx-auto text-gray-350 dark:text-gray-750 mb-2 animate-pulse" />
+                    <BookOpen size={36} className="mx-auto text-gray-400 dark:text-gray-500 mb-2 animate-pulse" />
                     <p className="font-semibold">Không tìm thấy giao dịch nào</p>
                   </div>
                 ) : (
@@ -1088,7 +1088,7 @@ export default function App() {
                         <div className="flex flex-col">
                           <span className="text-gray-400 dark:text-gray-500 text-[10px] font-bold tracking-wider">Số lượng Lots</span>
                           <span className="font-medium mt-1 flex items-center gap-1.5">
-                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-black ${t.type === "BUY" ? "bg-emerald-550/10 text-emerald-500" : "bg-rose-550/10 text-rose-500"}`}>
+                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-black ${t.type === "BUY" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-rose-500/10 text-rose-600 dark:text-rose-400"}`}>
                               {t.type}
                             </span>
                             <strong>{t.size} Lots</strong>
@@ -1300,7 +1300,7 @@ export default function App() {
                                 </div>
 
                                 <div className="text-right flex-shrink-0">
-                                  <span className="text-xs sm:text-sm font-bold text-gray-650 dark:text-gray-300 flex items-center gap-1 justify-end font-mono">
+                                  <span className="text-xs sm:text-sm font-bold text-gray-600 dark:text-gray-300 flex items-center gap-1 justify-end font-mono">
                                     <Clock size={12} className="text-gray-400" />
                                     {evTime}
                                   </span>
@@ -1323,7 +1323,7 @@ export default function App() {
                                   <div className="font-mono font-bold text-gray-800 dark:text-white mt-1 text-xs sm:text-sm truncate">{ev.previous || "-"}</div>
                                 </div>
                                 <div className="bg-[#f0f9ff] dark:bg-indigo-950/20 p-2 rounded-xl">
-                                  <div className="text-[10px] sm:text-xs uppercase font-extrabold text-sky-600 dark:text-sky-305">Thực tế</div>
+                                  <div className="text-[10px] sm:text-xs uppercase font-extrabold text-sky-600 dark:text-sky-400">Thực tế</div>
                                   <div className="font-mono font-bold text-sky-600 dark:text-sky-300 mt-1 text-xs sm:text-sm truncate">{ev.actual || <span className="italic font-normal text-xs text-gray-400">Đợi tin</span>}</div>
                                 </div>
                               </div>
@@ -1619,7 +1619,7 @@ export default function App() {
                   <button 
                     type="button"
                     onClick={() => setIsAddOpen(false)}
-                    className="w-full sm:w-auto px-6 py-2.5 bg-transparent border border-gray-300 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-800 text-gray-600 dark:text-gray-350 rounded-full text-sm font-bold cursor-pointer transition-colors text-center"
+                    className="w-full sm:w-auto px-6 py-2.5 bg-transparent border border-gray-300 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-800 text-gray-600 dark:text-gray-400 rounded-full text-sm font-bold cursor-pointer transition-colors text-center"
                   >
                     Hủy bỏ
                   </button>
