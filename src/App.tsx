@@ -608,7 +608,7 @@ export default function App() {
     <div className={`min-h-screen ${darkMode ? "dark bg-google-dark-bg text-gray-100" : "bg-[#f0f4f9] text-gray-800"} transition-all duration-300 font-display pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-6`} id="app-root-theme">
       
       {/* Main Container */}
-      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 pt-[calc(1rem+env(safe-area-inset-top,0px))] md:pt-5 space-y-3.5 sm:space-y-6" id="app-grid-frame">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-[calc(1rem+env(safe-area-inset-top,0px))] md:pt-5 space-y-3.5 sm:space-y-6" id="app-grid-frame">
         
         {/* Google Workspace Style Tonal Top Header */}
         <header className={`flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-6 ${darkMode ? "bg-google-dark-surface" : "bg-white"} rounded-2xl shadow-sm space-y-4 md:space-y-0`} id="google-m3-header">
@@ -650,7 +650,7 @@ export default function App() {
                 <span className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white font-display truncate" id="live-balance-text">
                   ${summary.balance.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
                 </span>
-                <span className={`text-xs sm:text-xs px-2 py-1 rounded-full font-bold flex items-center gap-0.5 flex-shrink-0 ${summary.pnl >= 0 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/10 text-rose-600 dark:text-rose-450'}`} id="summary-badge-pnl">
+                <span className={`text-xs sm:text-xs px-2 py-1 rounded-full font-bold flex items-center gap-0.5 flex-shrink-0 ${summary.pnl >= 0 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'}`} id="summary-badge-pnl">
                   {summary.pnl >= 0 ? "+" : ""}${summary.pnl.toFixed(0)}
                 </span>
               </div>
@@ -659,7 +659,7 @@ export default function App() {
             {/* Profile Settings Click */}
             <button 
               onClick={() => setIsSettingsOpen(true)}
-              className="w-10 h-10 sm:w-11 sm:h-11 bg-gray-100 hover:bg-gray-200 dark:bg-white/5 border border-gray-200/50 dark:border-white/5 rounded-full flex items-center justify-center text-gray-700 dark:text-gray-200 font-bold font-mono cursor-pointer relative shadow-sm flex-shrink-0 text-sm"
+              className="w-10 h-10 sm:w-11 sm:h-11 bg-gray-100 hover:bg-gray-200 dark:bg-white/5 rounded-full flex items-center justify-center text-gray-700 dark:text-gray-200 font-bold font-mono cursor-pointer relative shadow-sm flex-shrink-0 text-sm"
               id="avatar-button"
             >
               JD
@@ -675,21 +675,21 @@ export default function App() {
           <div className="flex gap-1 sm:gap-1.5 flex-shrink-0">
             <button 
               onClick={() => setCurrentTab("dashboard")}
-              className={`px-4 sm:px-6 py-2.5 rounded-full text-sm font-extrabold transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "dashboard" ? 'bg-google-blue-50 text-google-blue-600 dark:bg-google-blue-600/15 dark:text-blue-200 shadow-sm' : 'text-gray-500 hover:text-gray-800 dark:hover:text-white dark:text-gray-400'}`}
+              className={`px-4 sm:px-6 py-2.5 rounded-full text-sm font-extrabold transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "dashboard" ? 'bg-google-blue-50 text-google-blue-600 dark:bg-google-blue-600/15 dark:text-blue-200' : 'text-gray-500 hover:text-gray-800 dark:hover:text-white dark:text-gray-400'}`}
             >
               <BarChart2 size={16} className="flex-shrink-0" />
               <span>Tổng quan</span>
             </button>
             <button 
               onClick={() => setCurrentTab("journal")}
-              className={`px-4 sm:px-6 py-2.5 rounded-full text-sm font-extrabold transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "journal" ? 'bg-google-blue-50 text-google-blue-600 dark:bg-google-blue-600/15 dark:text-blue-200 shadow-sm' : 'text-gray-500 hover:text-gray-800 dark:hover:text-white dark:text-gray-400'}`}
+              className={`px-4 sm:px-6 py-2.5 rounded-full text-sm font-extrabold transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "journal" ? 'bg-google-blue-50 text-google-blue-600 dark:bg-google-blue-600/15 dark:text-blue-200' : 'text-gray-500 hover:text-gray-800 dark:hover:text-white dark:text-gray-400'}`}
             >
               <FileText size={16} className="flex-shrink-0" />
               <span>Nhật ký <span className="text-xs font-mono text-gray-400 dark:text-gray-500">({trades.length})</span></span>
             </button>
             <button 
               onClick={() => setCurrentTab("calendar")}
-              className={`px-4 sm:px-6 py-2.5 rounded-full text-sm font-extrabold transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "calendar" ? 'bg-google-blue-50 text-google-blue-600 dark:bg-google-blue-600/15 dark:text-blue-200 shadow-sm' : 'text-gray-500 hover:text-gray-800 dark:hover:text-white dark:text-gray-400'}`}
+              className={`px-4 sm:px-6 py-2.5 rounded-full text-sm font-extrabold transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "calendar" ? 'bg-google-blue-50 text-google-blue-600 dark:bg-google-blue-600/15 dark:text-blue-200' : 'text-gray-500 hover:text-gray-800 dark:hover:text-white dark:text-gray-400'}`}
             >
               <CalendarIcon size={16} className="flex-shrink-0" />
               <span>Lịch tin tức</span>
@@ -698,11 +698,11 @@ export default function App() {
           
           <button 
             onClick={handleOpenAddTrade}
-            className="hidden md:flex items-center gap-2 px-6 py-2.5 bg-google-blue-600 hover:bg-google-blue-700 text-white rounded-full text-sm font-extrabold shadow-sm hover:shadow transition-all cursor-pointer"
+            className="hidden md:flex items-center gap-2 px-6 py-2.5 bg-google-blue-600 hover:bg-google-blue-700 text-white rounded-full text-sm font-extrabold shadow-sm active:scale-95 transition-all cursor-pointer"
             id="desktop-add-trade-btn"
           >
             <Plus size={16} />
-            Thêm Giao Dịch
+            <span>Thêm giao dịch</span>
           </button>
         </div>
 
@@ -737,7 +737,7 @@ export default function App() {
                         className={`flex-1 sm:flex-initial text-center px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                           calendarPeriodFilter === "DAY" 
                             ? (darkMode ? 'bg-[#2e2f30] text-blue-300 shadow-xs' : 'bg-white text-google-blue-600 shadow-xs') 
-                            : (darkMode ? 'text-gray-450 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white' : 'text-gray-550 hover:text-gray-850')
+                            : (darkMode ? 'text-gray-400 hover:text-gray-200 dark:text-gray-400 dark:hover:text-white' : 'text-gray-550 hover:text-gray-800')
                         }`}
                       >
                         Hôm nay
@@ -838,7 +838,7 @@ export default function App() {
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
-                              <span className="font-extrabold text-sm text-gray-805 dark:text-white">{t.pair}</span>
+                              <span className="font-extrabold text-sm text-gray-800 dark:text-white">{t.pair}</span>
                               <span className={`text-sm font-black font-mono ${t.pnl >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
                                 {t.pnl >= 0 ? "+" : ""}${t.pnl.toLocaleString()}
                               </span>
@@ -1086,7 +1086,7 @@ export default function App() {
 
                       <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-xs border-t border-b border-gray-150/15 dark:border-white/5 py-2.5">
                         <div className="flex flex-col">
-                          <span className="text-gray-400 dark:text-gray-500 text-[10px] uppercase font-bold tracking-wider">LỆNH SỐ LƯỢNG</span>
+                          <span className="text-gray-400 dark:text-gray-500 text-[10px] font-bold tracking-wider">Số lượng Lots</span>
                           <span className="font-medium mt-1 flex items-center gap-1.5">
                             <span className={`px-1.5 py-0.5 rounded text-[10px] font-black ${t.type === "BUY" ? "bg-emerald-550/10 text-emerald-500" : "bg-rose-550/10 text-rose-500"}`}>
                               {t.type}
@@ -1095,19 +1095,19 @@ export default function App() {
                           </span>
                         </div>
                         <div className="flex flex-col text-right">
-                          <span className="text-gray-400 dark:text-gray-500 text-[10px] uppercase font-bold tracking-wider">GIÁ VÀO / RA</span>
+                          <span className="text-gray-400 dark:text-gray-500 text-[10px] font-bold tracking-wider">Giá vào / ra</span>
                           <span className="font-mono text-gray-800 dark:text-gray-200 mt-1">
-                            {t.entry_price} → <strong className="text-gray-900 dark:text-white">{t.exit_price || "Open"}</strong>
+                            {t.entry_price} → <strong className="text-gray-900 dark:text-white">{t.exit_price || "Đang mở"}</strong>
                           </span>
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-gray-400 dark:text-gray-500 text-[10px] uppercase font-bold tracking-wider">CHẶN LỖ / CHỐT LỜI</span>
-                          <span className="font-mono text-gray-500 dark:text-gray-450 mt-1">
+                          <span className="text-gray-400 dark:text-gray-500 text-[10px] font-bold tracking-wider">Chặn lỗ / Chốt lời</span>
+                          <span className="font-mono text-gray-500 dark:text-gray-400 mt-1">
                             {t.stop_loss || "N/A"} / {t.take_profit || "N/A"}
                           </span>
                         </div>
                         <div className="flex flex-col text-right">
-                          <span className="text-gray-400 dark:text-gray-500 text-[10px] uppercase font-bold tracking-wider">LỜI / LỖ ròng</span>
+                          <span className="text-gray-400 dark:text-gray-500 text-[10px] font-bold tracking-wider">Lời / Lỗ ròng (USD)</span>
                           <span className={`font-mono font-black text-sm ${t.pnl >= 0 ? "text-emerald-500" : "text-rose-500"} mt-1`}>
                             {t.pnl >= 0 ? "+" : ""}${t.pnl.toLocaleString()}
                           </span>
@@ -1560,7 +1560,7 @@ export default function App() {
                       type="datetime-local" 
                       value={formEntryDate}
                       onChange={(e) => setFormEntryDate(e.target.value)}
-                      className="w-full p-3 bg-gray-50 dark:bg-[#131314] hover:bg-gray-100/50 dark:hover:bg-[#18191a] rounded-xl text-xs focus:outline-none border border-gray-200 dark:border-[#2e3135] text-gray-955 dark:text-white transition-colors focus:border-google-blue-600 dark:focus:border-google-blue-100 cursor-pointer"
+                      className="w-full p-3 bg-gray-50 dark:bg-[#131314] hover:bg-gray-100/50 dark:hover:bg-[#18191a] rounded-xl text-xs focus:outline-none border border-gray-200 dark:border-[#2e3135] text-gray-900 dark:text-white transition-colors focus:border-google-blue-600 dark:focus:border-google-blue-100 cursor-pointer"
                     />
                   </div>
 
@@ -1569,7 +1569,7 @@ export default function App() {
                     <select 
                       value={formTag}
                       onChange={(e) => setFormTag(e.target.value)}
-                      className="w-full p-3 bg-gray-50 dark:bg-[#131314] hover:bg-gray-100/50 dark:hover:bg-[#18191a] rounded-xl text-sm focus:outline-none border border-gray-200 dark:border-[#2e3135] text-gray-905 dark:text-white font-bold cursor-pointer transition-colors"
+                      className="w-full p-3 bg-gray-50 dark:bg-[#131314] hover:bg-gray-100/50 dark:hover:bg-[#18191a] rounded-xl text-sm focus:outline-none border border-gray-200 dark:border-[#2e3135] text-gray-900 dark:text-white font-bold cursor-pointer transition-colors"
                     >
                       <option value="News-Trade">Giao dịch theo Tin Tức (News-Trade)</option>
                       <option value="Trend-Follow">Xu Hướng (Trend-Follow)</option>
@@ -1615,19 +1615,19 @@ export default function App() {
                 </div>
 
                 {/* Save controls */}
-                <div className="pt-4 border-t border-gray-150 dark:border-white/5 flex flex-col-reverse sm:flex-row gap-3 justify-end">
+                <div className="pt-4 border-t border-gray-150 dark:border-white/5 flex flex-col-reverse sm:flex-row gap-3 justify-end items-center">
                   <button 
                     type="button"
                     onClick={() => setIsAddOpen(false)}
-                    className="w-full sm:w-auto px-6 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-[#131314] dark:hover:bg-[#2e2f30] text-gray-600 dark:text-gray-300 border border-transparent dark:border-[#2e3135] rounded-xl text-xs font-extrabold shadow-xs cursor-pointer transition-all text-center uppercase tracking-wider"
+                    className="w-full sm:w-auto px-6 py-2.5 bg-transparent border border-gray-300 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-800 text-gray-600 dark:text-gray-350 rounded-full text-sm font-bold cursor-pointer transition-colors text-center"
                   >
                     Hủy bỏ
                   </button>
                   <button 
                     type="submit"
-                    className="w-full sm:w-auto px-8 py-3 bg-google-blue-600 hover:bg-google-blue-700 text-white rounded-xl text-xs font-extrabold shadow-sm active:scale-[0.98] transition-all cursor-pointer text-center uppercase tracking-wider"
+                    className="w-full sm:w-auto px-8 py-2.5 bg-google-blue-600 hover:bg-google-blue-700 text-white rounded-full text-sm font-bold active:scale-[0.98] transition-all cursor-pointer text-center"
                   >
-                    {editingTradeId ? "Cập Nhật" : "Ghi Lại Giao Dịch"}
+                    {editingTradeId ? "Cập nhật dữ liệu" : "Ghi lại giao dịch"}
                   </button>
                 </div>
 
@@ -1734,7 +1734,7 @@ export default function App() {
                 <div className="border-t border-gray-100 dark:border-white/5 pt-4">
                   <button
                     onClick={handleResetLocalStorage}
-                    className="w-full py-2.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-950/30 text-rose-600 dark:text-rose-450 font-bold rounded-xl border border-rose-100/50 dark:border-rose-950/30 transition-colors cursor-pointer text-xs"
+                    className="w-full py-2.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-950/30 text-rose-600 dark:text-rose-400 font-bold rounded-xl border border-rose-100/50 dark:border-rose-950/30 transition-colors cursor-pointer text-xs"
                   >
                     Xoá Toàn Bộ Nhật Ký Cũ (Local)
                   </button>

@@ -12,51 +12,82 @@
   --color-google-blue-700: #1557b0;
   --color-google-dark-bg: #131314;
   --color-google-dark-surface: #1e1f20;
+
+  /* Material Design 3 semantic color palette specs */
+  --color-m3-light-primary: #1a73e8;
+  --color-m3-light-on-primary: #ffffff;
+  --color-m3-light-primary-container: #d2e3fc;
+  --color-m3-light-on-primary-container: #001d3d;
+  --color-m3-light-surface: #f8f9fa;
+  --color-m3-light-surface-container-lowest: #ffffff;
+  --color-m3-light-surface-container-low: #f0f4f9;
+  --color-m3-light-surface-container: #ebeff6;
+  --color-m3-light-surface-container-high: #e1e8f2;
+  --color-m3-light-outline: #74777f;
+  --color-m3-light-outline-variant: #c4c6cf;
+
+  --color-m3-dark-primary: #a8c7fa;
+  --color-m3-dark-on-primary: #0a305f;
+  --color-m3-dark-primary-container: #004481;
+  --color-m3-dark-on-primary-container: #d2e3fc;
+  --color-m3-dark-surface: #131314;
+  --color-m3-dark-surface-container-lowest: #0c0c0d;
+  --color-m3-dark-surface-container-low: #1e1f20;
+  --color-m3-dark-surface-container: #222425;
+  --color-m3-dark-surface-container-high: #282a2c;
+  --color-m3-dark-outline: #8e9099;
+  --color-m3-dark-outline-variant: #44474e;
 }
 
 @variant dark (&:where(.dark, .dark *));
 
-/* Custom scrollbars */
+/* Custom scrollbars designed to match Material 3 specifications */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(156, 163, 175, 0.25);
+  background: rgba(116, 119, 127, 0.2);
   border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(156, 163, 175, 0.45);
+  background: rgba(116, 119, 127, 0.45);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
 body {
   font-family: var(--font-sans);
-  background-color: #f0f4f9; /* Standard soft blue-grey container background */
+  background-color: #f0f4f9; /* M3 Light Surface Container Low */
   color: #1f2937;
   overflow-x: hidden;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.25s cubic-bezier(0.2, 0, 0, 1), color 0.25s cubic-bezier(0.2, 0, 0, 1);
 }
 
 body.dark {
-  background-color: var(--color-google-dark-bg);
+  background-color: #131314; /* M3 Dark Surface Container Lowest */
   color: #e3e3e3;
 }
 
-/* Material Outlined Input & Google Style Elements */
+/* Material Outlined Input - Strict Google Style */
 .m3-input {
   background-color: transparent;
-  border: 1px solid #74777f;
-  border-radius: 8px;
+  border: 1.5px solid #74777f;
+  border-radius: 12px;
   outline: none;
+  font-weight: 500;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .m3-input:focus {
-  border-color: var(--color-google-blue-600);
-  box-shadow: 0 0 0 1px var(--color-google-blue-600);
+  border-color: #1a73e8;
+  box-shadow: 0 0 0 1px #1a73e8;
 }
 
 .dark .m3-input {
@@ -68,7 +99,7 @@ body.dark {
   box-shadow: 0 0 0 1px #a8c7fa;
 }
 
-/* Hide scrollbar utility */
+/* Scrollbar behaviors for clean M3 scroll list view */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -77,7 +108,7 @@ body.dark {
   scrollbar-width: none;
 }
 
-/* Safe area padding & margin helper classes for modern notch/home-indicator PWAs */
+/* Safe area padding & margin helper classes for PWA layouts */
 .pt-safe {
   padding-top: max(1rem, env(safe-area-inset-top, 16px));
 }

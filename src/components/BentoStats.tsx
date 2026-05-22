@@ -123,20 +123,20 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
           id="m3-card-pnl"
         >
           <div className="flex justify-between items-start gap-1">
-            <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 font-display truncate">Net Profit</span>
+            <span className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 font-display truncate">Lợi nhuận ròng (Net Profit)</span>
             <div className={`p-1.5 sm:p-2 rounded-full flex-shrink-0 ${stats.netPnl >= 0 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'}`}>
               {stats.netPnl >= 0 ? <TrendingUp size={16} className="sm:w-4.5 sm:h-4.5" /> : <TrendingDown size={16} className="sm:w-4.5 sm:h-4.5" />}
             </div>
           </div>
           <div className="min-w-0 mt-2">
             <h3 
-              className={`text-lg xs:text-xl sm:text-2xl md:text-3xl font-black tracking-tight font-display truncate ${stats.netPnl >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-450'}`} 
+              className={`text-lg xs:text-xl sm:text-2xl md:text-3xl font-black tracking-tight font-display truncate ${stats.netPnl >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`} 
               id="net-pnl-val"
               title={`${stats.netPnl >= 0 ? "+" : ""}${stats.netPnl.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
             >
               {stats.netPnl >= 0 ? "+" : ""}${stats.netPnl.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </h3>
-            <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-500 mt-1 font-medium truncate">Lợi nhuận ròng</p>
+            <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-500 mt-1 font-medium truncate">Tổng kết toàn bộ tài sản</p>
           </div>
         </motion.div>
 
@@ -149,7 +149,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
           id="m3-card-winrate"
         >
           <div className="flex justify-between items-start gap-1">
-            <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 font-display truncate">Win Rate</span>
+            <span className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 font-display truncate">Tỷ lệ thắng (Win Rate)</span>
             <div className="p-1.5 sm:p-2 rounded-full bg-blue-100 text-google-blue-600 dark:bg-google-blue-100/10 dark:text-google-blue-200 flex-shrink-0">
               <Percent size={16} className="sm:w-4.5 sm:h-4.5" />
             </div>
@@ -159,7 +159,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
               {stats.winRate.toFixed(1)}%
             </h3>
             <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium truncate">
-              {stats.winningTrades}T / {stats.totalTrades} Lệnh
+              {stats.winningTrades} thắng / {stats.totalTrades} lệnh
             </p>
           </div>
         </motion.div>
@@ -173,7 +173,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
           id="m3-card-pf"
         >
           <div className="flex justify-between items-start gap-1">
-            <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 font-display truncate">Profit Factor</span>
+            <span className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 font-display truncate">Hệ số lợi nhuận (Profit Factor)</span>
             <div className="p-1.5 sm:p-2 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-100/10 dark:text-amber-400 flex-shrink-0">
               <Activity size={16} className="sm:w-4.5 sm:h-4.5" />
             </div>
@@ -182,7 +182,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
             <h3 className="text-lg xs:text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-gray-900 dark:text-white font-display truncate" id="pf-val">
               {stats.profitFactor.toFixed(2)}
             </h3>
-            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium truncate">Hệ số lợi nhuận</p>
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium truncate">Tổng lời / tổng lỗ</p>
           </div>
         </motion.div>
 
@@ -195,7 +195,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
           id="m3-card-avg"
         >
           <div className="flex justify-between items-start gap-1">
-            <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 font-display truncate">Avg Trade</span>
+            <span className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 font-display truncate">Lợi nhuận TB (Avg Trade)</span>
             <div className={`p-1.5 sm:p-2 rounded-full flex-shrink-0 ${stats.averagePnl >= 0 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'}`}>
               <Award size={16} className="sm:w-4.5 sm:h-4.5" />
             </div>
@@ -204,7 +204,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
             <h3 className={`text-lg xs:text-xl sm:text-2xl md:text-3xl font-black tracking-tight font-display truncate ${stats.averagePnl >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`} id="avg-pnl-val">
               {stats.averagePnl >= 0 ? "+" : ""}${stats.averagePnl.toLocaleString("en-US", { maximumFractionDigits: 0 })}
             </h3>
-            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium truncate">Lợi nhuận TB</p>
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium truncate">Hiệu suất trung bình mỗi lệnh</p>
           </div>
         </motion.div>
       </div>
@@ -352,11 +352,11 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
           <div className="space-y-3.5 mt-4 pt-4 border-t border-gray-100 dark:border-white/5 text-sm text-gray-550 dark:text-gray-400 font-medium">
             <div className="flex justify-between items-center">
               <span>Giao dịch thắng lớn nhất:</span>
-              <span className="font-mono font-bold text-emerald-600 dark:text-emerald-450 text-base">+${stats.bestTrade.toLocaleString()}</span>
+              <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-base">+${stats.bestTrade.toLocaleString()}</span>
             </div>
             <div className="flex justify-between items-center">
               <span>Giao dịch lỗ lớn nhất:</span>
-              <span className="font-mono font-bold text-rose-500 dark:text-rose-450 text-base">${stats.worstTrade.toLocaleString()}</span>
+              <span className="font-mono font-bold text-rose-500 dark:text-rose-400 text-base">${stats.worstTrade.toLocaleString()}</span>
             </div>
           </div>
         </motion.div>
