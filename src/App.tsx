@@ -237,6 +237,14 @@ export default function App() {
     }
   };
 
+  const handleResetLocalStorage = async () => {
+    if (confirm("Bạn có chắc chắn muốn xoá toàn bộ lịch sử giao dịch đang lưu trữ cục bộ?")) {
+      localStorage.setItem("trade_app_local_trades", "[]");
+      await loadTradesData();
+      setIsSettingsOpen(false);
+    }
+  };
+
   // Initialize data and db keys
   useEffect(() => {
     // Load trades
@@ -1560,6 +1568,15 @@ export default function App() {
                     </button>
                   </div>
                 )}
+
+                <div className="border-t border-gray-100 dark:border-white/5 pt-4">
+                  <button
+                    onClick={handleResetLocalStorage}
+                    className="w-full py-2.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-950/30 text-rose-600 dark:text-rose-450 font-bold rounded-xl border border-rose-100/50 dark:border-rose-950/30 transition-colors cursor-pointer text-xs"
+                  >
+                    Xoá Toàn Bộ Nhật Ký Cũ (Local)
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>
