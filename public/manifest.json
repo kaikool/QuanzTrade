@@ -1,0 +1,23 @@
+{
+  "name": "Trade Journal & Economic Calendar",
+  "short_name": "TradeJournal",
+  "description": "Ghi chép giao dịch chuyên nghiệp và cập nhật tin tức vĩ mô thời gian thực",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#131314",
+  "theme_color": "#1a73e8",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/color/192/000000/google-sheets.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://img.icons8.com/color/512/000000/google-sheets.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

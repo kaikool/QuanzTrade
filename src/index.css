@@ -1,0 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-google-blue-50: #e8f0fe;
+  --color-google-blue-100: #d2e3fc;
+  --color-google-blue-600: #1a73e8;
+  --color-google-blue-700: #1557b0;
+  --color-google-dark-bg: #131314;
+  --color-google-dark-surface: #1e1f20;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.25);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.45);
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #f0f4f9; /* Standard soft blue-grey container background */
+  color: #1f2937;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark {
+  background-color: var(--color-google-dark-bg);
+  color: #e3e3e3;
+}
+
+/* Material Outlined Input & Google Style Elements */
+.m3-input {
+  background-color: transparent;
+  border: 1px solid #74777f;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.m3-input:focus {
+  border-color: var(--color-google-blue-600);
+  box-shadow: 0 0 0 1px var(--color-google-blue-600);
+}
+
+.dark .m3-input {
+  border-color: #8e9099;
+}
+
+.dark .m3-input:focus {
+  border-color: #a8c7fa;
+  box-shadow: 0 0 0 1px #a8c7fa;
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Safe area padding & margin helper classes for modern notch/home-indicator PWAs */
+.pt-safe {
+  padding-top: max(1rem, env(safe-area-inset-top, 16px));
+}
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 16px));
+}
+.pb-safe-nav {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 16px));
+}
+.mb-safe {
+  margin-bottom: env(safe-area-inset-bottom, 0px);
+}
+.mt-safe {
+  margin-top: env(safe-area-inset-top, 0px);
+}
+
