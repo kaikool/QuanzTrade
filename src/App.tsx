@@ -1363,44 +1363,46 @@ export default function App() {
                animate={{ opacity: 1, y: 0 }}
                exit={{ opacity: 0, y: 120 }}
                transition={{ type: "spring", damping: 26, stiffness: 220 }}
-               className="relative w-full max-w-2xl bg-white dark:bg-google-dark-surface p-5 sm:p-8 rounded-t-[28px] sm:rounded-[28px] shadow-2xl z-10 flex flex-col max-h-[95vh] sm:max-h-[90vh] overflow-y-auto pb-[max(2rem,env(safe-area-inset-bottom,16px))] sm:pb-8"
+               className="relative w-full max-w-2xl bg-white dark:bg-google-dark-surface sm:rounded-[28px] rounded-t-[28px] shadow-2xl z-10 flex flex-col h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-hidden"
                id="new-trade-modal-window"
             >
               
-              <div className="flex justify-between items-center border-b border-gray-150 dark:border-white/5 pb-4 mb-6">
+              <div className="flex justify-between items-center px-5 sm:px-8 py-4 sm:py-6 border-b border-gray-150 dark:border-white/5 bg-white dark:bg-google-dark-surface z-20 shrink-0">
                 <div className="flex items-center gap-3">
-                  <div className="p-3 bg-google-blue-50 text-google-blue-600 dark:bg-google-blue-600/15 dark:text-blue-300 rounded-xl">
+                  <div className="hidden sm:flex p-3 bg-google-blue-50 text-google-blue-600 dark:bg-google-blue-600/15 dark:text-blue-300 rounded-xl">
                     <Plus size={18} />
                   </div>
                   <div>
-                    <h3 className="text-base sm:text-lg font-bold text-gray-950 dark:text-white font-display">
+                    <h3 className="text-lg font-bold text-gray-950 dark:text-white font-display">
                       {editingTradeId ? "Cập Nhật Giao Dịch" : "Ghi Chép Giao Dịch Mới"}
                     </h3>
-                    <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-400 mt-1">
-                      {editingTradeId ? "Cập nhật các số liệu, ghi chú hoặc tất toán giao dịch hiện tại" : "Ghi nhận nhật ký để theo dõi và hoàn thiện kỹ năng giao dịch"}
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                      {editingTradeId ? "Cập nhật các số liệu, ghi chú hoặc tất toán giao dịch" : "Ghi nhận chi tiết để theo dõi biểu đồ tăng trưởng"}
                     </p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsAddOpen(false)}
-                  className="p-1.5 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors text-gray-400 hover:text-gray-950 dark:hover:text-white cursor-pointer"
+                  className="p-2 sm:p-1.5 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors text-gray-500 hover:text-gray-950 dark:hover:text-white cursor-pointer"
                   title="Đóng"
                 >
-                  <X size={18} />
+                  <X size={24} className="sm:w-[20px] sm:h-[20px]" />
                 </button>
               </div>
 
-              <form onSubmit={handleCreateTrade} className="space-y-6 flex-1 min-w-0" id="trade-form">
-                {/* BUY SELL TOGGLE & Pairs Selection */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Cặp ngoại tệ</label>
-                    <select 
-                      value={formPair}
-                      onChange={(e) => setFormPair(e.target.value)}
-                      className="w-full p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-bold cursor-pointer"
-                    >
+              <form onSubmit={handleCreateTrade} className="flex flex-col flex-1 min-h-0 min-w-0" id="trade-form">
+                
+                <div className="overflow-y-auto flex-1 p-5 sm:p-8 space-y-6 sm:space-y-7">
+                  {/* BUY SELL TOGGLE & Pairs Selection */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+                    <div>
+                      <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Cặp ngoại tệ</label>
+                      <select 
+                        value={formPair}
+                        onChange={(e) => setFormPair(e.target.value)}
+                        className="w-full p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-bold cursor-pointer"
+                      >
                       <option value="EUR/USD">EUR/USD</option>
                       <option value="GBP/USD">GBP/USD</option>
                       <option value="USD/JPY">USD/JPY</option>
@@ -1613,9 +1615,10 @@ export default function App() {
                     <span className="text-xs text-gray-500 font-bold font-mono min-w-[45px]">({formRating}/5 sao)</span>
                   </div>
                 </div>
+                </div>
 
                 {/* Save controls */}
-                <div className="pt-4 border-t border-gray-150 dark:border-white/5 flex flex-col-reverse sm:flex-row gap-3 justify-end items-center">
+                <div className="px-5 sm:px-8 py-4 sm:py-5 border-t border-gray-150 dark:border-white/5 bg-white dark:bg-google-dark-surface flex flex-col-reverse sm:flex-row gap-3 justify-end items-center z-20 shrink-0 pb-[max(1rem,env(safe-area-inset-bottom,16px))] sm:pb-5">
                   <button 
                     type="button"
                     onClick={() => setIsAddOpen(false)}
