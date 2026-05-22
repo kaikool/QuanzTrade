@@ -1657,13 +1657,13 @@ export default function App() {
                   <div className="flex gap-2">
                     <button 
                       onClick={() => setDarkMode(false)}
-                      className={`flex-1 py-1.5 sm:py-2 rounded-full font-bold flex items-center justify-center gap-2 border ${!darkMode ? 'bg-white border-google-blue-600 text-google-blue-600 dark:bg-google-dark-bg' : 'bg-gray-50 border-gray-200 text-gray-500'}`}
+                      className={`flex-1 py-1.5 sm:py-2 rounded-full font-bold flex items-center justify-center gap-2 border text-xs transition-all ${!darkMode ? 'bg-white border-google-blue-600 text-google-blue-600 shadow-xs' : 'bg-gray-50 border-gray-150 text-gray-500 dark:bg-zinc-800/50 dark:border-zinc-700/50 dark:text-gray-400'}`}
                     >
                       ☀ Sáng (Material Lite)
                     </button>
                     <button 
                       onClick={() => setDarkMode(true)}
-                      className={`flex-1 py-1.5 sm:py-2 rounded-full font-bold flex items-center justify-center gap-2 border ${darkMode ? 'bg-google-dark-bg border-google-blue-600 text-google-blue-400' : 'bg-gray-50 border-gray-200 text-gray-500'}`}
+                      className={`flex-1 py-1.5 sm:py-2 rounded-full font-bold flex items-center justify-center gap-2 border text-xs transition-all ${darkMode ? 'bg-google-dark-bg border-google-blue-600 text-google-blue-400 shadow-xs' : 'bg-gray-50 border-gray-150 text-gray-500 dark:bg-zinc-800/50 dark:border-zinc-700/50 dark:text-gray-400'}`}
                     >
                       ☽ Tối (Material Dark)
                     </button>
