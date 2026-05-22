@@ -123,7 +123,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
           id="m3-card-pnl"
         >
           <div className="flex justify-between items-start gap-1">
-            <span className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 font-display truncate">Lợi nhuận ròng (Net Profit)</span>
+            <span className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 font-display truncate">Lợi nhuận ròng</span>
             <div className={`p-1.5 sm:p-2 rounded-full flex-shrink-0 ${stats.netPnl >= 0 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'}`}>
               {stats.netPnl >= 0 ? <TrendingUp size={16} className="sm:w-4.5 sm:h-4.5" /> : <TrendingDown size={16} className="sm:w-4.5 sm:h-4.5" />}
             </div>
@@ -149,7 +149,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
           id="m3-card-winrate"
         >
           <div className="flex justify-between items-start gap-1">
-            <span className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 font-display truncate">Tỷ lệ thắng (Win Rate)</span>
+            <span className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 font-display truncate">Tỷ lệ thắng</span>
             <div className="p-1.5 sm:p-2 rounded-full bg-blue-100 text-google-blue-600 dark:bg-google-blue-100/10 dark:text-google-blue-200 flex-shrink-0">
               <Percent size={16} className="sm:w-4.5 sm:h-4.5" />
             </div>
@@ -173,7 +173,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
           id="m3-card-pf"
         >
           <div className="flex justify-between items-start gap-1">
-            <span className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 font-display truncate">Hệ số lợi nhuận (Profit Factor)</span>
+            <span className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 font-display truncate">Hệ số lợi nhuận</span>
             <div className="p-1.5 sm:p-2 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-100/10 dark:text-amber-400 flex-shrink-0">
               <Activity size={16} className="sm:w-4.5 sm:h-4.5" />
             </div>
@@ -195,7 +195,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
           id="m3-card-avg"
         >
           <div className="flex justify-between items-start gap-1">
-            <span className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 font-display truncate">Lợi nhuận TB (Avg Trade)</span>
+            <span className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 font-display truncate">Lợi nhuận trung bình</span>
             <div className={`p-1.5 sm:p-2 rounded-full flex-shrink-0 ${stats.averagePnl >= 0 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'}`}>
               <Award size={16} className="sm:w-4.5 sm:h-4.5" />
             </div>

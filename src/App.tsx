@@ -1363,7 +1363,7 @@ export default function App() {
                animate={{ opacity: 1, y: 0 }}
                exit={{ opacity: 0, y: 120 }}
                transition={{ type: "spring", damping: 26, stiffness: 220 }}
-               className="relative w-full max-w-2xl bg-white dark:bg-google-dark-surface p-6 sm:p-8 rounded-2xl shadow-2xl z-10 flex flex-col max-h-[92vh] sm:max-h-[90vh] overflow-y-auto pb-[calc(2rem+env(safe-area-inset-bottom,16px))] sm:pb-8"
+               className="relative w-full max-w-2xl bg-white dark:bg-google-dark-surface p-5 sm:p-8 rounded-t-[28px] sm:rounded-[28px] shadow-2xl z-10 flex flex-col max-h-[95vh] sm:max-h-[90vh] overflow-y-auto pb-[max(2rem,env(safe-area-inset-bottom,16px))] sm:pb-8"
                id="new-trade-modal-window"
             >
               
@@ -1395,11 +1395,11 @@ export default function App() {
                 {/* BUY SELL TOGGLE & Pairs Selection */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400 mb-1.5 block">Cặp Tiền Ngoại Tệ</label>
+                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Cặp ngoại tệ</label>
                     <select 
                       value={formPair}
                       onChange={(e) => setFormPair(e.target.value)}
-                      className="w-full p-3 bg-gray-50 dark:bg-[#131314] hover:bg-gray-100/50 dark:hover:bg-[#18191a] rounded-xl text-sm focus:outline-none border border-gray-200 dark:border-[#2e3135] text-gray-900 dark:text-white font-bold cursor-pointer transition-colors"
+                      className="w-full p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-bold cursor-pointer"
                     >
                       <option value="EUR/USD">EUR/USD</option>
                       <option value="GBP/USD">GBP/USD</option>
@@ -1412,21 +1412,21 @@ export default function App() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400 mb-1.5 block">Hướng Lệnh (Side)</label>
-                    <div className="flex bg-gray-100 dark:bg-[#131314] p-1 rounded-xl border border-gray-200/50 dark:border-[#2e3135]">
+                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Hướng lệnh</label>
+                    <div className="flex bg-gray-100 dark:bg-[#131314] p-1.5 rounded-[14px] border border-gray-200 dark:border-zinc-800">
                       <button 
                         type="button"
                         onClick={() => setFormType("BUY")}
-                        className={`flex-1 py-2 rounded-lg text-xs font-extrabold uppercase transition-all cursor-pointer ${formType === "BUY" ? 'bg-emerald-600 text-white shadow-xs' : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'}`}
+                        className={`flex-1 py-2 sm:py-1.5 rounded-[10px] text-xs font-extrabold uppercase transition-all cursor-pointer ${formType === "BUY" ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'}`}
                       >
-                        MUA (BUY)
+                        MUA
                       </button>
                       <button 
                         type="button"
                         onClick={() => setFormType("SELL")}
-                        className={`flex-1 py-2 rounded-lg text-xs font-extrabold uppercase transition-all cursor-pointer ${formType === "SELL" ? 'bg-rose-600 text-white shadow-xs' : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'}`}
+                        className={`flex-1 py-2 sm:py-1.5 rounded-[10px] text-xs font-extrabold uppercase transition-all cursor-pointer ${formType === "SELL" ? 'bg-rose-600 text-white shadow-sm' : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'}`}
                       >
-                        BÁN (SELL)
+                        BÁN
                       </button>
                     </div>
                   </div>
@@ -1435,7 +1435,7 @@ export default function App() {
                 {/* Entry Price & Lots Size */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400 mb-1.5 block">Giá Vào Lệnh (Entry Price) *</label>
+                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Giá vào lệnh *</label>
                     <input 
                       type="number" 
                       step="any"
@@ -1443,12 +1443,12 @@ export default function App() {
                       placeholder="VD: 1.0854"
                       value={formEntryPrice}
                       onChange={(e) => setFormEntryPrice(e.target.value)}
-                      className="w-full p-3 bg-gray-50 dark:bg-[#131314] hover:bg-gray-100/50 dark:hover:bg-[#18191a] rounded-xl text-sm focus:outline-none border border-gray-200 dark:border-[#2e3135] text-gray-900 dark:text-white font-mono transition-colors focus:border-google-blue-600 dark:focus:border-google-blue-100"
+                      className="w-full p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono"
                     />
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400 mb-1.5 block">Khối Lượng Lệnh (Lots) *</label>
+                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Khối lượng (Lots) *</label>
                     <input 
                       type="number" 
                       step="0.01"
@@ -1456,7 +1456,7 @@ export default function App() {
                       min="0.01"
                       value={formSize}
                       onChange={(e) => setFormSize(e.target.value)}
-                      className="w-full p-3 bg-gray-50 dark:bg-[#131314] hover:bg-gray-100/50 dark:hover:bg-[#18191a] rounded-xl text-sm focus:outline-none border border-gray-200 dark:border-[#2e3135] text-gray-900 dark:text-white font-mono font-bold transition-colors focus:border-google-blue-600 dark:focus:border-google-blue-100"
+                      className="w-full p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono font-bold"
                     />
                   </div>
                 </div>
@@ -1464,26 +1464,26 @@ export default function App() {
                 {/* SL, TP Options */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400 mb-1.5 block">Chặn Lỗ (Stop Loss)</label>
+                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Chặn lỗ</label>
                     <input 
                       type="number" 
                       step="any"
                       placeholder="Tùy chọn - SL"
                       value={formStopLoss}
                       onChange={(e) => setFormStopLoss(e.target.value)}
-                      className="w-full p-3 bg-gray-50 dark:bg-[#131314] hover:bg-gray-100/50 dark:hover:bg-[#18191a] rounded-xl text-sm focus:outline-none border border-gray-200 dark:border-[#2e3135] text-gray-900 dark:text-white font-mono transition-colors focus:border-google-blue-600 dark:focus:border-google-blue-100"
+                      className="w-full p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono"
                     />
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400 mb-1.5 block">Chốt Lời (Take Profit)</label>
+                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Chốt lời</label>
                     <input 
                       type="number" 
                       step="any"
                       placeholder="Tùy chọn - TP"
                       value={formTakeProfit}
                       onChange={(e) => setFormTakeProfit(e.target.value)}
-                      className="w-full p-3 bg-gray-50 dark:bg-[#131314] hover:bg-gray-100/50 dark:hover:bg-[#18191a] rounded-xl text-sm focus:outline-none border border-gray-200 dark:border-[#2e3135] text-gray-900 dark:text-white font-mono transition-colors focus:border-google-blue-600 dark:focus:border-google-blue-100"
+                      className="w-full p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono"
                     />
                   </div>
                 </div>
@@ -1491,19 +1491,19 @@ export default function App() {
                 {/* Status Switch Open / Closed & Timeframe */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400 mb-1.5 block">Trạng thái Giao dịch</label>
-                    <div className="flex bg-gray-100 dark:bg-[#131314] p-1 rounded-xl border border-gray-200/50 dark:border-[#2e3135]">
+                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Trạng thái giao dịch</label>
+                    <div className="flex bg-gray-100 dark:bg-[#131314] p-1.5 rounded-[14px] border border-gray-200 dark:border-zinc-800">
                       <button 
                         type="button"
                         onClick={() => setFormStatus("CLOSED")}
-                        className={`flex-1 py-2 rounded-lg text-xs font-extrabold uppercase transition-all cursor-pointer ${formStatus === "CLOSED" ? 'bg-indigo-600 text-white shadow-xs' : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'}`}
+                        className={`flex-1 py-2 sm:py-1.5 rounded-[10px] text-xs font-extrabold uppercase transition-all cursor-pointer ${formStatus === "CLOSED" ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'}`}
                       >
                         ĐÃ KHỚP (CLOSED)
                       </button>
                       <button 
                         type="button"
                         onClick={() => setFormStatus("OPEN")}
-                        className={`flex-1 py-2 rounded-lg text-xs font-extrabold uppercase transition-all cursor-pointer ${formStatus === "OPEN" ? 'bg-cyan-600 text-white shadow-xs' : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'}`}
+                        className={`flex-1 py-2 sm:py-1.5 rounded-[10px] text-xs font-extrabold uppercase transition-all cursor-pointer ${formStatus === "OPEN" ? 'bg-cyan-600 text-white shadow-sm' : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'}`}
                       >
                         ĐANG CHẠY (OPEN)
                       </button>
@@ -1511,11 +1511,11 @@ export default function App() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400 mb-1.5 block">Khung thời gian (Timeframe)</label>
+                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Khung thời gian</label>
                     <select 
                       value={formTimeframe}
                       onChange={(e) => setFormTimeframe(e.target.value)}
-                      className="w-full p-3 bg-gray-50 dark:bg-[#131314] hover:bg-gray-100/50 dark:hover:bg-[#18191a] rounded-xl text-sm focus:outline-none border border-gray-200 dark:border-[#2e3135] text-gray-900 dark:text-white font-bold cursor-pointer transition-colors"
+                      className="w-full p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-bold cursor-pointer"
                     >
                       <option value="M5">M5 (5 phút)</option>
                       <option value="M15">M15 (15 phút)</option>
@@ -1528,25 +1528,25 @@ export default function App() {
 
                 {/* Conditional exit fields if state is closed */}
                 {formStatus === "CLOSED" && (
-                  <div className="p-4 rounded-xl bg-gray-50 dark:bg-[#131314]/50 border border-gray-200 dark:border-[#2e2f30] grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-[20px] bg-gray-50/50 dark:bg-[#131314]/30 border border-gray-200/50 dark:border-zinc-800 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs font-bold text-gray-400 dark:text-gray-500 mb-1.5 block">Giá Đóng Lệnh (Exit Price)</label>
+                      <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Giá đóng lệnh</label>
                       <input 
                         type="number" 
                         step="any"
                         placeholder="VD: 1.0920"
                         value={formExitPrice}
                         onChange={(e) => setFormExitPrice(e.target.value)}
-                        className="w-full p-2.5 bg-white dark:bg-[#131314] hover:dark:bg-[#18191a] border border-gray-200 dark:border-[#2e3135] rounded-lg text-sm text-gray-900 dark:text-white font-mono focus:outline-none focus:border-google-blue-600 dark:focus:border-google-blue-100"
+                        className="w-full p-3.5 bg-white dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-mono"
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-bold text-gray-400 dark:text-gray-500 mb-1.5 block">Ngày Giờ Đóng Lệnh</label>
+                      <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Ngày đóng lệnh</label>
                       <input 
                         type="datetime-local" 
                         value={formExitDate}
                         onChange={(e) => setFormExitDate(e.target.value)}
-                        className="w-full p-2.5 bg-white dark:bg-[#131314] hover:dark:bg-[#18191a] border border-gray-200 dark:border-[#2e3135] rounded-lg text-xs text-gray-900 dark:text-white focus:outline-none focus:border-google-blue-600 dark:focus:border-google-blue-100 cursor-pointer"
+                        className="w-full p-3.5 bg-white dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all cursor-pointer"
                       />
                     </div>
                   </div>
@@ -1555,44 +1555,44 @@ export default function App() {
                 {/* Entry Date & Tags Row */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400 mb-1.5 block">Ngày Giờ Vào Lệnh</label>
+                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Ngày vào lệnh</label>
                     <input 
                       type="datetime-local" 
                       value={formEntryDate}
                       onChange={(e) => setFormEntryDate(e.target.value)}
-                      className="w-full p-3 bg-gray-50 dark:bg-[#131314] hover:bg-gray-100/50 dark:hover:bg-[#18191a] rounded-xl text-xs focus:outline-none border border-gray-200 dark:border-[#2e3135] text-gray-900 dark:text-white transition-colors focus:border-google-blue-600 dark:focus:border-google-blue-100 cursor-pointer"
+                      className="w-full p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all cursor-pointer"
                     />
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400 mb-1.5 block">Chiến Lược (Tag)</label>
+                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Chiến lược</label>
                     <select 
                       value={formTag}
                       onChange={(e) => setFormTag(e.target.value)}
-                      className="w-full p-3 bg-gray-50 dark:bg-[#131314] hover:bg-gray-100/50 dark:hover:bg-[#18191a] rounded-xl text-sm focus:outline-none border border-gray-200 dark:border-[#2e3135] text-gray-900 dark:text-white font-bold cursor-pointer transition-colors"
+                      className="w-full p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all font-bold cursor-pointer"
                     >
-                      <option value="News-Trade">Giao dịch theo Tin Tức (News-Trade)</option>
-                      <option value="Trend-Follow">Xu Hướng (Trend-Follow)</option>
-                      <option value="Breakout">Bứt phá (Breakout)</option>
-                      <option value="Range-Trade">Giao dịch Vùng (Range-Trade)</option>
+                      <option value="News-Trade">Giao dịch theo tin tức</option>
+                      <option value="Trend-Follow">Đu theo xu hướng</option>
+                      <option value="Breakout">Bứt phá</option>
+                      <option value="Range-Trade">Giao dịch Vùng</option>
                     </select>
                   </div>
                 </div>
 
                 {/* Notes Input */}
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400 mb-1.5 block">Ghi chú & Lý Do Vào Lệnh</label>
+                  <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Lý do vào lệnh</label>
                   <textarea 
                     rows={2.5}
                     placeholder="Tại sao bạn khớp lệnh này? Khung cảm xúc, phân tích kỹ thuật hoặc nhận định tin tức của bạn..."
                     value={formNotes}
                     onChange={(e) => setFormNotes(e.target.value)}
-                    className="w-full p-3 bg-gray-50 dark:bg-[#131314] hover:bg-gray-100/50 dark:hover:bg-[#18191a] rounded-xl text-xs focus:outline-none border border-gray-200 dark:border-[#2e3135] text-gray-900 dark:text-white focus:border-google-blue-600 dark:focus:border-google-blue-100 transition-colors"
+                    className="w-full p-3.5 bg-gray-50/50 dark:bg-[#131314]/50 border border-gray-200 dark:border-zinc-800 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-google-blue-600/20 focus:border-google-blue-600 dark:focus:ring-google-blue-600/20 dark:focus:border-google-blue-500 text-gray-900 dark:text-white transition-all"
                   ></textarea>
                 </div>
 
                 {/* Rating selection (Stars) */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3.5 bg-gray-50 dark:bg-[#131314]/30 rounded-xl border border-gray-200/50 dark:border-[#2e2f30]">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-gray-50/50 dark:bg-[#131314]/30 rounded-xl border border-gray-200 dark:border-zinc-800">
                   <div>
                     <span className="font-bold text-gray-900 dark:text-white text-xs block">Mức Độ Tuân Thủ Kỷ Luật</span>
                     <span className="text-xs text-gray-400 dark:text-gray-400 mt-1 block">Bạn có làm đúng kế hoạch giao dịch ban đầu không?</span>
