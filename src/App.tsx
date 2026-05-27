@@ -39,6 +39,7 @@ import {
   getSavedSupabaseKeys,
 } from "./lib/supabase";
 import { BentoStats } from "./components/BentoStats";
+import { M3DatePicker, M3TimePicker } from "./components/M3DatePicker";
 
 export default function App() {
   // App core state
@@ -2021,21 +2022,15 @@ export default function App() {
                           Ngày đóng lệnh
                         </label>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          <input
-                            type="date"
+                          <M3DatePicker
                             value={getExitDatePart()}
-                            onChange={(e) =>
-                              handleExitDateChange(e.target.value)
-                            }
-                            className="w-full min-w-0 px-3 py-3 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] cursor-pointer"
+                            onChange={handleExitDateChange}
+                            placeholder="Chọn ngày đóng"
                           />
-                          <input
-                            type="time"
+                          <M3TimePicker
                             value={getExitTimePart()}
-                            onChange={(e) =>
-                              handleExitTimeChange(e.target.value)
-                            }
-                            className="w-full min-w-0 px-3 py-3 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] cursor-pointer"
+                            onChange={handleExitTimeChange}
+                            placeholder="Chọn giờ đóng"
                           />
                         </div>
                       </div>
@@ -2049,21 +2044,15 @@ export default function App() {
                         Ngày vào lệnh
                       </label>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <input
-                          type="date"
+                        <M3DatePicker
                           value={getEntryDatePart()}
-                          onChange={(e) =>
-                            handleEntryDateChange(e.target.value)
-                          }
-                          className="w-full min-w-0 px-3 py-3 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] cursor-pointer"
+                          onChange={handleEntryDateChange}
+                          placeholder="Chọn ngày vào"
                         />
-                        <input
-                          type="time"
+                        <M3TimePicker
                           value={getEntryTimePart()}
-                          onChange={(e) =>
-                            handleEntryTimeChange(e.target.value)
-                          }
-                          className="w-full min-w-0 px-3 py-3 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] cursor-pointer"
+                          onChange={handleEntryTimeChange}
+                          placeholder="Chọn giờ vào"
                         />
                       </div>
                     </div>
