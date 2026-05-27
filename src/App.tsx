@@ -678,18 +678,18 @@ export default function App() {
       >
         {/* Red Event Alert Banner */}
         {upcomingRedEvents.length > 0 && (
-          <div className="bg-rose-600 text-white p-4 rounded-[20px] shadow-level2 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 animate-pulse-once border border-rose-500">
-            <div className="bg-white/20 p-2 rounded-full flex-shrink-0 self-start sm:self-auto">
+          <div className="bg-rose-600 text-white p-3 sm:p-4 rounded-[20px] shadow-level2 flex flex-row items-start sm:items-center gap-3 sm:gap-4 animate-pulse-once border border-rose-500">
+            <div className="bg-white/20 p-2 rounded-full flex-shrink-0">
               <AlertTriangle size={24} className="text-white" />
             </div>
-            <div className="min-w-0">
-              <h4 className="font-bold m3-title-medium uppercase tracking-wider flex items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <h4 className="font-bold m3-title-medium uppercase tracking-wider flex items-center flex-wrap gap-2">
                 Cảnh báo tin đỏ sắp ra mắt
                 <span className="m3-label-small bg-white text-rose-600 px-2 py-0.5 rounded-full font-black">
                   CAO
                 </span>
               </h4>
-              <p className="m3-body-medium text-white/90 truncate mt-0.5">
+              <p className="m3-body-medium text-white/90 mt-1 line-clamp-2 sm:line-clamp-none">
                 {upcomingRedEvents
                   .map(
                     (e) =>
@@ -2203,14 +2203,15 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Floating Action Button (FAB) on Mobile - Floats right above the bottom nav bar */}
+      {/* Unified Floating Action Button (FAB) for Mobile & Desktop */}
       <button
         onClick={handleOpenAddTrade}
-        className="md:hidden fixed bottom-[calc(5.2rem+env(safe-area-inset-bottom,0px))] right-4 w-14 h-14 bg-m3-primary text-m3-on-primary rounded-[16px] flex items-center justify-center shadow-level3 m3-state-layer transition-all ease-[var(--ease-m3-enter)] z-40 cursor-pointer"
+        className="fixed bottom-[calc(5.2rem+env(safe-area-inset-bottom,0px))] md:bottom-8 right-4 md:right-8 h-14 w-14 md:w-auto md:px-6 bg-m3-primary text-m3-on-primary rounded-[16px] flex items-center justify-center gap-2 shadow-level3 m3-state-layer transition-all ease-[var(--ease-m3-enter)] z-40 cursor-pointer"
         title="Thêm Giao Dịch"
         id="m3-fab"
       >
-        <Plus size={26} />
+        <Plus size={26} className="flex-shrink-0" />
+        <span className="hidden md:block m3-label-large">Thêm giao dịch</span>
       </button>
 
       {/* Material 3 Bottom Navigation bar for mobile / bottom control menu */}
