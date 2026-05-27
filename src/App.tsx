@@ -96,6 +96,69 @@ export default function App() {
   const [formEntryDate, setFormEntryDate] = useState("");
   const [formExitDate, setFormExitDate] = useState("");
 
+  // Robust Helpers to split/merge separate Date and Time inputs
+  const getEntryDatePart = () => {
+    if (!formEntryDate) return "";
+    return formEntryDate.split("T")[0] || "";
+  };
+
+  const getEntryTimePart = () => {
+    if (!formEntryDate) return "";
+    return formEntryDate.split("T")[1] || "";
+  };
+
+  const handleEntryDateChange = (datePart: string) => {
+    if (!datePart) {
+      setFormEntryDate("");
+      return;
+    }
+    const timePart = getEntryTimePart() || "12:00";
+    setFormEntryDate(`${datePart}T${timePart}`);
+  };
+
+  const handleEntryTimeChange = (timePart: string) => {
+    if (!timePart) {
+      const datePart =
+        getEntryDatePart() || new Date().toISOString().split("T")[0];
+      setFormEntryDate(`${datePart}T00:00`);
+      return;
+    }
+    const datePart =
+      getEntryDatePart() || new Date().toISOString().split("T")[0];
+    setFormEntryDate(`${datePart}T${timePart}`);
+  };
+
+  const getExitDatePart = () => {
+    if (!formExitDate) return "";
+    return formExitDate.split("T")[0] || "";
+  };
+
+  const getExitTimePart = () => {
+    if (!formExitDate) return "";
+    return formExitDate.split("T")[1] || "";
+  };
+
+  const handleExitDateChange = (datePart: string) => {
+    if (!datePart) {
+      setFormExitDate("");
+      return;
+    }
+    const timePart = getExitTimePart() || "12:00";
+    setFormExitDate(`${datePart}T${timePart}`);
+  };
+
+  const handleExitTimeChange = (timePart: string) => {
+    if (!timePart) {
+      const datePart =
+        getExitDatePart() || new Date().toISOString().split("T")[0];
+      setFormExitDate(`${datePart}T00:00`);
+      return;
+    }
+    const datePart =
+      getExitDatePart() || new Date().toISOString().split("T")[0];
+    setFormExitDate(`${datePart}T${timePart}`);
+  };
+
   // Darkmode (Google Material Design 3 dynamic light/dark mode state)
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     return localStorage.getItem("trade_app_dark_mode") === "true";
@@ -1957,12 +2020,24 @@ export default function App() {
                         <label className="m3-label-medium text-m3-on-surface-variant mb-1.5 block">
                           Ngày đóng lệnh
                         </label>
-                        <input
-                          type="datetime-local"
-                          value={formExitDate}
-                          onChange={(e) => setFormExitDate(e.target.value)}
-                          className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] cursor-pointer"
-                        />
+                        <div className="grid grid-cols-2 gap-3">
+                          <input
+                            type="date"
+                            value={getExitDatePart()}
+                            onChange={(e) =>
+                              handleExitDateChange(e.target.value)
+                            }
+                            className="w-full min-w-0 px-3 py-3 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] cursor-pointer"
+                          />
+                          <input
+                            type="time"
+                            value={getExitTimePart()}
+                            onChange={(e) =>
+                              handleExitTimeChange(e.target.value)
+                            }
+                            className="w-full min-w-0 px-3 py-3 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] cursor-pointer"
+                          />
+                        </div>
                       </div>
                     </div>
                   )}
@@ -1973,12 +2048,24 @@ export default function App() {
                       <label className="m3-label-medium text-m3-on-surface-variant mb-1.5 block">
                         Ngày vào lệnh
                       </label>
-                      <input
-                        type="datetime-local"
-                        value={formEntryDate}
-                        onChange={(e) => setFormEntryDate(e.target.value)}
-                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] cursor-pointer"
-                      />
+                      <div className="grid grid-cols-2 gap-3">
+                        <input
+                          type="date"
+                          value={getEntryDatePart()}
+                          onChange={(e) =>
+                            handleEntryDateChange(e.target.value)
+                          }
+                          className="w-full min-w-0 px-3 py-3 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] cursor-pointer"
+                        />
+                        <input
+                          type="time"
+                          value={getEntryTimePart()}
+                          onChange={(e) =>
+                            handleEntryTimeChange(e.target.value)
+                          }
+                          className="w-full min-w-0 px-3 py-3 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] cursor-pointer"
+                        />
+                      </div>
                     </div>
 
                     <div className="min-w-0">
