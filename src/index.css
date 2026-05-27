@@ -1,135 +1,155 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Outfit", sans-serif;
+  --font-sans: "Roboto", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Roboto", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  --color-google-blue-50: #e8f0fe;
-  --color-google-blue-100: #d2e3fc;
-  --color-google-blue-600: #1a73e8;
-  --color-google-blue-700: #1557b0;
-  --color-google-dark-bg: #131314;
-  --color-google-dark-surface: #1e1f20;
+  /* Material Design 3 semantic color tokens */
+  --color-m3-primary: var(--sys-primary);
+  --color-m3-on-primary: var(--sys-on-primary);
+  --color-m3-primary-container: var(--sys-primary-container);
+  --color-m3-on-primary-container: var(--sys-on-primary-container);
+  --color-m3-surface: var(--sys-surface);
+  --color-m3-surface-container-lowest: var(--sys-surface-container-lowest);
+  --color-m3-surface-container-low: var(--sys-surface-container-low);
+  --color-m3-surface-container: var(--sys-surface-container);
+  --color-m3-surface-container-high: var(--sys-surface-container-high);
+  --color-m3-surface-container-highest: var(--sys-surface-container-highest);
+  --color-m3-on-surface: var(--sys-on-surface);
+  --color-m3-on-surface-variant: var(--sys-on-surface-variant);
+  --color-m3-outline: var(--sys-outline);
+  --color-m3-outline-variant: var(--sys-outline-variant);
+  --color-m3-error: var(--sys-error);
+  --color-m3-on-error: var(--sys-on-error);
 
-  /* Material Design 3 semantic color palette specs */
-  --color-m3-light-primary: #1a73e8;
-  --color-m3-light-on-primary: #ffffff;
-  --color-m3-light-primary-container: #d2e3fc;
-  --color-m3-light-on-primary-container: #001d3d;
-  --color-m3-light-surface: #f8f9fa;
-  --color-m3-light-surface-container-lowest: #ffffff;
-  --color-m3-light-surface-container-low: #f0f4f9;
-  --color-m3-light-surface-container: #ebeff6;
-  --color-m3-light-surface-container-high: #e1e8f2;
-  --color-m3-light-outline: #74777f;
-  --color-m3-light-outline-variant: #c4c6cf;
+  /* M3 Elevations */
+  --shadow-level0: none;
+  --shadow-level1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+  --shadow-level2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+  --shadow-level3: 0px 1px 3px 0px rgba(0, 0, 0, 0.30), 0px 4px 8px 3px rgba(0, 0, 0, 0.15);
+  --shadow-level4: 0px 2px 3px 0px rgba(0, 0, 0, 0.30), 0px 6px 10px 4px rgba(0, 0, 0, 0.15);
+  --shadow-level5: 0px 4px 4px 0px rgba(0, 0, 0, 0.30), 0px 8px 12px 6px rgba(0, 0, 0, 0.15);
 
-  --color-m3-dark-primary: #a8c7fa;
-  --color-m3-dark-on-primary: #0a305f;
-  --color-m3-dark-primary-container: #004481;
-  --color-m3-dark-on-primary-container: #d2e3fc;
-  --color-m3-dark-surface: #131314;
-  --color-m3-dark-surface-container-lowest: #0c0c0d;
-  --color-m3-dark-surface-container-low: #1e1f20;
-  --color-m3-dark-surface-container: #222425;
-  --color-m3-dark-surface-container-high: #282a2c;
-  --color-m3-dark-outline: #8e9099;
-  --color-m3-dark-outline-variant: #44474e;
+  /* M3 Easing Functions */
+  --ease-m3-enter: cubic-bezier(0.05, 0.7, 0.1, 1.0);
+  --ease-m3-exit: cubic-bezier(0.3, 0.0, 0.8, 0.15);
+}
 
-  /* M3 Elevations (Override default Tailwind shadows) */
-  --shadow-xs: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
-  --shadow-sm: 0px 1px 3px 1px rgba(0, 0, 0, 0.10), 0px 1px 2px 0px rgba(0, 0, 0, 0.20);
-  --shadow-md: 0px 2px 6px 2px rgba(0, 0, 0, 0.10), 0px 1px 2px 0px rgba(0, 0, 0, 0.20);
-  --shadow-lg: 0px 1px 3px 0px rgba(0, 0, 0, 0.15), 0px 4px 8px 3px rgba(0, 0, 0, 0.10);
-  --shadow-xl: 0px 2px 3px 0px rgba(0, 0, 0, 0.20), 0px 6px 10px 4px rgba(0, 0, 0, 0.10);
-  --shadow-2xl: 0px 4px 4px 0px rgba(0, 0, 0, 0.20), 0px 8px 12px 6px rgba(0, 0, 0, 0.10);
+:root {
+  --sys-primary: #0b57d0; /* M3 Standard Blue */
+  --sys-on-primary: #ffffff;
+  --sys-primary-container: #d3e3fd;
+  --sys-on-primary-container: #041e49;
+  --sys-surface: #fdfbff;
+  --sys-surface-container-lowest: #ffffff;
+  --sys-surface-container-low: #f3f3f6;
+  --sys-surface-container: #edebf0;
+  --sys-surface-container-high: #e7e6ea;
+  --sys-surface-container-highest: #e1e0e5;
+  --sys-on-surface: #1a1b1f;
+  --sys-on-surface-variant: #44474e;
+  --sys-outline: #74777f;
+  --sys-outline-variant: #c4c6cf;
+  --sys-error: #ba1a1a;
+  --sys-on-error: #ffffff;
+}
+
+.dark {
+  --sys-primary: #a8c7fa;
+  --sys-on-primary: #062e6f;
+  --sys-primary-container: #0842a0;
+  --sys-on-primary-container: #d3e3fd;
+  --sys-surface: #1a1b1f;
+  --sys-surface-container-lowest: #0e0e11;
+  --sys-surface-container-low: #1a1b1f; 
+  --sys-surface-container: #1e1f23;
+  --sys-surface-container-high: #292a2d;
+  --sys-surface-container-highest: #343538;
+  --sys-on-surface: #e3e2e6;
+  --sys-on-surface-variant: #c4c6cf;
+  --sys-outline: #8e9099;
+  --sys-outline-variant: #44474e;
+  --sys-error: #ffb4ab;
+  --sys-on-error: #690005;
 }
 
 @variant dark (&:where(.dark, .dark *));
 
-/* Custom scrollbars designed to match Material 3 specifications */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(116, 119, 127, 0.2);
-  border-radius: 999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(116, 119, 127, 0.45);
-  border-radius: 999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
+/* M3 Typography Classes */
+.m3-display-large { font-family: var(--font-sans); font-size: 57px; line-height: 64px; font-weight: 400; letter-spacing: -0.25px; }
+.m3-display-medium { font-family: var(--font-sans); font-size: 45px; line-height: 52px; font-weight: 400; }
+.m3-display-small { font-family: var(--font-sans); font-size: 36px; line-height: 44px; font-weight: 400; }
+.m3-headline-large { font-family: var(--font-sans); font-size: 32px; line-height: 40px; font-weight: 400; }
+.m3-headline-medium { font-family: var(--font-sans); font-size: 28px; line-height: 36px; font-weight: 400; }
+.m3-headline-small { font-family: var(--font-sans); font-size: 24px; line-height: 32px; font-weight: 400; }
+.m3-title-large { font-family: var(--font-sans); font-size: 22px; line-height: 28px; font-weight: 400; }
+.m3-title-medium { font-family: var(--font-sans); font-size: 16px; line-height: 24px; font-weight: 500; letter-spacing: 0.15px; }
+.m3-title-small { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.1px; }
+.m3-label-large { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.1px; }
+.m3-label-medium { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; }
+.m3-label-small { font-family: var(--font-sans); font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; }
+.m3-body-large { font-family: var(--font-sans); font-size: 16px; line-height: 24px; font-weight: 400; letter-spacing: 0.5px; }
+.m3-body-medium { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 400; letter-spacing: 0.25px; }
+.m3-body-small { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 400; letter-spacing: 0.4px; }
 
-body {
-  font-family: var(--font-sans);
-  background-color: #f0f4f9; /* M3 Light Surface Container Low */
-  color: #1f2937;
-  overflow-x: hidden;
-  transition: background-color 0.25s cubic-bezier(0.2, 0, 0, 1), color 0.25s cubic-bezier(0.2, 0, 0, 1);
+/* M3 State Layers */
+.m3-state-layer {
+  position: relative;
+  overflow: hidden;
 }
-
-body.dark {
-  background-color: #131314; /* M3 Dark Surface Container Lowest */
-  color: #e3e3e3;
+.m3-state-layer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: currentColor;
+  opacity: 0;
+  transition: opacity 250ms cubic-bezier(0.2, 0, 0, 1);
+  pointer-events: none;
+}
+.m3-state-layer:hover::after {
+  opacity: 0.08;
+}
+.m3-state-layer:active::after {
+  opacity: 0.12;
 }
 
 /* Material Outlined Input - Strict Google Style */
 .m3-input {
   background-color: transparent;
-  border: 1.5px solid #74777f;
-  border-radius: 12px;
+  border: 1px solid var(--sys-outline);
+  border-radius: 4px; /* Standard M3 Text field border radius */
   outline: none;
-  font-weight: 500;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  color: var(--sys-on-surface);
+  transition: border-color 150ms cubic-bezier(0.2, 0, 0, 1), border-width 150ms cubic-bezier(0.2, 0, 0, 1);
+  padding: 16px;
 }
 
 .m3-input:focus {
-  border-color: #1a73e8;
-  box-shadow: 0 0 0 1px #1a73e8;
+  border: 2px solid var(--sys-primary);
+  padding: 15px; /* Offset for 2px border */
 }
 
-.dark .m3-input {
-  border-color: #8e9099;
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(116, 119, 127, 0.2); border-radius: 999px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: rgba(116, 119, 127, 0.45); border-radius: 999px; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--sys-surface-container-low);
+  color: var(--sys-on-surface);
+  overflow-x: hidden;
+  transition: background-color 250ms var(--ease-m3-enter), color 250ms var(--ease-m3-enter);
 }
 
-.dark .m3-input:focus {
-  border-color: #a8c7fa;
-  box-shadow: 0 0 0 1px #a8c7fa;
-}
-
-/* Scrollbar behaviors for clean M3 scroll list view */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-/* Safe area padding & margin helper classes for PWA layouts */
-.pt-safe {
-  padding-top: max(1rem, env(safe-area-inset-top, 16px));
-}
-.pb-safe {
-  padding-bottom: max(1rem, env(safe-area-inset-bottom, 16px));
-}
-.pb-safe-nav {
-  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 16px));
-}
-.mb-safe {
-  margin-bottom: env(safe-area-inset-bottom, 0px);
-}
-.mt-safe {
-  margin-top: env(safe-area-inset-top, 0px);
-}
-
+.pt-safe { padding-top: max(1rem, env(safe-area-inset-top, 16px)); }
+.pb-safe { padding-bottom: max(1rem, env(safe-area-inset-bottom, 16px)); }
+.pb-safe-nav { padding-bottom: calc(1rem + env(safe-area-inset-bottom, 16px)); }
+.mb-safe { margin-bottom: env(safe-area-inset-bottom, 0px); }
+.mt-safe { margin-top: env(safe-area-inset-top, 0px); }

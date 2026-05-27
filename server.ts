@@ -9,117 +9,6 @@ async function startServer() {
   // Middlewares to parse bodies
   app.use(express.json());
 
-  // High-quality resilient fallbacks for USD events (Week of May 17-23, 2026)
-  const fallbacksMay2026 = [
-    {
-      title: "Empire State Manufacturing Index",
-      country: "USD",
-      date: "2026-05-18T10:00:00-04:00",
-      impact: "Medium",
-      forecast: "-9.0",
-      previous: "-14.3",
-      actual: "-7.2"
-    },
-    {
-      title: "Building Permits",
-      country: "USD",
-      date: "2026-05-19T08:30:00-04:00",
-      impact: "Medium",
-      forecast: "1.44M",
-      previous: "1.46M",
-      actual: "1.45M"
-    },
-    {
-      title: "Crude Oil Inventories",
-      country: "USD",
-      date: "2026-05-20T10:30:00-04:00",
-      impact: "Medium",
-      forecast: "-1.2M",
-      previous: "0.8M",
-      actual: "-1.4M"
-    },
-    {
-      title: "FOMC Meeting Minutes",
-      country: "USD",
-      date: "2026-05-20T14:00:00-04:00",
-      impact: "High",
-      forecast: "",
-      previous: "",
-      actual: ""
-    },
-    {
-      title: "Philly Fed Manufacturing Index",
-      country: "USD",
-      date: "2026-05-21T08:30:00-04:00",
-      impact: "Medium",
-      forecast: "10.4",
-      previous: "15.5",
-      actual: "11.2"
-    },
-    {
-      title: "Unemployment Claims",
-      country: "USD",
-      date: "2026-05-21T08:30:00-04:00",
-      impact: "Medium",
-      forecast: "215K",
-      previous: "220K",
-      actual: "212K"
-    },
-    {
-      title: "Flash Manufacturing PMI",
-      country: "USD",
-      date: "2026-05-21T09:45:00-04:00",
-      impact: "Medium",
-      forecast: "50.9",
-      previous: "51.1",
-      actual: "50.7"
-    },
-    {
-      title: "Flash Services PMI",
-      country: "USD",
-      date: "2026-05-21T09:45:00-04:00",
-      impact: "Medium",
-      forecast: "51.2",
-      previous: "51.3",
-      actual: "51.6"
-    },
-    {
-      title: "Existing Home Sales",
-      country: "USD",
-      date: "2026-05-21T10:00:00-04:00",
-      impact: "Low",
-      forecast: "4.15M",
-      previous: "4.19M",
-      actual: "4.11M"
-    },
-    {
-      title: "Core Retail Sales m/m",
-      country: "USD",
-      date: "2026-05-22T08:30:00-04:00",
-      impact: "High",
-      forecast: "0.2%",
-      previous: "0.1%",
-      actual: "0.3%"
-    },
-    {
-      title: "Retail Sales m/m",
-      country: "USD",
-      date: "2026-05-22T08:30:00-04:00",
-      impact: "High",
-      forecast: "0.4%",
-      previous: "0.3%",
-      actual: "0.5%"
-    },
-    {
-      title: "Fed Chair Powell Speaks",
-      country: "USD",
-      date: "2026-05-22T11:00:00-04:00",
-      impact: "High",
-      forecast: "",
-      previous: "",
-      actual: ""
-    }
-  ];
 
   // In-memory cache for calendar data
   let calendarCache: { data: any[]; timestamp: number } | null = null;
@@ -324,12 +213,11 @@ async function startServer() {
           });
         }
 
-        // 5. Ultimate fallback - high-quality database in memory
-        return res.json({
-          success: true,
-          source: "live_forex_factory_feed_fallback",
-          warning: `JSON: ${jsonError.message}. XML: ${xmlError.message}`,
-          data: fallbacksMay2026.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        // 5. Ultimate fallback - return error
+        return res.status(502).json({
+          success: false,
+          error: "Failed to fetch calendar data from all sources",
+          details: `JSON: ${jsonError.message}. XML: ${xmlError.message}`
         });
       }
     }
