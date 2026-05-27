@@ -1909,20 +1909,20 @@ export default function App() {
                       <label className="m3-label-medium text-m3-on-surface-variant mb-1.5 block">
                         Trạng thái giao dịch
                       </label>
-                      <div className="flex border border-m3-outline rounded-full w-full h-12 overflow-hidden m3-label-large">
+                      <div className="flex border border-m3-outline rounded-full w-full h-12 overflow-hidden m3-label-large text-sm sm:text-base">
                         <button
                           type="button"
                           onClick={() => setFormStatus("CLOSED")}
-                          className={`flex-1 h-full flex items-center justify-center transition-colors ease-[var(--ease-m3-enter)] cursor-pointer m3-state-layer border-r border-m3-outline ${formStatus === "CLOSED" ? "bg-indigo-600 text-m3-on-primary" : "bg-transparent text-m3-on-surface"}`}
+                          className={`flex-1 h-full flex items-center justify-center transition-colors ease-[var(--ease-m3-enter)] cursor-pointer m3-state-layer border-r border-m3-outline min-w-0 px-2 ${formStatus === "CLOSED" ? "bg-indigo-600 text-m3-on-primary" : "bg-transparent text-m3-on-surface"}`}
                         >
-                          ĐÃ KHỚP LỆNH
+                          <span className="truncate">ĐÃ ĐÓNG</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => setFormStatus("OPEN")}
-                          className={`flex-1 h-full flex items-center justify-center transition-colors ease-[var(--ease-m3-enter)] cursor-pointer m3-state-layer ${formStatus === "OPEN" ? "bg-cyan-600 text-m3-on-primary" : "bg-transparent text-m3-on-surface"}`}
+                          className={`flex-1 h-full flex items-center justify-center transition-colors ease-[var(--ease-m3-enter)] cursor-pointer m3-state-layer min-w-0 px-2 ${formStatus === "OPEN" ? "bg-cyan-600 text-m3-on-primary" : "bg-transparent text-m3-on-surface"}`}
                         >
-                          ĐANG CHẠY
+                          <span className="truncate">ĐANG MỞ</span>
                         </button>
                       </div>
                     </div>
