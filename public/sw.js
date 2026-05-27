@@ -1,4 +1,4 @@
-const CACHE_NAME = "trade-journal-v1";
+const CACHE_NAME = "trade-journal-v2";
 const ASSETS = [
   "/",
   "/index.html",
@@ -37,11 +37,8 @@ self.addEventListener("fetch", (e) => {
     return;
   }
   e.respondWith(
-    caches.match(e.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(e.request).then((networkResponse) => {
+    fetch(e.request)
+      .then((networkResponse) => {
         if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== "basic") {
           return networkResponse;
         }
@@ -50,10 +47,13 @@ self.addEventListener("fetch", (e) => {
           cache.put(e.request, responseToCache);
         });
         return networkResponse;
-      }).catch(() => {
-        // Fallback for offline assets if not in cache
-        return caches.match("/");
-      });
-    })
+      })
+      .catch(() => {
+        return caches.match(e.request).then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
+          // Fallback for offline assets if not in cache
+          return caches.match("/");
+        });
+      })
   );
 });
