@@ -275,23 +275,59 @@ body {
   margin-top: env(safe-area-inset-top, 0px);
 }
 
-/* Global M3 Form Controls & Reset for Native iOS/Safari Date-time Pickers */
+/* Global M3 Form Controls & Reset for Native iOS/Safari Date/Time/Datetime Pickers */
+input[type="date"],
+input[type="time"],
 input[type="datetime-local"] {
+  position: relative;
   min-width: 0 !important;
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
 }
 
-/* Ensure WebKit shadow DOM doesn't force a minimum layout width */
+/* Make calendar picker indicator fill the element absolutely with 0 layout presence to prevent horizontal stretching */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* Hide native spinner buttons and clear buttons that force minimum layouts */
+input[type="date"]::-webkit-inner-spin-button,
+input[type="time"]::-webkit-inner-spin-button,
+input[type="datetime-local"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-clear-button,
+input[type="time"]::-webkit-clear-button,
+input[type="datetime-local"]::-webkit-clear-button {
+  -webkit-appearance: none;
+  display: none !important;
+}
+
+/* Ensure WebKit shadow DOM datetime edit areas match boundaries cleanly */
+input[type="date"]::-webkit-datetime-edit,
+input[type="time"]::-webkit-datetime-edit,
 input[type="datetime-local"]::-webkit-datetime-edit {
   display: inline-flex;
   padding: 0;
   max-width: 100%;
+  min-width: 0;
 }
 
+input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+input[type="time"]::-webkit-datetime-edit-fields-wrapper,
 input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper {
   display: inline-flex;
   padding: 0;
   white-space: nowrap;
+  min-width: 0;
 }
