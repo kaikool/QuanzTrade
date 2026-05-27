@@ -1961,7 +1961,12 @@ export default function App() {
                           type="datetime-local"
                           value={formExitDate}
                           onChange={(e) => setFormExitDate(e.target.value)}
-                          className="w-full min-w-0 max-w-full box-border overflow-hidden text-ellipsis px-2 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] text-xs sm:text-sm focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] cursor-pointer"
+                          style={{
+                            minWidth: "0",
+                            width: "100%",
+                            boxSizing: "border-box",
+                          }}
+                          className="w-full min-w-0 max-w-full box-border overflow-hidden text-ellipsis px-1.5 py-2.5 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] text-[11px] sm:text-sm focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] cursor-pointer"
                         />
                       </div>
                     </div>
@@ -1977,7 +1982,12 @@ export default function App() {
                         type="datetime-local"
                         value={formEntryDate}
                         onChange={(e) => setFormEntryDate(e.target.value)}
-                        className="w-full min-w-0 max-w-full box-border overflow-hidden text-ellipsis px-2 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] text-xs sm:text-sm focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] cursor-pointer"
+                        style={{
+                          minWidth: "0",
+                          width: "100%",
+                          boxSizing: "border-box",
+                        }}
+                        className="w-full min-w-0 max-w-full box-border overflow-hidden text-ellipsis px-1.5 py-2.5 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] text-[11px] sm:text-sm focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] cursor-pointer"
                       />
                     </div>
 
@@ -2195,17 +2205,22 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Unified Floating Action Button (FAB) for Mobile & Desktop */}
-      <button
-        onClick={handleOpenAddTrade}
-        style={{ right: "var(--fab-right, 16px)" }}
-        className="fixed bottom-[calc(5.2rem+env(safe-area-inset-bottom,0px))] md:bottom-8 md:[--fab-right:32px] h-14 w-14 md:w-auto md:px-6 bg-m3-primary text-m3-on-primary rounded-[16px] flex items-center justify-center gap-2 shadow-level3 m3-state-layer transition-all ease-[var(--ease-m3-enter)] z-40 cursor-pointer"
-        title="Thêm Giao Dịch"
-        id="m3-fab"
-      >
-        <Plus size={26} className="flex-shrink-0" />
-        <span className="hidden md:block m3-label-large">Thêm giao dịch</span>
-      </button>
+      {/* Unified Floating Action Button (FAB) for Mobile & Desktop - M3 Centered Grid Align */}
+      <div className="fixed bottom-[calc(5.2rem+env(safe-area-inset-bottom,0px))] md:bottom-8 left-0 right-0 pointer-events-none z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-end">
+          <button
+            onClick={handleOpenAddTrade}
+            className="pointer-events-auto h-14 w-14 md:w-auto md:px-6 bg-m3-primary text-m3-on-primary rounded-[16px] flex items-center justify-center gap-2 shadow-level3 m3-state-layer transition-all ease-[var(--ease-m3-enter)] cursor-pointer"
+            title="Thêm Giao Dịch"
+            id="m3-fab"
+          >
+            <Plus size={26} className="flex-shrink-0" />
+            <span className="hidden md:block m3-label-large">
+              Thêm giao dịch
+            </span>
+          </button>
+        </div>
+      </div>
 
       {/* Material 3 Bottom Navigation bar for mobile / bottom control menu */}
       <footer
