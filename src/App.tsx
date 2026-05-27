@@ -2020,7 +2020,7 @@ export default function App() {
                         <label className="m3-label-medium text-m3-on-surface-variant mb-1.5 block">
                           Ngày đóng lệnh
                         </label>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <input
                             type="date"
                             value={getExitDatePart()}
@@ -2048,7 +2048,7 @@ export default function App() {
                       <label className="m3-label-medium text-m3-on-surface-variant mb-1.5 block">
                         Ngày vào lệnh
                       </label>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <input
                           type="date"
                           value={getEntryDatePart()}
