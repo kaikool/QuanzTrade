@@ -28,6 +28,7 @@ import {
   BellOff,
   Send,
   Pencil,
+  AlertTriangle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Trade, CalendarEvent } from "./types";
@@ -625,28 +626,41 @@ export default function App() {
     });
   }, [filteredEventsByFilters]);
 
+  // Calculate upcoming RED events (High Impact) in the next 12 hours
+  const upcomingRedEvents = useMemo(() => {
+    const now = new Date();
+    const future = new Date(now.getTime() + 12 * 60 * 60 * 1000); // 12 hours from now
+    return calendarEvents
+      .filter((ev) => {
+        if (ev.impact !== "High") return false;
+        const evTime = new Date(ev.date);
+        return evTime > now && evTime <= future;
+      })
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }, [calendarEvents]);
+
   // Format Helper for status classes
   const getImpactColorClasses = (impact: string) => {
     switch (impact) {
       case "High":
         return {
-          bg: "bg-red-50 dark:bg-red-900/10",
-          text: "text-red-600 dark:text-red-400 border border-red-200/50 dark:border-red-800/30",
-          indicator: "bg-red-500",
+          bg: "bg-rose-500 text-white shadow-xs",
+          text: "text-rose-700 dark:text-rose-400 border-2 border-rose-500 dark:border-rose-400 bg-rose-50 dark:bg-rose-950/30",
+          indicator: "bg-rose-600",
           label: "Tin Đỏ",
         };
       case "Medium":
         return {
-          bg: "bg-amber-50 dark:bg-amber-900/10",
-          text: "text-amber-600 dark:text-amber-400 border border-amber-200/50 dark:border-amber-800/30",
-          indicator: "bg-amber-500",
+          bg: "bg-orange-500 text-white shadow-xs",
+          text: "text-orange-700 dark:text-orange-400 border-2 border-orange-500 dark:border-orange-400 bg-orange-50 dark:bg-orange-950/30",
+          indicator: "bg-orange-500",
           label: "Tin Cam",
         };
       default:
         return {
-          bg: "bg-yellow-50 dark:bg-yellow-900/10",
-          text: "text-yellow-700 dark:text-yellow-400 border border-yellow-200/50 dark:border-yellow-800/30",
-          indicator: "bg-yellow-500",
+          bg: "bg-yellow-400 text-yellow-950 shadow-xs",
+          text: "text-yellow-700 dark:text-yellow-400 border-2 border-yellow-400 dark:border-yellow-400 bg-yellow-50 dark:bg-yellow-950/30",
+          indicator: "bg-yellow-400",
           label: "Tin Vàng",
         };
     }
@@ -662,6 +676,31 @@ export default function App() {
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-[calc(1rem+env(safe-area-inset-top,0px))] md:pt-5 space-y-3.5 sm:space-y-6"
         id="app-grid-frame"
       >
+        {/* Red Event Alert Banner */}
+        {upcomingRedEvents.length > 0 && (
+          <div className="bg-rose-600 text-white p-4 rounded-[20px] shadow-level2 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 animate-pulse-once border border-rose-500">
+            <div className="bg-white/20 p-2 rounded-full flex-shrink-0 self-start sm:self-auto">
+              <AlertTriangle size={24} className="text-white" />
+            </div>
+            <div className="min-w-0">
+              <h4 className="font-bold m3-title-medium uppercase tracking-wider flex items-center gap-2">
+                Cảnh báo tin đỏ sắp ra mắt
+                <span className="m3-label-small bg-white text-rose-600 px-2 py-0.5 rounded-full font-black">
+                  CAO
+                </span>
+              </h4>
+              <p className="m3-body-medium text-white/90 truncate mt-0.5">
+                {upcomingRedEvents
+                  .map(
+                    (e) =>
+                      `${e.title} (${new Date(e.date).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })})`,
+                  )
+                  .join(" • ")}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Google Workspace Style Tonal Top Header */}
         <header
           className={`flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-6 ${darkMode ? "bg-m3-surface" : "bg-m3-surface"} rounded-[24px] shadow-level1 space-y-4 md:space-y-0`}
@@ -779,15 +818,6 @@ export default function App() {
               <span>Lịch tin tức</span>
             </button>
           </div>
-
-          <button
-            onClick={handleOpenAddTrade}
-            className="hidden md:flex items-center gap-2 px-6 py-2.5 bg-m3-primary text-m3-on-primary rounded-[16px] m3-label-large shadow-level1 m3-state-layer transition-all ease-[var(--ease-m3-enter)] cursor-pointer"
-            id="desktop-add-trade-btn"
-          >
-            <Plus size={16} />
-            <span>Thêm giao dịch</span>
-          </button>
         </div>
 
         {/* 1. OVERVIEW BENTO TAB SCREEN */}
