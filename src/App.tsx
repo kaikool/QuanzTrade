@@ -1961,12 +1961,7 @@ export default function App() {
                           type="datetime-local"
                           value={formExitDate}
                           onChange={(e) => setFormExitDate(e.target.value)}
-                          style={{
-                            minWidth: "0",
-                            width: "100%",
-                            boxSizing: "border-box",
-                          }}
-                          className="w-full min-w-0 max-w-full box-border overflow-hidden text-ellipsis px-1.5 py-2.5 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] text-[11px] sm:text-sm focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] cursor-pointer"
+                          className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] cursor-pointer"
                         />
                       </div>
                     </div>
@@ -1982,12 +1977,7 @@ export default function App() {
                         type="datetime-local"
                         value={formEntryDate}
                         onChange={(e) => setFormEntryDate(e.target.value)}
-                        style={{
-                          minWidth: "0",
-                          width: "100%",
-                          boxSizing: "border-box",
-                        }}
-                        className="w-full min-w-0 max-w-full box-border overflow-hidden text-ellipsis px-1.5 py-2.5 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] text-[11px] sm:text-sm focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] cursor-pointer"
+                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] cursor-pointer"
                       />
                     </div>
 

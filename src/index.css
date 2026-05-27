@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap");
 @import "tailwindcss";
 
 @theme {
@@ -26,15 +26,20 @@
 
   /* M3 Elevations */
   --shadow-level0: none;
-  --shadow-level1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
-  --shadow-level2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
-  --shadow-level3: 0px 1px 3px 0px rgba(0, 0, 0, 0.30), 0px 4px 8px 3px rgba(0, 0, 0, 0.15);
-  --shadow-level4: 0px 2px 3px 0px rgba(0, 0, 0, 0.30), 0px 6px 10px 4px rgba(0, 0, 0, 0.15);
-  --shadow-level5: 0px 4px 4px 0px rgba(0, 0, 0, 0.30), 0px 8px 12px 6px rgba(0, 0, 0, 0.15);
+  --shadow-level1:
+    0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+  --shadow-level2:
+    0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+  --shadow-level3:
+    0px 1px 3px 0px rgba(0, 0, 0, 0.3), 0px 4px 8px 3px rgba(0, 0, 0, 0.15);
+  --shadow-level4:
+    0px 2px 3px 0px rgba(0, 0, 0, 0.3), 0px 6px 10px 4px rgba(0, 0, 0, 0.15);
+  --shadow-level5:
+    0px 4px 4px 0px rgba(0, 0, 0, 0.3), 0px 8px 12px 6px rgba(0, 0, 0, 0.15);
 
   /* M3 Easing Functions */
-  --ease-m3-enter: cubic-bezier(0.05, 0.7, 0.1, 1.0);
-  --ease-m3-exit: cubic-bezier(0.3, 0.0, 0.8, 0.15);
+  --ease-m3-enter: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ease-m3-exit: cubic-bezier(0.3, 0, 0.8, 0.15);
 }
 
 :root {
@@ -63,7 +68,7 @@
   --sys-on-primary-container: #d3e3fd;
   --sys-surface: #1a1b1f;
   --sys-surface-container-lowest: #0e0e11;
-  --sys-surface-container-low: #1a1b1f; 
+  --sys-surface-container-low: #1a1b1f;
   --sys-surface-container: #1e1f23;
   --sys-surface-container-high: #292a2d;
   --sys-surface-container-highest: #343538;
@@ -78,21 +83,105 @@
 @variant dark (&:where(.dark, .dark *));
 
 /* M3 Typography Classes */
-.m3-display-large { font-family: var(--font-sans); font-size: 57px; line-height: 64px; font-weight: 400; letter-spacing: -0.25px; }
-.m3-display-medium { font-family: var(--font-sans); font-size: 45px; line-height: 52px; font-weight: 400; }
-.m3-display-small { font-family: var(--font-sans); font-size: 36px; line-height: 44px; font-weight: 400; }
-.m3-headline-large { font-family: var(--font-sans); font-size: 32px; line-height: 40px; font-weight: 400; }
-.m3-headline-medium { font-family: var(--font-sans); font-size: 28px; line-height: 36px; font-weight: 400; }
-.m3-headline-small { font-family: var(--font-sans); font-size: 24px; line-height: 32px; font-weight: 400; }
-.m3-title-large { font-family: var(--font-sans); font-size: 22px; line-height: 28px; font-weight: 400; }
-.m3-title-medium { font-family: var(--font-sans); font-size: 16px; line-height: 24px; font-weight: 500; letter-spacing: 0.15px; }
-.m3-title-small { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.1px; }
-.m3-label-large { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.1px; }
-.m3-label-medium { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; }
-.m3-label-small { font-family: var(--font-sans); font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; }
-.m3-body-large { font-family: var(--font-sans); font-size: 16px; line-height: 24px; font-weight: 400; letter-spacing: 0.5px; }
-.m3-body-medium { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 400; letter-spacing: 0.25px; }
-.m3-body-small { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 400; letter-spacing: 0.4px; }
+.m3-display-large {
+  font-family: var(--font-sans);
+  font-size: 57px;
+  line-height: 64px;
+  font-weight: 400;
+  letter-spacing: -0.25px;
+}
+.m3-display-medium {
+  font-family: var(--font-sans);
+  font-size: 45px;
+  line-height: 52px;
+  font-weight: 400;
+}
+.m3-display-small {
+  font-family: var(--font-sans);
+  font-size: 36px;
+  line-height: 44px;
+  font-weight: 400;
+}
+.m3-headline-large {
+  font-family: var(--font-sans);
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 400;
+}
+.m3-headline-medium {
+  font-family: var(--font-sans);
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 400;
+}
+.m3-headline-small {
+  font-family: var(--font-sans);
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 400;
+}
+.m3-title-large {
+  font-family: var(--font-sans);
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 400;
+}
+.m3-title-medium {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  letter-spacing: 0.15px;
+}
+.m3-title-small {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+}
+.m3-label-large {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+}
+.m3-label-medium {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.m3-label-small {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.m3-body-large {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+}
+.m3-body-medium {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 0.25px;
+}
+.m3-body-small {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+  letter-spacing: 0.4px;
+}
 
 /* M3 State Layers */
 .m3-state-layer {
@@ -124,7 +213,9 @@
   font-family: var(--font-sans);
   font-size: 16px;
   color: var(--sys-on-surface);
-  transition: border-color 150ms cubic-bezier(0.2, 0, 0, 1), border-width 150ms cubic-bezier(0.2, 0, 0, 1);
+  transition:
+    border-color 150ms cubic-bezier(0.2, 0, 0, 1),
+    border-width 150ms cubic-bezier(0.2, 0, 0, 1);
   padding: 16px;
 }
 
@@ -133,23 +224,74 @@
   padding: 15px; /* Offset for 2px border */
 }
 
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(116, 119, 127, 0.2); border-radius: 999px; border: 2px solid transparent; background-clip: padding-box; }
-::-webkit-scrollbar-thumb:hover { background: rgba(116, 119, 127, 0.45); border-radius: 999px; }
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(116, 119, 127, 0.2);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(116, 119, 127, 0.45);
+  border-radius: 999px;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
 body {
   font-family: var(--font-sans);
   background-color: var(--sys-surface-container-low);
   color: var(--sys-on-surface);
   overflow-x: hidden;
-  transition: background-color 250ms var(--ease-m3-enter), color 250ms var(--ease-m3-enter);
+  transition:
+    background-color 250ms var(--ease-m3-enter),
+    color 250ms var(--ease-m3-enter);
 }
 
-.pt-safe { padding-top: max(1rem, env(safe-area-inset-top, 16px)); }
-.pb-safe { padding-bottom: max(1rem, env(safe-area-inset-bottom, 16px)); }
-.pb-safe-nav { padding-bottom: calc(1rem + env(safe-area-inset-bottom, 16px)); }
-.mb-safe { margin-bottom: env(safe-area-inset-bottom, 0px); }
-.mt-safe { margin-top: env(safe-area-inset-top, 0px); }
+.pt-safe {
+  padding-top: max(1rem, env(safe-area-inset-top, 16px));
+}
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 16px));
+}
+.pb-safe-nav {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 16px));
+}
+.mb-safe {
+  margin-bottom: env(safe-area-inset-bottom, 0px);
+}
+.mt-safe {
+  margin-top: env(safe-area-inset-top, 0px);
+}
+
+/* Global M3 Form Controls & Reset for Native iOS/Safari Date-time Pickers */
+input[type="datetime-local"] {
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Ensure WebKit shadow DOM doesn't force a minimum layout width */
+input[type="datetime-local"]::-webkit-datetime-edit {
+  display: inline-flex;
+  padding: 0;
+  max-width: 100%;
+}
+
+input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper {
+  display: inline-flex;
+  padding: 0;
+  white-space: nowrap;
+}
