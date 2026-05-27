@@ -1118,14 +1118,6 @@ export default function App() {
                       </option>
                     </select>
                   </div>
-
-                  {/* Add trade trigger capsule */}
-                  <button
-                    onClick={handleOpenAddTrade}
-                    className="py-2.5 px-3.5 bg-m3-primary text-m3-on-primary rounded-[20px] m3-label-medium m3-state-layer shadow-level1 transition-all ease-[var(--ease-m3-enter)] cursor-pointer text-center w-full sm:w-auto"
-                  >
-                    + Thêm
-                  </button>
                 </div>
               </div>
 
@@ -2206,7 +2198,8 @@ export default function App() {
       {/* Unified Floating Action Button (FAB) for Mobile & Desktop */}
       <button
         onClick={handleOpenAddTrade}
-        className="fixed bottom-[calc(5.2rem+env(safe-area-inset-bottom,0px))] md:bottom-8 right-4 md:right-8 h-14 w-14 md:w-auto md:px-6 bg-m3-primary text-m3-on-primary rounded-[16px] flex items-center justify-center gap-2 shadow-level3 m3-state-layer transition-all ease-[var(--ease-m3-enter)] z-40 cursor-pointer"
+        style={{ right: "var(--fab-right, 16px)" }}
+        className="fixed bottom-[calc(5.2rem+env(safe-area-inset-bottom,0px))] md:bottom-8 md:[--fab-right:32px] h-14 w-14 md:w-auto md:px-6 bg-m3-primary text-m3-on-primary rounded-[16px] flex items-center justify-center gap-2 shadow-level3 m3-state-layer transition-all ease-[var(--ease-m3-enter)] z-40 cursor-pointer"
         title="Thêm Giao Dịch"
         id="m3-fab"
       >
