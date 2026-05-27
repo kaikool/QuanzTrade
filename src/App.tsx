@@ -1758,7 +1758,7 @@ export default function App() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 120 }}
               transition={{ type: "spring", damping: 26, stiffness: 220 }}
-              className="relative w-full max-w-2xl bg-m3-surface sm:rounded-[28px] rounded-t-[28px] shadow-level5 z-10 flex flex-col h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-x-hidden overflow-y-hidden"
+              className="relative w-full max-w-[100vw] sm:max-w-2xl bg-m3-surface sm:rounded-[28px] rounded-t-[28px] shadow-level5 z-10 flex flex-col h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-x-hidden overflow-y-hidden"
               id="new-trade-modal-window"
             >
               <div className="flex justify-between items-center px-5 sm:px-8 py-4 sm:py-6 border-b border-m3-outline-variant bg-m3-surface z-20 shrink-0">
@@ -1804,7 +1804,7 @@ export default function App() {
                       <select
                         value={formPair}
                         onChange={(e) => setFormPair(e.target.value)}
-                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-large sm:m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-all ease-[var(--ease-m3-enter)] font-bold cursor-pointer"
+                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] font-bold cursor-pointer"
                       >
                         <option value="EUR/USD">EUR/USD</option>
                         <option value="GBP/USD">GBP/USD</option>
@@ -1852,7 +1852,7 @@ export default function App() {
                         placeholder="VD: 1.0854"
                         value={formEntryPrice}
                         onChange={(e) => setFormEntryPrice(e.target.value)}
-                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-all ease-[var(--ease-m3-enter)] font-mono"
+                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] font-mono"
                       />
                     </div>
 
@@ -1867,7 +1867,7 @@ export default function App() {
                         min="0.01"
                         value={formSize}
                         onChange={(e) => setFormSize(e.target.value)}
-                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-all ease-[var(--ease-m3-enter)] font-mono font-bold"
+                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] font-mono font-bold"
                       />
                     </div>
                   </div>
@@ -1884,7 +1884,7 @@ export default function App() {
                         placeholder="Tùy chọn - SL"
                         value={formStopLoss}
                         onChange={(e) => setFormStopLoss(e.target.value)}
-                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-all ease-[var(--ease-m3-enter)] font-mono"
+                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] font-mono"
                       />
                     </div>
 
@@ -1898,7 +1898,7 @@ export default function App() {
                         placeholder="Tùy chọn - TP"
                         value={formTakeProfit}
                         onChange={(e) => setFormTakeProfit(e.target.value)}
-                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-all ease-[var(--ease-m3-enter)] font-mono"
+                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] font-mono"
                       />
                     </div>
                   </div>
@@ -1934,7 +1934,7 @@ export default function App() {
                       <select
                         value={formTimeframe}
                         onChange={(e) => setFormTimeframe(e.target.value)}
-                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-all ease-[var(--ease-m3-enter)] font-bold cursor-pointer"
+                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] font-bold cursor-pointer"
                       >
                         <option value="M5">M5 (5 phút)</option>
                         <option value="M15">M15 (15 phút)</option>
@@ -1958,7 +1958,7 @@ export default function App() {
                           placeholder="VD: 1.0920"
                           value={formExitPrice}
                           onChange={(e) => setFormExitPrice(e.target.value)}
-                          className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface/50 border border-m3-outline-variant dark:border-m3-outline-variant rounded-[16px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-all ease-[var(--ease-m3-enter)] font-mono"
+                          className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] font-mono"
                         />
                       </div>
                       <div className="min-w-0">
@@ -1969,7 +1969,7 @@ export default function App() {
                           type="datetime-local"
                           value={formExitDate}
                           onChange={(e) => setFormExitDate(e.target.value)}
-                          className="w-full bg-m3-surface/50 border border-m3-outline-variant dark:border-m3-outline-variant rounded-[16px] px-2 py-3 sm:px-3 m3-body-small focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-all ease-[var(--ease-m3-enter)] cursor-pointer"
+                          className="w-full min-w-0 max-w-full box-border overflow-hidden text-ellipsis px-2 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] text-xs sm:text-sm focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] cursor-pointer"
                         />
                       </div>
                     </div>
@@ -1985,7 +1985,7 @@ export default function App() {
                         type="datetime-local"
                         value={formEntryDate}
                         onChange={(e) => setFormEntryDate(e.target.value)}
-                        className="w-full bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] px-2 py-3 sm:px-3 m3-body-small focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-all ease-[var(--ease-m3-enter)] cursor-pointer"
+                        className="w-full min-w-0 max-w-full box-border overflow-hidden text-ellipsis px-2 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] text-xs sm:text-sm focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] cursor-pointer"
                       />
                     </div>
 
@@ -1996,7 +1996,7 @@ export default function App() {
                       <select
                         value={formTag}
                         onChange={(e) => setFormTag(e.target.value)}
-                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-all ease-[var(--ease-m3-enter)] font-bold cursor-pointer"
+                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] font-bold cursor-pointer"
                       >
                         <option value="News-Trade">
                           Giao dịch theo tin tức
@@ -2018,7 +2018,7 @@ export default function App() {
                       placeholder="Tại sao bạn khớp lệnh này? Khung cảm xúc, phân tích kỹ thuật hoặc nhận định tin tức của bạn..."
                       value={formNotes}
                       onChange={(e) => setFormNotes(e.target.value)}
-                      className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-small sm:m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-all ease-[var(--ease-m3-enter)]"
+                      className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] resize-none"
                     ></textarea>
                   </div>
 
