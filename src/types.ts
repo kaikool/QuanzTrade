@@ -27,6 +27,23 @@ export interface CalendarEvent {
   actual: string;
 }
 
+export interface NewsItem {
+  id: string;
+  title: string;
+  source: string;
+  category: "Forex" | "Macro" | "Central Bank" | "Energy";
+  link: string;
+  summary: string;
+  publishedAt: string;
+  impact: "High" | "Medium" | "Low";
+  sentiment: "Bullish" | "Bearish" | "Neutral";
+  sentimentScore: number;
+  relevanceScore: number;
+  score: number;
+  tags: string[];
+  scoredBy: "Marketaux" | "Local";
+}
+
 export interface SupabaseConfig {
   url: string;
   anonKey: string;

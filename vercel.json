@@ -7,6 +7,10 @@
       "destination": "/api/calendar"
     },
     {
+      "source": "/api/news",
+      "destination": "/api/news"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

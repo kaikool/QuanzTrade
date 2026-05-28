@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { Suspense, lazy, useState, useEffect, useMemo } from "react";
 import {
   Plus,
   Settings,
@@ -29,24 +29,37 @@ import {
   Send,
   Pencil,
   AlertTriangle,
+  Newspaper,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { Trade, CalendarEvent } from "./types";
+import { Trade, CalendarEvent, NewsItem } from "./types";
 import {
   fetchTradesFromDB,
   saveTradeToDB,
   deleteTradeFromDB,
   getSavedSupabaseKeys,
 } from "./lib/supabase";
-import { BentoStats } from "./components/BentoStats";
 import { M3DatePicker, M3TimePicker } from "./components/M3DatePicker";
+import { NewsPanel } from "./components/NewsPanel";
+
+const BentoStats = lazy(() =>
+  import("./components/BentoStats").then((module) => ({
+    default: module.BentoStats,
+  })),
+);
 
 export default function App() {
   // App core state
   const [trades, setTrades] = useState<Trade[]>([]);
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
+  const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [loadingCalendar, setLoadingCalendar] = useState(true);
   const [refreshingCalendar, setRefreshingCalendar] = useState(false);
+  const [loadingNews, setLoadingNews] = useState(true);
+  const [refreshingNews, setRefreshingNews] = useState(false);
+  const [newsLastUpdatedAt, setNewsLastUpdatedAt] = useState<string | null>(
+    null,
+  );
 
   // UI Panels
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -69,7 +82,7 @@ export default function App() {
   // On Desktop we show a majestic integrated Bento layout.
   // On Mobile, the tabs let users switch cleanly.
   const [currentTab, setCurrentTab] = useState<
-    "dashboard" | "journal" | "calendar"
+    "dashboard" | "journal" | "calendar" | "news"
   >("dashboard");
 
   // Economic Calendar UI Filters
@@ -352,10 +365,19 @@ export default function App() {
     loadTradesData();
     // Load calendar
     loadCalendarData();
+    // Load fast market news
+    loadNewsData();
     // Default dates on form
     const now = new Date();
     setFormEntryDate(now.toISOString().slice(0, 16));
     setFormExitDate(now.toISOString().slice(0, 16));
+  }, []);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      loadNewsData(false);
+    }, 2 * 60 * 1000);
+    return () => window.clearInterval(intervalId);
   }, []);
 
   // Update body and html dark class & persist choice
@@ -499,6 +521,28 @@ export default function App() {
     setRefreshingCalendar(true);
     await loadCalendarData();
     setTimeout(() => setRefreshingCalendar(false), 800);
+  };
+
+  const loadNewsData = async (showLoading = true) => {
+    if (showLoading) setLoadingNews(true);
+    try {
+      const res = await fetch("/api/news", { cache: "no-store" });
+      const json = await res.json();
+      if (json && json.success) {
+        setNewsItems(json.data);
+        setNewsLastUpdatedAt(json.fetchedAt || new Date().toISOString());
+      }
+    } catch (e) {
+      console.error("Error loading news backend:", e);
+    } finally {
+      if (showLoading) setLoadingNews(false);
+    }
+  };
+
+  const syncNews = async () => {
+    setRefreshingNews(true);
+    await loadNewsData(false);
+    setTimeout(() => setRefreshingNews(false), 800);
   };
 
   // Handle Trade Creation
@@ -879,7 +923,14 @@ export default function App() {
               className={`px-4 sm:px-6 py-2.5 rounded-[100px] m3-label-large transition-all ease-[var(--ease-m3-enter)] duration-200 m3-state-layer flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "calendar" ? "bg-m3-primary-container text-m3-primary dark:bg-m3-primary-container/30 dark:text-m3-primary" : "text-m3-on-surface-variant hover:text-m3-on-surface dark:hover:text-m3-on-surface dark:text-m3-on-surface-variant"}`}
             >
               <CalendarIcon size={16} className="flex-shrink-0" />
-              <span>Lịch tin tức</span>
+              <span>Lịch kinh tế</span>
+            </button>
+            <button
+              onClick={() => setCurrentTab("news")}
+              className={`px-4 sm:px-6 py-2.5 rounded-[100px] m3-label-large transition-all ease-[var(--ease-m3-enter)] duration-200 m3-state-layer flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "news" ? "bg-m3-primary-container text-m3-primary dark:bg-m3-primary-container/30 dark:text-m3-primary" : "text-m3-on-surface-variant hover:text-m3-on-surface dark:hover:text-m3-on-surface dark:text-m3-on-surface-variant"}`}
+            >
+              <Newspaper size={16} className="flex-shrink-0" />
+              <span>Tin tức thị trường</span>
             </button>
           </div>
         </div>
@@ -888,7 +939,13 @@ export default function App() {
         {currentTab === "dashboard" && (
           <div className="space-y-6" id="dashboard-bento-section">
             {/* Numeric and graphs bento core statistics wrapper */}
-            <BentoStats trades={trades} darkMode={darkMode} />
+            <Suspense
+              fallback={
+                <div className="min-h-[260px] rounded-[24px] bg-m3-surface shadow-level1 animate-pulse" />
+              }
+            >
+              <BentoStats trades={trades} darkMode={darkMode} />
+            </Suspense>
 
             {/* Mixed Bento Row: Calendar Fast-View (Large 2/3) + Recent Trade Activities (Medium 1/3) */}
             <div
@@ -958,10 +1015,10 @@ export default function App() {
                     ) : filteredEventsByFilters.length === 0 ? (
                       <div className="py-12 text-center text-m3-on-surface-variant">
                         <p className="m3-body-medium">
-                          Không có tin tức USD nào tương thích bộ lọc đã chọn.
+                          Không có sự kiện kinh tế USD nào tương thích bộ lọc đã chọn.
                         </p>
                         <p className="m3-body-small text-m3-on-surface-variant mt-1.5">
-                          Lưu ý: Bạn có thể chọn tin có tác động thấp hơn ở tab
+                          Lưu ý: Bạn có thể chọn sự kiện có tác động thấp hơn ở tab
                           Lịch Kinh Tế
                         </p>
                       </div>
@@ -1560,7 +1617,7 @@ export default function App() {
                   </div>
                   <div>
                     <h3 className="m3-body-large sm:m3-title-medium text-m3-on-surface">
-                      Lịch Tin Tức Vĩ Mô
+                      Lịch Kinh Tế Vĩ Mô
                     </h3>
                     <p className="m3-body-small sm:m3-body-medium text-m3-on-surface-variant mt-0.5">
                       Chỉ số USD quan trọng
@@ -1617,7 +1674,7 @@ export default function App() {
                             : "bg-m3-surface text-m3-primary shadow-xs"
                           : "opacity-40 hover:opacity-95"
                       }`}
-                      title="Tất cả tin tức (Đỏ, Vàng, Xanh)"
+                      title="Tất cả sự kiện kinh tế (Đỏ, Vàng, Xanh)"
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
                       <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
@@ -1646,7 +1703,7 @@ export default function App() {
                             : "bg-m3-surface text-m3-primary shadow-xs"
                           : "opacity-40 hover:opacity-95"
                       }`}
-                      title="Chỉ tin tức quan trọng (Đỏ)"
+                      title="Chỉ sự kiện kinh tế quan trọng (Đỏ)"
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
                     </button>
@@ -1656,7 +1713,7 @@ export default function App() {
                   <button
                     onClick={syncCalendar}
                     className="p-2.5 bg-m3-surface-container dark:bg-m3-surface-container-lowest dark:hover:bg-m3-surface-container-high rounded-[16px] transition-all ease-[var(--ease-m3-enter)] cursor-pointer flex items-center justify-center min-w-[36px] min-h-[36px]"
-                    title="Cập nhật nguồn tin tức mới nhất"
+                    title="Cập nhật lịch kinh tế mới nhất"
                   >
                     <RefreshCw
                       size={14}
@@ -1688,10 +1745,10 @@ export default function App() {
                     size={48}
                   />
                   <p className="font-semibold m3-body-medium">
-                    Không thấy tin tức USD tương thích
+                    Không thấy sự kiện kinh tế USD tương thích
                   </p>
                   <p className="m3-body-small text-m3-on-surface-variant mt-1">
-                    Vui lòng thử điều chỉnh lại bộ lọc tác động tin tức.
+                    Vui lòng thử điều chỉnh lại bộ lọc tác động sự kiện.
                   </p>
                 </div>
               ) : (
@@ -1789,6 +1846,18 @@ export default function App() {
               )}
             </div>
           </div>
+        )}
+
+        {/* 4. FAST RSS NEWS TAB SCREEN */}
+        {currentTab === "news" && (
+          <NewsPanel
+            newsItems={newsItems}
+            loading={loadingNews}
+            refreshing={refreshingNews}
+            onRefresh={syncNews}
+            darkMode={darkMode}
+            lastUpdatedAt={newsLastUpdatedAt}
+          />
         )}
       </div>
 
@@ -2217,7 +2286,7 @@ export default function App() {
                   <div className="flex items-center justify-between p-3 bg-m3-surface-container rounded-[16px] border border-transparent">
                     <div>
                       <p className="font-semibold text-m3-on-surface">
-                        Cảnh báo tin tức vĩ mô
+                        Cảnh báo sự kiện vĩ mô
                       </p>
                       <p className="m3-body-small text-m3-on-surface-variant mt-1 dark:text-m3-on-surface-variant">
                         Báo trước 1 giờ khi có tin đỏ (USD High Impact)
@@ -2326,7 +2395,19 @@ export default function App() {
           >
             <CalendarIcon size={20} />
           </div>
-          <span className="m3-label-medium tracking-wide">Lịch Tin</span>
+          <span className="m3-label-medium tracking-wide">Kinh tế</span>
+        </button>
+
+        <button
+          onClick={() => setCurrentTab("news")}
+          className={`flex flex-col items-center gap-1.5 justify-center flex-1 py-1.5 ${currentTab === "news" ? "text-m3-primary" : "text-m3-on-surface-variant"}`}
+        >
+          <div
+            className={`px-5 py-1.5 rounded-full ${currentTab === "news" ? "bg-m3-primary-container dark:bg-m3-primary-container/30 text-m3-primary dark:text-m3-primary" : ""}`}
+          >
+            <Newspaper size={20} />
+          </div>
+          <span className="m3-label-medium tracking-wide">Tin tức</span>
         </button>
       </footer>
     </div>
