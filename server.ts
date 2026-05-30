@@ -203,6 +203,139 @@ async function startServer() {
     };
   }
 
+  function shortText(value: string, maxLength = 220) {
+    const normalized = (value || "").replace(/\s+/g, " ").trim();
+    if (normalized.length <= maxLength) return normalized;
+    return `${normalized.slice(0, maxLength - 3).trim()}...`;
+  }
+
+  function deriveAffectedAssets(item: any) {
+    const text = `${item.title || ""} ${item.summary || ""} ${(item.tags || []).join(" ")}`.toUpperCase();
+    const assets = new Set<string>();
+    const candidates = ["USD", "XAU", "XAUUSD", "EUR", "EURUSD", "GBP", "GBPUSD", "JPY", "USDJPY", "OIL", "BTC", "US500", "NASDAQ"];
+
+    candidates.forEach((asset) => {
+      if (text.includes(asset)) assets.add(asset);
+    });
+
+    if (item.category === "Forex") assets.add("USD");
+    if (item.category === "Energy") assets.add("OIL");
+    if (item.category === "Central Bank") assets.add("USD");
+
+    return Array.from(assets).slice(0, 6);
+  }
+
+  function deriveEffect(sentiment: string) {
+    if (sentiment === "Bullish") return "Tốt";
+    if (sentiment === "Bearish") return "Xấu";
+    return "Trung lập";
+  }
+
+  function withDisplayFields(item: any) {
+    return {
+      ...item,
+      titleVi: item.titleVi || item.title || "Tin thị trường",
+      summaryVi: item.summaryVi || shortText(item.summary || item.title || "Chưa có tóm tắt ngắn."),
+      effect: item.effect || deriveEffect(item.sentiment),
+      affectedAssets: item.affectedAssets || deriveAffectedAssets(item),
+    };
+  }
+
+  function extractJsonArray(raw: string) {
+    const cleaned = raw.replace(/```json|```/g, "").trim();
+    const start = cleaned.indexOf("[");
+    const end = cleaned.lastIndexOf("]");
+    if (start === -1 || end === -1 || end <= start) {
+      throw new Error("Gemini response did not contain a JSON array");
+    }
+    return JSON.parse(cleaned.slice(start, end + 1));
+  }
+
+  async function enrichNewsForVietnameseDisplay(items: any[]) {
+    const baseItems = items.map(withDisplayFields);
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) return baseItems;
+
+    const targets = baseItems.slice(0, 15);
+    if (targets.length === 0) return baseItems;
+
+    const prompt = `
+You translate and summarize financial market news for Vietnamese forex traders.
+Return ONLY a valid JSON array. Keep each summary very short: maximum 2 Vietnamese sentences.
+
+For each input item, return:
+{
+  "id": "same id",
+  "titleVi": "Vietnamese headline",
+  "effect": "Tốt|Xấu|Trung lập",
+  "affectedAssets": ["USD", "XAU", "..."],
+  "summaryVi": "Very short Vietnamese summary, 1-2 sentences"
+}
+
+Input:
+${JSON.stringify(
+  targets.map((item) => ({
+    id: item.id,
+    title: item.title,
+    summary: item.summary,
+    category: item.category,
+    impact: item.impact,
+    sentiment: item.sentiment,
+    tags: item.tags,
+  })),
+)}
+`.trim();
+
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+        {
+          method: "POST",
+          signal: AbortSignal.timeout(15000),
+          headers: {
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.2,
+              responseMimeType: "application/json",
+            },
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error(`Gemini: ${response.status} ${response.statusText}`);
+      }
+
+      const json: any = await response.json();
+      const raw = json.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      const enriched = extractJsonArray(raw);
+      const enrichedById = new Map(enriched.map((item: any) => [item.id, item]));
+
+      return baseItems.map((item) => {
+        const match: any = enrichedById.get(item.id);
+        if (!match) return item;
+
+        return {
+          ...item,
+          titleVi: match.titleVi || item.titleVi,
+          summaryVi: shortText(match.summaryVi || item.summaryVi, 260),
+          effect: ["Tốt", "Xấu", "Trung lập"].includes(match.effect)
+            ? match.effect
+            : item.effect,
+          affectedAssets: Array.isArray(match.affectedAssets)
+            ? match.affectedAssets.slice(0, 6)
+            : item.affectedAssets,
+        };
+      });
+    } catch (error: any) {
+      console.warn("AI news display enrichment failed:", error.message);
+      return baseItems;
+    }
+  }
+
   function parseRssItems(xml: string, feed: { source: string; category: string; url: string }) {
     const blocks = xml.match(/<item[\s\S]*?<\/item>/gi) || xml.match(/<entry[\s\S]*?<\/entry>/gi) || [];
 
@@ -226,7 +359,7 @@ async function startServer() {
 
       const localScore = scoreNewsText(title, summary);
 
-      return {
+      return withDisplayFields({
         id: `${feed.source}-${link || title || index}`,
         title: title || "Market news update",
         source: feed.source,
@@ -235,7 +368,7 @@ async function startServer() {
         summary,
         publishedAt,
         ...localScore,
-      };
+      });
     });
   }
 
@@ -304,7 +437,7 @@ async function startServer() {
         .filter(Boolean)
         .slice(0, 5);
 
-      return {
+      return withDisplayFields({
         id: `Marketaux-${item.uuid || item.url || item.title}`,
         title: item.title || "Marketaux market update",
         source: item.source || "Marketaux",
@@ -316,7 +449,7 @@ async function startServer() {
           : new Date().toISOString(),
         ...scored,
         tags,
-      };
+      });
     });
 
     marketauxCache = {
@@ -574,9 +707,11 @@ async function startServer() {
       )
       .slice(0, 60);
 
-    if (deduped.length > 0) {
+    const displayItems = await enrichNewsForVietnameseDisplay(deduped);
+
+    if (displayItems.length > 0) {
       newsCache = {
-        data: deduped,
+        data: displayItems,
         timestamp: now,
       };
     }
@@ -595,7 +730,7 @@ async function startServer() {
         )
         .filter(Boolean),
       nextRefreshSeconds: NEWS_CACHE_TTL_MS / 1000,
-      data: deduped.length > 0 ? deduped : newsCache?.data || [],
+      data: displayItems.length > 0 ? displayItems : newsCache?.data || [],
     });
   });
 

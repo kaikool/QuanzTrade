@@ -27,10 +27,10 @@ const impactClasses: Record<NewsItem["impact"], string> = {
   Low: "bg-yellow-400 text-yellow-950",
 };
 
-const sentimentClasses: Record<NewsItem["sentiment"], string> = {
-  Bullish: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-  Bearish: "bg-rose-500/10 text-rose-700 dark:text-rose-300",
-  Neutral: "bg-m3-surface-container-high text-m3-on-surface-variant",
+const effectClasses: Record<NewsItem["effect"], string> = {
+  Tốt: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  Xấu: "bg-rose-500/10 text-rose-700 dark:text-rose-300",
+  "Trung lập": "bg-m3-surface-container-high text-m3-on-surface-variant",
 };
 
 function formatRelativeTime(value: string) {
@@ -53,6 +53,13 @@ function formatRelativeTime(value: string) {
     month: "2-digit",
     year: "numeric",
   });
+}
+
+function compactSummary(item: NewsItem) {
+  const source = item.summaryVi || item.summary || item.titleVi || item.title;
+  const normalized = source.replace(/\s+/g, " ").trim();
+  if (normalized.length <= 260) return normalized;
+  return `${normalized.slice(0, 257).trim()}...`;
 }
 
 export function NewsPanel({
@@ -139,21 +146,21 @@ export function NewsPanel({
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-2">
                       <span
-                        className={`px-2 py-0.5 rounded-full border m3-label-small font-bold ${categoryClasses[item.category]}`}
-                      >
-                        {item.category}
-                      </span>
-                      <span
                         className={`px-2 py-0.5 rounded-full m3-label-small font-black ${impactClasses[item.impact]}`}
                         title={`Điểm quan trọng: ${item.score}/100`}
                       >
                         {item.impact} {item.score}
                       </span>
                       <span
-                        className={`px-2 py-0.5 rounded-full m3-label-small font-bold ${sentimentClasses[item.sentiment]}`}
-                        title={`Sentiment: ${item.sentimentScore}`}
+                        className={`px-2 py-0.5 rounded-full m3-label-small font-bold ${effectClasses[item.effect]}`}
+                        title={`Sentiment: ${item.sentiment} (${item.sentimentScore})`}
                       >
-                        {item.sentiment}
+                        Ảnh hưởng: {item.effect}
+                      </span>
+                      <span
+                        className={`px-2 py-0.5 rounded-full border m3-label-small font-bold ${categoryClasses[item.category]}`}
+                      >
+                        {item.category}
                       </span>
                       <span className="m3-body-small text-m3-on-surface-variant font-mono">
                         {item.source}
@@ -166,7 +173,10 @@ export function NewsPanel({
                       </span>
                     </div>
                     <h4 className="m3-body-medium sm:m3-body-large font-extrabold text-m3-on-surface leading-snug">
-                      {item.title}
+                      <span className="text-m3-on-surface-variant font-bold">
+                        Header tin:{" "}
+                      </span>
+                      {item.titleVi || item.title}
                     </h4>
                   </div>
                   <a
@@ -179,11 +189,32 @@ export function NewsPanel({
                     <ExternalLink size={15} />
                   </a>
                 </div>
-                {item.summary && (
-                  <p className="m3-body-small text-m3-on-surface-variant mt-3 line-clamp-3">
-                    {item.summary}
-                  </p>
-                )}
+                <div className="flex flex-wrap gap-1.5 mt-3">
+                  <span className="m3-label-small text-m3-on-surface-variant font-bold mr-1">
+                    Loại bị ảnh hưởng:
+                  </span>
+                  {item.affectedAssets.length > 0 ? (
+                    item.affectedAssets.map((asset) => (
+                      <span
+                        key={asset}
+                        className="px-2 py-0.5 rounded-full bg-m3-surface-container m3-label-small text-m3-on-surface-variant font-mono"
+                      >
+                        {asset}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="m3-label-small text-m3-on-surface-variant">
+                      Chưa rõ
+                    </span>
+                  )}
+                </div>
+
+                <p className="m3-body-small text-m3-on-surface-variant mt-3 line-clamp-3">
+                  <span className="font-bold text-m3-on-surface">
+                    Tóm tắt:{" "}
+                  </span>
+                  {compactSummary(item)}
+                </p>
                 {item.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-3">
                     {item.tags.map((tag) => (

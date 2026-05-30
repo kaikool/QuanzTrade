@@ -30,13 +30,17 @@ export interface CalendarEvent {
 export interface NewsItem {
   id: string;
   title: string;
+  titleVi: string;
   source: string;
   category: "Forex" | "Macro" | "Central Bank" | "Energy";
   link: string;
   summary: string;
+  summaryVi: string;
   publishedAt: string;
   impact: "High" | "Medium" | "Low";
   sentiment: "Bullish" | "Bearish" | "Neutral";
+  effect: "Tốt" | "Xấu" | "Trung lập";
+  affectedAssets: string[];
   sentimentScore: number;
   relevanceScore: number;
   score: number;
