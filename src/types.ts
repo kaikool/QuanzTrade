@@ -49,6 +49,20 @@ export interface NewsItem {
   translatedAt?: string;
 }
 
+export interface NewsDebugInfo {
+  source?: string;
+  hasGeminiKey?: boolean;
+  geminiAttempted?: boolean;
+  geminiError?: string;
+  translatedCount?: number;
+  untranslatedCount?: number;
+  dbFreshHit?: boolean;
+  dbReadCount?: number;
+  dbWriteAttempted?: boolean;
+  dbWriteError?: string;
+  failedSources?: string[];
+}
+
 export interface SupabaseConfig {
   url: string;
   anonKey: string;

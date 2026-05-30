@@ -32,7 +32,7 @@ import {
   Newspaper,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { Trade, CalendarEvent, NewsItem } from "./types";
+import { Trade, CalendarEvent, NewsItem, NewsDebugInfo } from "./types";
 import {
   fetchTradesFromDB,
   saveTradeToDB,
@@ -60,6 +60,7 @@ export default function App() {
   const [newsLastUpdatedAt, setNewsLastUpdatedAt] = useState<string | null>(
     null,
   );
+  const [newsDebug, setNewsDebug] = useState<NewsDebugInfo | null>(null);
 
   // UI Panels
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -531,6 +532,7 @@ export default function App() {
       if (json && json.success) {
         setNewsItems(json.data);
         setNewsLastUpdatedAt(json.fetchedAt || new Date().toISOString());
+        setNewsDebug(json.debug || null);
       }
     } catch (e) {
       console.error("Error loading news backend:", e);
@@ -1857,6 +1859,7 @@ export default function App() {
             onRefresh={syncNews}
             darkMode={darkMode}
             lastUpdatedAt={newsLastUpdatedAt}
+            debug={newsDebug}
           />
         )}
       </div>

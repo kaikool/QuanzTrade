@@ -1,5 +1,5 @@
 import { AlertTriangle, ExternalLink, RefreshCw } from "lucide-react";
-import { NewsItem } from "../types";
+import { NewsDebugInfo, NewsItem } from "../types";
 
 interface NewsPanelProps {
   newsItems: NewsItem[];
@@ -8,6 +8,7 @@ interface NewsPanelProps {
   onRefresh: () => void;
   darkMode: boolean;
   lastUpdatedAt: string | null;
+  debug: NewsDebugInfo | null;
 }
 
 const categoryClasses: Record<NewsItem["category"], string> = {
@@ -69,7 +70,14 @@ export function NewsPanel({
   onRefresh,
   darkMode,
   lastUpdatedAt,
+  debug,
 }: NewsPanelProps) {
+  const shouldShowDebug =
+    Boolean(debug?.geminiError) ||
+    debug?.hasGeminiKey === false ||
+    Boolean(debug?.dbWriteError) ||
+    (debug?.untranslatedCount || 0) > 0;
+
   return (
     <div className="space-y-5" id="news-panel">
       <section
@@ -115,6 +123,39 @@ export function NewsPanel({
             RSS miễn phí vẫn có độ trễ theo từng nguồn. App cache ngắn và tự làm mới 2 phút/lần.
           </p>
         </div>
+
+        {shouldShowDebug && debug && (
+          <div className="p-3 rounded-[16px] bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-200 mb-5">
+            <div className="m3-label-large font-bold mb-2">
+              Debug dịch tin
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 m3-body-small font-mono">
+              <span>source: {debug.source || "-"}</span>
+              <span>geminiKey: {debug.hasGeminiKey ? "yes" : "no"}</span>
+              <span>geminiAttempted: {debug.geminiAttempted ? "yes" : "no"}</span>
+              <span>translated: {debug.translatedCount ?? 0}</span>
+              <span>untranslated: {debug.untranslatedCount ?? 0}</span>
+              <span>dbFreshHit: {debug.dbFreshHit ? "yes" : "no"}</span>
+              <span>dbReadCount: {debug.dbReadCount ?? 0}</span>
+              <span>dbWrite: {debug.dbWriteAttempted ? "attempted" : "no"}</span>
+            </div>
+            {debug.geminiError && (
+              <p className="m3-body-small mt-2 break-words">
+                Gemini: {debug.geminiError}
+              </p>
+            )}
+            {debug.dbWriteError && (
+              <p className="m3-body-small mt-2 break-words">
+                Supabase write: {debug.dbWriteError}
+              </p>
+            )}
+            {debug.failedSources && debug.failedSources.length > 0 && (
+              <p className="m3-body-small mt-2 break-words">
+                Feed lỗi: {debug.failedSources.join(", ")}
+              </p>
+            )}
+          </div>
+        )}
 
         {loading ? (
           <div className="space-y-3">

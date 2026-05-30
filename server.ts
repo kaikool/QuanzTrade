@@ -26,6 +26,7 @@ async function startServer() {
   let marketauxCache: { data: any[]; timestamp: number } | null = null;
   const MARKETAUX_CACHE_TTL_MS = 10 * 60 * 1000; // protect free API quota
   const NEWS_TABLE = "news_items";
+  let lastNewsDebug: any = {};
 
   function getServerSupabaseClient() {
     const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
@@ -63,9 +64,11 @@ async function startServer() {
       return {
         data: data.map((row: any) => row.data).filter(Boolean),
         timestamp: new Date(data[0].fetched_at).getTime(),
+        count: data.length,
       };
     } catch (error: any) {
       console.warn("Supabase news fresh read failed:", error.message);
+      lastNewsDebug.dbReadError = error.message;
       return null;
     }
   }
@@ -84,6 +87,7 @@ async function startServer() {
       return new Map((data || []).map((row: any) => [row.id, row.data]));
     } catch (error: any) {
       console.warn("Supabase news id read failed:", error.message);
+      lastNewsDebug.dbReadError = error.message;
       return new Map<string, any>();
     }
   }
@@ -109,8 +113,11 @@ async function startServer() {
       });
 
       if (error) throw error;
+      lastNewsDebug.dbWriteAttempted = true;
     } catch (error: any) {
       console.warn("Supabase news upsert failed:", error.message);
+      lastNewsDebug.dbWriteAttempted = true;
+      lastNewsDebug.dbWriteError = error.message;
     }
   }
 
@@ -404,11 +411,18 @@ async function startServer() {
       process.env.GEMINI_API_KEY ||
       process.env.GOOGLE_API_KEY ||
       process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-    if (!apiKey) return baseItems;
+    lastNewsDebug.hasGeminiKey = Boolean(apiKey);
+    if (!apiKey) {
+      lastNewsDebug.geminiAttempted = false;
+      lastNewsDebug.geminiError = "Missing GEMINI_API_KEY/GOOGLE_API_KEY env";
+      return baseItems;
+    }
 
     const targets = baseItems
       .filter((item) => !item.translatedAt)
       .slice(0, 60);
+    lastNewsDebug.geminiAttempted = targets.length > 0;
+    lastNewsDebug.geminiTargetCount = targets.length;
     if (targets.length === 0) return baseItems;
 
     const prompt = `
@@ -483,6 +497,7 @@ ${JSON.stringify(
       });
     } catch (error: any) {
       console.warn("AI news display enrichment failed:", error.message);
+      lastNewsDebug.geminiError = error.message;
       return baseItems;
     }
   }
@@ -823,6 +838,15 @@ ${JSON.stringify(
   // API endpoint for fast market news
   app.get("/api/news", async (req, res) => {
     const now = Date.now();
+    lastNewsDebug = {
+      hasGeminiKey: Boolean(
+        process.env.GEMINI_API_KEY ||
+          process.env.GOOGLE_API_KEY ||
+          process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+      ),
+      dbFreshHit: false,
+      dbWriteAttempted: false,
+    };
 
     const freshDbCache = await readFreshNewsFromDb(now);
     if (freshDbCache && freshDbCache.data.length > 0) {
@@ -834,6 +858,14 @@ ${JSON.stringify(
           (NEWS_CACHE_TTL_MS - (now - freshDbCache.timestamp)) / 1000,
         ),
         data: freshDbCache.data,
+        debug: {
+          ...lastNewsDebug,
+          source: "supabase_cached",
+          dbFreshHit: true,
+          dbReadCount: freshDbCache.count,
+          translatedCount: freshDbCache.data.filter((item: any) => item.translatedAt).length,
+          untranslatedCount: freshDbCache.data.filter((item: any) => !item.translatedAt).length,
+        },
       });
     }
 
@@ -846,6 +878,12 @@ ${JSON.stringify(
           (NEWS_CACHE_TTL_MS - (now - newsCache.timestamp)) / 1000,
         ),
         data: newsCache.data,
+        debug: {
+          ...lastNewsDebug,
+          source: "rss_cached",
+          translatedCount: newsCache.data.filter((item: any) => item.translatedAt).length,
+          untranslatedCount: newsCache.data.filter((item: any) => !item.translatedAt).length,
+        },
       });
     }
 
@@ -902,6 +940,21 @@ ${JSON.stringify(
         .filter(Boolean),
       nextRefreshSeconds: NEWS_CACHE_TTL_MS / 1000,
       data: displayItems.length > 0 ? displayItems : newsCache?.data || [],
+      debug: {
+        ...lastNewsDebug,
+        source: "rss_live",
+        failedSources: results
+          .map((result, index) =>
+            result.status === "rejected"
+              ? index < newsFeeds.length
+                ? newsFeeds[index].source
+                : "Marketaux"
+              : null,
+          )
+          .filter(Boolean),
+        translatedCount: displayItems.filter((item: any) => item.translatedAt).length,
+        untranslatedCount: displayItems.filter((item: any) => !item.translatedAt).length,
+      },
     });
   });
 
