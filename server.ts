@@ -28,8 +28,12 @@ async function startServer() {
   const GEMINI_TRANSLATION_BATCH_LIMIT = Number(
     process.env.GEMINI_TRANSLATION_BATCH_LIMIT || 20,
   );
+  const GEMINI_QUOTA_COOLDOWN_MS = Number(
+    process.env.GEMINI_QUOTA_COOLDOWN_MS || 30 * 60 * 1000,
+  );
   const NEWS_TABLE = "news_items";
   let lastNewsDebug: any = {};
+  let geminiQuotaCooldownUntil = 0;
 
   function getServerSupabaseClient() {
     const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
@@ -420,6 +424,12 @@ async function startServer() {
     });
   }
 
+  function shortProviderError(message: string) {
+    if (message.includes("429")) return "429 quota/rate limit";
+    if (message.includes("403")) return "403 forbidden/quota";
+    return message.replace(/\s+/g, " ").slice(0, 160);
+  }
+
   async function enrichNewsForVietnameseDisplay(items: any[]) {
     const baseItems = items.map(withDisplayFields);
     const apiKeys = getGeminiApiKeys();
@@ -429,6 +439,12 @@ async function startServer() {
     if (apiKeys.length === 0) {
       lastNewsDebug.geminiAttempted = false;
       lastNewsDebug.geminiError = "Missing GEMINI_API_KEY/GOOGLE_API_KEY env";
+      return baseItems;
+    }
+
+    if (Date.now() < geminiQuotaCooldownUntil) {
+      lastNewsDebug.geminiAttempted = false;
+      lastNewsDebug.geminiError = `Gemini quota cooldown until ${new Date(geminiQuotaCooldownUntil).toISOString()}`;
       return baseItems;
     }
 
@@ -472,13 +488,15 @@ ${JSON.stringify(
     for (let keyIndex = 0; keyIndex < apiKeys.length; keyIndex += 1) {
       const apiKey = apiKeys[keyIndex];
       try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+        const geminiModel = process.env.GEMINI_MODEL || "gemini-flash-latest";
+        const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(geminiModel)}:generateContent`,
         {
           method: "POST",
           signal: AbortSignal.timeout(30000),
           headers: {
             "content-type": "application/json",
+            "x-goog-api-key": apiKey,
           },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
@@ -524,7 +542,7 @@ ${JSON.stringify(
         };
         });
       } catch (error: any) {
-        keyAttempts.push(`key${keyIndex + 1}: ${error.message}`);
+        keyAttempts.push(`key${keyIndex + 1}: ${shortProviderError(error.message)}`);
         if (keyIndex < apiKeys.length - 1) continue;
         console.warn("AI news display enrichment failed:", error.message);
         lastNewsDebug.geminiError = error.message;
@@ -533,8 +551,16 @@ ${JSON.stringify(
       }
     }
 
-    lastNewsDebug.geminiError = keyAttempts.join(" | ");
-    lastNewsDebug.geminiKeyAttempts = keyAttempts;
+    const allQuotaErrors =
+      keyAttempts.length >= apiKeys.length &&
+      keyAttempts.every((attempt) => attempt.includes("429") || attempt.includes("403"));
+    if (allQuotaErrors) {
+      geminiQuotaCooldownUntil = Date.now() + GEMINI_QUOTA_COOLDOWN_MS;
+    }
+    lastNewsDebug.geminiError = allQuotaErrors
+      ? `All Gemini keys are quota-limited. Cooling down for ${Math.round(GEMINI_QUOTA_COOLDOWN_MS / 60000)} minutes.`
+      : keyAttempts.map(shortProviderError).join(" | ");
+    lastNewsDebug.geminiKeyAttempts = keyAttempts.map(shortProviderError);
     return baseItems;
   }
 
