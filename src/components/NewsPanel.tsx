@@ -73,8 +73,8 @@ export function NewsPanel({
   debug,
 }: NewsPanelProps) {
   const shouldShowDebug =
-    Boolean(debug?.geminiError) ||
-    debug?.hasGeminiKey === false ||
+    Boolean(debug?.translationError) ||
+    debug?.hasDeepLKey === false ||
     Boolean(debug?.dbWriteError) ||
     (debug?.untranslatedCount || 0) > 0;
 
@@ -131,24 +131,21 @@ export function NewsPanel({
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 m3-body-small font-mono">
               <span>source: {debug.source || "-"}</span>
-              <span>provider: {debug.aiProvider || "-"}</span>
-              <span>geminiKeys: {debug.geminiKeyCount ?? 0}</span>
-              <span>geminiKey: {debug.hasGeminiKey ? "yes" : "no"}</span>
-              <span>geminiAttempted: {debug.geminiAttempted ? "yes" : "no"}</span>
+              <span>provider: {debug.translationProvider || "-"}</span>
+              <span>deepLKey: {debug.hasDeepLKey ? "yes" : "no"}</span>
+              <span>translationAttempted: {debug.translationAttempted ? "yes" : "no"}</span>
+              <span>translationResult: {debug.translationResult || "-"}</span>
+              <span>translationTarget: {debug.translationTargetCount ?? 0}</span>
+              <span>translationLimit: {debug.translationBatchLimit ?? 0}</span>
               <span>translated: {debug.translatedCount ?? 0}</span>
               <span>untranslated: {debug.untranslatedCount ?? 0}</span>
               <span>dbFreshHit: {debug.dbFreshHit ? "yes" : "no"}</span>
               <span>dbReadCount: {debug.dbReadCount ?? 0}</span>
               <span>dbWrite: {debug.dbWriteAttempted ? "attempted" : "no"}</span>
             </div>
-            {debug.geminiError && (
+            {debug.translationError && (
               <p className="m3-body-small mt-2 break-words">
-                Gemini: {debug.geminiError}
-              </p>
-            )}
-            {debug.geminiKeyAttempts && debug.geminiKeyAttempts.length > 0 && (
-              <p className="m3-body-small mt-2 break-words">
-                Gemini keys: {debug.geminiKeyAttempts.join(" | ")}
+                DeepL: {debug.translationError}
               </p>
             )}
             {debug.dbWriteError && (

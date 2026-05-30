@@ -2,5 +2,5 @@
   "name": "Trade Journal & Economic Calendar",
   "description": "A Google Material Design 3-inspired professional trade journal and live economic calendar application.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": []
 }

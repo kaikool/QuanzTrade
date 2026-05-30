@@ -2,11 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 
 const NEWS_CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes
 const MARKETAUX_CACHE_TTL_MS = 10 * 60 * 1000; // protect free API quota
-const GEMINI_TRANSLATION_BATCH_LIMIT = Number(
-  process.env.GEMINI_TRANSLATION_BATCH_LIMIT || 20,
-);
-const GEMINI_QUOTA_COOLDOWN_MS = Number(
-  process.env.GEMINI_QUOTA_COOLDOWN_MS || 30 * 60 * 1000,
+const DEEPL_TRANSLATION_BATCH_LIMIT = Number(
+  process.env.DEEPL_TRANSLATION_BATCH_LIMIT || 30,
 );
 const NEWS_TABLE = "news_items";
 
@@ -56,7 +53,6 @@ const newsFeeds = [
 let newsCache: { data: any[]; timestamp: number } | null = null;
 let marketauxCache: { data: any[]; timestamp: number } | null = null;
 let lastNewsDebug: any = {};
-let geminiQuotaCooldownUntil = 0;
 
 function getServerSupabaseClient() {
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
@@ -91,10 +87,15 @@ async function readFreshNewsFromDb(now: number) {
     if (error) throw error;
     if (!data || data.length === 0) return null;
 
+    const translatedRows = data
+      .map((row: any) => row.data)
+      .filter((item: any) => item?.translationProvider === "DeepL");
+    if (translatedRows.length === 0) return null;
+
     return {
-      data: data.map((row: any) => row.data).filter(Boolean),
+      data: translatedRows,
       timestamp: new Date(data[0].fetched_at).getTime(),
-      count: data.length,
+      count: translatedRows.length,
     };
   } catch (error: any) {
     console.warn("Supabase news fresh read failed:", error.message);
@@ -382,166 +383,111 @@ function withDisplayFields(item: any) {
   };
 }
 
-function extractJsonArray(raw: string) {
-  const cleaned = raw.replace(/```json|```/g, "").trim();
-  const start = cleaned.indexOf("[");
-  const end = cleaned.lastIndexOf("]");
-  if (start === -1 || end === -1 || end <= start) {
-    throw new Error("Gemini response did not contain a JSON array");
-  }
-  return JSON.parse(cleaned.slice(start, end + 1));
-}
-
-function getGeminiApiKeys() {
-  return [
-    process.env.GEMINI_API_KEY,
-    process.env.GEMINI_API_KEY_2,
-    process.env.GEMINI_API_KEY_3,
-    process.env.GOOGLE_API_KEY,
-    process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-  ].filter((key, index, all): key is string => {
-    return Boolean(key) && all.indexOf(key) === index;
-  });
-}
-
 function shortProviderError(message: string) {
   if (message.includes("429")) return "429 quota/rate limit";
   if (message.includes("403")) return "403 forbidden/quota";
   return message.replace(/\s+/g, " ").slice(0, 160);
 }
 
-async function enrichNewsForVietnameseDisplay(items: any[]) {
-  const baseItems = items.map(withDisplayFields);
-  const apiKeys = getGeminiApiKeys();
-  lastNewsDebug.hasGeminiKey = apiKeys.length > 0;
-  lastNewsDebug.geminiKeyCount = apiKeys.length;
-  lastNewsDebug.aiProvider = "Gemini";
-  if (apiKeys.length === 0) {
-    lastNewsDebug.geminiAttempted = false;
-    lastNewsDebug.geminiError = "Missing GEMINI_API_KEY/GOOGLE_API_KEY env";
-    return baseItems;
+function getDeepLApiKey() {
+  return process.env.DEEPL_API_KEY || "";
+}
+
+function getDeepLApiUrl(apiKey: string) {
+  if (process.env.DEEPL_API_URL) return process.env.DEEPL_API_URL.replace(/\/$/, "");
+  return apiKey.endsWith(":fx") ? "https://api-free.deepl.com" : "https://api.deepl.com";
+}
+
+async function translateTextsWithDeepL(texts: string[], apiKey: string) {
+  const apiUrl = getDeepLApiUrl(apiKey);
+  const response = await fetch(`${apiUrl}/v2/translate`, {
+    method: "POST",
+    signal: AbortSignal.timeout(20000),
+    headers: {
+      authorization: `DeepL-Auth-Key ${apiKey}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      text: texts,
+      target_lang: "VI",
+      preserve_formatting: true,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => "");
+    throw new Error(
+      `${response.status} ${response.statusText}${errorText ? ` - ${errorText.slice(0, 180)}` : ""}`,
+    );
   }
 
-  if (Date.now() < geminiQuotaCooldownUntil) {
-    lastNewsDebug.geminiAttempted = false;
-    lastNewsDebug.geminiError = `Gemini quota cooldown until ${new Date(geminiQuotaCooldownUntil).toISOString()}`;
+  const json: any = await response.json();
+  const translations = Array.isArray(json.translations) ? json.translations : [];
+  if (translations.length !== texts.length) {
+    throw new Error(`DeepL returned ${translations.length}/${texts.length} translations`);
+  }
+
+  return translations.map((translation: any) => String(translation.text || "").trim());
+}
+
+async function enrichNewsForVietnameseDisplay(items: any[]) {
+  const baseItems = items.map(withDisplayFields);
+  const apiKey = getDeepLApiKey();
+  lastNewsDebug.hasDeepLKey = Boolean(apiKey);
+  lastNewsDebug.translationProvider = "DeepL";
+  if (!apiKey) {
+    lastNewsDebug.translationAttempted = false;
+    lastNewsDebug.translationError = "Missing DEEPL_API_KEY env";
     return baseItems;
   }
 
   const targets = baseItems
     .filter((item) => !item.translatedAt)
-    .slice(0, GEMINI_TRANSLATION_BATCH_LIMIT);
-  lastNewsDebug.geminiAttempted = targets.length > 0;
-  lastNewsDebug.geminiTargetCount = targets.length;
-  lastNewsDebug.geminiBatchLimit = GEMINI_TRANSLATION_BATCH_LIMIT;
+    .slice(0, DEEPL_TRANSLATION_BATCH_LIMIT);
+  lastNewsDebug.translationAttempted = targets.length > 0;
+  lastNewsDebug.translationTargetCount = targets.length;
+  lastNewsDebug.translationBatchLimit = DEEPL_TRANSLATION_BATCH_LIMIT;
   if (targets.length === 0) return baseItems;
 
-  const prompt = `
-You translate and summarize financial market news for Vietnamese forex traders.
-Return ONLY a valid JSON array. Keep each summary very short: maximum 2 Vietnamese sentences.
+  const texts = targets.flatMap((item) => [
+    item.title || "",
+    shortText(item.summary || item.title || "", 500),
+  ]);
 
-For each input item, return:
-{
-  "id": "same id",
-  "titleVi": "Vietnamese headline",
-  "effect": "Tốt|Xấu|Trung lập",
-  "affectedAssets": ["USD", "XAU", "..."],
-  "summaryVi": "Very short Vietnamese summary, 1-2 sentences"
-}
+  try {
+    const translatedTexts = await translateTextsWithDeepL(texts, apiKey);
+    const translatedAt = new Date().toISOString();
+    const translatedById = new Map<string, { titleVi: string; summaryVi: string }>();
 
-Input:
-${JSON.stringify(
-  targets.map((item) => ({
-    id: item.id,
-    title: item.title,
-    summary: item.summary,
-    category: item.category,
-    impact: item.impact,
-    sentiment: item.sentiment,
-    tags: item.tags,
-  })),
-)}
-`.trim();
+    targets.forEach((item, index) => {
+      translatedById.set(item.id, {
+        titleVi: translatedTexts[index * 2] || item.titleVi,
+        summaryVi: shortText(translatedTexts[index * 2 + 1] || item.summaryVi, 260),
+      });
+    });
 
-  const keyAttempts: string[] = [];
+    lastNewsDebug.translationError = undefined;
+    lastNewsDebug.translationResult = "ok";
 
-  for (let keyIndex = 0; keyIndex < apiKeys.length; keyIndex += 1) {
-    const apiKey = apiKeys[keyIndex];
-    try {
-      const geminiModel = process.env.GEMINI_MODEL || "gemini-flash-latest";
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(geminiModel)}:generateContent`,
-        {
-          method: "POST",
-          signal: AbortSignal.timeout(30000),
-          headers: {
-            "content-type": "application/json",
-            "x-goog-api-key": apiKey,
-          },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.2,
-            responseMimeType: "application/json",
-          },
-        }),
-      },
-    );
-
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => "");
-        const message = `key${keyIndex + 1}: ${response.status} ${response.statusText}${errorText ? ` - ${errorText.slice(0, 180)}` : ""}`;
-        keyAttempts.push(message);
-        if (response.status === 429 || response.status === 403) {
-          continue;
-        }
-        throw new Error(message);
-      }
-
-    const json: any = await response.json();
-    const raw = json.candidates?.[0]?.content?.parts?.[0]?.text || "";
-    const enriched = extractJsonArray(raw);
-    const enrichedById = new Map(enriched.map((item: any) => [item.id, item]));
-
-      lastNewsDebug.geminiKeyAttempts = [...keyAttempts, `key${keyIndex + 1}: ok`];
-      lastNewsDebug.geminiError = undefined;
-
-      return baseItems.map((item) => {
-        const match: any = enrichedById.get(item.id);
-        if (!match) return item;
+    return baseItems.map((item) => {
+      const match = translatedById.get(item.id);
+      if (!match) return item;
 
       return {
         ...item,
-        titleVi: match.titleVi || item.titleVi,
-        summaryVi: shortText(match.summaryVi || item.summaryVi, 260),
-        translatedAt: new Date().toISOString(),
-        effect: ["Tốt", "Xấu", "Trung lập"].includes(match.effect)
-          ? match.effect
-          : item.effect,
-        affectedAssets: normalizeAffectedAssets(match.affectedAssets || item.affectedAssets),
+        ...match,
+        translatedAt,
+        translationProvider: "DeepL",
+        effect: item.effect,
+        affectedAssets: normalizeAffectedAssets(item.affectedAssets || deriveAffectedAssets(item)),
       };
-      });
-    } catch (error: any) {
-      keyAttempts.push(`key${keyIndex + 1}: ${shortProviderError(error.message)}`);
-      if (keyIndex < apiKeys.length - 1) continue;
-      console.warn("AI news display enrichment failed:", error.message);
-      lastNewsDebug.geminiError = error.message;
-      lastNewsDebug.geminiKeyAttempts = keyAttempts;
-      return baseItems;
-    }
+    });
+  } catch (error: any) {
+    console.warn("DeepL news translation failed:", error.message);
+    lastNewsDebug.translationError = shortProviderError(error.message);
+    lastNewsDebug.translationResult = "failed";
+    return baseItems;
   }
-
-  const allQuotaErrors =
-    keyAttempts.length >= apiKeys.length &&
-    keyAttempts.every((attempt) => attempt.includes("429") || attempt.includes("403"));
-  if (allQuotaErrors) {
-    geminiQuotaCooldownUntil = Date.now() + GEMINI_QUOTA_COOLDOWN_MS;
-  }
-  lastNewsDebug.geminiError = allQuotaErrors
-    ? `All Gemini keys are quota-limited. Cooling down for ${Math.round(GEMINI_QUOTA_COOLDOWN_MS / 60000)} minutes.`
-    : keyAttempts.map(shortProviderError).join(" | ");
-  lastNewsDebug.geminiKeyAttempts = keyAttempts.map(shortProviderError);
-  return baseItems;
 }
 
 function parseRssItems(
@@ -682,8 +628,8 @@ async function fetchMarketauxNews() {
 export default async function handler(req: any, res: any) {
   const now = Date.now();
   lastNewsDebug = {
-    hasGeminiKey: getGeminiApiKeys().length > 0,
-    geminiKeyCount: getGeminiApiKeys().length,
+    hasDeepLKey: Boolean(getDeepLApiKey()),
+    translationProvider: "DeepL",
     dbFreshHit: false,
     dbWriteAttempted: false,
   };
@@ -766,7 +712,9 @@ export default async function handler(req: any, res: any) {
   const cachedById = await readNewsByIdsFromDb(deduped.map((item) => item.id));
   const mergedItems = deduped.map((item) => {
     const cached = cachedById.get(item.id);
-    return cached?.translatedAt ? { ...item, ...cached } : item;
+    return cached?.translatedAt && cached.translationProvider === "DeepL"
+      ? { ...item, ...cached }
+      : item;
   });
   const displayItems = await enrichNewsForVietnameseDisplay(mergedItems);
   const fetchedAt = new Date(now).toISOString();

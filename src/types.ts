@@ -47,16 +47,18 @@ export interface NewsItem {
   tags: string[];
   scoredBy: "Marketaux" | "Local";
   translatedAt?: string;
+  translationProvider?: string;
 }
 
 export interface NewsDebugInfo {
   source?: string;
-  hasGeminiKey?: boolean;
-  geminiAttempted?: boolean;
-  geminiError?: string;
-  geminiKeyCount?: number;
-  geminiKeyAttempts?: string[];
-  aiProvider?: string;
+  hasDeepLKey?: boolean;
+  translationProvider?: string;
+  translationAttempted?: boolean;
+  translationError?: string;
+  translationResult?: string;
+  translationTargetCount?: number;
+  translationBatchLimit?: number;
   translatedCount?: number;
   untranslatedCount?: number;
   dbFreshHit?: boolean;
