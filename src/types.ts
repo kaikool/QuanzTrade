@@ -54,6 +54,9 @@ export interface NewsDebugInfo {
   hasGeminiKey?: boolean;
   geminiAttempted?: boolean;
   geminiError?: string;
+  geminiKeyCount?: number;
+  geminiKeyAttempts?: string[];
+  aiProvider?: string;
   translatedCount?: number;
   untranslatedCount?: number;
   dbFreshHit?: boolean;

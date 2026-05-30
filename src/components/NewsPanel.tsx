@@ -131,6 +131,8 @@ export function NewsPanel({
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 m3-body-small font-mono">
               <span>source: {debug.source || "-"}</span>
+              <span>provider: {debug.aiProvider || "-"}</span>
+              <span>geminiKeys: {debug.geminiKeyCount ?? 0}</span>
               <span>geminiKey: {debug.hasGeminiKey ? "yes" : "no"}</span>
               <span>geminiAttempted: {debug.geminiAttempted ? "yes" : "no"}</span>
               <span>translated: {debug.translatedCount ?? 0}</span>
@@ -142,6 +144,11 @@ export function NewsPanel({
             {debug.geminiError && (
               <p className="m3-body-small mt-2 break-words">
                 Gemini: {debug.geminiError}
+              </p>
+            )}
+            {debug.geminiKeyAttempts && debug.geminiKeyAttempts.length > 0 && (
+              <p className="m3-body-small mt-2 break-words">
+                Gemini keys: {debug.geminiKeyAttempts.join(" | ")}
               </p>
             )}
             {debug.dbWriteError && (

@@ -2,6 +2,9 @@ import { createClient } from "@supabase/supabase-js";
 
 const NEWS_CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes
 const MARKETAUX_CACHE_TTL_MS = 10 * 60 * 1000; // protect free API quota
+const GEMINI_TRANSLATION_BATCH_LIMIT = Number(
+  process.env.GEMINI_TRANSLATION_BATCH_LIMIT || 20,
+);
 const NEWS_TABLE = "news_items";
 
 const newsFeeds = [
@@ -385,14 +388,25 @@ function extractJsonArray(raw: string) {
   return JSON.parse(cleaned.slice(start, end + 1));
 }
 
+function getGeminiApiKeys() {
+  return [
+    process.env.GEMINI_API_KEY,
+    process.env.GEMINI_API_KEY_2,
+    process.env.GEMINI_API_KEY_3,
+    process.env.GOOGLE_API_KEY,
+    process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+  ].filter((key, index, all): key is string => {
+    return Boolean(key) && all.indexOf(key) === index;
+  });
+}
+
 async function enrichNewsForVietnameseDisplay(items: any[]) {
   const baseItems = items.map(withDisplayFields);
-  const apiKey =
-    process.env.GEMINI_API_KEY ||
-    process.env.GOOGLE_API_KEY ||
-    process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-  lastNewsDebug.hasGeminiKey = Boolean(apiKey);
-  if (!apiKey) {
+  const apiKeys = getGeminiApiKeys();
+  lastNewsDebug.hasGeminiKey = apiKeys.length > 0;
+  lastNewsDebug.geminiKeyCount = apiKeys.length;
+  lastNewsDebug.aiProvider = "Gemini";
+  if (apiKeys.length === 0) {
     lastNewsDebug.geminiAttempted = false;
     lastNewsDebug.geminiError = "Missing GEMINI_API_KEY/GOOGLE_API_KEY env";
     return baseItems;
@@ -400,9 +414,10 @@ async function enrichNewsForVietnameseDisplay(items: any[]) {
 
   const targets = baseItems
     .filter((item) => !item.translatedAt)
-    .slice(0, 60);
+    .slice(0, GEMINI_TRANSLATION_BATCH_LIMIT);
   lastNewsDebug.geminiAttempted = targets.length > 0;
   lastNewsDebug.geminiTargetCount = targets.length;
+  lastNewsDebug.geminiBatchLimit = GEMINI_TRANSLATION_BATCH_LIMIT;
   if (targets.length === 0) return baseItems;
 
   const prompt = `
@@ -432,9 +447,13 @@ ${JSON.stringify(
 )}
 `.trim();
 
-  try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+  const keyAttempts: string[] = [];
+
+  for (let keyIndex = 0; keyIndex < apiKeys.length; keyIndex += 1) {
+    const apiKey = apiKeys[keyIndex];
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
       {
         method: "POST",
         signal: AbortSignal.timeout(30000),
@@ -451,18 +470,27 @@ ${JSON.stringify(
       },
     );
 
-    if (!response.ok) {
-      throw new Error(`Gemini: ${response.status} ${response.statusText}`);
-    }
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => "");
+        const message = `key${keyIndex + 1}: ${response.status} ${response.statusText}${errorText ? ` - ${errorText.slice(0, 180)}` : ""}`;
+        keyAttempts.push(message);
+        if (response.status === 429 || response.status === 403) {
+          continue;
+        }
+        throw new Error(message);
+      }
 
     const json: any = await response.json();
     const raw = json.candidates?.[0]?.content?.parts?.[0]?.text || "";
     const enriched = extractJsonArray(raw);
     const enrichedById = new Map(enriched.map((item: any) => [item.id, item]));
 
-    return baseItems.map((item) => {
-      const match: any = enrichedById.get(item.id);
-      if (!match) return item;
+      lastNewsDebug.geminiKeyAttempts = [...keyAttempts, `key${keyIndex + 1}: ok`];
+      lastNewsDebug.geminiError = undefined;
+
+      return baseItems.map((item) => {
+        const match: any = enrichedById.get(item.id);
+        if (!match) return item;
 
       return {
         ...item,
@@ -474,12 +502,20 @@ ${JSON.stringify(
           : item.effect,
         affectedAssets: normalizeAffectedAssets(match.affectedAssets || item.affectedAssets),
       };
-    });
-  } catch (error: any) {
-    console.warn("AI news display enrichment failed:", error.message);
-    lastNewsDebug.geminiError = error.message;
-    return baseItems;
+      });
+    } catch (error: any) {
+      keyAttempts.push(`key${keyIndex + 1}: ${error.message}`);
+      if (keyIndex < apiKeys.length - 1) continue;
+      console.warn("AI news display enrichment failed:", error.message);
+      lastNewsDebug.geminiError = error.message;
+      lastNewsDebug.geminiKeyAttempts = keyAttempts;
+      return baseItems;
+    }
   }
+
+  lastNewsDebug.geminiError = keyAttempts.join(" | ");
+  lastNewsDebug.geminiKeyAttempts = keyAttempts;
+  return baseItems;
 }
 
 function parseRssItems(
@@ -620,11 +656,8 @@ async function fetchMarketauxNews() {
 export default async function handler(req: any, res: any) {
   const now = Date.now();
   lastNewsDebug = {
-    hasGeminiKey: Boolean(
-      process.env.GEMINI_API_KEY ||
-        process.env.GOOGLE_API_KEY ||
-        process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-    ),
+    hasGeminiKey: getGeminiApiKeys().length > 0,
+    geminiKeyCount: getGeminiApiKeys().length,
     dbFreshHit: false,
     dbWriteAttempted: false,
   };
