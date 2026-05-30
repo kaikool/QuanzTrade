@@ -46,6 +46,7 @@ export interface NewsItem {
   score: number;
   tags: string[];
   scoredBy: "Marketaux" | "Local";
+  translatedAt?: string;
 }
 
 export interface SupabaseConfig {

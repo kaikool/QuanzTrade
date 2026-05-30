@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
+import { createClient } from "@supabase/supabase-js";
 
 dotenv.config({ path: ".env.local" });
 dotenv.config();
@@ -24,6 +25,93 @@ async function startServer() {
   const NEWS_CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes
   let marketauxCache: { data: any[]; timestamp: number } | null = null;
   const MARKETAUX_CACHE_TTL_MS = 10 * 60 * 1000; // protect free API quota
+  const NEWS_TABLE = "news_items";
+
+  function getServerSupabaseClient() {
+    const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+    const key =
+      process.env.SUPABASE_SERVICE_ROLE_KEY ||
+      process.env.SUPABASE_ANON_KEY ||
+      process.env.VITE_SUPABASE_ANON_KEY;
+
+    if (!url || !key) return null;
+
+    return createClient(url, key, {
+      auth: {
+        persistSession: false,
+      },
+    });
+  }
+
+  async function readFreshNewsFromDb(now: number) {
+    const supabase = getServerSupabaseClient();
+    if (!supabase) return null;
+
+    try {
+      const minFetchedAt = new Date(now - NEWS_CACHE_TTL_MS).toISOString();
+      const { data, error } = await supabase
+        .from(NEWS_TABLE)
+        .select("data,fetched_at")
+        .gte("fetched_at", minFetchedAt)
+        .order("published_at", { ascending: false })
+        .limit(60);
+
+      if (error) throw error;
+      if (!data || data.length === 0) return null;
+
+      return {
+        data: data.map((row: any) => row.data).filter(Boolean),
+        timestamp: new Date(data[0].fetched_at).getTime(),
+      };
+    } catch (error: any) {
+      console.warn("Supabase news fresh read failed:", error.message);
+      return null;
+    }
+  }
+
+  async function readNewsByIdsFromDb(ids: string[]) {
+    const supabase = getServerSupabaseClient();
+    if (!supabase || ids.length === 0) return new Map<string, any>();
+
+    try {
+      const { data, error } = await supabase
+        .from(NEWS_TABLE)
+        .select("id,data")
+        .in("id", ids);
+
+      if (error) throw error;
+      return new Map((data || []).map((row: any) => [row.id, row.data]));
+    } catch (error: any) {
+      console.warn("Supabase news id read failed:", error.message);
+      return new Map<string, any>();
+    }
+  }
+
+  async function upsertNewsToDb(items: any[], fetchedAt: string) {
+    const supabase = getServerSupabaseClient();
+    if (!supabase || items.length === 0) return;
+
+    try {
+      const rows = items.map((item) => ({
+        id: item.id,
+        source: item.source,
+        link: item.link,
+        title: item.title,
+        published_at: item.publishedAt,
+        fetched_at: fetchedAt,
+        translated_at: item.translatedAt || null,
+        data: item,
+      }));
+
+      const { error } = await supabase.from(NEWS_TABLE).upsert(rows, {
+        onConflict: "id",
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      console.warn("Supabase news upsert failed:", error.message);
+    }
+  }
 
   const newsFeeds = [
     {
@@ -212,17 +300,75 @@ async function startServer() {
   function deriveAffectedAssets(item: any) {
     const text = `${item.title || ""} ${item.summary || ""} ${(item.tags || []).join(" ")}`.toUpperCase();
     const assets = new Set<string>();
-    const candidates = ["USD", "XAU", "XAUUSD", "EUR", "EURUSD", "GBP", "GBPUSD", "JPY", "USDJPY", "OIL", "BTC", "US500", "NASDAQ"];
+    const candidates = [
+      "USD",
+      "DXY",
+      "XAU",
+      "XAUUSD",
+      "GOLD",
+      "SILVER",
+      "XAG",
+      "EUR",
+      "EURUSD",
+      "GBP",
+      "GBPUSD",
+      "JPY",
+      "USDJPY",
+      "AUD",
+      "AUDUSD",
+      "NZD",
+      "NZDUSD",
+      "CAD",
+      "USDCAD",
+      "CHF",
+      "USDCHF",
+      "OIL",
+      "WTI",
+      "BRENT",
+      "BTC",
+      "ETH",
+      "US500",
+      "SPX",
+      "NASDAQ",
+      "NAS100",
+    ];
 
     candidates.forEach((asset) => {
-      if (text.includes(asset)) assets.add(asset);
+      if (!text.includes(asset)) return;
+      if (asset === "GOLD") assets.add("XAU");
+      else if (asset === "SILVER") assets.add("XAG");
+      else if (asset === "WTI" || asset === "BRENT") assets.add("OIL");
+      else if (asset === "SPX") assets.add("US500");
+      else if (asset === "NASDAQ") assets.add("NAS100");
+      else assets.add(asset);
     });
 
     if (item.category === "Forex") assets.add("USD");
     if (item.category === "Energy") assets.add("OIL");
     if (item.category === "Central Bank") assets.add("USD");
+    if (/\bGOLD\b|\bXAU\b|\bXAUUSD\b/.test(text)) assets.add("XAU");
+    if (/\bCRUDE\b|\bWTI\b|\bBRENT\b|\bOIL\b/.test(text)) assets.add("OIL");
+    if (/\bS&P\b|\bSPX\b|\bUS500\b/.test(text)) assets.add("US500");
+    if (/\bNASDAQ\b|\bNAS100\b/.test(text)) assets.add("NAS100");
 
     return Array.from(assets).slice(0, 6);
+  }
+
+  function normalizeAffectedAssets(value: any) {
+    const values = Array.isArray(value) ? value : [];
+    const normalized = values
+      .map((asset) => String(asset).toUpperCase().replace(/[^A-Z0-9]/g, ""))
+      .map((asset) => {
+        if (asset === "GOLD") return "XAU";
+        if (asset === "SILVER") return "XAG";
+        if (asset === "WTI" || asset === "BRENT" || asset === "CRUDE") return "OIL";
+        if (asset === "SPX" || asset === "SP500" || asset === "SANDP500") return "US500";
+        if (asset === "NASDAQ" || asset === "NDX") return "NAS100";
+        return asset;
+      })
+      .filter(Boolean);
+
+    return Array.from(new Set(normalized)).slice(0, 6);
   }
 
   function deriveEffect(sentiment: string) {
@@ -237,7 +383,7 @@ async function startServer() {
       titleVi: item.titleVi || item.title || "Tin thị trường",
       summaryVi: item.summaryVi || shortText(item.summary || item.title || "Chưa có tóm tắt ngắn."),
       effect: item.effect || deriveEffect(item.sentiment),
-      affectedAssets: item.affectedAssets || deriveAffectedAssets(item),
+      affectedAssets: normalizeAffectedAssets(item.affectedAssets || deriveAffectedAssets(item)),
     };
   }
 
@@ -256,7 +402,9 @@ async function startServer() {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return baseItems;
 
-    const targets = baseItems.slice(0, 15);
+    const targets = baseItems
+      .filter((item) => !item.translatedAt)
+      .slice(0, 60);
     if (targets.length === 0) return baseItems;
 
     const prompt = `
@@ -291,7 +439,7 @@ ${JSON.stringify(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
         {
           method: "POST",
-          signal: AbortSignal.timeout(15000),
+          signal: AbortSignal.timeout(30000),
           headers: {
             "content-type": "application/json",
           },
@@ -322,12 +470,11 @@ ${JSON.stringify(
           ...item,
           titleVi: match.titleVi || item.titleVi,
           summaryVi: shortText(match.summaryVi || item.summaryVi, 260),
+          translatedAt: new Date().toISOString(),
           effect: ["Tốt", "Xấu", "Trung lập"].includes(match.effect)
             ? match.effect
             : item.effect,
-          affectedAssets: Array.isArray(match.affectedAssets)
-            ? match.affectedAssets.slice(0, 6)
-            : item.affectedAssets,
+          affectedAssets: normalizeAffectedAssets(match.affectedAssets || item.affectedAssets),
         };
       });
     } catch (error: any) {
@@ -673,6 +820,19 @@ ${JSON.stringify(
   app.get("/api/news", async (req, res) => {
     const now = Date.now();
 
+    const freshDbCache = await readFreshNewsFromDb(now);
+    if (freshDbCache && freshDbCache.data.length > 0) {
+      return res.json({
+        success: true,
+        source: "supabase_cached",
+        fetchedAt: new Date(freshDbCache.timestamp).toISOString(),
+        nextRefreshSeconds: Math.ceil(
+          (NEWS_CACHE_TTL_MS - (now - freshDbCache.timestamp)) / 1000,
+        ),
+        data: freshDbCache.data,
+      });
+    }
+
     if (newsCache && now - newsCache.timestamp < NEWS_CACHE_TTL_MS) {
       return res.json({
         success: true,
@@ -707,19 +867,26 @@ ${JSON.stringify(
       )
       .slice(0, 60);
 
-    const displayItems = await enrichNewsForVietnameseDisplay(deduped);
+    const cachedById = await readNewsByIdsFromDb(deduped.map((item) => item.id));
+    const mergedItems = deduped.map((item) => {
+      const cached = cachedById.get(item.id);
+      return cached?.translatedAt ? { ...item, ...cached } : item;
+    });
+    const displayItems = await enrichNewsForVietnameseDisplay(mergedItems);
+    const fetchedAt = new Date(now).toISOString();
 
     if (displayItems.length > 0) {
       newsCache = {
         data: displayItems,
         timestamp: now,
       };
+      await upsertNewsToDb(displayItems, fetchedAt);
     }
 
     return res.json({
       success: true,
       source: "rss_live",
-      fetchedAt: new Date(now).toISOString(),
+      fetchedAt,
       failedSources: results
         .map((result, index) =>
           result.status === "rejected"

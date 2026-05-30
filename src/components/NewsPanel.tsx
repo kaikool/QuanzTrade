@@ -81,7 +81,7 @@ export function NewsPanel({
               Tin tức thị trường
             </h3>
             <p className="m3-body-small text-m3-on-surface-variant mt-1">
-              RSS nhanh từ Forex, macro, ngân hàng trung ương và năng lượng
+              Tin được dịch và tóm tắt ngắn để đọc nhanh, mở link gốc nếu cần chi tiết.
             </p>
           </div>
 
@@ -112,8 +112,7 @@ export function NewsPanel({
         <div className="flex items-start gap-2 p-3 rounded-[16px] bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-200 mb-5">
           <AlertTriangle size={16} className="mt-0.5 flex-shrink-0" />
           <p className="m3-body-small">
-            RSS miễn phí vẫn có độ trễ theo từng nguồn. App đang cache ngắn và
-            tự làm mới 2 phút/lần để lấy tin sớm hơn.
+            RSS miễn phí vẫn có độ trễ theo từng nguồn. App cache ngắn và tự làm mới 2 phút/lần.
           </p>
         </div>
 
@@ -143,7 +142,7 @@ export function NewsPanel({
                 className="p-4 rounded-[16px] bg-m3-surface-container-lowest border border-m3-outline-variant hover:border-m3-primary/60 transition-colors"
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2 mb-2">
                       <span
                         className={`px-2 py-0.5 rounded-full m3-label-small font-black ${impactClasses[item.impact]}`}
@@ -155,8 +154,16 @@ export function NewsPanel({
                         className={`px-2 py-0.5 rounded-full m3-label-small font-bold ${effectClasses[item.effect]}`}
                         title={`Sentiment: ${item.sentiment} (${item.sentimentScore})`}
                       >
-                        Ảnh hưởng: {item.effect}
+                        {item.effect}
                       </span>
+                      {item.affectedAssets.map((asset) => (
+                        <span
+                          key={asset}
+                          className="px-2 py-0.5 rounded-full bg-m3-surface-container m3-label-small text-m3-on-surface-variant font-mono"
+                        >
+                          {asset}
+                        </span>
+                      ))}
                       <span
                         className={`px-2 py-0.5 rounded-full border m3-label-small font-bold ${categoryClasses[item.category]}`}
                       >
@@ -166,16 +173,10 @@ export function NewsPanel({
                         {item.source}
                       </span>
                       <span className="m3-body-small text-m3-on-surface-variant">
-                        {item.scoredBy}
-                      </span>
-                      <span className="m3-body-small text-m3-on-surface-variant">
                         {formatRelativeTime(item.publishedAt)}
                       </span>
                     </div>
                     <h4 className="m3-body-medium sm:m3-body-large font-extrabold text-m3-on-surface leading-snug">
-                      <span className="text-m3-on-surface-variant font-bold">
-                        Header tin:{" "}
-                      </span>
                       {item.titleVi || item.title}
                     </h4>
                   </div>
@@ -189,32 +190,11 @@ export function NewsPanel({
                     <ExternalLink size={15} />
                   </a>
                 </div>
-                <div className="flex flex-wrap gap-1.5 mt-3">
-                  <span className="m3-label-small text-m3-on-surface-variant font-bold mr-1">
-                    Loại bị ảnh hưởng:
-                  </span>
-                  {item.affectedAssets.length > 0 ? (
-                    item.affectedAssets.map((asset) => (
-                      <span
-                        key={asset}
-                        className="px-2 py-0.5 rounded-full bg-m3-surface-container m3-label-small text-m3-on-surface-variant font-mono"
-                      >
-                        {asset}
-                      </span>
-                    ))
-                  ) : (
-                    <span className="m3-label-small text-m3-on-surface-variant">
-                      Chưa rõ
-                    </span>
-                  )}
-                </div>
 
                 <p className="m3-body-small text-m3-on-surface-variant mt-3 line-clamp-3">
-                  <span className="font-bold text-m3-on-surface">
-                    Tóm tắt:{" "}
-                  </span>
                   {compactSummary(item)}
                 </p>
+
                 {item.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-3">
                     {item.tags.map((tag) => (
