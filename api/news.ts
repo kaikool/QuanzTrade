@@ -76,6 +76,7 @@ async function readFreshNewsFromDb(now: number) {
       .from(NEWS_TABLE)
       .select("data,fetched_at")
       .gte("fetched_at", minFetchedAt)
+      .not("translated_at", "is", null)
       .order("published_at", { ascending: false })
       .limit(60);
 
@@ -379,7 +380,10 @@ function extractJsonArray(raw: string) {
 
 async function enrichNewsForVietnameseDisplay(items: any[]) {
   const baseItems = items.map(withDisplayFields);
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey =
+    process.env.GEMINI_API_KEY ||
+    process.env.GOOGLE_API_KEY ||
+    process.env.GOOGLE_GENERATIVE_AI_API_KEY;
   if (!apiKey) return baseItems;
 
   const targets = baseItems
