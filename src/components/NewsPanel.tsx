@@ -250,60 +250,130 @@ export function NewsPanel({
               </button>
 
               {assetFilterOpen && (
-                <div className="absolute right-0 top-[calc(100%+0.5rem)] z-30 w-[min(22rem,calc(100vw-2rem))] rounded-[20px] bg-m3-surface border border-m3-outline-variant shadow-level4 p-4">
-                  <div className="flex items-center justify-between gap-3 mb-3">
-                    <p className="m3-label-large font-bold text-m3-on-surface">
-                      Lọc theo tài sản
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setAssetFilterOpen(false)}
-                      className="p-1.5 rounded-full bg-m3-surface-container-high text-m3-on-surface-variant m3-state-layer"
-                      title="Đóng"
+                <>
+                  <div
+                    className="fixed inset-0 z-50 bg-black/40 sm:hidden"
+                    onClick={() => setAssetFilterOpen(false)}
+                    role="presentation"
+                  >
+                    <div
+                      className="absolute bottom-0 left-0 right-0 max-h-[82dvh] rounded-t-[28px] bg-m3-surface shadow-level5 p-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))]"
+                      onClick={(event) => event.stopPropagation()}
+                      role="dialog"
+                      aria-modal="true"
+                      aria-label="Lọc theo tài sản"
                     >
-                      <X size={14} />
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto pr-1">
-                    {assetFilterOptions.map((asset) => {
-                      const checked = draftAssets.includes(asset);
-
-                      return (
+                      <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-m3-outline-variant" />
+                      <div className="flex items-center justify-between gap-3 mb-3">
+                        <p className="m3-label-large font-bold text-m3-on-surface">
+                          Lọc theo tài sản
+                        </p>
                         <button
-                          key={asset}
                           type="button"
-                          onClick={() => toggleDraftAsset(asset)}
-                          className={`h-9 px-2 rounded-[12px] border m3-label-medium font-mono flex items-center justify-center gap-1.5 m3-state-layer ${
-                            checked
-                              ? "bg-m3-primary text-m3-on-primary border-m3-primary"
-                              : "bg-m3-surface-container-lowest text-m3-on-surface-variant border-m3-outline-variant"
-                          }`}
+                          onClick={() => setAssetFilterOpen(false)}
+                          className="p-2 rounded-full bg-m3-surface-container-high text-m3-on-surface-variant m3-state-layer"
+                          title="Đóng"
                         >
-                          {checked && <Check size={13} />}
-                          {asset}
+                          <X size={16} />
                         </button>
-                      );
-                    })}
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2 max-h-[52dvh] overflow-y-auto pr-1">
+                        {assetFilterOptions.map((asset) => {
+                          const checked = draftAssets.includes(asset);
+
+                          return (
+                            <button
+                              key={asset}
+                              type="button"
+                              onClick={() => toggleDraftAsset(asset)}
+                              className={`h-11 px-2 rounded-[12px] border m3-label-medium font-mono flex items-center justify-center gap-1.5 m3-state-layer ${
+                                checked
+                                  ? "bg-m3-primary text-m3-on-primary border-m3-primary"
+                                  : "bg-m3-surface-container-lowest text-m3-on-surface-variant border-m3-outline-variant"
+                              }`}
+                            >
+                              {checked && <Check size={14} />}
+                              {asset}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2 mt-4 pt-3 border-t border-m3-outline-variant">
+                        <button
+                          type="button"
+                          onClick={clearAssetFilter}
+                          className="px-4 py-2.5 rounded-full text-m3-primary border border-m3-outline-variant m3-label-medium m3-state-layer"
+                        >
+                          Hiện tất cả
+                        </button>
+                        <button
+                          type="button"
+                          onClick={applyAssetFilter}
+                          className="px-5 py-2.5 rounded-full bg-m3-primary text-m3-on-primary m3-label-medium m3-state-layer"
+                        >
+                          Lưu filter
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="flex items-center justify-between gap-2 mt-4 pt-3 border-t border-m3-outline-variant">
-                    <button
-                      type="button"
-                      onClick={clearAssetFilter}
-                      className="px-3 py-2 rounded-full text-m3-primary border border-m3-outline-variant m3-label-medium m3-state-layer"
-                    >
-                      Hiện tất cả
-                    </button>
-                    <button
-                      type="button"
-                      onClick={applyAssetFilter}
-                      className="px-4 py-2 rounded-full bg-m3-primary text-m3-on-primary m3-label-medium m3-state-layer"
-                    >
-                      Lưu filter
-                    </button>
+                  <div className="hidden sm:block absolute right-0 top-[calc(100%+0.5rem)] z-30 w-[22rem] rounded-[20px] bg-m3-surface border border-m3-outline-variant shadow-level4 p-4">
+                    <div className="flex items-center justify-between gap-3 mb-3">
+                      <p className="m3-label-large font-bold text-m3-on-surface">
+                        Lọc theo tài sản
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setAssetFilterOpen(false)}
+                        className="p-1.5 rounded-full bg-m3-surface-container-high text-m3-on-surface-variant m3-state-layer"
+                        title="Đóng"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto pr-1">
+                      {assetFilterOptions.map((asset) => {
+                        const checked = draftAssets.includes(asset);
+
+                        return (
+                          <button
+                            key={asset}
+                            type="button"
+                            onClick={() => toggleDraftAsset(asset)}
+                            className={`h-9 px-2 rounded-[12px] border m3-label-medium font-mono flex items-center justify-center gap-1.5 m3-state-layer ${
+                              checked
+                                ? "bg-m3-primary text-m3-on-primary border-m3-primary"
+                                : "bg-m3-surface-container-lowest text-m3-on-surface-variant border-m3-outline-variant"
+                            }`}
+                          >
+                            {checked && <Check size={13} />}
+                            {asset}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2 mt-4 pt-3 border-t border-m3-outline-variant">
+                      <button
+                        type="button"
+                        onClick={clearAssetFilter}
+                        className="px-3 py-2 rounded-full text-m3-primary border border-m3-outline-variant m3-label-medium m3-state-layer"
+                      >
+                        Hiện tất cả
+                      </button>
+                      <button
+                        type="button"
+                        onClick={applyAssetFilter}
+                        className="px-4 py-2 rounded-full bg-m3-primary text-m3-on-primary m3-label-medium m3-state-layer"
+                      >
+                        Lưu filter
+                      </button>
+                    </div>
                   </div>
-                </div>
+                </>
               )}
             </div>
             <button
