@@ -1,4 +1,5 @@
-import { AlertTriangle, ExternalLink, RefreshCw } from "lucide-react";
+import { Check, ExternalLink, Filter, RefreshCw, X } from "lucide-react";
+import { useMemo, useState } from "react";
 import { NewsDebugInfo, NewsItem } from "../types";
 
 interface NewsPanelProps {
@@ -28,11 +29,105 @@ const impactClasses: Record<NewsItem["impact"], string> = {
   Low: "bg-yellow-400 text-yellow-950",
 };
 
-const effectClasses: Record<NewsItem["effect"], string> = {
-  Tốt: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-  Xấu: "bg-rose-500/10 text-rose-700 dark:text-rose-300",
+const effectClasses: Record<string, string> = {
+  "Tốt": "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  "Tá»‘t": "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  "Xấu": "bg-rose-500/10 text-rose-700 dark:text-rose-300",
+  "Xáº¥u": "bg-rose-500/10 text-rose-700 dark:text-rose-300",
   "Trung lập": "bg-m3-surface-container-high text-m3-on-surface-variant",
+  "Trung láº­p": "bg-m3-surface-container-high text-m3-on-surface-variant",
 };
+
+const defaultEffectClass =
+  "bg-m3-surface-container-high text-m3-on-surface-variant";
+
+const NEWS_ASSET_FILTER_KEY = "trade_app_news_asset_filters";
+
+const assetFilterOptions = [
+  "USD",
+  "DXY",
+  "EUR",
+  "GBP",
+  "JPY",
+  "AUD",
+  "NZD",
+  "CAD",
+  "CHF",
+  "XAU",
+  "XAG",
+  "OIL",
+  "BTC",
+  "ETH",
+  "US500",
+  "NAS100",
+  "EURUSD",
+  "GBPUSD",
+  "USDJPY",
+  "AUDUSD",
+  "USDCAD",
+];
+
+function readSavedAssetFilters() {
+  if (typeof window === "undefined") return [];
+  try {
+    const saved = window.localStorage.getItem(NEWS_ASSET_FILTER_KEY);
+    const parsed = saved ? JSON.parse(saved) : [];
+    return Array.isArray(parsed)
+      ? parsed
+          .map((asset) => String(asset).toUpperCase().replace(/[^A-Z0-9]/g, ""))
+          .filter((asset) => assetFilterOptions.includes(asset))
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveAssetFilters(assets: string[]) {
+  window.localStorage.setItem(NEWS_ASSET_FILTER_KEY, JSON.stringify(assets));
+}
+
+function normalizeSearchText(value: string) {
+  return value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
+
+function newsMatchesAssetFilter(item: NewsItem, selectedAssets: string[]) {
+  if (selectedAssets.length === 0) return true;
+
+  const affectedAssets = item.affectedAssets.map(normalizeSearchText);
+  const searchableText = normalizeSearchText(
+    [
+      item.title,
+      item.titleVi,
+      item.summary,
+      item.summaryVi,
+      item.category,
+      item.source,
+      ...item.tags,
+      ...item.affectedAssets,
+    ].join(" "),
+  );
+
+  return selectedAssets.some((selectedAsset) => {
+    if (affectedAssets.includes(selectedAsset)) return true;
+    if (searchableText.includes(selectedAsset)) return true;
+
+    if (selectedAsset === "XAU") return searchableText.includes("GOLD");
+    if (selectedAsset === "XAG") return searchableText.includes("SILVER");
+    if (selectedAsset === "OIL") {
+      return (
+        searchableText.includes("WTI") ||
+        searchableText.includes("BRENT") ||
+        searchableText.includes("CRUDE")
+      );
+    }
+
+    if (selectedAsset.length === 3) {
+      return affectedAssets.some((asset) => asset.includes(selectedAsset));
+    }
+
+    return false;
+  });
+}
 
 function formatRelativeTime(value: string) {
   const published = new Date(value).getTime();
@@ -70,13 +165,46 @@ export function NewsPanel({
   onRefresh,
   darkMode,
   lastUpdatedAt,
-  debug,
 }: NewsPanelProps) {
-  const shouldShowDebug =
-    Boolean(debug?.translationError) ||
-    debug?.hasDeepLKey === false ||
-    Boolean(debug?.dbWriteError) ||
-    (debug?.untranslatedCount || 0) > 0;
+  const [selectedAssets, setSelectedAssets] = useState<string[]>(
+    readSavedAssetFilters,
+  );
+  const [draftAssets, setDraftAssets] = useState<string[]>(selectedAssets);
+  const [assetFilterOpen, setAssetFilterOpen] = useState(false);
+
+  const filteredNewsItems = useMemo(
+    () => newsItems.filter((item) => newsMatchesAssetFilter(item, selectedAssets)),
+    [newsItems, selectedAssets],
+  );
+
+  const toggleDraftAsset = (asset: string) => {
+    setDraftAssets((current) =>
+      current.includes(asset)
+        ? current.filter((item) => item !== asset)
+        : [...current, asset],
+    );
+  };
+
+  const openAssetFilter = () => {
+    setDraftAssets(selectedAssets);
+    setAssetFilterOpen(true);
+  };
+
+  const applyAssetFilter = () => {
+    const normalized = assetFilterOptions.filter((asset) =>
+      draftAssets.includes(asset),
+    );
+    setSelectedAssets(normalized);
+    saveAssetFilters(normalized);
+    setAssetFilterOpen(false);
+  };
+
+  const clearAssetFilter = () => {
+    setDraftAssets([]);
+    setSelectedAssets([]);
+    saveAssetFilters([]);
+    setAssetFilterOpen(false);
+  };
 
   return (
     <div className="space-y-5" id="news-panel">
@@ -89,7 +217,7 @@ export function NewsPanel({
               Tin tức thị trường
             </h3>
             <p className="m3-body-small text-m3-on-surface-variant mt-1">
-              Tin được dịch và tóm tắt ngắn để đọc nhanh, mở link gốc nếu cần chi tiết.
+              Tổng hợp tin mới từ các nguồn thị trường.
             </p>
           </div>
 
@@ -103,6 +231,81 @@ export function NewsPanel({
                 })}
               </span>
             )}
+            <div className="relative">
+              <button
+                onClick={openAssetFilter}
+                className={`px-3 py-2 rounded-full border m3-label-medium flex items-center gap-1.5 m3-state-layer ${
+                  selectedAssets.length > 0
+                    ? "bg-m3-primary-container text-m3-on-primary-container border-m3-primary"
+                    : "bg-m3-surface-container-lowest text-m3-primary border-m3-outline-variant"
+                }`}
+                type="button"
+                title="Lọc tin theo tài sản"
+              >
+                <Filter size={14} />
+                Tài sản
+                {selectedAssets.length > 0 && (
+                  <span className="font-mono">({selectedAssets.length})</span>
+                )}
+              </button>
+
+              {assetFilterOpen && (
+                <div className="absolute right-0 top-[calc(100%+0.5rem)] z-30 w-[min(22rem,calc(100vw-2rem))] rounded-[20px] bg-m3-surface border border-m3-outline-variant shadow-level4 p-4">
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <p className="m3-label-large font-bold text-m3-on-surface">
+                      Lọc theo tài sản
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setAssetFilterOpen(false)}
+                      className="p-1.5 rounded-full bg-m3-surface-container-high text-m3-on-surface-variant m3-state-layer"
+                      title="Đóng"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto pr-1">
+                    {assetFilterOptions.map((asset) => {
+                      const checked = draftAssets.includes(asset);
+
+                      return (
+                        <button
+                          key={asset}
+                          type="button"
+                          onClick={() => toggleDraftAsset(asset)}
+                          className={`h-9 px-2 rounded-[12px] border m3-label-medium font-mono flex items-center justify-center gap-1.5 m3-state-layer ${
+                            checked
+                              ? "bg-m3-primary text-m3-on-primary border-m3-primary"
+                              : "bg-m3-surface-container-lowest text-m3-on-surface-variant border-m3-outline-variant"
+                          }`}
+                        >
+                          {checked && <Check size={13} />}
+                          {asset}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex items-center justify-between gap-2 mt-4 pt-3 border-t border-m3-outline-variant">
+                    <button
+                      type="button"
+                      onClick={clearAssetFilter}
+                      className="px-3 py-2 rounded-full text-m3-primary border border-m3-outline-variant m3-label-medium m3-state-layer"
+                    >
+                      Hiện tất cả
+                    </button>
+                    <button
+                      type="button"
+                      onClick={applyAssetFilter}
+                      className="px-4 py-2 rounded-full bg-m3-primary text-m3-on-primary m3-label-medium m3-state-layer"
+                    >
+                      Lưu filter
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
             <button
               onClick={onRefresh}
               className="px-3 py-2 rounded-full bg-m3-primary text-m3-on-primary m3-label-medium flex items-center gap-1.5 m3-state-layer"
@@ -117,50 +320,6 @@ export function NewsPanel({
           </div>
         </div>
 
-        <div className="flex items-start gap-2 p-3 rounded-[16px] bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-200 mb-5">
-          <AlertTriangle size={16} className="mt-0.5 flex-shrink-0" />
-          <p className="m3-body-small">
-            RSS miễn phí vẫn có độ trễ theo từng nguồn. App cache ngắn và tự làm mới 2 phút/lần.
-          </p>
-        </div>
-
-        {shouldShowDebug && debug && (
-          <div className="p-3 rounded-[16px] bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-200 mb-5">
-            <div className="m3-label-large font-bold mb-2">
-              Debug dịch tin
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 m3-body-small font-mono">
-              <span>source: {debug.source || "-"}</span>
-              <span>provider: {debug.translationProvider || "-"}</span>
-              <span>deepLKey: {debug.hasDeepLKey ? "yes" : "no"}</span>
-              <span>translationAttempted: {debug.translationAttempted ? "yes" : "no"}</span>
-              <span>translationResult: {debug.translationResult || "-"}</span>
-              <span>translationTarget: {debug.translationTargetCount ?? 0}</span>
-              <span>translationLimit: {debug.translationBatchLimit ?? 0}</span>
-              <span>translated: {debug.translatedCount ?? 0}</span>
-              <span>untranslated: {debug.untranslatedCount ?? 0}</span>
-              <span>dbFreshHit: {debug.dbFreshHit ? "yes" : "no"}</span>
-              <span>dbReadCount: {debug.dbReadCount ?? 0}</span>
-              <span>dbWrite: {debug.dbWriteAttempted ? "attempted" : "no"}</span>
-            </div>
-            {debug.translationError && (
-              <p className="m3-body-small mt-2 break-words">
-                DeepL: {debug.translationError}
-              </p>
-            )}
-            {debug.dbWriteError && (
-              <p className="m3-body-small mt-2 break-words">
-                Supabase write: {debug.dbWriteError}
-              </p>
-            )}
-            {debug.failedSources && debug.failedSources.length > 0 && (
-              <p className="m3-body-small mt-2 break-words">
-                Feed lỗi: {debug.failedSources.join(", ")}
-              </p>
-            )}
-          </div>
-        )}
-
         {loading ? (
           <div className="space-y-3">
             {Array.from({ length: 6 }).map((_, index) => (
@@ -173,15 +332,24 @@ export function NewsPanel({
         ) : newsItems.length === 0 ? (
           <div className="py-16 text-center text-m3-on-surface-variant">
             <p className="m3-body-medium font-semibold">
-              Chưa có tin mới từ các RSS feed.
+              Chưa có tin mới từ các nguồn tin.
             </p>
             <p className="m3-body-small mt-1">
               Bấm làm mới hoặc kiểm tra lại kết nối mạng.
             </p>
           </div>
+        ) : filteredNewsItems.length === 0 ? (
+          <div className="py-16 text-center text-m3-on-surface-variant">
+            <p className="m3-body-medium font-semibold">
+              Không có tin khớp filter tài sản đã lưu.
+            </p>
+            <p className="m3-body-small mt-1">
+              Bấm Tài sản và chọn Hiện tất cả để bỏ lọc.
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-            {newsItems.map((item) => (
+            {filteredNewsItems.map((item) => (
               <article
                 key={item.id}
                 className="p-4 rounded-[16px] bg-m3-surface-container-lowest border border-m3-outline-variant hover:border-m3-primary/60 transition-colors"
@@ -196,7 +364,7 @@ export function NewsPanel({
                         {item.impact} {item.score}
                       </span>
                       <span
-                        className={`px-2 py-0.5 rounded-full m3-label-small font-bold ${effectClasses[item.effect]}`}
+                        className={`px-2 py-0.5 rounded-full m3-label-small font-bold ${effectClasses[item.effect] || defaultEffectClass}`}
                         title={`Sentiment: ${item.sentiment} (${item.sentimentScore})`}
                       >
                         {item.effect}

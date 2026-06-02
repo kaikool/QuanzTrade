@@ -25,6 +25,8 @@ async function startServer() {
   const NEWS_CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes
   let marketauxCache: { data: any[]; timestamp: number } | null = null;
   const MARKETAUX_CACHE_TTL_MS = 10 * 60 * 1000; // protect free API quota
+  let tradingViewCache: { data: any[]; timestamp: number } | null = null;
+  const TRADINGVIEW_CACHE_TTL_MS = 60 * 1000;
   const DEEPL_TRANSLATION_BATCH_LIMIT = Number(
     process.env.DEEPL_TRANSLATION_BATCH_LIMIT || 30,
   );
@@ -385,6 +387,141 @@ async function startServer() {
       .filter(Boolean);
 
     return Array.from(new Set(normalized)).slice(0, 6);
+  }
+
+  function deriveTradingViewAssets(item: any) {
+    const symbols = Array.isArray(item.relatedSymbols) ? item.relatedSymbols : [];
+    const text = `${item.title || ""} ${symbols
+      .map((symbol: any) => symbol?.symbol || "")
+      .join(" ")}`.toUpperCase();
+    const assets = new Set<string>();
+
+    symbols.forEach((symbol: any) => {
+      const rawSymbol = String(symbol?.symbol || "").toUpperCase();
+      const ticker = rawSymbol.split(":").pop()?.replace(/[^A-Z0-9!]/g, "") || "";
+
+      if (/BTC/.test(ticker)) assets.add("BTC");
+      if (/ETH/.test(ticker)) assets.add("ETH");
+      if (/GOLD|XAU/.test(ticker)) assets.add("XAU");
+      if (/SILVER|XAG/.test(ticker)) assets.add("XAG");
+      if (/CL1!|BRN1!|WTI|BRENT|OIL/.test(ticker)) assets.add("OIL");
+      if (/DXY|USDOLLAR/.test(ticker)) assets.add("DXY");
+      if (/SPX|SPY|US500|ES1!/.test(ticker)) assets.add("US500");
+      if (/NDX|QQQ|NAS100|IXIC|NQ1!/.test(ticker)) assets.add("NAS100");
+      if (/^[A-Z]{6}$/.test(ticker)) {
+        assets.add(ticker);
+        if (ticker.includes("USD")) assets.add("USD");
+      }
+    });
+
+    if (/\bDOLLAR\b|\bUSD\b|\bFED\b|\bFOMC\b/.test(text)) assets.add("USD");
+    if (/\bGOLD\b|\bXAU\b/.test(text)) assets.add("XAU");
+    if (/\bOIL\b|\bWTI\b|\bBRENT\b|\bCRUDE\b/.test(text)) assets.add("OIL");
+    if (/\bBITCOIN\b|\bBTC\b/.test(text)) assets.add("BTC");
+    if (/\bETHEREUM\b|\bETH\b/.test(text)) assets.add("ETH");
+
+    return Array.from(assets).slice(0, 6);
+  }
+
+  function deriveTradingViewCategory(item: any, affectedAssets: string[]) {
+    const text = `${item.title || ""} ${affectedAssets.join(" ")}`.toUpperCase();
+
+    if (affectedAssets.includes("OIL")) return "Energy";
+    if (/\bFED\b|\bFOMC\b|\bECB\b|\bBOJ\b|\bBOE\b|\bCENTRAL BANK\b/.test(text)) {
+      return "Central Bank";
+    }
+    if (
+      affectedAssets.some((asset) => /^[A-Z]{6}$/.test(asset)) ||
+      affectedAssets.includes("USD") ||
+      affectedAssets.includes("DXY")
+    ) {
+      return "Forex";
+    }
+    return "Macro";
+  }
+
+  function mapTradingViewNewsItem(item: any) {
+    const title = String(item.title || "").trim();
+    const affectedAssets = deriveTradingViewAssets(item);
+    const category = deriveTradingViewCategory(item, affectedAssets);
+    const providerName = item.provider?.name || item.provider?.id || "TradingView";
+    const storyPath = String(item.storyPath || "");
+    const link =
+      item.link ||
+      (storyPath
+        ? `https://www.tradingview.com${storyPath}`
+        : "https://www.tradingview.com/news-flow/");
+    const publishedAt =
+      typeof item.published === "number"
+        ? new Date(item.published * 1000).toISOString()
+        : new Date().toISOString();
+    const localScore = scoreNewsText(title, providerName);
+
+    return withDisplayFields({
+      id: `TradingView-${item.id || item.storyPath || title}`,
+      title,
+      source: `TradingView / ${providerName}`,
+      category,
+      link,
+      summary: title,
+      publishedAt,
+      ...localScore,
+      score: Math.min(100, Math.max(localScore.score, item.urgency === 1 ? 70 : 0)),
+      impact: item.urgency === 1 ? "High" : localScore.impact,
+      affectedAssets,
+      tags: [
+        providerName,
+        ...(Array.isArray(item.relatedSymbols)
+          ? item.relatedSymbols
+              .map((symbol: any) => String(symbol?.symbol || "").split(":").pop())
+              .filter(Boolean)
+          : []),
+      ].slice(0, 5),
+      scoredBy: "Local",
+    });
+  }
+
+  async function fetchTradingViewNewsFlow() {
+    const now = Date.now();
+    if (
+      tradingViewCache &&
+      now - tradingViewCache.timestamp < TRADINGVIEW_CACHE_TTL_MS
+    ) {
+      return tradingViewCache.data;
+    }
+
+    const url = new URL("https://news-mediator.tradingview.com/public/news-flow/v2/news");
+    url.searchParams.set("client", "web");
+    url.searchParams.set("streaming", "false");
+    url.searchParams.append("filter", "lang:en");
+
+    const response = await fetch(url, {
+      signal: AbortSignal.timeout(6000),
+      headers: {
+        "user-agent": "Mozilla/5.0 TradeNews TradingView News Flow Reader",
+        origin: "https://www.tradingview.com",
+        referer: "https://www.tradingview.com/news-flow/",
+        accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`TradingView News Flow: ${response.status} ${response.statusText}`);
+    }
+
+    const json: any = await response.json();
+    const items = Array.isArray(json.items) ? json.items : [];
+    const mapped = items
+      .filter((item: any) => item?.title && (item?.storyPath || item?.link))
+      .slice(0, 50)
+      .map(mapTradingViewNewsItem);
+
+    tradingViewCache = {
+      data: mapped,
+      timestamp: now,
+    };
+
+    return mapped;
   }
 
   function deriveEffect(sentiment: string) {
@@ -892,6 +1029,7 @@ async function startServer() {
     }
 
     const results = await Promise.allSettled([
+      fetchTradingViewNewsFlow(),
       ...newsFeeds.map(fetchNewsFeed),
       fetchMarketauxNews(),
     ]);
@@ -938,9 +1076,11 @@ async function startServer() {
       failedSources: results
         .map((result, index) =>
           result.status === "rejected"
-            ? index < newsFeeds.length
-              ? newsFeeds[index].source
-              : "Marketaux"
+            ? index === 0
+              ? "TradingView News Flow"
+              : index - 1 < newsFeeds.length
+                ? newsFeeds[index - 1].source
+                : "Marketaux"
             : null,
         )
         .filter(Boolean),
@@ -952,9 +1092,11 @@ async function startServer() {
         failedSources: results
           .map((result, index) =>
             result.status === "rejected"
-              ? index < newsFeeds.length
-                ? newsFeeds[index].source
-                : "Marketaux"
+              ? index === 0
+                ? "TradingView News Flow"
+                : index - 1 < newsFeeds.length
+                  ? newsFeeds[index - 1].source
+                  : "Marketaux"
               : null,
           )
           .filter(Boolean),
