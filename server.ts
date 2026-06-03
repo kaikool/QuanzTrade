@@ -32,6 +32,7 @@ async function startServer() {
   );
   const NEWS_TABLE = "news_items";
   const DEFAULT_NEWS_LIMIT = 60;
+  const DEFAULT_RESPONSE_NEWS_LIMIT = 10;
   const MAX_HISTORY_LIMIT = 100;
   const MIN_VISIBLE_NEWS_ITEMS = 5;
   let lastNewsDebug: any = {};
@@ -1184,7 +1185,7 @@ async function startServer() {
     };
 
     const offset = parsePositiveInt(req.query?.offset, 0, 10000);
-    const limit = parsePositiveInt(req.query?.limit, DEFAULT_NEWS_LIMIT, MAX_HISTORY_LIMIT);
+    const limit = parsePositiveInt(req.query?.limit, DEFAULT_RESPONSE_NEWS_LIMIT, MAX_HISTORY_LIMIT);
     const selectedAssets = parseAssetQuery(req.query?.assets);
     const historyOnly = req.query?.history === "1" || offset > 0;
 
@@ -1219,8 +1220,8 @@ async function startServer() {
         nextRefreshSeconds: Math.ceil(
           (NEWS_CACHE_TTL_MS - (now - freshDbCache.timestamp)) / 1000,
         ),
-        hasMore: data.length >= MIN_VISIBLE_NEWS_ITEMS,
-        data,
+        hasMore: data.length > limit,
+        data: sortNewsForDisplay(data).slice(0, limit),
         debug: {
           ...lastNewsDebug,
           source: "supabase_cached",
@@ -1245,8 +1246,8 @@ async function startServer() {
         nextRefreshSeconds: Math.ceil(
           (NEWS_CACHE_TTL_MS - (now - newsCache.timestamp)) / 1000,
         ),
-        hasMore: data.length >= MIN_VISIBLE_NEWS_ITEMS,
-        data,
+        hasMore: data.length > limit,
+        data: sortNewsForDisplay(data).slice(0, limit),
         debug: {
           ...lastNewsDebug,
           source: "rss_cached",
@@ -1319,8 +1320,8 @@ async function startServer() {
         )
         .filter(Boolean),
       nextRefreshSeconds: NEWS_CACHE_TTL_MS / 1000,
-      hasMore: responseItems.length >= MIN_VISIBLE_NEWS_ITEMS,
-      data: responseItems,
+      hasMore: responseItems.length > limit,
+      data: sortNewsForDisplay(responseItems).slice(0, limit),
       debug: {
         ...lastNewsDebug,
         source: "rss_live",

@@ -1,4 +1,4 @@
-import { ExternalLink, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, ExternalLink, RefreshCw } from "lucide-react";
 import { NewsDebugInfo, NewsItem } from "../types";
 
 interface NewsPanelProps {
@@ -6,7 +6,9 @@ interface NewsPanelProps {
   loading: boolean;
   refreshing: boolean;
   onRefresh: () => void;
-  onLoadOlder: () => void;
+  page: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
   loadingOlder: boolean;
   hasMore: boolean;
   darkMode: boolean;
@@ -80,12 +82,20 @@ export function NewsPanel({
   loading,
   refreshing,
   onRefresh,
-  onLoadOlder,
+  page,
+  pageSize,
+  onPageChange,
   loadingOlder,
   hasMore,
   darkMode,
   lastUpdatedAt,
 }: NewsPanelProps) {
+  const pageLabel = `Trang ${page + 1}`;
+  const pageStart = page * pageSize + 1;
+  const pageEnd = page * pageSize + newsItems.length;
+  const canGoPrevious = page > 0 && !loadingOlder;
+  const canGoNext = hasMore && !loadingOlder;
+
   return (
     <div className="space-y-5" id="news-panel">
       <section
@@ -97,7 +107,7 @@ export function NewsPanel({
               Tin tức thị trường
             </h3>
             <p className="m3-body-small text-m3-on-surface-variant mt-1">
-              Tổng hợp tin mới từ các nguồn thị trường.
+              Mới nhất lên trước, mỗi trang hiển thị {pageSize} tin.
             </p>
           </div>
 
@@ -111,24 +121,29 @@ export function NewsPanel({
                 })}
               </span>
             )}
-            {newsItems.length > 0 && (
+            <div className="flex items-center gap-1 rounded-full border border-m3-outline-variant bg-m3-surface-container-lowest p-1">
               <button
                 type="button"
-                onClick={onLoadOlder}
-                disabled={loadingOlder}
-                className="px-3 py-2 rounded-full border border-m3-outline-variant bg-m3-surface-container-lowest text-m3-primary m3-label-medium flex items-center gap-1.5 m3-state-layer disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Xem tin cũ hơn"
+                onClick={() => onPageChange(page - 1)}
+                disabled={!canGoPrevious}
+                className="h-9 w-9 rounded-full text-m3-primary grid place-items-center m3-state-layer disabled:opacity-40 disabled:cursor-not-allowed"
+                title="Trang mới hơn"
               >
-                <RefreshCw
-                  size={14}
-                  className={loadingOlder ? "animate-spin" : ""}
-                />
-                <span className="sm:hidden">Cũ hơn</span>
-                <span className="hidden sm:inline">
-                  {hasMore ? "Xem tin cũ hơn" : "Thử tải thêm tin cũ"}
-                </span>
+                <ChevronLeft size={17} />
               </button>
-            )}
+              <span className="min-w-20 px-2 text-center m3-label-medium text-m3-on-surface">
+                {pageLabel}
+              </span>
+              <button
+                type="button"
+                onClick={() => onPageChange(page + 1)}
+                disabled={!canGoNext}
+                className="h-9 w-9 rounded-full text-m3-primary grid place-items-center m3-state-layer disabled:opacity-40 disabled:cursor-not-allowed"
+                title="Trang cũ hơn"
+              >
+                <ChevronRight size={17} />
+              </button>
+            </div>
             <button
               onClick={onRefresh}
               className="px-3 py-2 rounded-full bg-m3-primary text-m3-on-primary m3-label-medium flex items-center gap-1.5 m3-state-layer"
@@ -155,10 +170,10 @@ export function NewsPanel({
         ) : newsItems.length === 0 ? (
           <div className="py-16 text-center text-m3-on-surface-variant">
             <p className="m3-body-medium font-semibold">
-              Chưa có tin mới từ các nguồn tin.
+              Chưa có tin trong trang này.
             </p>
             <p className="m3-body-small mt-1">
-              Bấm làm mới hoặc kiểm tra lại kết nối mạng.
+              Bấm làm mới hoặc quay lại trang trước để đọc tin gần hơn.
             </p>
           </div>
         ) : (
@@ -244,19 +259,30 @@ export function NewsPanel({
         )}
 
         {newsItems.length > 0 && (
-          <div className="flex justify-center pt-5">
-            <button
-              type="button"
-              onClick={onLoadOlder}
-              disabled={loadingOlder}
-              className="px-5 py-2.5 rounded-full border border-m3-outline-variant bg-m3-surface-container-lowest text-m3-primary m3-label-medium flex items-center gap-2 m3-state-layer disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <RefreshCw
-                size={14}
-                className={loadingOlder ? "animate-spin" : ""}
-              />
-              {hasMore ? "Xem tin cũ hơn" : "Thử tải thêm tin cũ"}
-            </button>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-5">
+            <span className="m3-body-small text-m3-on-surface-variant">
+              Đang xem tin {pageStart}-{pageEnd}
+            </span>
+            <div className="grid grid-cols-2 gap-2 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={() => onPageChange(page - 1)}
+                disabled={!canGoPrevious}
+                className="px-4 py-2.5 rounded-full border border-m3-outline-variant bg-m3-surface-container-lowest text-m3-primary m3-label-medium flex items-center justify-center gap-2 m3-state-layer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft size={16} />
+                Mới hơn
+              </button>
+              <button
+                type="button"
+                onClick={() => onPageChange(page + 1)}
+                disabled={!canGoNext}
+                className="px-4 py-2.5 rounded-full border border-m3-outline-variant bg-m3-surface-container-lowest text-m3-primary m3-label-medium flex items-center justify-center gap-2 m3-state-layer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cũ hơn
+                <ChevronRight size={16} />
+              </button>
+            </div>
           </div>
         )}
       </section>

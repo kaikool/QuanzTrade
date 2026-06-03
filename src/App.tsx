@@ -42,6 +42,15 @@ import {
 import { M3DatePicker, M3TimePicker } from "./components/M3DatePicker";
 import { NewsPanel } from "./components/NewsPanel";
 
+const NEWS_PAGE_SIZE = 10;
+
+function sortNewsByNewest(items: NewsItem[]) {
+  return [...items].sort(
+    (a, b) =>
+      new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
+  );
+}
+
 const BentoStats = lazy(() =>
   import("./components/BentoStats").then((module) => ({
     default: module.BentoStats,
@@ -58,6 +67,7 @@ export default function App() {
   const [loadingNews, setLoadingNews] = useState(true);
   const [refreshingNews, setRefreshingNews] = useState(false);
   const [loadingOlderNews, setLoadingOlderNews] = useState(false);
+  const [newsPage, setNewsPage] = useState(0);
   const [newsHasMore, setNewsHasMore] = useState(true);
   const [newsLastUpdatedAt, setNewsLastUpdatedAt] = useState<string | null>(
     null,
@@ -526,16 +536,21 @@ export default function App() {
     setTimeout(() => setRefreshingCalendar(false), 800);
   };
 
-  const loadNewsData = async (showLoading = true) => {
+  const loadNewsData = async (showLoading = true, page = 0) => {
     if (showLoading) setLoadingNews(true);
     try {
-      const res = await fetch("/api/news", {
+      const params = new URLSearchParams({
+        offset: String(page * NEWS_PAGE_SIZE),
+        limit: String(NEWS_PAGE_SIZE),
+      });
+      const res = await fetch(`/api/news?${params.toString()}`, {
         cache: "no-store",
       });
       const json = await res.json();
       if (json && json.success) {
-        setNewsItems(json.data);
-        setNewsHasMore(json.hasMore ?? json.data.length > 0);
+        setNewsItems(sortNewsByNewest(json.data || []));
+        setNewsHasMore(Boolean(json.hasMore));
+        setNewsPage(page);
         setNewsLastUpdatedAt(json.fetchedAt || new Date().toISOString());
         setNewsDebug(json.debug || null);
       }
@@ -548,40 +563,33 @@ export default function App() {
 
   const syncNews = async () => {
     setRefreshingNews(true);
-    await loadNewsData(false);
+    await loadNewsData(false, 0);
     setTimeout(() => setRefreshingNews(false), 800);
   };
 
-  const loadOlderNews = async () => {
+  const loadNewsPage = async (page: number) => {
     if (loadingOlderNews) return;
 
+    const nextPage = Math.max(0, page);
     setLoadingOlderNews(true);
     try {
       const params = new URLSearchParams({
-        history: "1",
-        offset: String(newsItems.length),
-        limit: "60",
+        offset: String(nextPage * NEWS_PAGE_SIZE),
+        limit: String(NEWS_PAGE_SIZE),
       });
       const res = await fetch(`/api/news?${params.toString()}`, {
         cache: "no-store",
       });
       const json = await res.json();
       if (json && json.success) {
-        setNewsItems((current) => {
-          const seen = new Set(current.map((item) => item.id));
-          const olderItems = (json.data || []).filter((item: NewsItem) => {
-            if (seen.has(item.id)) return false;
-            seen.add(item.id);
-            return true;
-          });
-
-          return [...current, ...olderItems];
-        });
-        setNewsHasMore(Boolean(json.hasMore || (json.data || []).length > 0));
+        setNewsItems(sortNewsByNewest(json.data || []));
+        setNewsPage(nextPage);
+        setNewsHasMore(Boolean(json.hasMore));
+        setNewsLastUpdatedAt(json.fetchedAt || new Date().toISOString());
         setNewsDebug(json.debug || null);
       }
     } catch (e) {
-      console.error("Error loading older news:", e);
+      console.error("Error loading news page:", e);
     } finally {
       setLoadingOlderNews(false);
     }
@@ -1899,7 +1907,9 @@ export default function App() {
             loading={loadingNews}
             refreshing={refreshingNews}
             onRefresh={syncNews}
-            onLoadOlder={loadOlderNews}
+            page={newsPage}
+            pageSize={NEWS_PAGE_SIZE}
+            onPageChange={loadNewsPage}
             loadingOlder={loadingOlderNews}
             hasMore={newsHasMore}
             darkMode={darkMode}
