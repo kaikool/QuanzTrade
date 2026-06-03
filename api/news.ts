@@ -7,6 +7,8 @@ const DEEPL_TRANSLATION_BATCH_LIMIT = Number(
   process.env.DEEPL_TRANSLATION_BATCH_LIMIT || 30,
 );
 const NEWS_TABLE = "news_items";
+const DEFAULT_NEWS_LIMIT = 60;
+const MAX_HISTORY_LIMIT = 100;
 
 const newsFeeds = [
   {
@@ -84,7 +86,7 @@ async function readFreshNewsFromDb(now: number) {
       .gte("fetched_at", minFetchedAt)
       .not("translated_at", "is", null)
       .order("published_at", { ascending: false })
-      .limit(60);
+      .limit(DEFAULT_NEWS_LIMIT);
 
     if (error) throw error;
     if (!data || data.length === 0) return null;
@@ -103,6 +105,46 @@ async function readFreshNewsFromDb(now: number) {
     console.warn("Supabase news fresh read failed:", error.message);
     lastNewsDebug.dbReadError = error.message;
     return null;
+  }
+}
+
+function parsePositiveInt(value: any, fallback: number, max: number) {
+  const raw = Array.isArray(value) ? value[0] : value;
+  const parsed = Number.parseInt(String(raw ?? ""), 10);
+  if (!Number.isFinite(parsed) || parsed < 0) return fallback;
+  return Math.min(parsed, max);
+}
+
+async function readNewsHistoryFromDb(offset: number, limit: number) {
+  const supabase = getServerSupabaseClient();
+  if (!supabase) {
+    return { data: [], count: 0, hasMore: false };
+  }
+
+  try {
+    const from = offset;
+    const to = offset + limit - 1;
+    const { data, error, count } = await supabase
+      .from(NEWS_TABLE)
+      .select("data", { count: "exact" })
+      .order("published_at", { ascending: false })
+      .range(from, to);
+
+    if (error) throw error;
+
+    const rows = (data || [])
+      .map((row: any) => row.data)
+      .filter(Boolean);
+
+    return {
+      data: rows,
+      count: count || rows.length,
+      hasMore: typeof count === "number" ? offset + rows.length < count : rows.length === limit,
+    };
+  } catch (error: any) {
+    console.warn("Supabase news history read failed:", error.message);
+    lastNewsDebug.dbReadError = error.message;
+    return { data: [], count: 0, hasMore: false };
   }
 }
 
@@ -297,6 +339,7 @@ function shortText(value: string, maxLength = 220) {
 
 function deriveAffectedAssets(item: any) {
   const text = `${item.title || ""} ${item.summary || ""} ${(item.tags || []).join(" ")}`.toUpperCase();
+  const compactText = text.replace(/[^A-Z0-9]/g, "");
   const assets = new Set<string>();
   const candidates = [
     "USD",
@@ -332,7 +375,11 @@ function deriveAffectedAssets(item: any) {
   ];
 
   candidates.forEach((asset) => {
-    if (!text.includes(asset)) return;
+    const mentioned =
+      asset.length === 6
+        ? compactText.includes(asset)
+        : new RegExp(`\\b${asset}\\b`).test(text);
+    if (!mentioned) return;
     if (asset === "GOLD") assets.add("XAU");
     else if (asset === "SILVER") assets.add("XAG");
     else if (asset === "WTI" || asset === "BRENT") assets.add("OIL");
@@ -341,9 +388,10 @@ function deriveAffectedAssets(item: any) {
     else assets.add(asset);
   });
 
-  if (item.category === "Forex") assets.add("USD");
   if (item.category === "Energy") assets.add("OIL");
-  if (item.category === "Central Bank") assets.add("USD");
+  if (/\bFED\b|\bFOMC\b|\bPOWELL\b|\bTREASURY\b|\bDOLLAR\b|\bUSD\b|\bUS\b/.test(text)) {
+    assets.add("USD");
+  }
   if (/\bGOLD\b|\bXAU\b|\bXAUUSD\b/.test(text)) assets.add("XAU");
   if (/\bCRUDE\b|\bWTI\b|\bBRENT\b|\bOIL\b/.test(text)) assets.add("OIL");
   if (/\bS&P\b|\bSPX\b|\bUS500\b/.test(text)) assets.add("US500");
@@ -782,6 +830,27 @@ export default async function handler(req: any, res: any) {
   if (req.method === "OPTIONS") {
     res.status(200).end();
     return;
+  }
+
+  const offset = parsePositiveInt(req.query?.offset, 0, 10000);
+  const limit = parsePositiveInt(req.query?.limit, DEFAULT_NEWS_LIMIT, MAX_HISTORY_LIMIT);
+  const historyOnly = req.query?.history === "1" || offset > 0;
+
+  if (historyOnly) {
+    const history = await readNewsHistoryFromDb(offset, limit);
+    return res.status(200).json({
+      success: true,
+      source: "supabase_history",
+      fetchedAt: new Date(now).toISOString(),
+      data: history.data,
+      totalCount: history.count,
+      hasMore: history.hasMore,
+      debug: {
+        ...lastNewsDebug,
+        source: "supabase_history",
+        dbReadCount: history.data.length,
+      },
+    });
   }
 
   const freshDbCache = await readFreshNewsFromDb(now);

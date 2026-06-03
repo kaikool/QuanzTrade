@@ -57,6 +57,8 @@ export default function App() {
   const [refreshingCalendar, setRefreshingCalendar] = useState(false);
   const [loadingNews, setLoadingNews] = useState(true);
   const [refreshingNews, setRefreshingNews] = useState(false);
+  const [loadingOlderNews, setLoadingOlderNews] = useState(false);
+  const [newsHasMore, setNewsHasMore] = useState(true);
   const [newsLastUpdatedAt, setNewsLastUpdatedAt] = useState<string | null>(
     null,
   );
@@ -531,6 +533,7 @@ export default function App() {
       const json = await res.json();
       if (json && json.success) {
         setNewsItems(json.data);
+        setNewsHasMore(json.hasMore ?? json.data.length >= 60);
         setNewsLastUpdatedAt(json.fetchedAt || new Date().toISOString());
         setNewsDebug(json.debug || null);
       }
@@ -545,6 +548,41 @@ export default function App() {
     setRefreshingNews(true);
     await loadNewsData(false);
     setTimeout(() => setRefreshingNews(false), 800);
+  };
+
+  const loadOlderNews = async () => {
+    if (loadingOlderNews || !newsHasMore) return;
+
+    setLoadingOlderNews(true);
+    try {
+      const params = new URLSearchParams({
+        history: "1",
+        offset: String(newsItems.length),
+        limit: "60",
+      });
+      const res = await fetch(`/api/news?${params.toString()}`, {
+        cache: "no-store",
+      });
+      const json = await res.json();
+      if (json && json.success) {
+        setNewsItems((current) => {
+          const seen = new Set(current.map((item) => item.id));
+          const olderItems = (json.data || []).filter((item: NewsItem) => {
+            if (seen.has(item.id)) return false;
+            seen.add(item.id);
+            return true;
+          });
+
+          return [...current, ...olderItems];
+        });
+        setNewsHasMore(Boolean(json.hasMore));
+        setNewsDebug(json.debug || null);
+      }
+    } catch (e) {
+      console.error("Error loading older news:", e);
+    } finally {
+      setLoadingOlderNews(false);
+    }
   };
 
   // Handle Trade Creation
@@ -1857,6 +1895,9 @@ export default function App() {
             loading={loadingNews}
             refreshing={refreshingNews}
             onRefresh={syncNews}
+            onLoadOlder={loadOlderNews}
+            loadingOlder={loadingOlderNews}
+            hasMore={newsHasMore}
             darkMode={darkMode}
             lastUpdatedAt={newsLastUpdatedAt}
             debug={newsDebug}

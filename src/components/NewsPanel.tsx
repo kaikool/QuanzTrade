@@ -7,6 +7,9 @@ interface NewsPanelProps {
   loading: boolean;
   refreshing: boolean;
   onRefresh: () => void;
+  onLoadOlder: () => void;
+  loadingOlder: boolean;
+  hasMore: boolean;
   darkMode: boolean;
   lastUpdatedAt: string | null;
   debug: NewsDebugInfo | null;
@@ -94,38 +97,20 @@ function newsMatchesAssetFilter(item: NewsItem, selectedAssets: string[]) {
   if (selectedAssets.length === 0) return true;
 
   const affectedAssets = item.affectedAssets.map(normalizeSearchText);
-  const searchableText = normalizeSearchText(
-    [
-      item.title,
-      item.titleVi,
-      item.summary,
-      item.summaryVi,
-      item.category,
-      item.source,
-      ...item.tags,
-      ...item.affectedAssets,
-    ].join(" "),
-  );
 
   return selectedAssets.some((selectedAsset) => {
     if (affectedAssets.includes(selectedAsset)) return true;
-    if (searchableText.includes(selectedAsset)) return true;
-
-    if (selectedAsset === "XAU") return searchableText.includes("GOLD");
-    if (selectedAsset === "XAG") return searchableText.includes("SILVER");
+    if (selectedAsset === "XAU") return affectedAssets.includes("GOLD");
+    if (selectedAsset === "XAG") return affectedAssets.includes("SILVER");
     if (selectedAsset === "OIL") {
-      return (
-        searchableText.includes("WTI") ||
-        searchableText.includes("BRENT") ||
-        searchableText.includes("CRUDE")
+      return affectedAssets.some((asset) =>
+        ["WTI", "BRENT", "CRUDE"].includes(asset),
       );
     }
 
-    if (selectedAsset.length === 3) {
-      return affectedAssets.some((asset) => asset.includes(selectedAsset));
-    }
-
-    return false;
+    return selectedAsset.length === 6
+      ? affectedAssets.some((asset) => asset === selectedAsset)
+      : false;
   });
 }
 
@@ -163,6 +148,9 @@ export function NewsPanel({
   loading,
   refreshing,
   onRefresh,
+  onLoadOlder,
+  loadingOlder,
+  hasMore,
   darkMode,
   lastUpdatedAt,
 }: NewsPanelProps) {
@@ -418,12 +406,13 @@ export function NewsPanel({
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-            {filteredNewsItems.map((item) => (
-              <article
-                key={item.id}
-                className="p-4 rounded-[16px] bg-m3-surface-container-lowest border border-m3-outline-variant hover:border-m3-primary/60 transition-colors"
-              >
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              {filteredNewsItems.map((item) => (
+                <article
+                  key={item.id}
+                  className="p-4 rounded-[16px] bg-m3-surface-container-lowest border border-m3-outline-variant hover:border-m3-primary/60 transition-colors"
+                >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2 mb-2">
@@ -490,9 +479,25 @@ export function NewsPanel({
                     ))}
                   </div>
                 )}
-              </article>
-            ))}
-          </div>
+                </article>
+              ))}
+            </div>
+
+            <div className="flex justify-center pt-5">
+              <button
+                type="button"
+                onClick={onLoadOlder}
+                disabled={!hasMore || loadingOlder}
+                className="px-5 py-2.5 rounded-full border border-m3-outline-variant bg-m3-surface-container-lowest text-m3-primary m3-label-medium flex items-center gap-2 m3-state-layer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <RefreshCw
+                  size={14}
+                  className={loadingOlder ? "animate-spin" : ""}
+                />
+                {hasMore ? "Xem tin cũ hơn" : "Đã hết tin cũ"}
+              </button>
+            </div>
+          </>
         )}
       </section>
     </div>
