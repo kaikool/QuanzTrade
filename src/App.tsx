@@ -852,6 +852,7 @@ export default function App() {
         )}
 
         {/* Google Workspace Style Tonal Top Header */}
+        {(currentTab === "dashboard" || currentTab === "journal") && (
         <header
           className={`flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-6 ${darkMode ? "bg-m3-surface" : "bg-m3-surface"} rounded-[24px] shadow-level1 space-y-4 md:space-y-0`}
           id="google-m3-header"
@@ -934,6 +935,7 @@ export default function App() {
             </button>
           </div>
         </header>
+        )}
 
         {/* Google-style Pill Navigation Tab Segment Manager */}
         <div
