@@ -32,16 +32,19 @@ const impactClasses: Record<NewsItem["impact"], string> = {
 };
 
 const effectClasses: Record<string, string> = {
-  "Tá»‘t": "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-  "TÃ¡Â»â€˜t": "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-  "Xáº¥u": "bg-rose-500/10 text-rose-700 dark:text-rose-300",
-  "XÃ¡ÂºÂ¥u": "bg-rose-500/10 text-rose-700 dark:text-rose-300",
-  "Trung láº­p": "bg-m3-surface-container-high text-m3-on-surface-variant",
-  "Trung lÃ¡ÂºÂ­p": "bg-m3-surface-container-high text-m3-on-surface-variant",
+  Tốt: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  Xấu: "bg-rose-500/10 text-rose-700 dark:text-rose-300",
+  "Trung lập": "bg-m3-surface-container-high text-m3-on-surface-variant",
 };
 
 const defaultEffectClass =
   "bg-m3-surface-container-high text-m3-on-surface-variant";
+
+function deriveEffectLabel(sentiment: NewsItem["sentiment"]) {
+  if (sentiment === "Bullish") return "Tốt";
+  if (sentiment === "Bearish") return "Xấu";
+  return "Trung lập";
+}
 
 function formatRelativeTime(value: string) {
   const published = new Date(value).getTime();
@@ -52,11 +55,11 @@ function formatRelativeTime(value: string) {
     Math.round((Date.now() - published) / (1000 * 60)),
   );
 
-  if (diffMinutes < 1) return "Vá»«a xong";
-  if (diffMinutes < 60) return `${diffMinutes} phÃºt trÆ°á»›c`;
+  if (diffMinutes < 1) return "Vừa xong";
+  if (diffMinutes < 60) return `${diffMinutes} phút trước`;
 
   const diffHours = Math.round(diffMinutes / 60);
-  if (diffHours < 24) return `${diffHours} giá» trÆ°á»›c`;
+  if (diffHours < 24) return `${diffHours} giờ trước`;
 
   return new Date(value).toLocaleDateString("vi-VN", {
     day: "2-digit",
@@ -91,10 +94,10 @@ export function NewsPanel({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-m3-outline-variant pb-4 mb-4">
           <div>
             <h3 className="m3-title-medium text-m3-on-surface font-display">
-              Tin tá»©c thá»‹ trÆ°á»ng
+              Tin tức thị trường
             </h3>
             <p className="m3-body-small text-m3-on-surface-variant mt-1">
-              Tá»•ng há»£p tin má»›i tá»« cÃ¡c nguá»“n thá»‹ trÆ°á»ng.
+              Tổng hợp tin mới từ các nguồn thị trường.
             </p>
           </div>
 
@@ -114,15 +117,15 @@ export function NewsPanel({
                 onClick={onLoadOlder}
                 disabled={loadingOlder}
                 className="px-3 py-2 rounded-full border border-m3-outline-variant bg-m3-surface-container-lowest text-m3-primary m3-label-medium flex items-center gap-1.5 m3-state-layer disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Xem tin cÅ© hÆ¡n"
+                title="Xem tin cũ hơn"
               >
                 <RefreshCw
                   size={14}
                   className={loadingOlder ? "animate-spin" : ""}
                 />
-                <span className="sm:hidden">CÅ© hÆ¡n</span>
+                <span className="sm:hidden">Cũ hơn</span>
                 <span className="hidden sm:inline">
-                  {hasMore ? "Xem tin cÅ© hÆ¡n" : "Thá»­ táº£i thÃªm tin cÅ©"}
+                  {hasMore ? "Xem tin cũ hơn" : "Thử tải thêm tin cũ"}
                 </span>
               </button>
             )}
@@ -135,7 +138,7 @@ export function NewsPanel({
                 size={14}
                 className={refreshing ? "animate-spin" : ""}
               />
-              LÃ m má»›i
+              Làm mới
             </button>
           </div>
         </div>
@@ -152,87 +155,91 @@ export function NewsPanel({
         ) : newsItems.length === 0 ? (
           <div className="py-16 text-center text-m3-on-surface-variant">
             <p className="m3-body-medium font-semibold">
-              ChÆ°a cÃ³ tin má»›i tá»« cÃ¡c nguá»“n tin.
+              Chưa có tin mới từ các nguồn tin.
             </p>
             <p className="m3-body-small mt-1">
-              Báº¥m lÃ m má»›i hoáº·c kiá»ƒm tra láº¡i káº¿t ná»‘i máº¡ng.
+              Bấm làm mới hoặc kiểm tra lại kết nối mạng.
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-            {newsItems.map((item) => (
-              <article
-                key={item.id}
-                className="p-4 rounded-[16px] bg-m3-surface-container-lowest border border-m3-outline-variant hover:border-m3-primary/60 transition-colors"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <span
-                        className={`px-2 py-0.5 rounded-full m3-label-small font-black ${impactClasses[item.impact]}`}
-                        title={`Äiá»ƒm quan trá»ng: ${item.score}/100`}
-                      >
-                        {item.impact} {item.score}
-                      </span>
-                      <span
-                        className={`px-2 py-0.5 rounded-full m3-label-small font-bold ${effectClasses[item.effect] || defaultEffectClass}`}
-                        title={`Sentiment: ${item.sentiment} (${item.sentimentScore})`}
-                      >
-                        {item.effect}
-                      </span>
-                      {item.affectedAssets.map((asset) => (
+            {newsItems.map((item) => {
+              const effect = deriveEffectLabel(item.sentiment);
+
+              return (
+                <article
+                  key={item.id}
+                  className="p-4 rounded-[16px] bg-m3-surface-container-lowest border border-m3-outline-variant hover:border-m3-primary/60 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
                         <span
-                          key={asset}
+                          className={`px-2 py-0.5 rounded-full m3-label-small font-black ${impactClasses[item.impact]}`}
+                          title={`Điểm quan trọng: ${item.score}/100`}
+                        >
+                          {item.impact} {item.score}
+                        </span>
+                        <span
+                          className={`px-2 py-0.5 rounded-full m3-label-small font-bold ${effectClasses[effect] || defaultEffectClass}`}
+                          title={`Sentiment: ${item.sentiment} (${item.sentimentScore})`}
+                        >
+                          {effect}
+                        </span>
+                        {item.affectedAssets.map((asset) => (
+                          <span
+                            key={asset}
+                            className="px-2 py-0.5 rounded-full bg-m3-surface-container m3-label-small text-m3-on-surface-variant font-mono"
+                          >
+                            {asset}
+                          </span>
+                        ))}
+                        <span
+                          className={`px-2 py-0.5 rounded-full border m3-label-small font-bold ${categoryClasses[item.category]}`}
+                        >
+                          {item.category}
+                        </span>
+                        <span className="m3-body-small text-m3-on-surface-variant font-mono">
+                          {item.source}
+                        </span>
+                        <span className="m3-body-small text-m3-on-surface-variant">
+                          {formatRelativeTime(item.publishedAt)}
+                        </span>
+                      </div>
+                      <h4 className="m3-body-medium sm:m3-body-large font-extrabold text-m3-on-surface leading-snug">
+                        {item.titleVi || item.title}
+                      </h4>
+                    </div>
+                    <a
+                      href={item.link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="p-2 rounded-full bg-m3-surface-container-high text-m3-primary flex-shrink-0 m3-state-layer"
+                      title="Mở tin gốc"
+                    >
+                      <ExternalLink size={15} />
+                    </a>
+                  </div>
+
+                  <p className="m3-body-small text-m3-on-surface-variant mt-3 line-clamp-3">
+                    {compactSummary(item)}
+                  </p>
+
+                  {item.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-3">
+                      {item.tags.map((tag) => (
+                        <span
+                          key={tag}
                           className="px-2 py-0.5 rounded-full bg-m3-surface-container m3-label-small text-m3-on-surface-variant font-mono"
                         >
-                          {asset}
+                          {tag}
                         </span>
                       ))}
-                      <span
-                        className={`px-2 py-0.5 rounded-full border m3-label-small font-bold ${categoryClasses[item.category]}`}
-                      >
-                        {item.category}
-                      </span>
-                      <span className="m3-body-small text-m3-on-surface-variant font-mono">
-                        {item.source}
-                      </span>
-                      <span className="m3-body-small text-m3-on-surface-variant">
-                        {formatRelativeTime(item.publishedAt)}
-                      </span>
                     </div>
-                    <h4 className="m3-body-medium sm:m3-body-large font-extrabold text-m3-on-surface leading-snug">
-                      {item.titleVi || item.title}
-                    </h4>
-                  </div>
-                  <a
-                    href={item.link}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="p-2 rounded-full bg-m3-surface-container-high text-m3-primary flex-shrink-0 m3-state-layer"
-                    title="Má»Ÿ tin gá»‘c"
-                  >
-                    <ExternalLink size={15} />
-                  </a>
-                </div>
-
-                <p className="m3-body-small text-m3-on-surface-variant mt-3 line-clamp-3">
-                  {compactSummary(item)}
-                </p>
-
-                {item.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mt-3">
-                    {item.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-0.5 rounded-full bg-m3-surface-container m3-label-small text-m3-on-surface-variant font-mono"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </article>
-            ))}
+                  )}
+                </article>
+              );
+            })}
           </div>
         )}
 
@@ -248,7 +255,7 @@ export function NewsPanel({
                 size={14}
                 className={loadingOlder ? "animate-spin" : ""}
               />
-              {hasMore ? "Xem tin cÅ© hÆ¡n" : "Thá»­ táº£i thÃªm tin cÅ©"}
+              {hasMore ? "Xem tin cũ hơn" : "Thử tải thêm tin cũ"}
             </button>
           </div>
         )}
