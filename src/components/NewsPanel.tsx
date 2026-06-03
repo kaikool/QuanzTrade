@@ -482,22 +482,23 @@ export function NewsPanel({
                 </article>
               ))}
             </div>
-
-            <div className="flex justify-center pt-5">
-              <button
-                type="button"
-                onClick={onLoadOlder}
-                disabled={!hasMore || loadingOlder}
-                className="px-5 py-2.5 rounded-full border border-m3-outline-variant bg-m3-surface-container-lowest text-m3-primary m3-label-medium flex items-center gap-2 m3-state-layer disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <RefreshCw
-                  size={14}
-                  className={loadingOlder ? "animate-spin" : ""}
-                />
-                {hasMore ? "Xem tin cũ hơn" : "Đã hết tin cũ"}
-              </button>
-            </div>
           </>
+        )}
+        {newsItems.length > 0 && (
+          <div className="flex justify-center pt-5">
+            <button
+              type="button"
+              onClick={onLoadOlder}
+              disabled={loadingOlder}
+              className="px-5 py-2.5 rounded-full border border-m3-outline-variant bg-m3-surface-container-lowest text-m3-primary m3-label-medium flex items-center gap-2 m3-state-layer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <RefreshCw
+                size={14}
+                className={loadingOlder ? "animate-spin" : ""}
+              />
+              {hasMore ? "Xem tin cũ hơn" : "Thử tải thêm tin cũ"}
+            </button>
+          </div>
         )}
       </section>
     </div>

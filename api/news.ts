@@ -9,6 +9,7 @@ const DEEPL_TRANSLATION_BATCH_LIMIT = Number(
 const NEWS_TABLE = "news_items";
 const DEFAULT_NEWS_LIMIT = 60;
 const MAX_HISTORY_LIMIT = 100;
+const MIN_VISIBLE_NEWS_ITEMS = 5;
 
 const newsFeeds = [
   {
@@ -84,22 +85,21 @@ async function readFreshNewsFromDb(now: number) {
       .from(NEWS_TABLE)
       .select("data,fetched_at")
       .gte("fetched_at", minFetchedAt)
-      .not("translated_at", "is", null)
       .order("published_at", { ascending: false })
       .limit(DEFAULT_NEWS_LIMIT);
 
     if (error) throw error;
     if (!data || data.length === 0) return null;
 
-    const translatedRows = data
+    const rows = data
       .map((row: any) => row.data)
-      .filter((item: any) => item?.translationProvider === "DeepL");
-    if (translatedRows.length === 0) return null;
+      .filter(Boolean);
+    if (rows.length === 0) return null;
 
     return {
-      data: translatedRows,
+      data: sortNewsForDisplay(rows),
       timestamp: new Date(data[0].fetched_at).getTime(),
-      count: translatedRows.length,
+      count: rows.length,
     };
   } catch (error: any) {
     console.warn("Supabase news fresh read failed:", error.message);
@@ -137,7 +137,7 @@ async function readNewsHistoryFromDb(offset: number, limit: number) {
       .filter(Boolean);
 
     return {
-      data: rows,
+      data: sortNewsForDisplay(rows),
       count: count || rows.length,
       hasMore: typeof count === "number" ? offset + rows.length < count : rows.length === limit,
     };
@@ -146,6 +146,25 @@ async function readNewsHistoryFromDb(offset: number, limit: number) {
     lastNewsDebug.dbReadError = error.message;
     return { data: [], count: 0, hasMore: false };
   }
+}
+
+async function fillNewsFromDb(items: any[], minimum = MIN_VISIBLE_NEWS_ITEMS) {
+  if (items.length >= minimum) return items;
+
+  const history = await readNewsHistoryFromDb(0, Math.max(DEFAULT_NEWS_LIMIT, minimum));
+  if (history.data.length === 0) return items;
+
+  const seen = new Set(items.map((item) => item.id || item.link || item.title));
+  const filled = [...items];
+  history.data.forEach((item) => {
+    const key = item.id || item.link || item.title;
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    filled.push(item);
+  });
+
+  return sortNewsForDisplay(filled)
+    .slice(0, Math.max(DEFAULT_NEWS_LIMIT, minimum));
 }
 
 async function readNewsByIdsFromDb(ids: string[]) {
@@ -335,6 +354,21 @@ function shortText(value: string, maxLength = 220) {
   const normalized = (value || "").replace(/\s+/g, " ").trim();
   if (normalized.length <= maxLength) return normalized;
   return `${normalized.slice(0, maxLength - 3).trim()}...`;
+}
+
+function getNewsSourceRank(item: any) {
+  const source = String(item.source || "");
+  if (/FXStreet|Investing|Federal Reserve|Fed Speeches|EIA/i.test(source)) return 0;
+  if (source.startsWith("TradingView")) return 2;
+  return 1;
+}
+
+function sortNewsForDisplay(items: any[]) {
+  return [...items].sort((a, b) => {
+    const rankDiff = getNewsSourceRank(a) - getNewsSourceRank(b);
+    if (rankDiff !== 0) return rankDiff;
+    return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+  });
 }
 
 function deriveAffectedAssets(item: any) {
@@ -541,7 +575,16 @@ async function fetchTradingViewNewsFlow() {
   const mapped = items
     .filter((item: any) => item?.title && (item?.storyPath || item?.link))
     .slice(0, 50)
-    .map(mapTradingViewNewsItem);
+    .map(mapTradingViewNewsItem)
+    .filter(
+      (item: any) =>
+        item.affectedAssets.length > 0 ||
+        item.impact !== "Low" ||
+        item.tags.some((tag: string) =>
+          /FED|FOMC|ECB|BOJ|BOE|CPI|PCE|PMI|GDP|NFP|PAYROLL|DXY|GOLD|XAU|OIL/i.test(tag),
+        ),
+    )
+    .slice(0, 25);
 
   tradingViewCache = {
     data: mapped,
@@ -855,6 +898,7 @@ export default async function handler(req: any, res: any) {
 
   const freshDbCache = await readFreshNewsFromDb(now);
   if (freshDbCache && freshDbCache.data.length > 0) {
+    const data = await fillNewsFromDb(freshDbCache.data);
     return res.status(200).json({
       success: true,
       source: "supabase_cached",
@@ -862,19 +906,21 @@ export default async function handler(req: any, res: any) {
       nextRefreshSeconds: Math.ceil(
         (NEWS_CACHE_TTL_MS - (now - freshDbCache.timestamp)) / 1000,
       ),
-      data: freshDbCache.data,
+      hasMore: data.length >= MIN_VISIBLE_NEWS_ITEMS,
+      data,
       debug: {
         ...lastNewsDebug,
         source: "supabase_cached",
         dbFreshHit: true,
-        dbReadCount: freshDbCache.count,
-        translatedCount: freshDbCache.data.filter((item: any) => item.translatedAt).length,
-        untranslatedCount: freshDbCache.data.filter((item: any) => !item.translatedAt).length,
+        dbReadCount: data.length,
+        translatedCount: data.filter((item: any) => item.translatedAt).length,
+        untranslatedCount: data.filter((item: any) => !item.translatedAt).length,
       },
     });
   }
 
   if (newsCache && now - newsCache.timestamp < NEWS_CACHE_TTL_MS) {
+    const data = await fillNewsFromDb(newsCache.data);
     return res.status(200).json({
       success: true,
       source: "rss_cached",
@@ -882,12 +928,13 @@ export default async function handler(req: any, res: any) {
       nextRefreshSeconds: Math.ceil(
         (NEWS_CACHE_TTL_MS - (now - newsCache.timestamp)) / 1000,
       ),
-      data: newsCache.data,
+      hasMore: data.length >= MIN_VISIBLE_NEWS_ITEMS,
+      data,
       debug: {
         ...lastNewsDebug,
         source: "rss_cached",
-        translatedCount: newsCache.data.filter((item: any) => item.translatedAt).length,
-        untranslatedCount: newsCache.data.filter((item: any) => !item.translatedAt).length,
+        translatedCount: data.filter((item: any) => item.translatedAt).length,
+        untranslatedCount: data.filter((item: any) => !item.translatedAt).length,
       },
     });
   }
@@ -922,7 +969,7 @@ export default async function handler(req: any, res: any) {
       ? { ...item, ...cached }
       : item;
   });
-  const displayItems = await enrichNewsForVietnameseDisplay(mergedItems);
+  const displayItems = sortNewsForDisplay(await enrichNewsForVietnameseDisplay(mergedItems));
   const fetchedAt = new Date(now).toISOString();
 
   if (displayItems.length > 0) {
@@ -932,6 +979,8 @@ export default async function handler(req: any, res: any) {
     };
     await upsertNewsToDb(displayItems, fetchedAt);
   }
+
+  const responseItems = await fillNewsFromDb(displayItems.length > 0 ? displayItems : newsCache?.data || []);
 
   return res.status(200).json({
     success: true,
@@ -949,7 +998,8 @@ export default async function handler(req: any, res: any) {
       )
       .filter(Boolean),
     nextRefreshSeconds: NEWS_CACHE_TTL_MS / 1000,
-    data: displayItems.length > 0 ? displayItems : newsCache?.data || [],
+    hasMore: responseItems.length >= MIN_VISIBLE_NEWS_ITEMS,
+    data: responseItems,
     debug: {
       ...lastNewsDebug,
       source: "rss_live",

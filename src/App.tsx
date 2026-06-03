@@ -533,7 +533,7 @@ export default function App() {
       const json = await res.json();
       if (json && json.success) {
         setNewsItems(json.data);
-        setNewsHasMore(json.hasMore ?? json.data.length >= 60);
+        setNewsHasMore(json.hasMore ?? json.data.length > 0);
         setNewsLastUpdatedAt(json.fetchedAt || new Date().toISOString());
         setNewsDebug(json.debug || null);
       }
@@ -551,7 +551,7 @@ export default function App() {
   };
 
   const loadOlderNews = async () => {
-    if (loadingOlderNews || !newsHasMore) return;
+    if (loadingOlderNews) return;
 
     setLoadingOlderNews(true);
     try {
@@ -575,7 +575,7 @@ export default function App() {
 
           return [...current, ...olderItems];
         });
-        setNewsHasMore(Boolean(json.hasMore));
+        setNewsHasMore(Boolean(json.hasMore || (json.data || []).length > 0));
         setNewsDebug(json.debug || null);
       }
     } catch (e) {
