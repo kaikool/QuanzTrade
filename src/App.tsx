@@ -48,45 +48,6 @@ const BentoStats = lazy(() =>
   })),
 );
 
-const NEWS_ASSET_FILTER_KEY = "trade_app_news_asset_filters";
-const newsAssetFilterOptions = [
-  "USD",
-  "DXY",
-  "EUR",
-  "GBP",
-  "JPY",
-  "AUD",
-  "NZD",
-  "CAD",
-  "CHF",
-  "XAU",
-  "XAG",
-  "OIL",
-  "BTC",
-  "ETH",
-  "US500",
-  "NAS100",
-  "EURUSD",
-  "GBPUSD",
-  "USDJPY",
-  "AUDUSD",
-  "USDCAD",
-];
-
-function readSavedNewsAssetFilters() {
-  try {
-    const saved = localStorage.getItem(NEWS_ASSET_FILTER_KEY);
-    const parsed = saved ? JSON.parse(saved) : [];
-    return Array.isArray(parsed)
-      ? parsed
-          .map((asset) => String(asset).toUpperCase().replace(/[^A-Z0-9]/g, ""))
-          .filter((asset) => newsAssetFilterOptions.includes(asset))
-      : [];
-  } catch {
-    return [];
-  }
-}
-
 export default function App() {
   // App core state
   const [trades, setTrades] = useState<Trade[]>([]);
@@ -98,9 +59,6 @@ export default function App() {
   const [refreshingNews, setRefreshingNews] = useState(false);
   const [loadingOlderNews, setLoadingOlderNews] = useState(false);
   const [newsHasMore, setNewsHasMore] = useState(true);
-  const [newsAssetFilters, setNewsAssetFilters] = useState<string[]>(
-    readSavedNewsAssetFilters,
-  );
   const [newsLastUpdatedAt, setNewsLastUpdatedAt] = useState<string | null>(
     null,
   );
@@ -420,10 +378,10 @@ export default function App() {
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
-      loadNewsData(false, newsAssetFilters);
+      loadNewsData(false);
     }, 2 * 60 * 1000);
     return () => window.clearInterval(intervalId);
-  }, [newsAssetFilters]);
+  }, []);
 
   // Update body and html dark class & persist choice
   useEffect(() => {
@@ -568,23 +526,10 @@ export default function App() {
     setTimeout(() => setRefreshingCalendar(false), 800);
   };
 
-  const buildNewsParams = (assetFilters: string[]) => {
-    const params = new URLSearchParams();
-    if (assetFilters.length > 0) {
-      params.set("assets", assetFilters.join(","));
-    }
-    return params;
-  };
-
-  const loadNewsData = async (
-    showLoading = true,
-    assetFilters = newsAssetFilters,
-  ) => {
+  const loadNewsData = async (showLoading = true) => {
     if (showLoading) setLoadingNews(true);
     try {
-      const params = buildNewsParams(assetFilters);
-      const query = params.toString();
-      const res = await fetch(`/api/news${query ? `?${query}` : ""}`, {
+      const res = await fetch("/api/news", {
         cache: "no-store",
       });
       const json = await res.json();
@@ -603,15 +548,8 @@ export default function App() {
 
   const syncNews = async () => {
     setRefreshingNews(true);
-    await loadNewsData(false, newsAssetFilters);
+    await loadNewsData(false);
     setTimeout(() => setRefreshingNews(false), 800);
-  };
-
-  const handleNewsAssetFiltersChange = async (assets: string[]) => {
-    setNewsAssetFilters(assets);
-    setNewsItems([]);
-    setNewsHasMore(true);
-    await loadNewsData(true, assets);
   };
 
   const loadOlderNews = async () => {
@@ -624,9 +562,6 @@ export default function App() {
         offset: String(newsItems.length),
         limit: "60",
       });
-      if (newsAssetFilters.length > 0) {
-        params.set("assets", newsAssetFilters.join(","));
-      }
       const res = await fetch(`/api/news?${params.toString()}`, {
         cache: "no-store",
       });
@@ -1963,8 +1898,6 @@ export default function App() {
             refreshing={refreshingNews}
             onRefresh={syncNews}
             onLoadOlder={loadOlderNews}
-            selectedAssets={newsAssetFilters}
-            onAssetFiltersChange={handleNewsAssetFiltersChange}
             loadingOlder={loadingOlderNews}
             hasMore={newsHasMore}
             darkMode={darkMode}
