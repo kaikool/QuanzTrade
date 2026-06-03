@@ -1,4 +1,4 @@
-const CACHE_NAME = "trade-journal-v2";
+const CACHE_NAME = "trade-journal-v3";
 const ASSETS = [
   "/",
   "/index.html",
@@ -36,6 +36,19 @@ self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET" || e.request.url.includes("/api/")) {
     return;
   }
+
+  const url = new URL(e.request.url);
+  if (
+    e.request.mode === "navigate" ||
+    url.pathname === "/" ||
+    url.pathname.endsWith(".html") ||
+    url.pathname.endsWith(".js") ||
+    url.pathname.endsWith(".css")
+  ) {
+    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+    return;
+  }
+
   e.respondWith(
     fetch(e.request)
       .then((networkResponse) => {
