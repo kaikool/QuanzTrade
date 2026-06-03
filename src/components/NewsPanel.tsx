@@ -8,6 +8,8 @@ interface NewsPanelProps {
   refreshing: boolean;
   onRefresh: () => void;
   onLoadOlder: () => void;
+  selectedAssets: string[];
+  onAssetFiltersChange: (assets: string[]) => void;
   loadingOlder: boolean;
   hasMore: boolean;
   darkMode: boolean;
@@ -93,25 +95,64 @@ function normalizeSearchText(value: string) {
   return value.toUpperCase().replace(/[^A-Z0-9]/g, "");
 }
 
+function getAllowedAssetUniverse(selectedAssets: string[]) {
+  const selected = new Set(selectedAssets.map(normalizeSearchText));
+  const currencies = [
+    "USD",
+    "EUR",
+    "GBP",
+    "JPY",
+    "AUD",
+    "NZD",
+    "CAD",
+    "CHF",
+    "CNH",
+    "CNY",
+  ];
+  const allowed = new Set(selected);
+
+  selectedAssets.map(normalizeSearchText).forEach((asset) => {
+    if (
+      /^[A-Z]{6}$/.test(asset) &&
+      currencies.includes(asset.slice(0, 3)) &&
+      currencies.includes(asset.slice(3, 6))
+    ) {
+      allowed.add(asset.slice(0, 3));
+      allowed.add(asset.slice(3, 6));
+    }
+    if (asset === "XAUUSD") {
+      allowed.add("XAU");
+      allowed.add("USD");
+    }
+    if (asset === "XAGUSD") {
+      allowed.add("XAG");
+      allowed.add("USD");
+    }
+  });
+
+  currencies.forEach((base) => {
+    currencies.forEach((quote) => {
+      if (base !== quote && selected.has(base) && selected.has(quote)) {
+        allowed.add(`${base}${quote}`);
+      }
+    });
+  });
+
+  if (selected.has("USD")) allowed.add("DXY");
+  if (selected.has("XAU") && selected.has("USD")) allowed.add("XAUUSD");
+  if (selected.has("XAG") && selected.has("USD")) allowed.add("XAGUSD");
+
+  return allowed;
+}
+
 function newsMatchesAssetFilter(item: NewsItem, selectedAssets: string[]) {
   if (selectedAssets.length === 0) return true;
 
   const affectedAssets = item.affectedAssets.map(normalizeSearchText);
+  if (affectedAssets.length === 0) return false;
 
-  return selectedAssets.some((selectedAsset) => {
-    if (affectedAssets.includes(selectedAsset)) return true;
-    if (selectedAsset === "XAU") return affectedAssets.includes("GOLD");
-    if (selectedAsset === "XAG") return affectedAssets.includes("SILVER");
-    if (selectedAsset === "OIL") {
-      return affectedAssets.some((asset) =>
-        ["WTI", "BRENT", "CRUDE"].includes(asset),
-      );
-    }
-
-    return selectedAsset.length === 6
-      ? affectedAssets.some((asset) => asset === selectedAsset)
-      : false;
-  });
+  const allowed = getAllowedAssetUniverse(selectedAssets);
+  return affectedAssets.every((asset) => allowed.has(asset));
 }
 
 function formatRelativeTime(value: string) {
@@ -149,14 +190,13 @@ export function NewsPanel({
   refreshing,
   onRefresh,
   onLoadOlder,
+  selectedAssets,
+  onAssetFiltersChange,
   loadingOlder,
   hasMore,
   darkMode,
   lastUpdatedAt,
 }: NewsPanelProps) {
-  const [selectedAssets, setSelectedAssets] = useState<string[]>(
-    readSavedAssetFilters,
-  );
   const [draftAssets, setDraftAssets] = useState<string[]>(selectedAssets);
   const [assetFilterOpen, setAssetFilterOpen] = useState(false);
 
@@ -182,16 +222,16 @@ export function NewsPanel({
     const normalized = assetFilterOptions.filter((asset) =>
       draftAssets.includes(asset),
     );
-    setSelectedAssets(normalized);
     saveAssetFilters(normalized);
     setAssetFilterOpen(false);
+    onAssetFiltersChange(normalized);
   };
 
   const clearAssetFilter = () => {
     setDraftAssets([]);
-    setSelectedAssets([]);
     saveAssetFilters([]);
     setAssetFilterOpen(false);
+    onAssetFiltersChange([]);
   };
 
   return (
@@ -209,7 +249,7 @@ export function NewsPanel({
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {lastUpdatedAt && (
               <span className="m3-body-small text-m3-on-surface-variant font-mono">
                 {new Date(lastUpdatedAt).toLocaleTimeString("vi-VN", {
@@ -364,6 +404,24 @@ export function NewsPanel({
                 </>
               )}
             </div>
+            {newsItems.length > 0 && (
+              <button
+                type="button"
+                onClick={onLoadOlder}
+                disabled={loadingOlder}
+                className="px-3 py-2 rounded-full border border-m3-outline-variant bg-m3-surface-container-lowest text-m3-primary m3-label-medium flex items-center gap-1.5 m3-state-layer disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Xem tin cũ hơn"
+              >
+                <RefreshCw
+                  size={14}
+                  className={loadingOlder ? "animate-spin" : ""}
+                />
+                <span className="sm:hidden">Cũ hơn</span>
+                <span className="hidden sm:inline">
+                  {hasMore ? "Xem tin cũ hơn" : "Thử tải thêm tin cũ"}
+                </span>
+              </button>
+            )}
             <button
               onClick={onRefresh}
               className="px-3 py-2 rounded-full bg-m3-primary text-m3-on-primary m3-label-medium flex items-center gap-1.5 m3-state-layer"
@@ -377,6 +435,25 @@ export function NewsPanel({
             </button>
           </div>
         </div>
+
+        {selectedAssets.length > 0 && (
+          <div className="mb-4 flex flex-wrap items-center gap-2 rounded-[16px] border border-m3-primary/30 bg-m3-primary-container/40 px-3 py-2">
+            <span className="m3-label-medium text-m3-on-primary-container">
+              Filter:
+            </span>
+            {selectedAssets.map((asset) => (
+              <span
+                key={asset}
+                className="px-2 py-0.5 rounded-full bg-m3-primary text-m3-on-primary m3-label-small font-mono"
+              >
+                {asset}
+              </span>
+            ))}
+            <span className="m3-label-small text-m3-on-surface-variant">
+              {filteredNewsItems.length}/{newsItems.length} tin
+            </span>
+          </div>
+        )}
 
         {loading ? (
           <div className="space-y-3">

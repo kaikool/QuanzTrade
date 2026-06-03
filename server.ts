@@ -92,15 +92,82 @@ async function startServer() {
     return Math.min(parsed, max);
   }
 
-  async function readNewsHistoryFromDb(offset: number, limit: number) {
+  function parseAssetQuery(value: any) {
+    const raw = Array.isArray(value) ? value.join(",") : String(value || "");
+    return Array.from(
+      new Set(
+        raw
+          .split(",")
+          .map((asset) => String(asset).toUpperCase().replace(/[^A-Z0-9]/g, ""))
+          .filter(Boolean),
+      ),
+    );
+  }
+
+  function getAllowedAssetUniverse(selectedAssets: string[]) {
+    const selected = new Set(selectedAssets);
+    const currencies = ["USD", "EUR", "GBP", "JPY", "AUD", "NZD", "CAD", "CHF", "CNH", "CNY"];
+    const allowed = new Set(selected);
+
+    selectedAssets.forEach((asset) => {
+      if (
+        /^[A-Z]{6}$/.test(asset) &&
+        currencies.includes(asset.slice(0, 3)) &&
+        currencies.includes(asset.slice(3, 6))
+      ) {
+        allowed.add(asset.slice(0, 3));
+        allowed.add(asset.slice(3, 6));
+      }
+      if (asset === "XAUUSD") {
+        allowed.add("XAU");
+        allowed.add("USD");
+      }
+      if (asset === "XAGUSD") {
+        allowed.add("XAG");
+        allowed.add("USD");
+      }
+    });
+
+    currencies.forEach((base) => {
+      currencies.forEach((quote) => {
+        if (base !== quote && selected.has(base) && selected.has(quote)) {
+          allowed.add(`${base}${quote}`);
+        }
+      });
+    });
+
+    if (selected.has("USD")) allowed.add("DXY");
+    if (selected.has("XAU") && selected.has("USD")) allowed.add("XAUUSD");
+    if (selected.has("XAG") && selected.has("USD")) allowed.add("XAGUSD");
+
+    return allowed;
+  }
+
+  function newsMatchesAssetUniverse(item: any, selectedAssets: string[]) {
+    if (selectedAssets.length === 0) return true;
+
+    const affectedAssets = normalizeAffectedAssets(item.affectedAssets || deriveAffectedAssets(item));
+    if (affectedAssets.length === 0) return false;
+
+    const allowed = getAllowedAssetUniverse(selectedAssets);
+    return affectedAssets.every((asset) => allowed.has(asset));
+  }
+
+  function filterNewsByAssets(items: any[], selectedAssets: string[]) {
+    return selectedAssets.length === 0
+      ? items
+      : items.filter((item) => newsMatchesAssetUniverse(item, selectedAssets));
+  }
+
+  async function readNewsHistoryFromDb(offset: number, limit: number, selectedAssets: string[] = []) {
     const supabase = getServerSupabaseClient();
     if (!supabase) {
       return { data: [], count: 0, hasMore: false };
     }
 
     try {
-      const from = offset;
-      const to = offset + limit - 1;
+      const from = 0;
+      const to = selectedAssets.length > 0 ? Math.max(499, offset + limit * 4 - 1) : offset + limit - 1;
       const { data, error, count } = await supabase
         .from(NEWS_TABLE)
         .select("data", { count: "exact" })
@@ -112,11 +179,17 @@ async function startServer() {
       const rows = (data || [])
         .map((row: any) => row.data)
         .filter(Boolean);
+      const filteredRows = filterNewsByAssets(sortNewsForDisplay(rows), selectedAssets);
+      const pagedRows = selectedAssets.length > 0
+        ? filteredRows.slice(offset, offset + limit)
+        : filteredRows;
 
       return {
-        data: sortNewsForDisplay(rows),
-        count: count || rows.length,
-        hasMore: typeof count === "number" ? offset + rows.length < count : rows.length === limit,
+        data: pagedRows,
+        count: selectedAssets.length > 0 ? filteredRows.length : count || rows.length,
+        hasMore: selectedAssets.length > 0
+          ? offset + pagedRows.length < filteredRows.length
+          : typeof count === "number" ? offset + rows.length < count : rows.length === limit,
       };
     } catch (error: any) {
       console.warn("Supabase news history read failed:", error.message);
@@ -125,10 +198,10 @@ async function startServer() {
     }
   }
 
-  async function fillNewsFromDb(items: any[], minimum = MIN_VISIBLE_NEWS_ITEMS) {
+  async function fillNewsFromDb(items: any[], minimum = MIN_VISIBLE_NEWS_ITEMS, selectedAssets: string[] = []) {
     if (items.length >= minimum) return items;
 
-    const history = await readNewsHistoryFromDb(0, Math.max(DEFAULT_NEWS_LIMIT, minimum));
+    const history = await readNewsHistoryFromDb(0, Math.max(DEFAULT_NEWS_LIMIT, minimum), selectedAssets);
     if (history.data.length === 0) return items;
 
     const seen = new Set(items.map((item) => item.id || item.link || item.title));
@@ -443,9 +516,16 @@ async function startServer() {
     });
 
     if (item.category === "Energy") assets.add("OIL");
-    if (/\bFED\b|\bFOMC\b|\bPOWELL\b|\bTREASURY\b|\bDOLLAR\b|\bUSD\b|\bUS\b/.test(text)) {
+    if (/\bFED\b|\bFOMC\b|\bPOWELL\b|\bTREASURY\b|\bDOLLAR\b|\bUSD\b/.test(text)) {
       assets.add("USD");
     }
+    if (/\bYEN\b|\bJPY\b|YÊN NHẬT/.test(text)) assets.add("JPY");
+    if (/\bPOUND\b|\bSTERLING\b|\bGBP\b|BẢNG ANH/.test(text)) assets.add("GBP");
+    if (/\bEURO\b|\bEUR\b|ĐỒNG EURO/.test(text)) assets.add("EUR");
+    if (/\bAUSSIE\b|\bAUSTRALIAN DOLLAR\b|\bAUD\b|ĐÔ LA ÚC/.test(text)) assets.add("AUD");
+    if (/\bCANADIAN DOLLAR\b|\bLOONIE\b|\bCAD\b|ĐÔ LA CANADA/.test(text)) assets.add("CAD");
+    if (/\bSWISS FRANC\b|\bFRANC\b|\bCHF\b|FRANC THỤY SĨ/.test(text)) assets.add("CHF");
+    if (/\bYUAN\b|\bRENMINBI\b|\bCNY\b|\bCNH\b|NHÂN DÂN TỆ/.test(text)) assets.add("CNY");
     if (/\bGOLD\b|\bXAU\b|\bXAUUSD\b/.test(text)) assets.add("XAU");
     if (/\bCRUDE\b|\bWTI\b|\bBRENT\b|\bOIL\b/.test(text)) assets.add("OIL");
     if (/\bS&P\b|\bSPX\b|\bUS500\b/.test(text)) assets.add("US500");
@@ -477,6 +557,18 @@ async function startServer() {
       .map((symbol: any) => symbol?.symbol || "")
       .join(" ")}`.toUpperCase();
     const assets = new Set<string>();
+    const currencies = new Set([
+      "USD",
+      "EUR",
+      "GBP",
+      "JPY",
+      "AUD",
+      "NZD",
+      "CAD",
+      "CHF",
+      "CNH",
+      "CNY",
+    ]);
 
     symbols.forEach((symbol: any) => {
       const rawSymbol = String(symbol?.symbol || "").toUpperCase();
@@ -490,13 +582,24 @@ async function startServer() {
       if (/DXY|USDOLLAR/.test(ticker)) assets.add("DXY");
       if (/SPX|SPY|US500|ES1!/.test(ticker)) assets.add("US500");
       if (/NDX|QQQ|NAS100|IXIC|NQ1!/.test(ticker)) assets.add("NAS100");
-      if (/^[A-Z]{6}$/.test(ticker)) {
+      if (
+        /^[A-Z]{6}$/.test(ticker) &&
+        currencies.has(ticker.slice(0, 3)) &&
+        currencies.has(ticker.slice(3, 6))
+      ) {
         assets.add(ticker);
         if (ticker.includes("USD")) assets.add("USD");
       }
     });
 
     if (/\bDOLLAR\b|\bUSD\b|\bFED\b|\bFOMC\b/.test(text)) assets.add("USD");
+    if (/\bYEN\b|\bJPY\b|YÊN NHẬT/.test(text)) assets.add("JPY");
+    if (/\bPOUND\b|\bSTERLING\b|\bGBP\b|BẢNG ANH/.test(text)) assets.add("GBP");
+    if (/\bEURO\b|\bEUR\b|ĐỒNG EURO/.test(text)) assets.add("EUR");
+    if (/\bAUSSIE\b|\bAUSTRALIAN DOLLAR\b|\bAUD\b|ĐÔ LA ÚC/.test(text)) assets.add("AUD");
+    if (/\bCANADIAN DOLLAR\b|\bLOONIE\b|\bCAD\b|ĐÔ LA CANADA/.test(text)) assets.add("CAD");
+    if (/\bSWISS FRANC\b|\bFRANC\b|\bCHF\b|FRANC THỤY SĨ/.test(text)) assets.add("CHF");
+    if (/\bYUAN\b|\bRENMINBI\b|\bCNY\b|\bCNH\b|NHÂN DÂN TỆ/.test(text)) assets.add("CNY");
     if (/\bGOLD\b|\bXAU\b/.test(text)) assets.add("XAU");
     if (/\bOIL\b|\bWTI\b|\bBRENT\b|\bCRUDE\b/.test(text)) assets.add("OIL");
     if (/\bBITCOIN\b|\bBTC\b/.test(text)) assets.add("BTC");
@@ -1082,10 +1185,11 @@ async function startServer() {
 
     const offset = parsePositiveInt(req.query?.offset, 0, 10000);
     const limit = parsePositiveInt(req.query?.limit, DEFAULT_NEWS_LIMIT, MAX_HISTORY_LIMIT);
+    const selectedAssets = parseAssetQuery(req.query?.assets);
     const historyOnly = req.query?.history === "1" || offset > 0;
 
     if (historyOnly) {
-      const history = await readNewsHistoryFromDb(offset, limit);
+      const history = await readNewsHistoryFromDb(offset, limit, selectedAssets);
       return res.json({
         success: true,
         source: "supabase_history",
@@ -1103,7 +1207,11 @@ async function startServer() {
 
     const freshDbCache = await readFreshNewsFromDb(now);
     if (freshDbCache && freshDbCache.data.length > 0) {
-      const data = await fillNewsFromDb(freshDbCache.data);
+      const data = await fillNewsFromDb(
+        filterNewsByAssets(freshDbCache.data, selectedAssets),
+        MIN_VISIBLE_NEWS_ITEMS,
+        selectedAssets,
+      );
       return res.json({
         success: true,
         source: "supabase_cached",
@@ -1125,7 +1233,11 @@ async function startServer() {
     }
 
     if (newsCache && now - newsCache.timestamp < NEWS_CACHE_TTL_MS) {
-      const data = await fillNewsFromDb(newsCache.data);
+      const data = await fillNewsFromDb(
+        filterNewsByAssets(newsCache.data, selectedAssets),
+        MIN_VISIBLE_NEWS_ITEMS,
+        selectedAssets,
+      );
       return res.json({
         success: true,
         source: "rss_cached",
@@ -1185,7 +1297,11 @@ async function startServer() {
       await upsertNewsToDb(displayItems, fetchedAt);
     }
 
-    const responseItems = await fillNewsFromDb(displayItems.length > 0 ? displayItems : newsCache?.data || []);
+    const responseItems = await fillNewsFromDb(
+      filterNewsByAssets(displayItems.length > 0 ? displayItems : newsCache?.data || [], selectedAssets),
+      MIN_VISIBLE_NEWS_ITEMS,
+      selectedAssets,
+    );
 
     return res.json({
       success: true,
