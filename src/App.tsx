@@ -400,6 +400,7 @@ export default function App() {
     setT5Loading(true);
     setT5Error(null);
     try {
+      // Step 1: Load accounts list (lightweight) + purchases
       const [accounts, purchases] = await Promise.all([
         fetchT5Accounts(),
         fetchT5Purchases(),
@@ -407,18 +408,42 @@ export default function App() {
       setT5Accounts(accounts);
       setT5Purchases(purchases);
 
-      // Load trades from selected accounts
+      // Step 2: Load trades for available accounts first, skip disabled
+      const activeIds = accounts
+        .filter(a => a.status === "active" || a.status === "available")
+        .map(a => a.accountId);
+      const selectedIds = new Set(selectedT5AccountIds.length > 0
+        ? selectedT5AccountIds
+        : activeIds);
+
       const allTrades: T5Trade[] = [];
       for (const acc of accounts) {
+        const isActive = acc.status === "active" || acc.status === "available";
+        const isSelected = selectedIds.has(acc.accountId);
+        // Load active + already selected. Skip disabled not-yet-selected.
+        if (!isActive && !isSelected) continue;
         const { trades } = await fetchT5AccountDetail(acc.accountId);
         allTrades.push(...trades);
       }
       setT5Trades(allTrades);
+
+      // Auto-select available accounts if nothing selected yet
+      if (selectedT5AccountIds.length === 0 && activeIds.length > 0) {
+        setSelectedT5AccountIds(activeIds);
+        localStorage.setItem("t5_selected_accounts", JSON.stringify(activeIds));
+      }
     } catch (err: any) {
       setT5Error(err.message || "Lỗi tải dữ liệu The5ers");
     } finally {
       setT5Loading(false);
     }
+  }
+
+  // Load trades for a single account (called when user selects a disabled account)
+  async function loadT5AccountTrades(accountId: string) {
+    if (t5Trades.some(t => t.accountId === accountId)) return; // already loaded
+    const { trades } = await fetchT5AccountDetail(accountId);
+    setT5Trades(prev => [...prev, ...trades]);
   }
 
   // Map T5 trade to manual Trade format for unified display
@@ -2484,6 +2509,7 @@ export default function App() {
                                   : [...selectedT5AccountIds, acc.accountId];
                                 setSelectedT5AccountIds(next);
                                 localStorage.setItem("t5_selected_accounts", JSON.stringify(next));
+                                if (!checked && !isActive) loadT5AccountTrades(acc.accountId);
                               }}
                               className="w-4 h-4 accent-m3-primary rounded" />
                             <span className="text-xs font-semibold text-m3-on-surface flex-1 min-w-0 truncate">{acc.name}</span>
