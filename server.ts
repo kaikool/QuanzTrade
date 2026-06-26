@@ -1352,6 +1352,36 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
+    // ─── The5ers: trigger GitHub Actions scrape ──────────────────────────────────
+    app.post("/api/trigger-scrape", async (req, res) => {
+      const token = process.env.GITHUB_PAT;
+      if (!token) {
+        return res.status(500).json({ success: false, message: "GITHUB_PAT not configured" });
+      }
+      try {
+        const response = await fetch(
+          "https://api.github.com/repos/kaikool/QuanzTrade/actions/workflows/scrape-the5ers.yml/dispatches",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+              "User-Agent": "QuanzTrade-server",
+            },
+            body: JSON.stringify({ ref: "main" }),
+          }
+        );
+        if (response.status === 204) {
+          res.json({ success: true, message: "Triggered GitHub Actions scrape" });
+        } else {
+          const text = await response.text();
+          res.status(response.status).json({ success: false, message: text });
+        }
+      } catch (err: any) {
+        res.status(500).json({ success: false, message: err.message });
+      }
+    });
+
     app.get("*", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
     });

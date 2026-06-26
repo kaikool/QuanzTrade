@@ -11,6 +11,10 @@
       "destination": "/api/news"
     },
     {
+      "source": "/api/trigger-scrape",
+      "destination": "/api/trigger-scrape"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

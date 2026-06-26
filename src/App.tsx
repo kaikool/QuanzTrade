@@ -2533,7 +2533,19 @@ export default function App() {
                     </button>
                     <button onClick={loadT5Data} disabled={t5Loading}
                       className="flex-1 py-2 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 font-bold rounded-xl text-xs border transition-colors cursor-pointer disabled:opacity-50">
-                      {t5Loading ? "..." : "Đồng bộ"}
+                      {t5Loading ? "Đang tải..." : "🔄 Đồng bộ"}
+                    </button>
+                    <button onClick={async () => {
+                      try {
+                        const res = await fetch("/api/trigger-scrape", { method: "POST" });
+                        const json = await res.json();
+                        alert(json.message || "Đã kích hoạt scraper trên GitHub!");
+                      } catch (e: any) {
+                        alert("Lỗi: " + e.message);
+                      }
+                    }}
+                      className="flex-1 py-2 bg-m3-primary text-white font-bold rounded-xl text-xs transition-colors cursor-pointer">
+                      🚀 Chạy scraper
                     </button>
                   </div>
                 </div>
