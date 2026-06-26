@@ -3,16 +3,8 @@
   "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/api/calendar",
-      "destination": "/api/calendar"
-    },
-    {
-      "source": "/api/news",
-      "destination": "/api/news"
-    },
-    {
-      "source": "/api/the5ers/sync",
-      "destination": "/api/the5ers/sync"
+      "source": "/api/(.*)",
+      "destination": "/api"
     },
     {
       "source": "/(.*)",
