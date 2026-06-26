@@ -1352,32 +1352,151 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
-    // ─── The5ers: trigger GitHub Actions scrape ──────────────────────────────────
-    app.post("/api/trigger-scrape", async (req, res) => {
-      const token = process.env.GITHUB_PAT;
-      if (!token) {
-        return res.status(500).json({ success: false, message: "GITHUB_PAT not configured" });
+    // ─── The5ers: browser proxy sync (DPoP-safe) ──────────────────────────────────
+    // Browser sends a fresh Bearer token (15-min window), server proxies to The5ers
+    // API and writes results to Supabase using service_role_key.
+    app.post("/api/the5ers/sync", async (req, res) => {
+      const bearer = req.body?.token || "";
+      if (!bearer) {
+        return res.status(400).json({ success: false, message: "Missing token" });
       }
+
+      const supabase = getServerSupabaseClient();
+      const authHeader = bearer.startsWith("Bearer ") ? bearer : `Bearer ${bearer}`;
+      const baseUrl = "https://api.the5ers.com";
+
+      async function t5Fetch(path: string) {
+        const r = await fetch(`${baseUrl}${path}`, {
+          headers: {
+            authorization: authHeader,
+            accept: "application/json, text/plain, */*",
+            "user-agent": "Mozilla/5.0 TradeNews Sync",
+            "x-brand": "5ers",
+            "x-idp-provider": "descope",
+            origin: "https://hub.the5ers.com",
+            referer: "https://hub.the5ers.com/",
+          },
+        });
+        if (!r.ok) throw new Error(`T5 ${path}: ${r.status} ${r.statusText}`);
+        return r.json();
+      }
+
       try {
-        const response = await fetch(
-          "https://api.github.com/repos/kaikool/QuanzTrade/actions/workflows/scrape-the5ers.yml/dispatches",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-              "User-Agent": "QuanzTrade-server",
-            },
-            body: JSON.stringify({ ref: "main" }),
+        // 1. Get user profile + account list
+        const user = await t5Fetch("/user");
+        const accounts: any[] = user.tsUsers || [];
+        const userInfo = { userName: `${user.firstName || ""} ${user.lastName || ""}`.trim(), scrapedAt: new Date().toISOString() };
+
+        // 2. Fetch detail for every account in parallel
+        const accountPromises = accounts.map(async (acc: any) => {
+          const accId = acc.externalId;
+          let balanceData = { balance: 0, equity: 0 };
+          let statsData: any = { totalNetProfit: 0 };
+          let tsData: any = {};
+          let positions: any[] = [];
+
+          await Promise.allSettled([
+            t5Fetch(`/account/ts/${accId}`).then(d => tsData = d).catch(() => {}),
+            t5Fetch(`/account/${accId}/balance`).then(d => balanceData = d).catch(() => {}),
+            t5Fetch(`/account/${accId}/stats`).then(d => statsData = d).catch(() => {}),
+            t5Fetch(`/position/all/${accId}?page=1&limit=50`).then(d => {
+              positions = Array.isArray(d) ? d : (d.results || d.data || d.positions || []);
+            }).catch(() => {}),
+          ]);
+
+          const finalType = tsData.type || acc.accountType || "unknown";
+          const finalStatus = tsData.status || "unknown";
+
+          const overview = {
+            accountId: accId,
+            name: `${finalType.toUpperCase()} ${accId}`,
+            balance: balanceData.balance || 0,
+            equity: balanceData.equity || 0,
+            pnl: statsData.totalNetProfit || 0,
+            status: finalStatus,
+            type: finalType,
+          };
+
+          return { overview, stats: { ...statsData, balanceDetails: balanceData, accountState: tsData }, accountId: accId, positions };
+        });
+
+        const accountResults = await Promise.all(accountPromises);
+
+        // 3. Write to Supabase (batch)
+        let syncedAccounts = 0;
+        let syncedTrades = 0;
+
+        if (supabase) {
+          for (const result of accountResults) {
+            const { overview, stats, accountId, positions } = result;
+
+            const { error: accErr } = await supabase.from("t5_accounts").upsert({
+              account_id: accountId,
+              name: overview.name,
+              type: overview.type,
+              balance: overview.balance,
+              equity: overview.equity,
+              pnl: overview.pnl,
+              status: overview.status,
+              stats,
+              updated_at: new Date().toISOString(),
+            }, { onConflict: "account_id" });
+            if (accErr) console.error("[sync] upsert account error:", accErr.message);
+            else syncedAccounts++;
+
+            if (positions.length > 0) {
+              const tradeRows = positions.map((t: any) => ({
+                trade_id: String(t.id || t._id),
+                account_id: accountId,
+                symbol: t.symbol || "Unknown",
+                side: t.side || "Unknown",
+                quantity: parseFloat(t.quantity) || 0,
+                entry_price: parseFloat(t.entry) || 0,
+                exit_price: t.exit ? parseFloat(t.exit) : null,
+                pips: t.pips ? parseFloat(t.pips) : null,
+                profit: parseFloat(t.profitAndLoss) || 0,
+                open_date: t.openDate || new Date().toISOString(),
+                close_date: t.closeDate || null,
+              }));
+              const { error: trErr } = await supabase.from("t5_trades").upsert(tradeRows, { onConflict: "trade_id" });
+              if (trErr) console.error("[sync] upsert trades error:", trErr.message);
+              else syncedTrades += tradeRows.length;
+            }
           }
-        );
-        if (response.status === 204) {
-          res.json({ success: true, message: "Triggered GitHub Actions scrape" });
-        } else {
-          const text = await response.text();
-          res.status(response.status).json({ success: false, message: text });
+
+          // Purchases
+          try {
+            let allPurchases: any[] = [];
+            for (let page = 1; page <= 5; page++) {
+              const purchaseData: any = await t5Fetch(`/purchase?page=${page}&limit=50`);
+              const results = purchaseData?.results || [];
+              allPurchases.push(...results);
+              if (results.length < 50) break;
+            }
+            if (allPurchases.length > 0) {
+              const purchaseRows = allPurchases.map((p: any) => ({
+                purchase_id: p.purchaseId,
+                product_name: p.items?.[0]?.metadata?.productName || "N/A",
+                buying_power: p.items?.[0]?.metadata?.buyingPower || 0,
+                price: p.paymentData?.convertedPrice || 0,
+                currency: p.paymentData?.currency || "USD",
+                status: p.status || "unknown",
+                created_at: p.createdAt || new Date().toISOString(),
+              }));
+              await supabase.from("t5_purchases").upsert(purchaseRows, { onConflict: "purchase_id" });
+            }
+          } catch (e: any) {
+            console.error("[sync] purchases error:", e.message);
+          }
         }
+
+        res.json({
+          success: true,
+          message: `Synced ${syncedAccounts} accounts, ${syncedTrades} trades`,
+          data: { user: userInfo, accounts: accountResults.map(r => r.overview) },
+        });
       } catch (err: any) {
+        console.error("[sync] error:", err.message);
         res.status(500).json({ success: false, message: err.message });
       }
     });

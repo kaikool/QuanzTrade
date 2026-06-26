@@ -1,4 +1,5 @@
 import React, { Suspense, lazy, useState, useEffect, useMemo } from "react";
+import { useDescope, useSession } from "@descope/react-sdk";
 import {
   Plus,
   Settings,
@@ -146,6 +147,50 @@ export default function App() {
     return [];
   });
 
+  // ─── The5ers Sync (Descope SDK login → DPoP-safe) ────────────────────────────
+  const { signInWithSocial } = useDescope();
+  const { sessionToken } = useSession();
+  const [t5Syncing, setT5Syncing] = useState(false);
+  const [t5SyncResult, setT5SyncResult] = useState<string | null>(null);
+
+  async function syncT5Data() {
+    const token = sessionToken;
+    if (!token) { setT5SyncResult("Cần đăng nhập The5ers trước"); return; }
+    setT5Syncing(true);
+    setT5SyncResult(null);
+    try {
+      const res = await fetch("/api/the5ers/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setT5SyncResult(`✅ ${json.message}`);
+        loadT5Data();
+      } else {
+        setT5SyncResult(`❌ ${json.message}`);
+      }
+    } catch (e: any) {
+      setT5SyncResult(`❌ ${e.message}`);
+    } finally {
+      setT5Syncing(false);
+    }
+  }
+
+  async function loginThe5ers() {
+    try {
+      await signInWithSocial("google", { mode: "popup" });
+      // After popup login, sessionToken should be available
+      setTimeout(() => {
+        if (sessionToken) syncT5Data();
+        else setT5SyncResult("❌ Đăng nhập thành công nhưng không lấy được token");
+      }, 1000);
+    } catch (e: any) {
+      setT5SyncResult(`❌ Đăng nhập thất bại: ${e.message}`);
+    }
+  }
+
   // Robust Helpers to split/merge separate Date and Time inputs
   const getEntryDatePart = () => {
     if (!formEntryDate) return "";
@@ -261,10 +306,12 @@ export default function App() {
           "🔔 Đã Bật Thông Báo!",
           "Bạn sẽ nhận được cảnh báo trước 1 tiếng cho các tin đỏ tác động cao tới USD!",
         );
+        notifySW();
         return true;
       } else {
         setNotificationsEnabled(false);
         localStorage.setItem("pwa_notifications_enabled", "false");
+        notifySW();
         return false;
       }
     } catch (e) {
@@ -277,10 +324,22 @@ export default function App() {
     if (notificationsEnabled) {
       setNotificationsEnabled(false);
       localStorage.setItem("pwa_notifications_enabled", "false");
+      notifySW();
     } else {
       await requestNotificationPermission();
     }
   };
+
+  // Tell service worker about notification state
+  function notifySW() {
+    if (navigator.serviceWorker?.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: "SET_NOTIFICATION_STATE",
+        enabled: localStorage.getItem("pwa_notifications_enabled") === "true",
+        notifiedIds: notifiedEvents,
+      });
+    }
+  }
 
   // Triggers local notification safely using service worker or falling back to window notification context
   const showLocalNotification = (title: string, body: string) => {
@@ -490,13 +549,32 @@ export default function App() {
     const now = new Date();
     setFormEntryDate(now.toISOString().slice(0, 16));
     setFormExitDate(now.toISOString().slice(0, 16));
+
+    // Sync notification state to SW on mount
+    setTimeout(notifySW, 1500);
+    if (navigator.serviceWorker) {
+      navigator.serviceWorker.addEventListener("message", (ev) => {
+        if (ev.data?.type === "NOTIFIED_EVENTS_STATE" && Array.isArray(ev.data.notifiedIds)) {
+          setNotifiedEvents(ev.data.notifiedIds);
+          localStorage.setItem("pwa_notified_events", JSON.stringify(ev.data.notifiedIds));
+        }
+      });
+    }
   }, []);
 
-  // Auto-refresh The5ers data every 5 minutes
+  // Auto-refresh The5ers data every 5 minutes (reads Supabase)
   useEffect(() => {
     const id = setInterval(() => { loadT5Data(); }, 300000);
     return () => clearInterval(id);
   }, []);
+
+  // Auto-sync The5ers data via Descope SDK (DPoP-safe, 10 min interval)
+  useEffect(() => {
+    if (!sessionToken) return;
+    syncT5Data();
+    const id = setInterval(() => { syncT5Data(); }, 600000);
+    return () => clearInterval(id);
+  }, [sessionToken]);
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -1424,7 +1502,7 @@ export default function App() {
                 />
               </div>
 
-              {/* Desktop Trades Table - Hidden on Mobile */}
+              {/* Desktop Trades Table - Compact Redesign */}
               <div
                 className="hidden md:block overflow-x-auto"
                 id="trades-table-scroller"
@@ -1444,190 +1522,118 @@ export default function App() {
                     </p>
                   </div>
                 ) : (
-                  <table className="w-full text-left border-collapse min-w-[700px]">
+                  <table className="w-full text-left border-collapse min-w-[650px]">
                     <thead>
                       <tr className="border-b border-m3-outline-variant m3-label-medium uppercase text-m3-on-surface-variant tracking-wider">
-                        <th className="py-3.5 px-4 whitespace-nowrap">
-                          Cặp / Trạng thái
-                        </th>
-                        <th className="py-3.5 px-4 whitespace-nowrap">
-                          Loại lệnh
-                        </th>
-                        <th className="py-3.5 px-4 whitespace-nowrap">
-                          Kích thước (Lots)
-                        </th>
-                        <th className="py-3.5 px-4 whitespace-nowrap">
-                          Điểm vào / Điểm ra
-                        </th>
-                        <th className="py-3.5 px-4 whitespace-nowrap">
-                          Chốt lời / Chặn lỗ
-                        </th>
-                        <th className="py-3.5 px-4 whitespace-nowrap">
-                          Ghi chú & Phân tích
-                        </th>
-                        <th className="py-3.5 px-4 text-right whitespace-nowrap">
-                          Lời / Lỗ (USD)
-                        </th>
-                        <th className="py-3.5 px-4 text-center whitespace-nowrap">
-                          Hành động
-                        </th>
+                        <th className="py-2.5 px-3 whitespace-nowrap text-[11px]">Cặp / Hướng</th>
+                        <th className="py-2.5 px-3 whitespace-nowrap text-[11px]">Khối lượng</th>
+                        <th className="py-2.5 px-3 whitespace-nowrap text-[11px]">Vào → Ra / SL • TP</th>
+                        <th className="py-2.5 px-3 whitespace-nowrap text-[11px]">Tag</th>
+                        <th className="py-2.5 px-3 text-right whitespace-nowrap text-[11px]">Lời / Lỗ</th>
+                        <th className="py-2.5 px-3 text-center whitespace-nowrap text-[11px]">Sửa</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-m3-outline-variant m3-body-medium">
-                      {filteredTrades.map((t) => (
-                        <tr
-                          key={t.id}
-                          className="group hover:bg-m3-surface-container-low/50 dark:hover:bg-m3-surface-container/30 transition-colors ease-[var(--ease-m3-enter)]"
-                        >
-                          <td className="py-4 px-4 whitespace-nowrap">
-                            <div className="flex items-center gap-3">
-                              <div>
-                                <div className="font-bold m3-body-medium sm:m3-body-large text-m3-on-surface tracking-tight">
-                                  {t.pair}
-                                </div>
-                                <div className="m3-body-small text-m3-on-surface-variant font-bold mt-1">
-                                  {t.timeframe || "M15"}
+                    <tbody className="divide-y divide-m3-outline-variant/60 m3-body-small">
+                      {filteredTrades.map((t) => {
+                        const pnlBarWidth = Math.min(Math.abs(t.pnl) / 1000, 1) * 100;
+                        return (
+                          <tr
+                            key={t.id}
+                            className="group hover:bg-m3-surface-container-low/50 dark:hover:bg-m3-surface-container/30 transition-colors ease-[var(--ease-m3-enter)]"
+                          >
+                            <td className="py-2.5 px-3 whitespace-nowrap">
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={`px-1.5 py-0.5 rounded text-[10px] font-black font-mono ${t.type === "BUY" ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"}`}
+                                >
+                                  {t.type}
+                                </span>
+                                <div>
+                                  <div className="font-bold text-m3-on-surface text-xs leading-tight flex items-center gap-1.5">
+                                    {t.pair}
+                                    {t.status === "OPEN" && (
+                                      <span className="text-[9px] px-1 py-0.5 rounded bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 font-extrabold uppercase">OPEN</span>
+                                    )}
+                                  </div>
+                                  <div className="text-[10px] text-m3-on-surface-variant mt-0.5">
+                                    {t.timeframe || "M15"} • {new Date(t.entry_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                                  </div>
                                 </div>
                               </div>
-                              <span
-                                className={`text-[10px] sm:m3-body-small px-2 py-0.5 rounded font-extrabold uppercase tracking-wide ${t.status === "OPEN" ? "bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400" : "bg-m3-surface-container text-m3-on-surface-variant dark:bg-m3-surface-container-high dark:text-m3-on-surface-variant"}`}
-                              >
-                                {t.status}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4 whitespace-nowrap">
-                            <span
-                              className={`px-2.5 py-1 rounded-[12px] m3-body-small font-black font-mono ${t.type === "BUY" ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"}`}
-                            >
-                              {t.type}
-                            </span>
-                          </td>
-                          <td className="py-4 px-4 font-mono font-bold text-m3-on-surface whitespace-nowrap">
-                            {t.size} Lots
-                          </td>
-                          <td className="py-4 px-4 font-mono m3-body-small text-m3-on-surface-variant whitespace-nowrap">
-                            <div className="flex flex-col">
-                              <span>
-                                Vào:{" "}
-                                <strong className="text-m3-on-surface">
-                                  {t.entry_price}
-                                </strong>
-                              </span>
-                              {t.exit_price ? (
-                                <span>
-                                  Ra:{" "}
-                                  <strong className="text-m3-on-surface">
-                                    {t.exit_price}
-                                  </strong>
+                            </td>
+                            <td className="py-2.5 px-3 font-mono font-bold text-m3-on-surface whitespace-nowrap text-xs">
+                              {t.size}
+                            </td>
+                            <td className="py-2.5 px-3 font-mono text-[11px] text-m3-on-surface-variant whitespace-nowrap">
+                              <div className="flex items-center gap-1 text-[11px]">
+                                <span className="text-m3-on-surface font-semibold">{t.entry_price}</span>
+                                <span className="text-m3-outline-variant">→</span>
+                                <span className={t.exit_price ? "text-m3-on-surface font-semibold" : "opacity-40 italic"}>
+                                  {t.exit_price || "---"}
                                 </span>
-                              ) : (
-                                <span className="opacity-40 italic">
-                                  Đang mở...
-                                </span>
-                              )}
-                            </div>
-                          </td>
-                          <td className="py-4 px-4 font-mono m3-body-small text-m3-on-surface-variant whitespace-nowrap">
-                            <div className="flex flex-col">
-                              <span>
-                                SL:{" "}
-                                {t.stop_loss ? (
-                                  <strong className="text-m3-on-surface">
-                                    {t.stop_loss}
-                                  </strong>
-                                ) : (
-                                  <span className="opacity-40">N/A</span>
-                                )}
-                              </span>
-                              <span>
-                                TP:{" "}
-                                {t.take_profit ? (
-                                  <strong className="text-m3-on-surface">
-                                    {t.take_profit}
-                                  </strong>
-                                ) : (
-                                  <span className="opacity-40">N/A</span>
-                                )}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4 max-w-xs">
-                            <div
-                              className="truncate m3-body-small text-m3-on-surface-variant"
-                              title={t.notes}
-                            >
-                              {t.notes || (
-                                <span className="text-m3-on-surface-variant italic">
-                                  Không có ghi chú
-                                </span>
-                              )}
-                            </div>
-                            <div className="flex gap-2.5 items-center mt-1.5">
-                              {t.tag && (
-                                <span className="m3-label-medium uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 px-1.5 py-0.2 rounded">
-                                  {t.tag}
-                                </span>
-                              )}
-                              <div className="flex">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                  <span
-                                    key={i}
-                                    className={`m3-body-small ${i < t.rating ? "text-amber-500" : "text-m3-outline-variant dark:text-m3-outline-variant"}`}
-                                  >
-                                    ★
+                              </div>
+                              <div className="text-[10px] text-m3-outline-variant mt-0.5">
+                                SL: {t.stop_loss ?? "—"} • TP: {t.take_profit ?? "—"}
+                              </div>
+                            </td>
+                            <td className="py-2.5 px-3 whitespace-nowrap">
+                              <div className="flex flex-col gap-0.5">
+                                {t.tag && (
+                                  <span className="text-[9px] uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 px-1 py-0.5 rounded font-bold inline-block w-fit">
+                                    {t.tag}
                                   </span>
-                                ))}
+                                )}
+                                <div className="flex gap-0.5">
+                                  {Array.from({ length: 5 }).map((_, i) => (
+                                    <span key={i} className={`text-[9px] ${i < t.rating ? "text-amber-500" : "text-m3-outline-variant"}`}>★</span>
+                                  ))}
+                                </div>
                               </div>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4 text-right whitespace-nowrap">
-                            <span
-                              className={`font-mono font-black m3-body-large ${t.pnl >= 0 ? "text-emerald-500" : "text-rose-500"}`}
-                            >
-                              {t.pnl >= 0 ? "+" : ""}$
-                              {t.pnl.toLocaleString("en-US", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}
-                            </span>
-                            <div className="m3-body-small text-m3-on-surface-variant mt-1 font-mono">
-                              {new Date(t.entry_date).toLocaleDateString(
-                                undefined,
-                                { month: "short", day: "numeric" },
-                              )}
-                            </div>
-                          </td>
-                          <td className="py-4 px-4 text-center">
-                            <div className="flex items-center justify-center gap-1.5">
-                              <button
-                                onClick={() => handleBeginEditTrade(t)}
-                                className="p-2 rounded-[16px] bg-m3-surface-container-low dark:bg-m3-surface-container text-m3-on-surface-variant hover:text-m3-primary hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all ease-[var(--ease-m3-enter)] cursor-pointer inline-flex items-center justify-center"
-                                title="Chỉnh sửa / Cập nhật trạng thái"
-                                id={`edit-btn-${t.id}`}
-                              >
-                                <Pencil size={14} />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteTrade(t.id)}
-                                className="p-2 rounded-[16px] bg-m3-surface-container-low dark:bg-m3-surface-container text-m3-on-surface-variant hover:text-rose-500 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition-all ease-[var(--ease-m3-enter)] cursor-pointer inline-flex items-center justify-center"
-                                title="Xoá thương vụ"
-                                id={`del-btn-${t.id}`}
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
+                            </td>
+                            <td className="py-2.5 px-3 text-right whitespace-nowrap">
+                              <div className="flex items-center justify-end gap-2">
+                                <div className="flex flex-col items-end">
+                                  <span className={`font-mono font-black text-xs ${t.pnl >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
+                                    {t.pnl >= 0 ? "+" : ""}${t.pnl.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                  </span>
+                                </div>
+                                <div className="w-12 h-1.5 bg-m3-outline-variant/30 rounded-full overflow-hidden flex-shrink-0">
+                                  <div
+                                    className={`h-full rounded-full ${t.pnl >= 0 ? "bg-emerald-500" : "bg-rose-500"}`}
+                                    style={{ width: `${pnlBarWidth}%` }}
+                                  />
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-2.5 px-3 text-center">
+                              <div className="flex items-center justify-center gap-1">
+                                <button
+                                  onClick={() => handleBeginEditTrade(t)}
+                                  className="p-1.5 rounded-lg bg-m3-surface-container-low dark:bg-m3-surface-container text-m3-on-surface-variant hover:text-m3-primary hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all cursor-pointer"
+                                  title="Sửa"
+                                >
+                                  <Pencil size={12} />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteTrade(t.id)}
+                                  className="p-1.5 rounded-lg bg-m3-surface-container-low dark:bg-m3-surface-container text-m3-on-surface-variant hover:text-rose-500 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition-all cursor-pointer"
+                                  title="Xoá"
+                                >
+                                  <Trash2 size={12} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 )}
               </div>
 
-              {/* Mobile Trades Card List - High responsive UI */}
+              {/* Mobile Trades Card - Compact Redesign */}
               <div
-                className="block md:hidden space-y-3"
+                className="block md:hidden space-y-2"
                 id="trades-mobile-scroller"
               >
                 {filteredTrades.length === 0 ? (
@@ -1641,129 +1647,78 @@ export default function App() {
                     </p>
                   </div>
                 ) : (
-                  filteredTrades.map((t) => (
-                    <div
-                      key={`mob-trade-${t.id}`}
-                      className="p-4 bg-m3-surface-container-low dark:bg-m3-surface-container/45 rounded-[24px] border border-m3-outline-variant/15 dark:border-m3-outline-variant space-y-3"
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="font-bold m3-body-medium text-m3-on-surface">
-                              {t.pair}
-                            </span>
-                            <span className="m3-body-small px-2 py-0.5 bg-m3-surface-container-high dark:bg-m3-surface-container-high text-m3-on-surface-variant rounded font-bold">
-                              {t.timeframe || "M15"}
-                            </span>
-                          </div>
-                          <span className="m3-body-small text-m3-on-surface-variant block mt-1 font-mono">
-                            {new Date(t.entry_date).toLocaleDateString(
-                              "vi-VN",
-                              {
-                                month: "short",
-                                day: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              },
-                            )}
-                          </span>
-                        </div>
-                        <span
-                          className={`m3-body-small px-2.5 py-1 rounded-[12px] font-bold uppercase tracking-wide ${t.status === "OPEN" ? "bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400" : "bg-m3-surface-container text-m3-on-surface-variant dark:bg-m3-surface-container-high dark:text-m3-on-surface-variant"}`}
-                        >
-                          {t.status}
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 m3-body-small border-t border-b border-m3-outline-variant/15 dark:border-m3-outline-variant py-2.5">
-                        <div className="flex flex-col">
-                          <span className="text-m3-on-surface-variant text-[10px] font-bold tracking-wider">
-                            Số lượng Lots
-                          </span>
-                          <span className="font-medium mt-1 flex items-center gap-1.5">
-                            <span
-                              className={`px-1.5 py-0.5 rounded text-[10px] font-black ${t.type === "BUY" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-rose-500/10 text-rose-600 dark:text-rose-400"}`}
-                            >
+                  filteredTrades.map((t) => {
+                    const pnlBarWidth = Math.min(Math.abs(t.pnl) / 1000, 1) * 100;
+                    return (
+                      <div
+                        key={`mob-trade-${t.id}`}
+                        className="p-3 bg-m3-surface-container-low dark:bg-m3-surface-container/45 rounded-[16px] border border-m3-outline-variant/15 dark:border-m3-outline-variant"
+                      >
+                        {/* Row 1: Pair + Type + P&L */}
+                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-black font-mono ${t.type === "BUY" ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"}`}>
                               {t.type}
                             </span>
-                            <strong>{t.size} Lots</strong>
-                          </span>
-                        </div>
-                        <div className="flex flex-col text-right">
-                          <span className="text-m3-on-surface-variant text-[10px] font-bold tracking-wider">
-                            Giá vào / ra
-                          </span>
-                          <span className="font-mono text-m3-on-surface mt-1">
-                            {t.entry_price} →{" "}
-                            <strong className="text-m3-on-surface">
-                              {t.exit_price || "Đang mở"}
-                            </strong>
-                          </span>
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-m3-on-surface-variant text-[10px] font-bold tracking-wider">
-                            Chặn lỗ / Chốt lời
-                          </span>
-                          <span className="font-mono text-m3-on-surface-variant mt-1">
-                            {t.stop_loss || "N/A"} / {t.take_profit || "N/A"}
-                          </span>
-                        </div>
-                        <div className="flex flex-col text-right">
-                          <span className="text-m3-on-surface-variant text-[10px] font-bold tracking-wider">
-                            Lời / Lỗ ròng (USD)
-                          </span>
-                          <span
-                            className={`font-mono font-black m3-body-medium ${t.pnl >= 0 ? "text-emerald-500" : "text-rose-500"} mt-1`}
-                          >
-                            {t.pnl >= 0 ? "+" : ""}${t.pnl.toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-
-                      {t.notes && (
-                        <p className="m3-body-small text-m3-on-surface-variant italic bg-m3-surface-container/50 dark:bg-m3-surface-container/30 p-2.5 rounded-[16px] line-clamp-2">
-                          {t.notes}
-                        </p>
-                      )}
-
-                      <div className="flex justify-between items-center m3-body-small">
-                        <div className="flex gap-2 items-center">
-                          {t.tag && (
-                            <span className="text-[10px] sm:m3-label-medium uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded">
-                              {t.tag}
+                            <span className="font-bold text-sm text-m3-on-surface truncate">{t.pair}</span>
+                            {t.status === "OPEN" && (
+                              <span className="text-[9px] px-1 py-0.5 rounded bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 font-extrabold uppercase">OPEN</span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <span className={`font-mono font-black text-sm ${t.pnl >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
+                              {t.pnl >= 0 ? "+" : ""}${t.pnl.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                             </span>
-                          )}
-                          <div className="flex gap-0.5">
-                            {Array.from({ length: t.rating }).map((_, i) => (
-                              <span
-                                key={i}
-                                className="text-amber-500 m3-body-small"
-                              >
-                                ★
-                              </span>
-                            ))}
+                            <div className="w-10 h-1.5 bg-m3-outline-variant/30 rounded-full overflow-hidden">
+                              <div className={`h-full rounded-full ${t.pnl >= 0 ? "bg-emerald-500" : "bg-rose-500"}`} style={{ width: `${pnlBarWidth}%` }} />
+                            </div>
                           </div>
                         </div>
-
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleBeginEditTrade(t)}
-                            className="px-3.5 py-2 rounded-[16px] bg-m3-primary-container hover:bg-m3-primary m3-body-small text-m3-primary hover:text-m3-on-primary m3-state-layer dark:bg-m3-surface-container-high dark:hover:bg-m3-primary dark:text-m3-primary font-bold transition-all ease-[var(--ease-m3-enter)] flex items-center gap-1.5 cursor-pointer"
-                          >
-                            <Pencil size={12} />
-                            Sửa
-                          </button>
-                          <button
-                            onClick={() => handleDeleteTrade(t.id)}
-                            className="px-3.5 py-2 rounded-[16px] bg-rose-500/10 hover:bg-rose-500 m3-body-small text-rose-500 hover:text-m3-on-error m3-state-layer dark:bg-rose-950/35 dark:hover:bg-rose-500 dark:text-rose-400 font-bold transition-all ease-[var(--ease-m3-enter)] flex items-center gap-1.5 cursor-pointer"
-                          >
-                            <Trash2 size={12} />
-                            Xoá
-                          </button>
+                        {/* Row 2: Price + SL/TP + Meta */}
+                        <div className="flex items-center justify-between text-[11px] font-mono text-m3-on-surface-variant">
+                          <div className="flex items-center gap-1 min-w-0">
+                            <span className="text-m3-on-surface font-semibold">{t.entry_price}</span>
+                            <span className="text-m3-outline-variant">→</span>
+                            <span className={t.exit_price ? "text-m3-on-surface font-semibold" : "opacity-40"}>{t.exit_price || "---"}</span>
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <span className="text-m3-outline-variant">SL: {t.stop_loss ?? "—"}</span>
+                            <span className="text-m3-outline-variant">TP: {t.take_profit ?? "—"}</span>
+                          </div>
                         </div>
+                        {/* Row 3: Tag + Rating + Date + Actions */}
+                        <div className="flex items-center justify-between mt-1.5 pt-1.5 border-t border-m3-outline-variant/20">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            {t.tag && (
+                              <span className="text-[9px] uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 px-1 py-0.5 rounded font-bold">{t.tag}</span>
+                            )}
+                            <div className="flex gap-0.5">
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <span key={i} className={`text-[8px] ${i < t.rating ? "text-amber-500" : "text-m3-outline-variant"}`}>★</span>
+                              ))}
+                            </div>
+                            <span className="text-[10px] text-m3-on-surface-variant ml-1">
+                              {t.timeframe || "M15"} • {new Date(t.entry_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                            </span>
+                          </div>
+                          <div className="flex gap-1">
+                            <button onClick={() => handleBeginEditTrade(t)} className="p-1 rounded-lg bg-m3-surface-container-low dark:bg-m3-surface-container text-m3-on-surface-variant hover:text-m3-primary cursor-pointer">
+                              <Pencil size={11} />
+                            </button>
+                            <button onClick={() => handleDeleteTrade(t.id)} className="p-1 rounded-lg bg-m3-surface-container-low dark:bg-m3-surface-container text-m3-on-surface-variant hover:text-rose-500 cursor-pointer">
+                              <Trash2 size={11} />
+                            </button>
+                          </div>
+                        </div>
+                        {/* Notes as togglable line */}
+                        {t.notes && (
+                          <p className="text-[10px] text-m3-on-surface-variant italic mt-1.5 bg-m3-surface-container/50 dark:bg-m3-surface-container/30 p-1.5 rounded-lg line-clamp-1 leading-relaxed">
+                            {t.notes}
+                          </p>
+                        )}
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>
@@ -2494,7 +2449,9 @@ export default function App() {
                   {t5Loading ? (
                     <p className="text-xs text-m3-on-surface-variant">Đang tải tài khoản...</p>
                   ) : t5Accounts.length === 0 ? (
-                    <p className="text-xs text-m3-on-surface-variant">Chưa có dữ liệu. Chạy scraper trước.</p>
+                    <div>
+                      <p className="text-xs text-m3-on-surface-variant mb-2">Chưa có dữ liệu. Nhập token và bấm Đồng bộ.</p>
+                    </div>
                   ) : (
                     <div className="space-y-1.5 max-h-48 overflow-y-auto">
                       {t5Accounts.map((acc) => {
@@ -2535,18 +2492,32 @@ export default function App() {
                       className="flex-1 py-2 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 font-bold rounded-xl text-xs border transition-colors cursor-pointer disabled:opacity-50">
                       {t5Loading ? "Đang tải..." : "🔄 Đồng bộ"}
                     </button>
-                    <button onClick={async () => {
-                      try {
-                        const res = await fetch("/api/trigger-scrape", { method: "POST" });
-                        const json = await res.json();
-                        alert(json.message || "Đã kích hoạt scraper trên GitHub!");
-                      } catch (e: any) {
-                        alert("Lỗi: " + e.message);
-                      }
-                    }}
-                      className="flex-1 py-2 bg-m3-primary text-white font-bold rounded-xl text-xs transition-colors cursor-pointer">
-                      🚀 Chạy scraper
+                    <button onClick={syncT5Data} disabled={t5Syncing}
+                      className="flex-1 py-2 bg-m3-primary text-white font-bold rounded-xl text-xs transition-colors cursor-pointer disabled:opacity-50">
+                      {t5Syncing ? "⏳ Đang sync..." : "🚀 Sync API"}
                     </button>
+                  </div>
+                  {/* Descope Login / Account status */}
+                  <div className="mt-2 space-y-2">
+                    <div className="flex gap-2">
+                      <button onClick={loginThe5ers} disabled={t5Syncing}
+                        className="flex-1 py-2 bg-white border border-m3-outline text-m3-on-surface font-bold rounded-xl text-xs hover:bg-m3-surface-container transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5">
+                        <svg viewBox="0 0 24 24" className="w-3.5 h-3.5"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                        {sessionToken ? "✅ Đã đăng nhập The5ers" : "🔑 Đăng nhập The5ers (Google)"}
+                      </button>
+                    </div>
+                    {sessionToken && (
+                      <button onClick={syncT5Data} disabled={t5Syncing}
+                        className="w-full py-2 bg-m3-primary text-white font-bold rounded-xl text-xs transition-colors cursor-pointer disabled:opacity-50">
+                        {t5Syncing ? "⏳ Đang đồng bộ..." : "🔄 Đồng bộ dữ liệu ngay"}
+                      </button>
+                    )}
+                    {t5SyncResult && (
+                      <p className={`text-[11px] font-medium ${t5SyncResult.startsWith("✅") ? "text-emerald-500" : "text-rose-500"}`}>{t5SyncResult}</p>
+                    )}
+                    <p className="text-[10px] text-m3-on-surface-variant/60 italic">
+                      Đăng nhập 1 lần qua Google, SDK tự refresh token (DPoP-safe). Đồng bộ tự động mỗi 10 phút.
+                    </p>
                   </div>
                 </div>
 

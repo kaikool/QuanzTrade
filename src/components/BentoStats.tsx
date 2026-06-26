@@ -342,10 +342,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
                       return [`$${value}`, "Từng lệnh"];
                     }}
                     labelFormatter={(label, items) => {
-                      if (items && items[0]) {
-                        return `${items[0].payload.pair} (${items[0].payload.date})`;
-                      }
-                      return label;
+                      return items?.[0]?.payload?.pair || label;
                     }}
                   />
                   <Area
