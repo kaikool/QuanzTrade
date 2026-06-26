@@ -70,8 +70,8 @@ async function run() {
                 const envPath = path.join(__dirname, '.env');
                 if (fs.existsSync(envPath)) {
                     let envContent = fs.readFileSync(envPath, 'utf8');
-                    if (envContent.includes('THE5ERS_REFRESH_TOKEN=*** {
-                        envContent = envContent.replace(/THE5ERS_REFRESH_TOKEN=*** `THE5ERS_REFRESH_TOKEN=${newR...}`);
+                    if (envContent.includes('THE5ERS_REFRESH_TOKEN=') {
+                        envContent = envContent.replace(/THE5ERS_REFRESH_TOKEN= `THE5ERS_REFRESH_TOKEN=${newR...}`);
                     } else {
                         envContent += `\nTHE5ERS_REFRESH_TOKEN=${newR...n}`;
                     }
