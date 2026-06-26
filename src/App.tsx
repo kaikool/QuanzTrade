@@ -139,8 +139,11 @@ export default function App() {
   const [t5Loading, setT5Loading] = useState(true);
   const [t5Error, setT5Error] = useState<string | null>(null);
   const [selectedT5AccountIds, setSelectedT5AccountIds] = useState<string[]>(() => {
-    try { return JSON.parse(localStorage.getItem("t5_selected_accounts") || "[]"); }
-    catch { return []; }
+    try {
+      const saved = JSON.parse(localStorage.getItem("t5_selected_accounts") || "null");
+      if (saved && Array.isArray(saved)) return saved;
+    } catch {}
+    return [];
   });
 
   // Robust Helpers to split/merge separate Date and Time inputs
@@ -2465,17 +2468,19 @@ export default function App() {
                   <h5 className="font-bold text-m3-on-surface-variant capitalize mb-2.5 flex items-center gap-1.5">
                     <TrendingUp size={13} className="text-m3-primary" />
                     Tài khoản The5ers
+                    <span className="text-[10px] bg-m3-primary-container text-m3-primary px-2 py-0.5 rounded-full font-bold ml-auto">{selectedT5AccountIds.length}/{t5Accounts.length}</span>
                   </h5>
                   {t5Loading ? (
                     <p className="text-xs text-m3-on-surface-variant">Đang tải tài khoản...</p>
                   ) : t5Accounts.length === 0 ? (
                     <p className="text-xs text-m3-on-surface-variant">Chưa có dữ liệu. Chạy scraper trước.</p>
                   ) : (
-                    <div className="space-y-1.5 max-h-40 overflow-y-auto">
+                    <div className="space-y-1.5 max-h-48 overflow-y-auto">
                       {t5Accounts.map((acc) => {
                         const checked = selectedT5AccountIds.includes(acc.accountId);
+                        const isActive = acc.status === "active" || acc.status === "available";
                         return (
-                          <label key={acc.accountId} className="flex items-center gap-2.5 p-2 hover:bg-m3-surface-container rounded-lg cursor-pointer">
+                          <label key={acc.accountId} className={`flex items-center gap-2.5 p-2 rounded-lg cursor-pointer ${isActive ? "hover:bg-m3-surface-container" : "opacity-50 hover:opacity-80"}`}>
                             <input type="checkbox" checked={checked}
                               onChange={() => {
                                 const next = checked
@@ -2486,18 +2491,27 @@ export default function App() {
                               }}
                               className="w-4 h-4 accent-m3-primary rounded" />
                             <span className="text-xs font-semibold text-m3-on-surface flex-1 min-w-0 truncate">{acc.name}</span>
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase ${acc.type === "funded" ? "bg-emerald-500/10 text-emerald-600" : acc.type === "evaluation" ? "bg-blue-500/10 text-blue-600" : "bg-m3-surface-container text-m3-on-surface-variant"}`}>
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase flex-shrink-0 ${acc.type === "funded" ? "bg-emerald-500/10 text-emerald-600" : acc.type === "evaluation" ? "bg-blue-500/10 text-blue-600" : "bg-m3-surface-container text-m3-on-surface-variant"}`}>
                               {acc.type === "funded" ? "Funded" : acc.type === "evaluation" ? "Eval" : "Demo"}
                             </span>
+                            {!isActive && <span className="text-[10px] font-bold text-rose-500 bg-rose-500/10 px-1.5 py-0.5 rounded uppercase">Disabled</span>}
                           </label>
                         );
                       })}
                     </div>
                   )}
                   <div className="flex gap-2 mt-3">
+                    <button onClick={() => {
+                      const activeIds = t5Accounts.filter(a => a.status === "active" || a.status === "available").map(a => a.accountId);
+                      setSelectedT5AccountIds(activeIds);
+                      localStorage.setItem("t5_selected_accounts", JSON.stringify(activeIds));
+                    }}
+                      className="flex-1 py-2 bg-m3-primary-container text-m3-primary font-bold rounded-xl text-xs transition-colors cursor-pointer">
+                      Chọn tất cả Active
+                    </button>
                     <button onClick={loadT5Data} disabled={t5Loading}
-                      className="flex-1 py-2 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 font-bold rounded-xl text-xs border border-blue-100/50 transition-colors cursor-pointer disabled:opacity-50">
-                      {t5Loading ? "Đang đồng bộ..." : "Đồng bộ dữ liệu"}
+                      className="flex-1 py-2 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 font-bold rounded-xl text-xs border transition-colors cursor-pointer disabled:opacity-50">
+                      {t5Loading ? "..." : "Đồng bộ"}
                     </button>
                   </div>
                 </div>
