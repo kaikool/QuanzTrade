@@ -761,30 +761,25 @@ export default function App() {
 
   // Compute stats for header and badges
   const summary = useMemo(() => {
-    let startingBalance = 100000; // Preset starting test standard balance
+    const selectedIds = new Set(selectedT5AccountIds);
+    const selectedAccounts = t5Accounts.filter(a => selectedIds.has(a.accountId));
+    const t5Balance = selectedAccounts.reduce((s, a) => s + a.balance, 0);
+    const t5Pnl = selectedAccounts.reduce((s, a) => s + a.pnl, 0);
+    const t5OpenTrades = t5Trades.filter(t => selectedIds.has(t.accountId) && !t.closePrice).length;
+    const t5ClosedTrades = t5Trades.filter(t => selectedIds.has(t.accountId) && t.closePrice).length;
+
     const totalPnl = trades.reduce((sum, t) => sum + t.pnl, 0);
-    const finalBalance = startingBalance + totalPnl;
-
-    const openTradesCount = trades.filter((t) => t.status === "OPEN").length;
-    const closedTradesCount = trades.filter(
-      (t) => t.status === "CLOSED",
-    ).length;
-
-    // The5ers overview
-    const t5Balance = t5Accounts.reduce((s, a) => s + a.balance, 0);
-    const t5Pnl = t5Accounts.reduce((s, a) => s + a.pnl, 0);
-    const t5Count = t5Accounts.length;
+    const manualPnl = trades.filter(t => t.status === "CLOSED").reduce((sum, t) => sum + t.pnl, 0);
+    const openCount = trades.filter(t => t.status === "OPEN").length;
+    const closedCount = trades.filter(t => t.status === "CLOSED").length;
 
     return {
-      balance: finalBalance,
-      pnl: totalPnl,
-      openCount: openTradesCount,
-      closedCount: closedTradesCount,
-      t5Balance,
-      t5Pnl,
-      t5Count,
+      balance: t5Balance,
+      pnl: totalPnl + t5Pnl,
+      openCount: openCount + t5OpenTrades,
+      closedCount: closedCount + t5ClosedTrades,
     };
-  }, [trades, t5Accounts]);
+  }, [trades, t5Accounts, t5Trades, selectedT5AccountIds]);
 
   // Filters candidates
   const uniquePairs = useMemo(() => {
@@ -1023,11 +1018,6 @@ export default function App() {
                   {summary.pnl >= 0 ? "+" : ""}${summary.pnl.toFixed(0)}
                 </span>
               </div>
-              {summary.t5Count > 0 && (
-                <p className="m3-body-small text-m3-on-surface-variant mt-1 font-medium">
-                  The5ers: {summary.t5Count} tài khoản · ${summary.t5Balance.toLocaleString()} · {summary.t5Pnl >= 0 ? "+" : ""}${Math.abs(summary.t5Pnl).toLocaleString()}
-                </p>
-              )}
             </div>
 
             {/* Profile Settings Click */}
@@ -1096,7 +1086,7 @@ export default function App() {
                 <div className="min-h-[260px] rounded-[24px] bg-m3-surface shadow-level1 animate-pulse" />
               }
             >
-              <BentoStats trades={trades} darkMode={darkMode} />
+              <BentoStats trades={mergedTrades} darkMode={darkMode} />
             </Suspense>
 
             {/* Mixed Bento Row: Calendar Fast-View (Large 2/3) + Recent Trade Activities (Medium 1/3) */}
@@ -1256,7 +1246,7 @@ export default function App() {
                     className="space-y-3 max-h-[300px] overflow-y-auto"
                     id="recent-trades-list"
                   >
-                    {trades.length === 0 ? (
+                    {mergedTrades.length === 0 ? (
                       <div className="text-center py-12 text-m3-on-surface-variant m3-body-medium">
                         <BookOpen
                           size={24}
@@ -1265,7 +1255,7 @@ export default function App() {
                         Chưa có lịch sử giao dịch.
                       </div>
                     ) : (
-                      trades.slice(0, 4).map((t) => (
+                      mergedTrades.slice(0, 4).map((t) => (
                         <div
                           key={t.id}
                           className="flex items-center gap-3 p-2.5 hover:bg-m3-surface-container-low dark:hover:bg-m3-surface-container-low/20 rounded-[16px] transition-all ease-[var(--ease-m3-enter)]"
