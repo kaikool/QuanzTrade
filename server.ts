@@ -7,12 +7,13 @@ import { createClient } from "@supabase/supabase-js";
 dotenv.config({ path: ".env.local" });
 dotenv.config();
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
+const app = express();
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
-  // Middlewares to parse bodies
-  app.use(express.json());
+// Middlewares to parse bodies
+app.use(express.json());
+
+async function startServer() {
 
 
   // In-memory cache for calendar data
@@ -1566,9 +1567,17 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://0.0.0.0:${PORT}`);
-  });
+  if (!process.env.VERCEL) {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on http://0.0.0.0:${PORT}`);
+    });
+  }
 }
 
-startServer();
+const initPromise = startServer();
+
+// Vercel serverless: wait for routes then handle
+export default async function handler(req: any, res: any) {
+  await initPromise;
+  app(req, res);
+}
