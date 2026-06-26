@@ -73,3 +73,119 @@ export interface SupabaseConfig {
   anonKey: string;
   connected: boolean;
 }
+
+// ─── The5ers Types ──────────────────────────────────────────────────────────
+
+export interface T5AccountOverview {
+  accountId: string;
+  name: string;
+  type: string;
+  status: string;
+  balance: number;
+  equity: number;
+  pnl: number;
+  pnlPercent?: number;
+  currency?: string;
+  _rawStats?: any;
+  state?: any;
+  createdAt?: string;
+}
+
+export interface T5Purchase {
+  id: string;
+  productName: string;
+  buyingPower: number;
+  price: number;
+  currency: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface T5Profile {
+  userName: string;
+  email?: string;
+  scrapedAt: string;
+  accounts: T5AccountOverview[];
+  purchases?: T5Purchase[];
+}
+
+export interface T5ChallengeInfo {
+  phase: string;
+  profitTarget: number;
+  profitTargetProgress: number;
+  minTradingDays: number;
+  daysTraded: number;
+  daysRemaining: number;
+  lossLimit: number;
+  breaches: number;
+}
+
+export interface T5TradingRule {
+  ruleName: string;
+  status: 'ok' | 'warning' | 'breached' | 'na';
+  currentValue: number;
+  limit: number;
+  description: string;
+}
+
+export interface T5AccountDetail {
+  accountId: string;
+  name: string;
+  type: string;
+  status: string;
+  currency: string;
+  scrapedAt: string;
+  balance: number;
+  equity: number;
+  pnl: number;
+  pnlPercent: number;
+  floatingPnl: number;
+  dailyDrawdown: number;
+  dailyDrawdownLimit: number;
+  maxDrawdown: number;
+  maxDrawdownLimit: number;
+  maxDrawdownPeriod: string;
+  challenge?: T5ChallengeInfo;
+  rules: T5TradingRule[];
+  totalTrades: number;
+  winningTrades: number;
+  losingTrades: number;
+  winRate: number;
+  profitFactor: number;
+  averageWin: number;
+  averageLoss: number;
+  largestWin: number;
+  largestLoss: number;
+  totalDaysTraded: number;
+  consistencyTarget?: number;
+  createdAt: string;
+  expiresAt?: string;
+  lastActivityAt?: string;
+  trades?: T5Trade[];
+  stats?: any;
+}
+
+export interface T5Trade {
+  tradeId: string;
+  accountId: string;
+  instrument: string;
+  direction: 'buy' | 'sell';
+  volume: number;
+  openTime: string;
+  closeTime: string;
+  openPrice: number;
+  closePrice: number;
+  pnl: number;
+  pnlPoints: number;
+  fees: number;
+  duration: string;
+  strategy?: string;
+}
+
+export interface T5RiskMetrics {
+  dailyBuffer: number;
+  overallBuffer: number;
+  dailyStatus: 'safe' | 'warning' | 'danger';
+  overallStatus: 'safe' | 'warning' | 'danger';
+  targetRemaining: number;
+}

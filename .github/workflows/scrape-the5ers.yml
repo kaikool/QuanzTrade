@@ -1,0 +1,59 @@
+name: Scrape The5ers Dashboard
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  schedule:
+    - cron: '0 1 * * *'   # 8h VN mỗi ngày
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: |
+          cd scraper
+          npm install --no-audit --no-fund 2>&1
+
+      - name: Scrape The5ers
+        env:
+          THE5ERS_COOKIES: ${{ secrets.THE5ERS_COOKIES }}
+          GOOGLE_EMAIL: ${{ secrets.GOOGLE_EMAIL }}
+          GOOGLE_PASSWORD: ${{ secrets.GOOGLE_PASSWORD }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          THE5ERS_TOKEN: ${{ secrets.THE5ERS_TOKEN }}
+          THE5ERS_REFRESH_TOKEN: ${{ secrets.THE5ERS_REFRESH_TOKEN }}
+        run: |
+          mkdir -p scraper/data
+          cd scraper
+          touch .env
+          echo "SUPABASE_URL=$SUPABASE_URL" >> .env
+          echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
+          echo "THE5ERS_TOKEN=$THE5ERS_TOKEN" >> .env
+          echo "THE5ERS_REFRESH_TOKEN=$THE5ERS_REFRESH_TOKEN" >> .env
+          node fetch_data.mjs
+
+      - name: Copy data & build
+        run: |
+          mkdir -p public/data
+          cp scraper/data/profile.json public/data/ 2>/dev/null || true
+          npm ci && npm run build
+
+      - name: Commit & push data
+        run: |
+          git config user.name "the5ers-bot"
+          git config user.email "bot@the5ers-dashboard"
+          git add public/data/
+          git diff --quiet && git diff --staged --quiet || \
+            (git commit -m "auto: update data $(date +%Y-%m-%d) [skip ci]" && git push)

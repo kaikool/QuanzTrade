@@ -32,7 +32,16 @@ import {
   Newspaper,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { Trade, CalendarEvent, NewsItem, NewsDebugInfo } from "./types";
+import {
+  Trade,
+  CalendarEvent,
+  NewsItem,
+  NewsDebugInfo,
+  T5AccountOverview,
+  T5Trade,
+  T5AccountDetail,
+  T5Purchase,
+} from "./types";
 import {
   fetchTradesFromDB,
   saveTradeToDB,
@@ -41,6 +50,10 @@ import {
 } from "./lib/supabase";
 import { M3DatePicker, M3TimePicker } from "./components/M3DatePicker";
 import { NewsPanel } from "./components/NewsPanel";
+import { fetchT5Accounts, fetchT5AccountDetail, fetchT5Purchases } from "./lib/supabase-the5ers";
+import The5ersOverview from "./components/The5ersOverview";
+import The5ersTradeHistory from "./components/The5ersTradeHistory";
+import The5ersDetailPanel from "./components/The5ersDetailPanel";
 
 const NEWS_PAGE_SIZE = 10;
 
@@ -122,6 +135,17 @@ export default function App() {
   const [formTakeProfit, setFormTakeProfit] = useState("");
   const [formEntryDate, setFormEntryDate] = useState("");
   const [formExitDate, setFormExitDate] = useState("");
+
+  // ─── The5ers State ────────────────────────────────────────────────────────────
+  const [t5Accounts, setT5Accounts] = useState<T5AccountOverview[]>([]);
+  const [t5Trades, setT5Trades] = useState(Array<T5Trade>());
+  const [t5Purchases, setT5Purchases] = useState(Array<T5Purchase>());
+  const [t5Loading, setT5Loading] = useState(true);
+  const [t5Error, setT5Error] = useState<string | null>(null);
+  const [selectedT5Account, setSelectedT5Account] = useState<T5AccountOverview | null>(null);
+  const [selectedT5Detail, setSelectedT5Detail] = useState<T5AccountDetail | null>(null);
+  const [selectedT5DetailTrades, setSelectedT5DetailTrades] = useState(Array<T5Trade>());
+  const [selectedAccountForJournal, setSelectedAccountForJournal] = useState<string | null>(null);
 
   // Robust Helpers to split/merge separate Date and Time inputs
   const getEntryDatePart = () => {
@@ -372,6 +396,101 @@ export default function App() {
     }
   };
 
+  // ─── The5ers Data Loading ──────────────────────────────────────────────────────
+
+  const formatT5Currency = (value: number): string => {
+    const abs = Math.abs(value);
+    const formatted = abs.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    return value < 0 ? `-$${formatted}` : `$${formatted}`;
+  };
+
+  async function loadT5Data() {
+    setT5Loading(true);
+    setT5Error(null);
+    try {
+      const [accounts, purchases] = await Promise.all([
+        fetchT5Accounts(),
+        fetchT5Purchases(),
+      ]);
+      setT5Accounts(accounts);
+      setT5Purchases(purchases);
+
+      const allTrades: T5Trade[] = [];
+      for (const acc of accounts) {
+        const { trades } = await fetchT5AccountDetail(acc.accountId);
+        allTrades.push(...trades);
+      }
+      setT5Trades(allTrades);
+    } catch (err: any) {
+      setT5Error(err.message || "Lỗi tải dữ liệu The5ers");
+    } finally {
+      setT5Loading(false);
+    }
+  }
+
+  async function handleT5SelectAccount(account: T5AccountOverview) {
+    setSelectedT5Account(account);
+    setSelectedT5Detail(null);
+    setSelectedT5DetailTrades([]);
+    try {
+      const { rawStats, trades } = await fetchT5AccountDetail(account.accountId);
+      const winRateRaw = rawStats?.winRate || 0;
+      const tsState = rawStats?.accountState || {};
+      const challengePhase = tsState?.state?.currentPhase || tsState?.state?.phase;
+      const challenge = {
+        phase: challengePhase || "N/A",
+        profitTarget: tsState?.state?.profitTarget || 0,
+        profitTargetProgress: tsState?.state?.profitTargetProgress || 0,
+        minTradingDays: tsState?.state?.minTradingDays || 0,
+        daysTraded: tsState?.state?.daysTraded || 0,
+        daysRemaining: tsState?.state?.daysRemaining || 0,
+        lossLimit: tsState?.state?.lossLimit || 0,
+        breaches: tsState?.state?.breaches || 0,
+      };
+      const detail: T5AccountDetail = {
+        accountId: account.accountId,
+        name: account.name,
+        type: account.type,
+        status: account.status,
+        currency: "USD",
+        scrapedAt: new Date().toISOString(),
+        balance: account.balance,
+        equity: account.equity,
+        pnl: account.pnl,
+        pnlPercent: account.pnlPercent || 0,
+        floatingPnl: 0,
+        dailyDrawdown: rawStats?.balanceDetails?.dailyProfitAndLoss,
+        dailyDrawdownLimit: rawStats?.balanceDetails?.allowedDailyLosses,
+        maxDrawdown: rawStats?.balanceDetails?.profitAndLoss,
+        maxDrawdownLimit: rawStats?.balanceDetails?.maxLoss
+          ? -rawStats.balanceDetails.maxLoss
+          : undefined,
+        maxDrawdownPeriod: "all_time",
+        challenge,
+        rules: [],
+        totalTrades: rawStats?.totalTrades || 0,
+        winningTrades: rawStats?.winningTrades || 0,
+        losingTrades: rawStats?.losingTrades || 0,
+        winRate: (winRateRaw > 0 && winRateRaw <= 1) ? winRateRaw * 100 : winRateRaw,
+        profitFactor: rawStats?.profitFactor || 0,
+        averageWin: rawStats?.averageWin || 0,
+        averageLoss: rawStats?.averageLoss || 0,
+        largestWin: rawStats?.largestWin || 0,
+        largestLoss: rawStats?.largestLoss || 0,
+        totalDaysTraded: rawStats?.totalDaysTraded || 0,
+        createdAt: rawStats?.createdAt || new Date().toISOString(),
+        stats: rawStats,
+      };
+      setSelectedT5Detail(detail);
+      setSelectedT5DetailTrades(trades);
+    } catch (err) {
+      console.error("[T5] Lỗi tải chi tiết account:", err);
+    }
+  }
+
   // Initialize data and db keys
   useEffect(() => {
     // Load trades
@@ -380,6 +499,8 @@ export default function App() {
     loadCalendarData();
     // Load fast market news
     loadNewsData();
+    // Load The5ers data
+    loadT5Data();
     // Default dates on form
     const now = new Date();
     setFormEntryDate(now.toISOString().slice(0, 16));
@@ -860,7 +981,7 @@ export default function App() {
         )}
 
         {/* Google Workspace Style Tonal Top Header */}
-        {(currentTab === "dashboard" || currentTab === "journal") && (
+        {(currentTab === "dashboard" || currentTab === "journal" || currentTab === "the5ers") && (
         <header
           className={`flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-6 ${darkMode ? "bg-m3-surface" : "bg-m3-surface"} rounded-[24px] shadow-level1 space-y-4 md:space-y-0`}
           id="google-m3-header"
@@ -882,7 +1003,9 @@ export default function App() {
                 </span>
               </div>
               <p className="m3-body-small sm:m3-body-medium text-m3-on-surface-variant mt-1 leading-snug truncate">
-                Đồng bộ hóa tin vĩ mô USD & nhật ký giao dịch hiệu năng cao
+                {currentTab === "the5ers"
+                  ? "The5ers funded accounts dashboard"
+                  : "Đồng bộ hóa tin vĩ mô USD & nhật ký giao dịch hiệu năng cao"}
               </p>
             </div>
           </div>
@@ -908,7 +1031,7 @@ export default function App() {
             {/* Account size indicator in dynamic style */}
             <div className="text-right min-w-0">
               <span className="m3-body-small sm:m3-label-medium tracking-wider text-m3-on-surface-variant uppercase block truncate">
-                Số Dư Tài Khoản
+                {currentTab === "the5ers" ? "Tổng Số Dư" : "Số Dư Tài Khoản"}
               </span>
               <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5 justify-end">
                 <span
@@ -916,17 +1039,34 @@ export default function App() {
                   id="live-balance-text"
                 >
                   $
-                  {summary.balance.toLocaleString("en-US", {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 2,
-                  })}
+                  {currentTab === "the5ers"
+                    ? t5Accounts.reduce((s, a) => s + a.balance, 0).toLocaleString("en-US", {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 2,
+                      })
+                    : summary.balance.toLocaleString("en-US", {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 2,
+                      })}
                 </span>
-                <span
-                  className={`m3-body-small sm:m3-body-small px-2 py-1 rounded-full font-bold flex items-center gap-0.5 flex-shrink-0 ${summary.pnl >= 0 ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-rose-500/10 text-rose-600 dark:text-rose-400"}`}
-                  id="summary-badge-pnl"
-                >
-                  {summary.pnl >= 0 ? "+" : ""}${summary.pnl.toFixed(0)}
-                </span>
+                {currentTab === "the5ers" ? (
+                  <span
+                    className={`m3-body-small sm:m3-body-small px-2 py-1 rounded-full font-bold flex items-center gap-0.5 flex-shrink-0 ${
+                      t5Accounts.reduce((s, a) => s + a.pnl, 0) >= 0
+                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                        : "bg-rose-500/10 text-rose-600 dark:text-rose-400"
+                    }`}
+                  >
+                    {t5Accounts.reduce((s, a) => s + a.pnl, 0) >= 0 ? "+" : ""}$
+                    {t5Accounts.reduce((s, a) => s + Math.abs(a.pnl), 0).toFixed(0)}
+                  </span>
+                ) : (
+                  <span
+                    className={`m3-body-small sm:m3-body-small px-2 py-1 rounded-full font-bold flex items-center gap-0.5 flex-shrink-0 ${summary.pnl >= 0 ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-rose-500/10 text-rose-600 dark:text-rose-400"}`}
+                  >
+                    {summary.pnl >= 0 ? "+" : ""}${summary.pnl.toFixed(0)}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -983,6 +1123,13 @@ export default function App() {
             >
               <Newspaper size={16} className="flex-shrink-0" />
               <span>Tin tức thị trường</span>
+            </button>
+            <button
+              onClick={() => setCurrentTab("the5ers")}
+              className={`px-4 sm:px-6 py-2.5 rounded-[100px] m3-label-large transition-all ease-[var(--ease-m3-enter)] duration-200 m3-state-layer flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "the5ers" ? "bg-m3-primary-container text-m3-primary dark:bg-m3-primary-container/30 dark:text-m3-primary" : "text-m3-on-surface-variant hover:text-m3-on-surface dark:hover:text-m3-on-surface dark:text-m3-on-surface-variant"}`}
+            >
+              <TrendingUp size={16} className="flex-shrink-0" />
+              <span>5%ers</span>
             </button>
           </div>
         </div>
@@ -1917,6 +2064,68 @@ export default function App() {
             debug={newsDebug}
           />
         )}
+
+        {/* 5. THE5ERS DASHBOARD TAB SCREEN */}
+        {currentTab === "the5ers" && (
+          <div className="space-y-6">
+            {/* Loading State */}
+            {t5Loading && (
+              <div className="flex flex-col items-center justify-center py-20 gap-4">
+                <div className="w-8 h-8 border-2 border-m3-primary border-t-transparent rounded-full animate-spin" />
+                <p className="text-sm text-m3-on-surface-variant">
+                  Đang đồng bộ dữ liệu The5ers...
+                </p>
+              </div>
+            )}
+
+            {/* Error State */}
+            {t5Error && !t5Loading && (
+              <div className="flex items-center gap-3 p-4 bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded-[20px] text-sm font-semibold">
+                <AlertTriangle size={18} />
+                {t5Error}
+              </div>
+            )}
+
+            {/* Overview or Detail */}
+            {!t5Loading && !selectedT5Account && (
+              <The5ersOverview
+                accounts={t5Accounts}
+                purchases={t5Purchases}
+                onSelectAccount={handleT5SelectAccount}
+                onRefresh={loadT5Data}
+                refreshing={t5Loading}
+                formatCurrency={formatT5Currency}
+              />
+            )}
+
+            {!t5Loading && selectedT5Account && (
+              <The5ersDetailPanel
+                account={selectedT5Account}
+                detail={selectedT5Detail}
+                trades={selectedT5DetailTrades}
+                onClose={() => {
+                  setSelectedT5Account(null);
+                  setSelectedT5Detail(null);
+                  setSelectedT5DetailTrades([]);
+                }}
+                formatCurrency={formatT5Currency}
+              />
+            )}
+
+            {/* Empty State */}
+            {!t5Loading && !t5Error && t5Accounts.length === 0 && (
+              <div className="text-center py-20">
+                <TrendingUp size={40} className="mx-auto text-m3-outline-variant mb-4" />
+                <h3 className="text-base font-bold text-m3-on-surface mb-2">
+                  Chưa có dữ liệu The5ers
+                </h3>
+                <p className="text-sm text-m3-on-surface-variant">
+                  Chạy scraper để đồng bộ dữ liệu tài khoản.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* 5. GORGEOUS ADD TRADE PANEL DIRECTIVE MODAL */}
@@ -2466,6 +2675,18 @@ export default function App() {
             <Newspaper size={20} />
           </div>
           <span className="m3-label-medium tracking-wide">Tin tức</span>
+        </button>
+
+        <button
+          onClick={() => setCurrentTab("the5ers")}
+          className={`flex flex-col items-center gap-1.5 justify-center flex-1 py-1.5 ${currentTab === "the5ers" ? "text-m3-primary" : "text-m3-on-surface-variant"}`}
+        >
+          <div
+            className={`px-5 py-1.5 rounded-full ${currentTab === "the5ers" ? "bg-m3-primary-container dark:bg-m3-primary-container/30 text-m3-primary dark:text-m3-primary" : ""}`}
+          >
+            <TrendingUp size={20} />
+          </div>
+          <span className="m3-label-medium tracking-wide">5%ers</span>
         </button>
       </footer>
     </div>
