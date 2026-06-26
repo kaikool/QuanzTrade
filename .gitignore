@@ -6,3 +6,6 @@ coverage/
 *.log
 .env*
 !.env.example
+public/data/
+scraper/data/
+scraper/.env
