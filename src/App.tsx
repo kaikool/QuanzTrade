@@ -467,6 +467,12 @@ export default function App() {
     setFormExitDate(now.toISOString().slice(0, 16));
   }, []);
 
+  // Auto-refresh The5ers data every 60 seconds
+  useEffect(() => {
+    const id = setInterval(() => { loadT5Data(); }, 60000);
+    return () => clearInterval(id);
+  }, []);
+
   useEffect(() => {
     const intervalId = window.setInterval(() => {
       loadNewsData(false);
