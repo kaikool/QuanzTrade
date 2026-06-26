@@ -9,3 +9,4 @@ coverage/
 public/data/
 scraper/data/
 scraper/.env
+.vercel

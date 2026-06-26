@@ -1352,23 +1352,80 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
-    // ─── The5ers: browser proxy sync (DPoP-safe) ──────────────────────────────────
-    // Browser sends a fresh Bearer token (15-min window), server proxies to The5ers
-    // API and writes results to Supabase using service_role_key.
+    // ─── The5ers: server-side Descope login → The5ers proxy sync (no DPoP) ────
+    // Server takes email+password, logs in via Descope v1/auth/signin, gets session
+    // JWT (15 min), proxies to The5ers API, writes Supabase. Refresh token saved to
+    // Supabase t5_config for automatic token refresh on subsequent calls.
     app.post("/api/the5ers/sync", async (req, res) => {
-      const bearer = req.body?.token || "";
-      if (!bearer) {
-        return res.status(400).json({ success: false, message: "Missing token" });
+      const { email, password } = req.body || {};
+      if (!email || !password) {
+        return res.status(400).json({ success: false, message: "Missing email or password" });
       }
 
       const supabase = getServerSupabaseClient();
-      const authHeader = bearer.startsWith("Bearer ") ? bearer : `Bearer ${bearer}`;
+      const descopeProjectId = "P37sOCdLJjVCAuLgqv2zMvS61Xbo";
       const baseUrl = "https://api.the5ers.com";
 
-      async function t5Fetch(path: string) {
+      // Step 1: Login via Descope password signin
+      async function getDescopeSession(loginId: string, pass: string): Promise<string> {
+        // Try stored refresh token first
+        if (supabase) {
+          const storedRefresh = await supabase.from("t5_config").select("value").eq("key", "THE5ERS_REFRESH_TOKEN").single();
+          if (storedRefresh.data?.value) {
+            const refreshRes = await fetch("https://api.descope.com/v1/auth/refresh", {
+              method: "POST",
+              headers: { "Authorization": `Bearer ${descopeProjectId}:${storedRefresh.data.value}`, "Content-Type": "application/json" },
+              body: JSON.stringify({}),
+            });
+            if (refreshRes.ok) {
+              const d = await refreshRes.json();
+              if (d.sessionJwt) {
+                let newRefresh = d.refreshJwt;
+                if (!newRefresh) {
+                  const setCookie = refreshRes.headers.get("set-cookie") || "";
+                  const m = setCookie.match(/DSR=([^;]+)/);
+                  if (m) newRefresh = m[1];
+                }
+                if (newRefresh && newRefresh !== storedRefresh.data.value) {
+                  supabase.from("t5_config").upsert({ key: "THE5ERS_REFRESH_TOKEN", value: newRefresh, updated_at: new Date().toISOString() });
+                }
+                return d.sessionJwt;
+              }
+            }
+          }
+        }
+
+        // Fresh login via password
+        const signinRes = await fetch("https://api.descope.com/v1/auth/signin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ loginId, password: pass, projectId: descopeProjectId }),
+        });
+        if (!signinRes.ok) {
+          const errText = await signinRes.text().catch(() => "");
+          throw new Error(`Descope login failed: ${signinRes.status} ${errText.slice(0, 200)}`);
+        }
+        const data = await signinRes.json();
+        const sessionJwt = data.sessionJwt || "";
+        if (!sessionJwt) throw new Error("Descope returned no sessionJwt");
+
+        // Save refresh token
+        let refreshJwt = data.refreshJwt || "";
+        if (!refreshJwt) {
+          const setCookie = signinRes.headers.get("set-cookie") || "";
+          const m = setCookie.match(/DSR=([^;]+)/);
+          if (m) refreshJwt = m[1];
+        }
+        if (refreshJwt && supabase) {
+          supabase.from("t5_config").upsert({ key: "THE5ERS_REFRESH_TOKEN", value: refreshJwt, updated_at: new Date().toISOString() });
+        }
+        return sessionJwt;
+      }
+
+      async function t5Fetch(path: string, token: string) {
         const r = await fetch(`${baseUrl}${path}`, {
           headers: {
-            authorization: authHeader,
+            authorization: `Bearer ${token}`,
             accept: "application/json, text/plain, */*",
             "user-agent": "Mozilla/5.0 TradeNews Sync",
             "x-brand": "5ers",
@@ -1382,8 +1439,11 @@ async function startServer() {
       }
 
       try {
-        // 1. Get user profile + account list
-        const user = await t5Fetch("/user");
+        // Get Descope session
+        const sessionToken = await getDescopeSession(email, password);
+
+        // Fetch The5ers API
+        const user = await t5Fetch("/user", sessionToken);
         const accounts: any[] = user.tsUsers || [];
         const userInfo = { userName: `${user.firstName || ""} ${user.lastName || ""}`.trim(), scrapedAt: new Date().toISOString() };
 
@@ -1396,10 +1456,10 @@ async function startServer() {
           let positions: any[] = [];
 
           await Promise.allSettled([
-            t5Fetch(`/account/ts/${accId}`).then(d => tsData = d).catch(() => {}),
-            t5Fetch(`/account/${accId}/balance`).then(d => balanceData = d).catch(() => {}),
-            t5Fetch(`/account/${accId}/stats`).then(d => statsData = d).catch(() => {}),
-            t5Fetch(`/position/all/${accId}?page=1&limit=50`).then(d => {
+            t5Fetch(`/account/ts/${accId}`, sessionToken).then(d => tsData = d).catch(() => {}),
+            t5Fetch(`/account/${accId}/balance`, sessionToken).then(d => balanceData = d).catch(() => {}),
+            t5Fetch(`/account/${accId}/stats`, sessionToken).then(d => statsData = d).catch(() => {}),
+            t5Fetch(`/position/all/${accId}?page=1&limit=50`, sessionToken).then(d => {
               positions = Array.isArray(d) ? d : (d.results || d.data || d.positions || []);
             }).catch(() => {}),
           ]);
@@ -1468,7 +1528,7 @@ async function startServer() {
           try {
             let allPurchases: any[] = [];
             for (let page = 1; page <= 5; page++) {
-              const purchaseData: any = await t5Fetch(`/purchase?page=${page}&limit=50`);
+              const purchaseData: any = await t5Fetch(`/purchase?page=${page}&limit=50`, sessionToken);
               const results = purchaseData?.results || [];
               allPurchases.push(...results);
               if (results.length < 50) break;

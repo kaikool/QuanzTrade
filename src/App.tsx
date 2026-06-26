@@ -1,5 +1,4 @@
 import React, { Suspense, lazy, useState, useEffect, useMemo } from "react";
-import { useDescope, useSession } from "@descope/react-sdk";
 import {
   Plus,
   Settings,
@@ -147,22 +146,23 @@ export default function App() {
     return [];
   });
 
-  // ─── The5ers Sync (Descope SDK login → DPoP-safe) ────────────────────────────
-  const { signInWithSocial } = useDescope();
-  const { sessionToken } = useSession();
+  // ─── The5ers Sync (server-side Descope login → no DPoP) ──────────────────────
+  const [t5Email, setT5Email] = useState(() => localStorage.getItem("t5_email") || "");
+  const [t5Password, setT5Password] = useState(() => localStorage.getItem("t5_password") || "");
   const [t5Syncing, setT5Syncing] = useState(false);
   const [t5SyncResult, setT5SyncResult] = useState<string | null>(null);
 
   async function syncT5Data() {
-    const token = sessionToken;
-    if (!token) { setT5SyncResult("Cần đăng nhập The5ers trước"); return; }
+    const email = localStorage.getItem("t5_email");
+    const pass = localStorage.getItem("t5_password");
+    if (!email || !pass) { setT5SyncResult("Nhập email + mật khẩu The5ers trước"); return; }
     setT5Syncing(true);
     setT5SyncResult(null);
     try {
       const res = await fetch("/api/the5ers/sync", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({ email, password: pass }),
       });
       const json = await res.json();
       if (json.success) {
@@ -175,19 +175,6 @@ export default function App() {
       setT5SyncResult(`❌ ${e.message}`);
     } finally {
       setT5Syncing(false);
-    }
-  }
-
-  async function loginThe5ers() {
-    try {
-      await signInWithSocial("google", { mode: "popup" });
-      // After popup login, sessionToken should be available
-      setTimeout(() => {
-        if (sessionToken) syncT5Data();
-        else setT5SyncResult("❌ Đăng nhập thành công nhưng không lấy được token");
-      }, 1000);
-    } catch (e: any) {
-      setT5SyncResult(`❌ Đăng nhập thất bại: ${e.message}`);
     }
   }
 
@@ -568,13 +555,13 @@ export default function App() {
     return () => clearInterval(id);
   }, []);
 
-  // Auto-sync The5ers data via Descope SDK (DPoP-safe, 10 min interval)
+  // Auto-sync The5ers data via server-side login (10 min interval)
   useEffect(() => {
-    if (!sessionToken) return;
+    if (!localStorage.getItem("t5_email") || !localStorage.getItem("t5_password")) return;
     syncT5Data();
     const id = setInterval(() => { syncT5Data(); }, 600000);
     return () => clearInterval(id);
-  }, [sessionToken]);
+  }, []);
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -2497,26 +2484,39 @@ export default function App() {
                       {t5Syncing ? "⏳ Đang sync..." : "🚀 Sync API"}
                     </button>
                   </div>
-                  {/* Descope Login / Account status */}
+                  {/* The5ers login */}
                   <div className="mt-2 space-y-2">
+                    <input
+                      type="email"
+                      value={t5Email}
+                      onChange={(e) => {
+                        setT5Email(e.target.value);
+                        localStorage.setItem("t5_email", e.target.value);
+                      }}
+                      placeholder="Email The5ers..."
+                      className="w-full px-2.5 py-1.5 bg-m3-surface-container-lowest border border-m3-outline rounded-lg text-[11px] font-mono focus:outline-none focus:border-m3-primary text-m3-on-surface"
+                    />
+                    <input
+                      type="password"
+                      value={t5Password}
+                      onChange={(e) => {
+                        setT5Password(e.target.value);
+                        localStorage.setItem("t5_password", e.target.value);
+                      }}
+                      placeholder="Mật khẩu The5ers..."
+                      className="w-full px-2.5 py-1.5 bg-m3-surface-container-lowest border border-m3-outline rounded-lg text-[11px] font-mono focus:outline-none focus:border-m3-primary text-m3-on-surface"
+                    />
                     <div className="flex gap-2">
-                      <button onClick={loginThe5ers} disabled={t5Syncing}
-                        className="flex-1 py-2 bg-white border border-m3-outline text-m3-on-surface font-bold rounded-xl text-xs hover:bg-m3-surface-container transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5">
-                        <svg viewBox="0 0 24 24" className="w-3.5 h-3.5"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                        {sessionToken ? "✅ Đã đăng nhập The5ers" : "🔑 Đăng nhập The5ers (Google)"}
+                      <button onClick={syncT5Data} disabled={t5Syncing}
+                        className="flex-1 py-2 bg-m3-primary text-white font-bold rounded-xl text-xs transition-colors cursor-pointer disabled:opacity-50">
+                        {t5Syncing ? "⏳ Đang đồng bộ..." : "🚀 Đồng bộ dữ liệu"}
                       </button>
                     </div>
-                    {sessionToken && (
-                      <button onClick={syncT5Data} disabled={t5Syncing}
-                        className="w-full py-2 bg-m3-primary text-white font-bold rounded-xl text-xs transition-colors cursor-pointer disabled:opacity-50">
-                        {t5Syncing ? "⏳ Đang đồng bộ..." : "🔄 Đồng bộ dữ liệu ngay"}
-                      </button>
-                    )}
                     {t5SyncResult && (
                       <p className={`text-[11px] font-medium ${t5SyncResult.startsWith("✅") ? "text-emerald-500" : "text-rose-500"}`}>{t5SyncResult}</p>
                     )}
                     <p className="text-[10px] text-m3-on-surface-variant/60 italic">
-                      Đăng nhập 1 lần qua Google, SDK tự refresh token (DPoP-safe). Đồng bộ tự động mỗi 10 phút.
+                      Server tự login + refresh token (ko cần DPoP). Đồng bộ tự động mỗi 10 phút.
                     </p>
                   </div>
                 </div>
