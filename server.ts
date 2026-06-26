@@ -1572,10 +1572,4 @@ async function startServer() {
   });
 }
 
-const initPromise = startServer();
-
-// Vercel serverless: wait for routes then handle
-export default async function handler(req: any, res: any) {
-  await initPromise;
-  app(req, res);
-}
+startServer();
