@@ -1567,17 +1567,9 @@ async function startServer() {
     });
   }
 
-  if (!process.env.VERCEL) {
-    app.listen(PORT, "0.0.0.0", () => {
-      console.log(`Server running on http://0.0.0.0:${PORT}`);
-    });
-  }
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on http://0.0.0.0:${PORT}`);
+  });
 }
 
-const initPromise = startServer();
-
-// Vercel serverless: wait for routes then handle
-export default async function handler(req: any, res: any) {
-  await initPromise;
-  app(req, res);
-}
+startServer();
