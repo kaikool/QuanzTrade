@@ -27,9 +27,6 @@ jobs:
 
       - name: Scrape The5ers
         env:
-          THE5ERS_COOKIES: ${{ secrets.THE5ERS_COOKIES }}
-          GOOGLE_EMAIL: ${{ secrets.GOOGLE_EMAIL }}
-          GOOGLE_PASSWORD: ${{ secrets.GOOGLE_PASSWORD }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           THE5ERS_TOKEN: ${{ secrets.THE5ERS_TOKEN }}
