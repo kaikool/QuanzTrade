@@ -1,4 +1,10 @@
-// Vercel serverless entry — import Express handler
-import handler from "../server";
+// Debug: minimal handler
+import express from "express";
+import { createClient } from "@supabase/supabase-js";
 
-export default handler;
+const app = express();
+app.use(express.json());
+
+app.get("/api/ping", (_, res) => res.json({ ok: true }));
+
+export default app;
