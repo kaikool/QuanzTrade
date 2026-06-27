@@ -15,6 +15,7 @@ export interface Trade {
   stop_loss?: number;
   take_profit?: number;
   tag?: string; // e.g., News-Trade, Trend-Follow, Breakout
+  tv_snapshot_url?: string;
 }
 
 export interface CalendarEvent {

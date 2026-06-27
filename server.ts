@@ -1736,11 +1736,10 @@ async function startServer() {
       }
     });
 
+    // TradingView Snapshot API using Browserless and puppeteer-core
     app.get("/api/tv-snapshot", async (req, res) => {
-      const { layout, symbol } = req.query;
-      if (!layout) {
-        return res.status(400).json({ success: false, message: "Thiếu tham số layout (ID của chart)" });
-      }
+      const { symbol } = req.query;
+      const layout = "fCLTltqk"; // Hardcoded default layout as requested by user
 
       const token = process.env.BROWSERLESS_TOKEN;
       if (!token) {
@@ -1749,7 +1748,7 @@ async function startServer() {
 
       try {
         const puppeteer = await import("puppeteer-core");
-
+        
         const browser = await puppeteer.default.connect({
           browserWSEndpoint: `wss://chrome.browserless.io?token=${token}`
         });
@@ -1757,9 +1756,10 @@ async function startServer() {
         const page = await browser.newPage();
         await page.setViewport({ width: 1280, height: 800 });
 
+        // Check if user provided TV cookies
         const sessionId = process.env.TV_SESSION_ID;
         const sessionSign = process.env.TV_SESSION_SIGN;
-
+        
         if (sessionId && sessionSign) {
           await page.setCookie(
             { name: "sessionid", value: sessionId, domain: ".tradingview.com" },
@@ -1771,16 +1771,19 @@ async function startServer() {
         if (symbol) {
           chartUrl += `?symbol=${symbol}`;
         }
-
+        
         await page.goto(chartUrl, { waitUntil: "networkidle2", timeout: 30000 });
 
+        // Wait for the chart to be visible
         await page.waitForSelector('.chart-gui-wrapper canvas', { timeout: 15000 }).catch(() => {});
-
+        
+        // Extra time for indicators/drawings to settle
         await new Promise(r => setTimeout(r, 4000));
 
+        // Attempt to take screenshot of the specific chart wrapper to cut off TV UI borders
         const chartElement = await page.$('.layout__area--center');
         let imageBuffer;
-
+        
         if (chartElement) {
           imageBuffer = await chartElement.screenshot({ type: "png" });
         } else {
@@ -1789,9 +1792,40 @@ async function startServer() {
 
         await browser.close();
 
-        res.setHeader('Content-Type', 'image/png');
-        res.setHeader('Cache-Control', 'public, max-age=60');
-        res.send(imageBuffer);
+        // Upload to TradingView S3 using their public snapshot endpoint
+        const blob = new Blob([imageBuffer], { type: "image/png" });
+        const formData = new FormData();
+        formData.append("preparedImage", blob, "blob");
+
+        const tvRes = await fetch("https://vn.tradingview.com/snapshot/", {
+          method: "POST",
+          headers: {
+            "Cookie": `sessionid=${sessionId}; sessionid_sign=${sessionSign}`
+          },
+          body: formData as any
+        });
+
+        if (!tvRes.ok) {
+          throw new Error(`TradingView upload failed with status: ${tvRes.status}`);
+        }
+
+        const tvId = await tvRes.text();
+        // TV responds with a string ID, e.g. "4PKuzwbB"
+        // It maps to https://s3.tradingview.com/snapshots/4/4PKuzwbB.png
+        let s3Url = "";
+        try {
+          const parsed = JSON.parse(tvId);
+          if (parsed.detail) throw new Error(parsed.detail);
+        } catch(e) {}
+        
+        if (tvId && !tvId.includes('{')) {
+          const firstChar = tvId.charAt(0).toLowerCase();
+          s3Url = `https://s3.tradingview.com/snapshots/${firstChar}/${tvId}.png`;
+        } else {
+          throw new Error("Invalid response from TradingView: " + tvId);
+        }
+
+        res.json({ success: true, url: s3Url });
 
       } catch (err: any) {
         console.error("TV Snapshot error:", err);

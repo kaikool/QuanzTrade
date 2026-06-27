@@ -82,7 +82,8 @@ export async function saveTradeToDB(trade: Trade): Promise<Trade> {
           rating: trade.rating,
           stop_loss: trade.stop_loss,
           take_profit: trade.take_profit,
-          tag: trade.tag
+          tag: trade.tag,
+          tv_snapshot_url: trade.tv_snapshot_url
         })
         .select()
         .single();

@@ -31,6 +31,8 @@ import {
   AlertTriangle,
   Newspaper,
   ShieldCheck,
+  Camera,
+  Maximize2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -58,12 +60,6 @@ const NEWS_PAGE_SIZE = 10;
 const BentoStats = lazy(() =>
   import("./components/BentoStats").then((module) => ({
     default: module.BentoStats,
-  })),
-);
-
-const TVSnapshotPanel = lazy(() =>
-  import("./components/TVSnapshotPanel").then((module) => ({
-    default: module.TVSnapshotPanel,
   })),
 );
 
@@ -202,6 +198,8 @@ export default function App() {
   const [formTakeProfit, setFormTakeProfit] = useState("");
   const [formEntryDate, setFormEntryDate] = useState("");
   const [formExitDate, setFormExitDate] = useState("");
+  const [formTVSnapshotUrl, setFormTVSnapshotUrl] = useState("");
+  const [isCapturingSnapshot, setIsCapturingSnapshot] = useState(false);
 
   // ─── The5ers State ────────────────────────────────────────────────────────────
   const [t5Accounts, setT5Accounts] = useState<T5AccountOverview[]>([]);
@@ -728,6 +726,7 @@ export default function App() {
       .slice(0, 16);
     setFormEntryDate(localISO);
     setFormExitDate(localISO);
+    setFormTVSnapshotUrl("");
 
     setIsAddOpen(true);
   };
@@ -748,6 +747,7 @@ export default function App() {
     setFormTag(trade.tag || "News-Trade");
     setFormStopLoss(trade.stop_loss ? trade.stop_loss.toString() : "");
     setFormTakeProfit(trade.take_profit ? trade.take_profit.toString() : "");
+    setFormTVSnapshotUrl(trade.tv_snapshot_url || "");
 
     if (trade.entry_date) {
       const eDate = new Date(trade.entry_date);
@@ -882,6 +882,28 @@ export default function App() {
     }
   };
 
+  const handleCaptureSnapshot = async () => {
+    setIsCapturingSnapshot(true);
+    try {
+      // Encode the symbol e.g., EUR/USD -> EURUSD
+      const encodedSymbol = encodeURIComponent("FX:" + formPair.replace("/", ""));
+      const token = localStorage.getItem("trade_app_auth_token");
+      const url = `/api/tv-snapshot?symbol=${encodedSymbol}&auth_token=${token}`;
+      
+      const res = await fetch(url);
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.message || "Lỗi khi gọi API chụp ảnh");
+      }
+      
+      setFormTVSnapshotUrl(json.url);
+    } catch (e: any) {
+      alert("Chụp ảnh thất bại: " + e.message);
+    } finally {
+      setIsCapturingSnapshot(false);
+    }
+  };
+
   // Handle Trade Creation
   const handleCreateTrade = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -932,6 +954,7 @@ export default function App() {
       tag: formTag,
       stop_loss: slNum,
       take_profit: tpNum,
+      tv_snapshot_url: formTVSnapshotUrl || undefined,
     };
 
     try {
@@ -946,6 +969,7 @@ export default function App() {
       setFormExitPrice("");
       setFormStopLoss("");
       setFormTakeProfit("");
+      setFormTVSnapshotUrl("");
     } catch (err: any) {
       console.error("Lỗi đồng bộ hoá:", err);
       alert("Đồng bộ hoá thất bại: " + err.message);
@@ -1659,6 +1683,11 @@ export default function App() {
                                 <div>
                                   <div className="font-bold text-m3-on-surface text-xs leading-tight flex items-center gap-1.5">
                                     {t.pair}
+                                    {t.tv_snapshot_url && (
+                                      <a href={t.tv_snapshot_url} target="_blank" rel="noreferrer" title="Xem ảnh Chart" className="text-m3-primary hover:text-blue-500 transition-colors">
+                                        <Camera size={12} />
+                                      </a>
+                                    )}
                                     {t.status === "OPEN" && (
                                       <span className="text-[9px] px-1 py-0.5 rounded bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 font-extrabold uppercase">OPEN</span>
                                     )}
@@ -1823,6 +1852,15 @@ export default function App() {
                           <p className="text-[10px] text-m3-on-surface-variant italic mt-1.5 bg-m3-surface-container/50 dark:bg-m3-surface-container/30 p-1.5 rounded-lg line-clamp-1 leading-relaxed">
                             {t.notes}
                           </p>
+                        )}
+                        {/* TradingView Snapshot */}
+                        {t.tv_snapshot_url && (
+                          <a href={t.tv_snapshot_url} target="_blank" rel="noreferrer" className="mt-2 block rounded-lg overflow-hidden border border-m3-outline-variant/30 relative">
+                            <img src={t.tv_snapshot_url} alt="Chart Snapshot" className="w-full h-auto object-cover max-h-[120px]" />
+                            <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                              <Camera size={24} className="text-white drop-shadow-md" />
+                            </div>
+                          </a>
                         )}
                       </div>
                     );
@@ -2373,6 +2411,45 @@ export default function App() {
                       onChange={(e) => setFormNotes(e.target.value)}
                       className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] resize-none"
                     ></textarea>
+                  </div>
+
+                  {/* TradingView Snapshot Feature */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="m3-label-medium text-m3-on-surface-variant block">
+                        Ảnh biểu đồ (TradingView)
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleCaptureSnapshot}
+                        disabled={isCapturingSnapshot || !formPair}
+                        className="text-xs font-bold text-m3-primary flex items-center gap-1 hover:underline disabled:opacity-50"
+                      >
+                        {isCapturingSnapshot ? (
+                          <><RefreshCw size={12} className="animate-spin" /> Đang chụp...</>
+                        ) : (
+                          <><Camera size={12} /> Tự động chụp {formPair && `(${formPair})`}</>
+                        )}
+                      </button>
+                    </div>
+                    {formTVSnapshotUrl ? (
+                      <div className="relative border border-m3-outline rounded-lg overflow-hidden group max-h-[160px] flex items-center justify-center bg-black/10">
+                        <img src={formTVSnapshotUrl} alt="Chart" className="w-full object-cover" />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-opacity">
+                          <a href={formTVSnapshotUrl} target="_blank" rel="noreferrer" className="p-2 bg-white/20 hover:bg-white/40 rounded-full text-white backdrop-blur-md transition-colors" title="Xem ảnh gốc">
+                            <Maximize2 size={16} />
+                          </a>
+                          <button type="button" onClick={() => setFormTVSnapshotUrl("")} className="p-2 bg-red-500/80 hover:bg-red-500 rounded-full text-white backdrop-blur-md transition-colors" title="Xoá ảnh">
+                            <X size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="border border-dashed border-m3-outline rounded-lg p-4 flex flex-col items-center justify-center text-m3-on-surface-variant/60 gap-2 bg-m3-surface-container-lowest">
+                        <Camera size={24} className="opacity-50" />
+                        <span className="text-xs">Chưa có ảnh chụp biểu đồ cho lệnh này</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Rating selection (Stars) */}
