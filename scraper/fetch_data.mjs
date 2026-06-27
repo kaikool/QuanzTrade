@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { supabase, syncAccount, syncTrades, syncPurchases, getConfig, setConfig } from './supabase.mjs';
+import { captureAndSaveSnapshot } from './snapshot.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -116,9 +117,13 @@ async function run() {
     };
 
     let existingAccounts = [];
+    let existingTradeIds = new Set();
     if (supabase) {
       const { data } = await supabase.from('t5_accounts').select('account_id, status');
       if (data) existingAccounts = data;
+      
+      const { data: tData } = await supabase.from('t5_trades').select('trade_id');
+      if (tData) tData.forEach(t => existingTradeIds.add(t.trade_id));
     }
 
     if (accounts && accounts.length > 0) {
@@ -145,6 +150,26 @@ async function run() {
           try {
             const posRes = await fetchApi('/position/all/' + accId + '?page=1&limit=50');
             positionsData = Array.isArray(posRes) ? posRes : (posRes.results || posRes.data || posRes.positions || []);
+            
+            // Check for new trades to snapshot
+            for (const t of positionsData) {
+                const tid = String(t.id || t._id);
+                if (!existingTradeIds.has(tid)) {
+                    // NEW TRADE DETECTED! Take snapshot!
+                    const symbol = t.symbol || '';
+                    const pair = symbol.replace(/(.{3})/, "$1/");
+                    await captureAndSaveSnapshot(
+                        tid,
+                        symbol,
+                        pair,
+                        t.side || t.direction,
+                        t.entry || t.openPrice,
+                        t.quantity || t.volume,
+                        t.openDate || t.openTime
+                    );
+                    existingTradeIds.add(tid); // Mark as processed to avoid duplicates in same run if any
+                }
+            }
           } catch(e) { console.log('Khong lay duoc lenh ' + accId); }
 
           const finalType = tsData.type || acc.accountType || 'unknown';

@@ -1743,14 +1743,16 @@ async function startServer() {
         return res.status(500).json({ success: false, message: "Supabase not configured" });
       }
       try {
-        const [idData, signData] = await Promise.all([
+        const [idData, signData, browserlessData] = await Promise.all([
           supabase.from("t5_config").select("value").eq("key", "TV_SESSION_ID").single(),
-          supabase.from("t5_config").select("value").eq("key", "TV_SESSION_SIGN").single()
+          supabase.from("t5_config").select("value").eq("key", "TV_SESSION_SIGN").single(),
+          supabase.from("t5_config").select("value").eq("key", "BROWSERLESS_TOKEN").single()
         ]);
         res.json({
           success: true,
           sessionId: idData.data?.value || "",
-          sessionSign: signData.data?.value || ""
+          sessionSign: signData.data?.value || "",
+          browserlessToken: browserlessData.data?.value || ""
         });
       } catch (e: any) {
         res.status(500).json({ success: false, message: e.message });
@@ -1759,9 +1761,9 @@ async function startServer() {
 
     // Save TradingView credentials to Supabase
     app.post("/api/save-tv-creds", async (req, res) => {
-      const { sessionId, sessionSign } = req.body || {};
-      if (!sessionId || !sessionSign) {
-        return res.status(400).json({ success: false, message: "Missing sessionId or sessionSign" });
+      const { sessionId, sessionSign, browserlessToken } = req.body || {};
+      if (!sessionId || !sessionSign || !browserlessToken) {
+        return res.status(400).json({ success: false, message: "Missing sessionId, sessionSign or browserlessToken" });
       }
       const supabase = getServerSupabaseClient();
       if (!supabase) {
@@ -1770,7 +1772,8 @@ async function startServer() {
       try {
         await supabase.from("t5_config").upsert({ key: "TV_SESSION_ID", value: sessionId, updated_at: new Date().toISOString() });
         await supabase.from("t5_config").upsert({ key: "TV_SESSION_SIGN", value: sessionSign, updated_at: new Date().toISOString() });
-        res.json({ success: true, message: "✅ Đã lưu Cookie lên Database." });
+        await supabase.from("t5_config").upsert({ key: "BROWSERLESS_TOKEN", value: browserlessToken, updated_at: new Date().toISOString() });
+        res.json({ success: true, message: "✅ Đã lưu cấu hình lên Database." });
       } catch (e: any) {
         res.status(500).json({ success: false, message: e.message });
       }

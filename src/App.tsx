@@ -227,11 +227,12 @@ export default function App() {
   // ─── TradingView Auth Config ──────────────────────────────────────────────
   const [tvSessionId, setTvSessionId] = useState(() => localStorage.getItem("tv_session_id") || "");
   const [tvSessionSign, setTvSessionSign] = useState(() => localStorage.getItem("tv_session_sign") || "");
+  const [browserlessToken, setBrowserlessToken] = useState(() => localStorage.getItem("browserless_token") || "");
   const [tvSaving, setTvSaving] = useState(false);
   const [tvSaveResult, setTvSaveResult] = useState<string | null>(null);
 
   async function saveTVCreds() {
-    if (!tvSessionId || !tvSessionSign) { setTvSaveResult("Vui lòng nhập đủ 2 trường"); return; }
+    if (!tvSessionId || !tvSessionSign || !browserlessToken) { setTvSaveResult("Vui lòng nhập đủ các trường"); return; }
     setTvSaving(true);
     setTvSaveResult(null);
     try {
@@ -241,7 +242,7 @@ export default function App() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${localStorage.getItem("trade_app_auth_token")}`
         },
-        body: JSON.stringify({ sessionId: tvSessionId, sessionSign: tvSessionSign }),
+        body: JSON.stringify({ sessionId: tvSessionId, sessionSign: tvSessionSign, browserlessToken }),
       });
       const json = await res.json();
       setTvSaveResult(json.success ? `✅ ${json.message}` : `❌ ${json.message}`);
@@ -601,6 +602,10 @@ export default function App() {
         if (json.sessionSign && !tvSessionSign) {
           setTvSessionSign(json.sessionSign);
           localStorage.setItem("tv_session_sign", json.sessionSign);
+        }
+        if (json.browserlessToken && !browserlessToken) {
+          setBrowserlessToken(json.browserlessToken);
+          localStorage.setItem("browserless_token", json.browserlessToken);
         }
       }
     } catch (e) {}
@@ -2722,6 +2727,16 @@ export default function App() {
                       }}
                       className="w-full text-xs px-3 py-2 bg-m3-surface-container-lowest border border-m3-outline rounded font-mono text-m3-on-surface focus:border-m3-primary focus:outline-none"
                     />
+                    <div className="flex flex-col mb-3">
+                      <label className="text-[11px] font-bold text-m3-on-surface-variant mb-1 uppercase tracking-wider">Browserless Token (Dùng cho Auto-Screenshot)</label>
+                      <input 
+                        type="password"
+                        value={browserlessToken}
+                        onChange={(e) => setBrowserlessToken(e.target.value)}
+                        placeholder="Nhập Token của Browserless..."
+                        className="w-full px-2.5 py-1.5 bg-m3-surface-container-lowest border border-m3-outline rounded-lg text-xs focus:outline-none focus:border-m3-primary text-m3-on-surface transition-colors"
+                      />
+                    </div>
                     <p className="text-[10px] text-m3-on-surface-variant italic">
                       Dùng để giữ biểu đồ luôn hiển thị chỉ báo cá nhân khi chụp ảnh.
                     </p>
