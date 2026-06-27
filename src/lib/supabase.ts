@@ -67,7 +67,7 @@ export async function saveTradeToDB(trade: Trade): Promise<Trade> {
       const { data, error } = await supabase
         .from("trades")
         .upsert({
-          id: trade.id.startsWith("t") && trade.id.length < 5 ? undefined : trade.id, // let supabase generate a uuid if it's our mock t1-t5
+          id: trade.id,
           pair: trade.pair,
           type: trade.type,
           entry_price: trade.entry_price,

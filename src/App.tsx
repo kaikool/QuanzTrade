@@ -200,6 +200,7 @@ export default function App() {
   const [formExitDate, setFormExitDate] = useState("");
   const [formTVSnapshotUrl, setFormTVSnapshotUrl] = useState("");
   const [isCapturingSnapshot, setIsCapturingSnapshot] = useState(false);
+  const [formPnl, setFormPnl] = useState("");
 
   // ─── The5ers State ────────────────────────────────────────────────────────────
   const [t5Accounts, setT5Accounts] = useState<T5AccountOverview[]>([]);
@@ -711,6 +712,7 @@ export default function App() {
     setFormEntryPrice("");
     setFormExitPrice("");
     setFormSize("1.0");
+    setFormPnl("");
     setFormNotes("");
     setFormTimeframe("H1");
     setFormRating(5);
@@ -740,6 +742,7 @@ export default function App() {
       trade.exit_price !== null ? trade.exit_price.toString() : "",
     );
     setFormSize(trade.size.toString());
+    setFormPnl(trade.pnl !== undefined ? trade.pnl.toString() : "");
     setFormNotes(trade.notes || "");
     setFormTimeframe(trade.timeframe || "H1");
     setFormRating(trade.rating || 5);
@@ -919,20 +922,11 @@ export default function App() {
     const sizeNum = parseFloat(formSize);
     const slNum = formStopLoss ? parseFloat(formStopLoss) : undefined;
     const tpNum = formTakeProfit ? parseFloat(formTakeProfit) : undefined;
+    const pnlNum = formPnl ? parseFloat(formPnl) : 0;
 
-    // Calculate PNL based on BUY or SELL
-    let calculatedPnl = 0;
-    if (formStatus === "CLOSED" && exitPriceNum !== null) {
-      const pipMultiplier = formPair.includes("JPY") ? 100 : 10000;
-      const difference =
-        formType === "BUY"
-          ? exitPriceNum - entryPriceNum
-          : entryPriceNum - exitPriceNum;
-
-      calculatedPnl = difference * pipMultiplier * sizeNum * 10;
-    } else {
-      calculatedPnl = 0;
-    }
+    // User requested to completely remove the custom PnL calculation because it's incorrect.
+    // Instead, we just use the manually inputted PnL (or 0 if not provided).
+    const calculatedPnl = pnlNum;
 
     const targetId = editingTradeId || "t" + Date.now();
 
@@ -969,6 +963,7 @@ export default function App() {
       setFormExitPrice("");
       setFormStopLoss("");
       setFormTakeProfit("");
+      setFormPnl("");
       setFormTVSnapshotUrl("");
     } catch (err: any) {
       console.error("Lỗi đồng bộ hoá:", err);
