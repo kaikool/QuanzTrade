@@ -71,6 +71,57 @@ window.fetch = async (...args) => {
   return res;
 };
 
+
+const The5ersMetrics = ({ t5Accounts, selectedIds }: { t5Accounts: import('./types').T5AccountOverview[], selectedIds: string[] }) => {
+  const activeAccounts = t5Accounts.filter(a => selectedIds.includes(a.accountId));
+  if (activeAccounts.length === 0) return null;
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      {activeAccounts.map(acc => {
+        const dailyLossVal = Math.abs(acc.dailyLoss || 0);
+        const dailyLimitVal = Math.abs(acc.dailyLossLimit || 0);
+        const dailyPct = dailyLimitVal > 0 ? Math.min(100, (dailyLossVal / dailyLimitVal) * 100) : 0;
+        
+        const maxLossVal = Math.abs(acc.maxLoss || 0);
+        const pnlVal = (acc.pnl || 0);
+        
+        return (
+        <div key={acc.accountId} className="bg-m3-surface rounded-[24px] p-5 shadow-level1 flex flex-col gap-3 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-1.5 h-full bg-m3-primary opacity-80" />
+          <h3 className="font-bold text-sm text-m3-on-surface flex justify-between items-center">
+            {acc.name}
+            <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${acc.type === "funded" ? "bg-emerald-500/10 text-emerald-600" : "bg-blue-500/10 text-blue-600"}`}>{acc.type}</span>
+          </h3>
+          
+          <div className="flex flex-col gap-1">
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-m3-on-surface-variant font-medium">Lỗ trong ngày (Daily Loss)</span>
+              <span className={`font-bold ${dailyLossVal >= dailyLimitVal ? "text-rose-500" : "text-m3-on-surface"}`}>
+                -{dailyLossVal.toFixed(2)}$ / -{dailyLimitVal.toFixed(2)}$
+              </span>
+            </div>
+            <div className="w-full bg-m3-surface-container-high rounded-full h-2 overflow-hidden">
+              <div className={`h-full rounded-full transition-all duration-500 ${dailyPct > 80 ? "bg-rose-500" : "bg-emerald-500"}`} style={{ width: `${dailyPct}%` }} />
+            </div>
+          </div>
+          
+          <div className="flex justify-between items-center text-xs pt-1 border-t border-m3-outline-variant/30">
+            <span className="text-m3-on-surface-variant font-medium">Lỗ tối đa cho phép (Max Loss)</span>
+            <span className="font-bold text-m3-on-surface">{maxLossVal.toFixed(2)}$</span>
+          </div>
+          <div className="flex justify-between items-center text-xs">
+            <span className="text-m3-on-surface-variant font-medium">Lợi nhuận (P&L)</span>
+            <span className={`font-bold ${pnlVal >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
+              {pnlVal >= 0 ? '+' : ''}{pnlVal.toFixed(2)}$
+            </span>
+          </div>
+        </div>
+      )})}
+    </div>
+  );
+};
+
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem("trade_app_auth_token"));
   const [authToken, setAuthToken] = useState(() => localStorage.getItem("trade_app_auth_token") || "");
@@ -774,7 +825,7 @@ export default function App() {
       const res = await fetch(`/api/news?${params.toString()}`, { cache: "no-store", headers: { "Authorization": `Bearer ${localStorage.getItem("trade_app_auth_token")}` } });
       const json = await res.json();
       if (json && json.success) {
-        setNewsItems(sortNewsByNewest(json.data || []));
+        setNewsItems(json.data || []);
         setNewsHasMore(Boolean(json.hasMore));
         setNewsPage(page);
         setNewsLastUpdatedAt(json.fetchedAt || new Date().toISOString());
@@ -806,7 +857,7 @@ export default function App() {
       const res = await fetch(`/api/news?${params.toString()}`, { cache: "no-store", headers: { "Authorization": `Bearer ${localStorage.getItem("trade_app_auth_token")}` } });
       const json = await res.json();
       if (json && json.success) {
-        setNewsItems(sortNewsByNewest(json.data || []));
+        setNewsItems(json.data || []);
         setNewsPage(nextPage);
         setNewsHasMore(Boolean(json.hasMore));
         setNewsLastUpdatedAt(json.fetchedAt || new Date().toISOString());
@@ -1233,6 +1284,7 @@ export default function App() {
                 <div className="min-h-[260px] rounded-[24px] bg-m3-surface shadow-level1 animate-pulse" />
               }
             >
+              <The5ersMetrics t5Accounts={t5Accounts} selectedIds={selectedT5AccountIds} />
               <BentoStats trades={mergedTrades} darkMode={darkMode} />
             </Suspense>
 

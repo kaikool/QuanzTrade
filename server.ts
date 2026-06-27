@@ -1584,6 +1584,10 @@ async function startServer() {
             pnl: statsData.totalNetProfit || 0,
             status: finalStatus,
             type: finalType,
+            maxLoss: balanceData.maxLoss || 0,
+            dailyLoss: balanceData.dailyProfitAndLoss || 0,
+            dailyLossLimit: balanceData.allowedDailyLosses || 0,
+            baseBalance: balanceData.baseBalance || 0,
           };
 
           const stats = { ...statsData, balanceDetails: balanceData, accountState: tsData };
@@ -1685,10 +1689,32 @@ async function startServer() {
       }
     });
 
+    // Get The5ers credentials from Supabase for frontend sync
+    app.get("/api/get-t5-creds", async (req, res) => {
+      const supabase = getServerSupabaseClient();
+      if (!supabase) {
+        return res.status(500).json({ success: false, message: "Supabase not configured" });
+      }
+      try {
+        const [eData, pData] = await Promise.all([
+          supabase.from("t5_config").select("value").eq("key", "THE5ERS_EMAIL").single(),
+          supabase.from("t5_config").select("value").eq("key", "THE5ERS_REFRESH_TOKEN").single()
+        ]);
+        res.json({
+          success: true,
+          email: eData.data?.value || "",
+          password: pData.data?.value || ""
+        });
+      } catch (e: any) {
+        res.status(500).json({ success: false, message: e.message });
+      }
+    });
+
     app.get("*", (req, res) => {
       res.type("html").send(SPA_HTML);
     });
   }
+
 
   // ─── Save The5ers credentials to Supabase (for GH Actions scraper) ────────
   app.post("/api/save-t5-creds", async (req, res) => {

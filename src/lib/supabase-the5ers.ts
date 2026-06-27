@@ -35,6 +35,10 @@ export async function fetchT5Accounts(): Promise<T5AccountOverview[]> {
     balance: acc.balance ?? 0,
     equity: acc.equity ?? 0,
     pnl: acc.pnl ?? 0,
+    dailyLoss: acc.stats?.balanceDetails?.dailyProfitAndLoss ?? 0,
+    dailyLossLimit: acc.stats?.balanceDetails?.allowedDailyLosses ?? 0,
+    maxLoss: acc.stats?.balanceDetails?.maxLoss ?? 0,
+    baseBalance: acc.stats?.balanceDetails?.baseBalance ?? 0,
     _rawStats: acc.stats,
   }));
 

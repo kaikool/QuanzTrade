@@ -85,6 +85,10 @@ export interface T5AccountOverview {
   equity: number;
   pnl: number;
   pnlPercent?: number;
+    maxLoss?: number;
+    dailyLoss?: number;
+    dailyLossLimit?: number;
+    baseBalance?: number;
   currency?: string;
   _rawStats?: any;
   state?: any;

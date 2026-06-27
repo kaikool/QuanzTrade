@@ -32,7 +32,10 @@ import_dotenv.default.config();
 var app = (0, import_express.default)();
 var PORT = process.env.PORT ? parseInt(process.env.PORT) : 3e3;
 app.use(import_express.default.json());
-var activeSessions = /* @__PURE__ */ new Set();
+function getStatelessToken() {
+  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY || "quanztrade-secret";
+  return import_crypto.default.createHmac("sha256", secret).update(process.env.SITE_PASSWORD || "no-auth").digest("hex");
+}
 var memorySupabaseUrl = "";
 var memorySupabaseAnon = "";
 async function startServer() {
@@ -63,8 +66,7 @@ async function startServer() {
       }
     }
     if (password === sitePassword || !sitePassword) {
-      const token = import_crypto.default.randomBytes(32).toString("hex");
-      activeSessions.add(token);
+      const token = getStatelessToken();
       return res.json({ success: true, token, configured: !!sitePassword });
     }
     return res.status(401).json({ success: false, message: "Sai m\u1EADt kh\u1EA9u truy c\u1EADp" });
@@ -76,7 +78,7 @@ async function startServer() {
       return res.status(401).json({ success: false, message: "Unauthorized: Missing Token" });
     }
     const token = authHeader.split(" ")[1];
-    if (!activeSessions.has(token)) {
+    if (token !== getStatelessToken()) {
       return res.status(401).json({ success: false, message: "Unauthorized: Invalid or expired token" });
     }
     next();
@@ -1152,11 +1154,21 @@ async function startServer() {
   </body>
 </html>`;
     app.post("/api/the5ers/sync", async (req, res) => {
-      const { email, password } = req.body || {};
-      if (!email || !password) {
-        return res.status(400).json({ success: false, message: "Missing email or password" });
-      }
+      let { email, password } = req.body || {};
       const supabase = getServerSupabaseClient();
+      if (!email || !password) {
+        if (supabase) {
+          const [eData, pData] = await Promise.all([
+            supabase.from("t5_config").select("value").eq("key", "THE5ERS_EMAIL").single(),
+            supabase.from("t5_config").select("value").eq("key", "THE5ERS_REFRESH_TOKEN").single()
+          ]);
+          if (!email) email = eData.data?.value;
+          if (!password) password = pData.data?.value;
+        }
+      }
+      if (!email || !password) {
+        return res.status(400).json({ success: false, message: "Vui l\xF2ng nh\u1EADp Email v\xE0 m\xE3 DSR l\u1EA7n \u0111\u1EA7u tr\xEAn web \u0111\u1EC3 l\u01B0u l\u1EA1i." });
+      }
       const descopeProjectId = "P37sOCdLJjVCAuLgqv2zMvS61Xbo";
       const baseUrl = "https://api.the5ers.com";
       async function getDescopeSession(loginId, pass) {
@@ -1262,7 +1274,11 @@ async function startServer() {
             equity: balanceData.equity || 0,
             pnl: statsData.totalNetProfit || 0,
             status: finalStatus,
-            type: finalType
+            type: finalType,
+            maxLoss: balanceData.maxLoss || 0,
+            dailyLoss: balanceData.dailyProfitAndLoss || 0,
+            dailyLossLimit: balanceData.allowedDailyLosses || 0,
+            baseBalance: balanceData.baseBalance || 0
           };
           const stats = { ...statsData, balanceDetails: balanceData, accountState: tsData };
           await new Promise((r) => setTimeout(r, 200));
@@ -1347,6 +1363,25 @@ async function startServer() {
         await supabase.from("t5_config").upsert({ key: "SITE_PASSWORD", value: sitePassword, updated_at: (/* @__PURE__ */ new Date()).toISOString() });
         process.env.SITE_PASSWORD = sitePassword;
         res.json({ success: true, message: "\u0110\xE3 l\u01B0u m\u1EADt kh\u1EA9u b\u1EA3o v\u1EC7 Web App!" });
+      } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
+      }
+    });
+    app.get("/api/get-t5-creds", async (req, res) => {
+      const supabase = getServerSupabaseClient();
+      if (!supabase) {
+        return res.status(500).json({ success: false, message: "Supabase not configured" });
+      }
+      try {
+        const [eData, pData] = await Promise.all([
+          supabase.from("t5_config").select("value").eq("key", "THE5ERS_EMAIL").single(),
+          supabase.from("t5_config").select("value").eq("key", "THE5ERS_REFRESH_TOKEN").single()
+        ]);
+        res.json({
+          success: true,
+          email: eData.data?.value || "",
+          password: pData.data?.value || ""
+        });
       } catch (e) {
         res.status(500).json({ success: false, message: e.message });
       }
