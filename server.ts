@@ -1762,8 +1762,8 @@ async function startServer() {
         
         if (sessionId && sessionSign) {
           await page.setCookie(
-            { name: "sessionid", value: sessionId, domain: ".tradingview.com" },
-            { name: "sessionid_sign", value: sessionSign, domain: ".tradingview.com" }
+            { name: "sessionid", value: sessionId, domain: ".tradingview.com", path: "/", secure: true, httpOnly: true },
+            { name: "sessionid_sign", value: sessionSign, domain: ".tradingview.com", path: "/", secure: true, httpOnly: true }
           );
         }
 
@@ -1797,8 +1797,14 @@ async function startServer() {
         // Extra time for the layout to recalculate and indicators to render
         await new Promise(r => setTimeout(r, 6000));
 
-        // Take a screenshot of the entire page (which is now just the centered chart)
-        const imageBuffer = await page.screenshot({ type: "png", fullPage: false });
+        // Take a screenshot of specifically the chart area to avoid any gray backgrounds
+        const chartElement = await page.$('.layout__area--center');
+        let imageBuffer;
+        if (chartElement) {
+          imageBuffer = await chartElement.screenshot({ type: "png" });
+        } else {
+          imageBuffer = await page.screenshot({ type: "png", fullPage: false });
+        }
 
         await browser.close();
 
