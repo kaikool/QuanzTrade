@@ -67,10 +67,30 @@ export async function captureAndSaveSnapshot(tradeId, symbol, pair, type, entryP
             });
         });
 
-        await new Promise(r => setTimeout(r, 1000));
-
         // Get the chart container bounding box
         const chartEl = await page.$('.layout__area--center');
+        if (chartEl) {
+            await chartEl.click();
+            const box = await chartEl.boundingBox();
+            if (box) {
+                // Force scroll to newest bar by simulating 5 quick horizontal swipes to the left
+                for (let i = 0; i < 5; i++) {
+                    await page.mouse.move(box.x + box.width - 100, box.y + box.height / 2);
+                    await page.mouse.down();
+                    await page.mouse.move(box.x + 100, box.y + box.height / 2, { steps: 5 });
+                    await page.mouse.up();
+                    await new Promise(r => setTimeout(r, 100));
+                }
+            }
+        }
+
+        // Reset Price Scale (Alt + R) to ensure candles are scaled correctly
+        await page.keyboard.down('Alt');
+        await page.keyboard.press('r');
+        await page.keyboard.up('Alt');
+
+        await new Promise(r => setTimeout(r, 2000));
+
         let clip = null;
         if (chartEl) {
             const box = await chartEl.boundingBox();
