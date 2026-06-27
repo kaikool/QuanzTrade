@@ -77,6 +77,13 @@ async function startServer() {
   app.use("/api", (req, res, next) => {
     if (req.path === "/auth/login") return next();
 
+    // Allow token in query parameter for tv-snapshot so it can be used in <img> tags
+    if (req.path === "/tv-snapshot" && req.query.auth_token) {
+      if (req.query.auth_token === getStatelessToken()) {
+        return next();
+      }
+    }
+
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({ success: false, message: "Unauthorized: Missing Token" });
@@ -1077,11 +1084,11 @@ async function startServer() {
       throw new Error(`Failed to fetch XML: ${xmlResponse.status} ${xmlResponse.statusText}`);
     }
     const xmlText = await xmlResponse.text();
-    
+
     const eventRegex = /<event>([\s\S]*?)<\/event>/g;
     const events: any[] = [];
     let match;
-    
+
     const extractTag = (eventBlock: string, tag: string): string => {
       const r = new RegExp(`<${tag}>\\s*<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>\\s*<\/${tag}>`, "i");
       let m = eventBlock.match(r);
@@ -1147,7 +1154,7 @@ async function startServer() {
       // 2. Try fetching JSON feed
       const url = "https://nfs.faireconomy.media/ff_calendar_thisweek.json?version=c1ac8d47f5073ddfeeddc12d201c449f";
       const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
-      
+
       if (!response.ok) {
         throw new Error(`Failed to fetch JSON: ${response.status} ${response.statusText}`);
       }
@@ -1156,9 +1163,9 @@ async function startServer() {
       if (!contentType.includes("application/json")) {
         throw new Error(`Invalid response format from remote API: ${contentType}`);
       }
-      
+
       const externalData: any[] = await response.json();
-      
+
       // Map and filter for country "USD" only
       const formattedWeekly = externalData.map(item => {
         let mappedImpact = "Low";
@@ -1551,7 +1558,7 @@ async function startServer() {
 
         for (const acc of accounts) {
           const accId = acc.externalId;
-          
+
           // Optimize: Skip disabled accounts to save time and API requests
           const existingAcc = existingAccounts.find((a: any) => a.account_id === String(accId));
           if (existingAcc && existingAcc.status === "disabled") {
@@ -1565,7 +1572,7 @@ async function startServer() {
           try { tsData = await t5Fetch(`/account/ts/${accId}`, sessionToken); } catch(e) {}
           try { balanceData = await t5Fetch(`/account/${accId}/balance`, sessionToken); } catch(e) {}
           try { statsData = await t5Fetch(`/account/${accId}/stats`, sessionToken); } catch(e) {}
-          try { 
+          try {
             const d = await t5Fetch(`/position/all/${accId}?page=1&limit=50`, sessionToken);
             positions = Array.isArray(d) ? d : (d.results || d.data || d.positions || []);
           } catch(e: any) {
@@ -1726,6 +1733,69 @@ async function startServer() {
         res.json({ success: true, message: "✅ Saved! T5 will now use DSR Token." });
       } catch (e: any) {
         res.status(500).json({ success: false, message: e.message });
+      }
+    });
+
+    app.get("/api/tv-snapshot", async (req, res) => {
+      const { layout, symbol } = req.query;
+      if (!layout) {
+        return res.status(400).json({ success: false, message: "Thiếu tham số layout (ID của chart)" });
+      }
+
+      const token = process.env.BROWSERLESS_TOKEN;
+      if (!token) {
+        return res.status(500).json({ success: false, message: "Server chưa cấu hình BROWSERLESS_TOKEN trong môi trường." });
+      }
+
+      try {
+        const puppeteer = await import("puppeteer-core");
+
+        const browser = await puppeteer.default.connect({
+          browserWSEndpoint: `wss://chrome.browserless.io?token=${token}`
+        });
+
+        const page = await browser.newPage();
+        await page.setViewport({ width: 1280, height: 800 });
+
+        const sessionId = process.env.TV_SESSION_ID;
+        const sessionSign = process.env.TV_SESSION_SIGN;
+
+        if (sessionId && sessionSign) {
+          await page.setCookie(
+            { name: "sessionid", value: sessionId, domain: ".tradingview.com" },
+            { name: "sessionid_sign", value: sessionSign, domain: ".tradingview.com" }
+          );
+        }
+
+        let chartUrl = `https://vn.tradingview.com/chart/${layout}/`;
+        if (symbol) {
+          chartUrl += `?symbol=${symbol}`;
+        }
+
+        await page.goto(chartUrl, { waitUntil: "networkidle2", timeout: 30000 });
+
+        await page.waitForSelector('.chart-gui-wrapper canvas', { timeout: 15000 }).catch(() => {});
+
+        await new Promise(r => setTimeout(r, 4000));
+
+        const chartElement = await page.$('.layout__area--center');
+        let imageBuffer;
+
+        if (chartElement) {
+          imageBuffer = await chartElement.screenshot({ type: "png" });
+        } else {
+          imageBuffer = await page.screenshot({ type: "png" });
+        }
+
+        await browser.close();
+
+        res.setHeader('Content-Type', 'image/png');
+        res.setHeader('Cache-Control', 'public, max-age=60');
+        res.send(imageBuffer);
+
+      } catch (err: any) {
+        console.error("TV Snapshot error:", err);
+        res.status(500).json({ success: false, message: "Lỗi chụp ảnh: " + err.message });
       }
     });
 

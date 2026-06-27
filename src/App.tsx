@@ -61,6 +61,12 @@ const BentoStats = lazy(() =>
   })),
 );
 
+const TVSnapshotPanel = lazy(() =>
+  import("./components/TVSnapshotPanel").then((module) => ({
+    default: module.TVSnapshotPanel,
+  })),
+);
+
 const originalFetch = window.fetch;
 window.fetch = async (...args) => {
   const res = await originalFetch(...args);
@@ -79,9 +85,15 @@ const The5ersMetrics = ({ t5Accounts, selectedIds }: { t5Accounts: import('./typ
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
       {activeAccounts.map(acc => {
-        const dailyLossVal = Math.abs(acc.dailyLoss || 0);
+        const dailyPnlVal = acc.dailyLoss || 0;
+        const dailyLossUsed = Math.max(0, -dailyPnlVal);
         const dailyLimitVal = Math.abs(acc.dailyLossLimit || 0);
-        const dailyPct = dailyLimitVal > 0 ? Math.min(100, (dailyLossVal / dailyLimitVal) * 100) : 0;
+        const dailyPct = dailyLimitVal > 0 ? Math.min(100, (dailyLossUsed / dailyLimitVal) * 100) : 0;
+        const dailyValueClass = dailyLossUsed >= dailyLimitVal && dailyLimitVal > 0
+          ? "text-rose-500"
+          : dailyPnlVal >= 0
+            ? "text-emerald-500"
+            : "text-m3-on-surface";
         
         const maxLossVal = Math.abs(acc.maxLoss || 0);
         const pnlVal = (acc.pnl || 0);
@@ -96,9 +108,9 @@ const The5ersMetrics = ({ t5Accounts, selectedIds }: { t5Accounts: import('./typ
           
           <div className="flex flex-col gap-1">
             <div className="flex justify-between items-center text-xs">
-              <span className="text-m3-on-surface-variant font-medium">Lỗ trong ngày (Daily Loss)</span>
-              <span className={`font-bold ${dailyLossVal >= dailyLimitVal ? "text-rose-500" : "text-m3-on-surface"}`}>
-                -{dailyLossVal.toFixed(2)}$ / -{dailyLimitVal.toFixed(2)}$
+              <span className="text-m3-on-surface-variant font-medium">P&L ngày / Giới hạn lỗ ngày</span>
+              <span className={`font-bold ${dailyValueClass}`}>
+                {dailyPnlVal >= 0 ? '+' : ''}{dailyPnlVal.toFixed(2)}$ / -{dailyLimitVal.toFixed(2)}$
               </span>
             </div>
             <div className="w-full bg-m3-surface-container-high rounded-full h-2 overflow-hidden">
