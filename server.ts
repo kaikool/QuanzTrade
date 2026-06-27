@@ -1353,6 +1353,40 @@ async function startServer() {
   } else {
     const distPath = path.resolve(process.cwd(), "dist");
     app.use(express.static(distPath));
+    // Inline SPA HTML for Vercel (filesystem not shared with serverless function)
+    const SPA_HTML = `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+    <title>Trade Journal & Economic Calendar</title>
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="apple-touch-icon" href="/icon.svg" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="QuantumTrade" />
+    <meta name="theme-color" content="#1a73e8" />
+    <script type="module" crossorigin src="/assets/index-k9cknLci.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/icons-BNG3S5bi.js">
+    <link rel="modulepreload" crossorigin href="/assets/react-DJr-hLVh.js">
+    <link rel="modulepreload" crossorigin href="/assets/supabase-BYBfiHzV.js">
+    <link rel="modulepreload" crossorigin href="/assets/motion-g0aTdGad.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-BOtLDKGs.css">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('SW registered:', reg.scope))
+            .catch(err => console.error('SW registration failed:', err));
+        });
+      }
+    </script>
+  </body>
+</html>`;
     // ─── The5ers: server-side Descope login → The5ers proxy sync (no DPoP) ────
     // Server takes email+password, logs in via Descope v1/auth/signin, gets session
     // JWT (15 min), proxies to The5ers API, writes Supabase. Refresh token saved to
@@ -1563,7 +1597,7 @@ async function startServer() {
     });
 
     app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
+      res.type("html").send(SPA_HTML);
     });
   }
 
