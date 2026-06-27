@@ -1450,12 +1450,24 @@ async function startServer() {
     // JWT (15 min), proxies to The5ers API, writes Supabase. Refresh token saved to
     // Supabase t5_config for automatic token refresh on subsequent calls.
     app.post("/api/the5ers/sync", async (req, res) => {
-      const { email, password } = req.body || {};
+      let { email, password } = req.body || {};
+      const supabase = getServerSupabaseClient();
+
       if (!email || !password) {
-        return res.status(400).json({ success: false, message: "Missing email or password" });
+        if (supabase) {
+          const [eData, pData] = await Promise.all([
+            supabase.from("t5_config").select("value").eq("key", "THE5ERS_EMAIL").single(),
+            supabase.from("t5_config").select("value").eq("key", "THE5ERS_REFRESH_TOKEN").single()
+          ]);
+          if (!email) email = eData.data?.value;
+          if (!password) password = pData.data?.value;
+        }
       }
 
-      const supabase = getServerSupabaseClient();
+      if (!email || !password) {
+        return res.status(400).json({ success: false, message: "Vui lòng nhập Email và mã DSR lần đầu trên web để lưu lại." });
+      }
+
       const descopeProjectId = "P37sOCdLJjVCAuLgqv2zMvS61Xbo";
       const baseUrl = "https://api.the5ers.com";
 
