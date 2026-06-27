@@ -1460,7 +1460,10 @@ async function startServer() {
 
         // Fetch The5ers API
         const user = await t5Fetch("/user", sessionToken);
-        const accounts: any[] = user.tsUsers || [];
+        const accounts: any[] = user.tsUsers || user.accounts || user.data?.tsUsers || [];
+        if (!accounts || accounts.length === 0) {
+           throw new Error("Không tìm thấy tài khoản (Debug API): " + JSON.stringify(user).slice(0, 300));
+        }
         const userInfo = { userName: `${user.firstName || ""} ${user.lastName || ""}`.trim(), scrapedAt: new Date().toISOString() };
 
         // 2. Fetch detail for every account in parallel
