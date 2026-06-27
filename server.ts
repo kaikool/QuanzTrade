@@ -1351,8 +1351,15 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(__dirname, "..", "dist");
-    app.use(express.static(distPath));
+    const distPath = path.resolve(process.cwd(), "dist");
+    // Fallback: try to find dist relative to this file (Vercel serverless)
+    let distPathFinal = distPath;
+    try {
+      require("fs").accessSync(path.join(distPathFinal, "index.html"));
+    } catch {
+      distPathFinal = path.join(__dirname, "..", "dist");
+    }
+    app.use(express.static(distPathFinal));
     // ─── The5ers: server-side Descope login → The5ers proxy sync (no DPoP) ────
     // Server takes email+password, logs in via Descope v1/auth/signin, gets session
     // JWT (15 min), proxies to The5ers API, writes Supabase. Refresh token saved to
@@ -1563,12 +1570,12 @@ async function startServer() {
     });
 
     app.get("*", (req, res) => {
-      const indexPath = path.join(distPath, "index.html");
+      const indexPath = path.join(distPathFinal, "index.html");
       try {
         const content = require("fs").readFileSync(indexPath, "utf8");
         res.type("html").send(content);
-      } catch {
-        res.status(200).type("html").send("<!doctype html><html><body><p>Quantum Trade - App loading...</p><script src='/assets/index-k9cknLci.js'></script></body></html>");
+      } catch (e: any) {
+        res.status(200).type("html").send(`Fallback: distPath=${distPathFinal}, error=${e.message}`);
       }
     });
   }

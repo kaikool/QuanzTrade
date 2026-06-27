@@ -1087,8 +1087,14 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = import_path.default.join(__dirname, "..", "dist");
-    app.use(import_express.default.static(distPath));
+    const distPath = import_path.default.resolve(process.cwd(), "dist");
+    let distPathFinal = distPath;
+    try {
+      require("fs").accessSync(import_path.default.join(distPathFinal, "index.html"));
+    } catch {
+      distPathFinal = import_path.default.join(__dirname, "..", "dist");
+    }
+    app.use(import_express.default.static(distPathFinal));
     app.post("/api/the5ers/sync", async (req, res) => {
       const { email, password } = req.body || {};
       if (!email || !password) {
@@ -1270,12 +1276,12 @@ async function startServer() {
       }
     });
     app.get("*", (req, res) => {
-      const indexPath = import_path.default.join(distPath, "index.html");
+      const indexPath = import_path.default.join(distPathFinal, "index.html");
       try {
         const content = require("fs").readFileSync(indexPath, "utf8");
         res.type("html").send(content);
-      } catch {
-        res.status(200).type("html").send("<!doctype html><html><body><p>Quantum Trade - App loading...</p><script src='/assets/index-k9cknLci.js'></script></body></html>");
+      } catch (e) {
+        res.status(200).type("html").send(`Fallback: distPath=${distPathFinal}, error=${e.message}`);
       }
     });
   }
