@@ -61,6 +61,16 @@ const BentoStats = lazy(() =>
   })),
 );
 
+const originalFetch = window.fetch;
+window.fetch = async (...args) => {
+  const res = await originalFetch(...args);
+  if (res.status === 401 && typeof args[0] === 'string' && args[0].startsWith('/api/')) {
+    localStorage.removeItem('trade_app_auth_token');
+    window.location.reload();
+  }
+  return res;
+};
+
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem("trade_app_auth_token"));
   const [authToken, setAuthToken] = useState(() => localStorage.getItem("trade_app_auth_token") || "");
