@@ -1591,4 +1591,9 @@ async function startServer() {
   });
 }
 
-startServer();
+const initPromise = startServer();
+
+export default async function handler(req: any, res: any) {
+  await initPromise;
+  app(req, res);
+}
