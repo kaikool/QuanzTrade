@@ -1422,7 +1422,7 @@ async function startServer() {
                   if (m) newRefresh = m[1];
                 }
                 if (newRefresh && newRefresh !== storedRefresh.data.value) {
-                  supabase.from("t5_config").upsert({ key: "THE5ERS_REFRESH_TOKEN", value: newRefresh, updated_at: new Date().toISOString() });
+                  await supabase.from("t5_config").upsert({ key: "THE5ERS_REFRESH_TOKEN", value: newRefresh, updated_at: new Date().toISOString() });
                 }
                 return d.sessionJwt;
               }
