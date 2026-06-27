@@ -64,7 +64,7 @@ const BentoStats = lazy(() =>
 const originalFetch = window.fetch;
 window.fetch = async (...args) => {
   const res = await originalFetch(...args);
-  if (res.status === 401 && typeof args[0] === 'string' && args[0].startsWith('/api/')) {
+  if (res.status === 401 && typeof args[0] === 'string' && args[0].startsWith('/api/') && localStorage.getItem('trade_app_auth_token')) {
     localStorage.removeItem('trade_app_auth_token');
     window.location.reload();
   }
