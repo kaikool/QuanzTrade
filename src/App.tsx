@@ -779,33 +779,19 @@ export default function App() {
   }, [darkMode]);
 
   const loadTradesData = async () => {
-    // Attempt to sync siloed trades from localStorage to Supabase
     const { url, anonKey } = getSavedSupabaseKeys();
     if (url && anonKey) {
       setSupabaseConnected(true);
-      const localData = localStorage.getItem("trade_app_local_trades");
-      if (localData) {
-        try {
-          const parsed = JSON.parse(localData);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            console.log("Found siloed local trades, syncing to Supabase...");
-            for (const t of parsed) {
-              await saveTradeToDB(t); // This will save to Supabase and update localStorage appropriately
-            }
-            // We do not wipe localStorage completely because saveTradeToDB handles local fallback
-            // But if Supabase is connected, saveTradeToDB succeeds and we can safely assume it's in DB.
-            // Actually fetchTradesFromDB will pull the latest anyway.
-          }
-        } catch (e) {
-          console.error("Failed to sync siloed local trades", e);
-        }
-      }
     } else {
       setSupabaseConnected(false);
     }
 
     const list = await fetchTradesFromDB();
     setTrades(list);
+    
+    // Refresh local storage so it stays perfectly synced for offline mode,
+    // rather than letting stale local data resurrect deleted trades.
+    localStorage.setItem("trade_app_local_trades", JSON.stringify(list));
   };
 
   const handleOpenAddTrade = () => {
