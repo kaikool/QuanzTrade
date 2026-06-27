@@ -227,6 +227,30 @@ export default function App() {
   // ─── TradingView Auth Config ──────────────────────────────────────────────
   const [tvSessionId, setTvSessionId] = useState(() => localStorage.getItem("tv_session_id") || "");
   const [tvSessionSign, setTvSessionSign] = useState(() => localStorage.getItem("tv_session_sign") || "");
+  const [tvSaving, setTvSaving] = useState(false);
+  const [tvSaveResult, setTvSaveResult] = useState<string | null>(null);
+
+  async function saveTVCreds() {
+    if (!tvSessionId || !tvSessionSign) { setTvSaveResult("Vui lòng nhập đủ 2 trường"); return; }
+    setTvSaving(true);
+    setTvSaveResult(null);
+    try {
+      const res = await fetch("/api/save-tv-creds", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("trade_app_auth_token")}`
+        },
+        body: JSON.stringify({ sessionId: tvSessionId, sessionSign: tvSessionSign }),
+      });
+      const json = await res.json();
+      setTvSaveResult(json.success ? `✅ ${json.message}` : `❌ ${json.message}`);
+    } catch (e: any) {
+      setTvSaveResult(`❌ ${e.message}`);
+    } finally {
+      setTvSaving(false);
+    }
+  }
 
   async function saveT5Creds() {
     const email = localStorage.getItem("t5_email");
@@ -563,6 +587,25 @@ export default function App() {
     } catch (e) {}
   };
 
+  const loadTVCredsFromServer = async () => {
+    try {
+      const res = await fetch("/api/get-tv-creds", {
+        headers: { "Authorization": `Bearer ${localStorage.getItem("trade_app_auth_token")}` }
+      });
+      const json = await res.json();
+      if (json.success) {
+        if (json.sessionId && !tvSessionId) {
+          setTvSessionId(json.sessionId);
+          localStorage.setItem("tv_session_id", json.sessionId);
+        }
+        if (json.sessionSign && !tvSessionSign) {
+          setTvSessionSign(json.sessionSign);
+          localStorage.setItem("tv_session_sign", json.sessionSign);
+        }
+      }
+    } catch (e) {}
+  };
+
   async function loadT5Data() {
     setT5Loading(true);
     setT5Error(null);
@@ -654,6 +697,8 @@ export default function App() {
     loadNewsData();
     // Load The5ers data
       loadT5CredsFromServer().then(() => loadT5Data());
+    // Load TradingView Auth Cookies
+      loadTVCredsFromServer();
     // Default dates on form
     const now = new Date();
     setFormEntryDate(now.toISOString().slice(0, 16));
@@ -2650,6 +2695,18 @@ export default function App() {
                     <p className="text-[10px] text-m3-on-surface-variant italic">
                       Dùng để giữ biểu đồ luôn hiển thị chỉ báo cá nhân khi chụp ảnh.
                     </p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <button 
+                        onClick={saveTVCreds} 
+                        disabled={tvSaving}
+                        className="flex-1 py-2 bg-m3-primary text-white font-bold rounded-xl text-xs transition-colors cursor-pointer disabled:opacity-50"
+                      >
+                        {tvSaving ? "Đang lưu..." : "Lưu Cookie Server"}
+                      </button>
+                    </div>
+                    {tvSaveResult && (
+                      <p className={`text-[11px] font-medium ${tvSaveResult.startsWith("✅") ? "text-emerald-500" : "text-rose-500"}`}>{tvSaveResult}</p>
+                    )}
                   </div>
                 </div>
 

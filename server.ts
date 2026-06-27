@@ -1736,6 +1736,46 @@ async function startServer() {
       }
     });
 
+    // Get TradingView credentials from Supabase for frontend sync
+    app.get("/api/get-tv-creds", async (req, res) => {
+      const supabase = getServerSupabaseClient();
+      if (!supabase) {
+        return res.status(500).json({ success: false, message: "Supabase not configured" });
+      }
+      try {
+        const [idData, signData] = await Promise.all([
+          supabase.from("t5_config").select("value").eq("key", "TV_SESSION_ID").single(),
+          supabase.from("t5_config").select("value").eq("key", "TV_SESSION_SIGN").single()
+        ]);
+        res.json({
+          success: true,
+          sessionId: idData.data?.value || "",
+          sessionSign: signData.data?.value || ""
+        });
+      } catch (e: any) {
+        res.status(500).json({ success: false, message: e.message });
+      }
+    });
+
+    // Save TradingView credentials to Supabase
+    app.post("/api/save-tv-creds", async (req, res) => {
+      const { sessionId, sessionSign } = req.body || {};
+      if (!sessionId || !sessionSign) {
+        return res.status(400).json({ success: false, message: "Missing sessionId or sessionSign" });
+      }
+      const supabase = getServerSupabaseClient();
+      if (!supabase) {
+        return res.status(500).json({ success: false, message: "Supabase not configured" });
+      }
+      try {
+        await supabase.from("t5_config").upsert({ key: "TV_SESSION_ID", value: sessionId, updated_at: new Date().toISOString() });
+        await supabase.from("t5_config").upsert({ key: "TV_SESSION_SIGN", value: sessionSign, updated_at: new Date().toISOString() });
+        res.json({ success: true, message: "✅ Đã lưu Cookie lên Database." });
+      } catch (e: any) {
+        res.status(500).json({ success: false, message: e.message });
+      }
+    });
+
     // TradingView Snapshot API using Browserless and puppeteer-core
     app.get("/api/tv-snapshot", async (req, res) => {
       const { symbol } = req.query;
@@ -1760,8 +1800,29 @@ async function startServer() {
         await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
 
         // Check if user provided TV cookies
-        const sessionId = (req.query.tv_session_id as string) || process.env.TV_SESSION_ID;
-        const sessionSign = (req.query.tv_session_sign as string) || process.env.TV_SESSION_SIGN;
+        let sessionId = (req.query.tv_session_id as string);
+        let sessionSign = (req.query.tv_session_sign as string);
+        
+        // Fallback to Supabase Database
+        if (!sessionId || !sessionSign) {
+          const supabase = getServerSupabaseClient();
+          if (supabase) {
+            try {
+              const [idData, signData] = await Promise.all([
+                supabase.from("t5_config").select("value").eq("key", "TV_SESSION_ID").single(),
+                supabase.from("t5_config").select("value").eq("key", "TV_SESSION_SIGN").single()
+              ]);
+              sessionId = sessionId || idData.data?.value;
+              sessionSign = sessionSign || signData.data?.value;
+            } catch (e) {
+              console.error("[TV Snapshot] Failed to load session from Supabase:", e);
+            }
+          }
+        }
+        
+        // Fallback to Environment Variables
+        sessionId = sessionId || process.env.TV_SESSION_ID;
+        sessionSign = sessionSign || process.env.TV_SESSION_SIGN;
         
         if (sessionId && sessionSign) {
           console.log(`[TV Snapshot] Injecting session cookies for layout ${layout}`);
