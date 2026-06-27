@@ -1431,7 +1431,7 @@ async function startServer() {
         }
 
         // Fresh login via password
-        const signinRes = await fetch(`https://api.descope.com/v1/auth/signin?projectId=${descopeProjectId}`, {
+        const signinRes = await fetch(`https://api.descope.com/v1/auth/password/signin?projectId=${descopeProjectId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${descopeProjectId}` },
           body: JSON.stringify({ loginId, password: pass }),

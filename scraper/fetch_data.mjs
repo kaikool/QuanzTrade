@@ -54,7 +54,7 @@ async function getDescopeSession() {
   }
 
   // Fresh login via password (no DPoP for password auth)
-  const signinRes = await fetch('https://api.descope.com/v1/auth/signin', {
+  const signinRes = await fetch('https://api.descope.com/v1/auth/password/signin', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ loginId: THE5ERS_EMAIL, password: THE5ERS_PASSWORD, projectId: DESCOPE_PROJECT_ID })
