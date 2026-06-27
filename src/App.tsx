@@ -146,35 +146,30 @@ export default function App() {
     return [];
   });
 
-  // ─── The5ers Sync (server-side Descope login → no DPoP) ──────────────────────
+  // ─── The5ers (GH Actions scraper) ──────────────────────────────────────────
   const [t5Email, setT5Email] = useState(() => localStorage.getItem("t5_email") || "");
   const [t5Password, setT5Password] = useState(() => localStorage.getItem("t5_password") || "");
-  const [t5Syncing, setT5Syncing] = useState(false);
-  const [t5SyncResult, setT5SyncResult] = useState<string | null>(null);
+  const [t5Saving, setT5Saving] = useState(false);
+  const [t5SaveResult, setT5SaveResult] = useState<string | null>(null);
 
-  async function syncT5Data() {
+  async function saveT5Creds() {
     const email = localStorage.getItem("t5_email");
     const pass = localStorage.getItem("t5_password");
-    if (!email || !pass) { setT5SyncResult("Nhập email + mật khẩu The5ers trước"); return; }
-    setT5Syncing(true);
-    setT5SyncResult(null);
+    if (!email || !pass) { setT5SaveResult("Nhập email + mật khẩu"); return; }
+    setT5Saving(true);
+    setT5SaveResult(null);
     try {
-      const res = await fetch("/api/the5ers/sync", {
+      const res = await fetch("/api/save-t5-creds", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password: pass }),
       });
       const json = await res.json();
-      if (json.success) {
-        setT5SyncResult(`✅ ${json.message}`);
-        loadT5Data();
-      } else {
-        setT5SyncResult(`❌ ${json.message}`);
-      }
+      setT5SaveResult(json.success ? `✅ ${json.message}` : `❌ ${json.message}`);
     } catch (e: any) {
-      setT5SyncResult(`❌ ${e.message}`);
+      setT5SaveResult(`❌ ${e.message}`);
     } finally {
-      setT5Syncing(false);
+      setT5Saving(false);
     }
   }
 
@@ -552,14 +547,6 @@ export default function App() {
   // Auto-refresh The5ers data every 5 minutes (reads Supabase)
   useEffect(() => {
     const id = setInterval(() => { loadT5Data(); }, 300000);
-    return () => clearInterval(id);
-  }, []);
-
-  // Auto-sync The5ers data via server-side login (10 min interval)
-  useEffect(() => {
-    if (!localStorage.getItem("t5_email") || !localStorage.getItem("t5_password")) return;
-    syncT5Data();
-    const id = setInterval(() => { syncT5Data(); }, 600000);
     return () => clearInterval(id);
   }, []);
 
@@ -2437,7 +2424,7 @@ export default function App() {
                     <p className="text-xs text-m3-on-surface-variant">Đang tải tài khoản...</p>
                   ) : t5Accounts.length === 0 ? (
                     <div>
-                      <p className="text-xs text-m3-on-surface-variant mb-2">Chưa có dữ liệu. Nhập token và bấm Đồng bộ.</p>
+                      <p className="text-xs text-m3-on-surface-variant mb-2">Chưa có dữ liệu. GH Actions scraper chạy mỗi giờ.</p>
                     </div>
                   ) : (
                     <div className="space-y-1.5 max-h-48 overflow-y-auto">
@@ -2477,14 +2464,10 @@ export default function App() {
                     </button>
                     <button onClick={loadT5Data} disabled={t5Loading}
                       className="flex-1 py-2 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 font-bold rounded-xl text-xs border transition-colors cursor-pointer disabled:opacity-50">
-                      {t5Loading ? "Đang tải..." : "🔄 Đồng bộ"}
-                    </button>
-                    <button onClick={syncT5Data} disabled={t5Syncing}
-                      className="flex-1 py-2 bg-m3-primary text-white font-bold rounded-xl text-xs transition-colors cursor-pointer disabled:opacity-50">
-                      {t5Syncing ? "⏳ Đang sync..." : "🚀 Sync API"}
+                      {t5Loading ? "Đang tải..." : "🔄 Tải lại"}
                     </button>
                   </div>
-                  {/* The5ers login */}
+                  {/* The5ers credentials (for GH Actions scraper) */}
                   <div className="mt-2 space-y-2">
                     <input
                       type="email"
@@ -2506,17 +2489,15 @@ export default function App() {
                       placeholder="Mật khẩu The5ers..."
                       className="w-full px-2.5 py-1.5 bg-m3-surface-container-lowest border border-m3-outline rounded-lg text-[11px] font-mono focus:outline-none focus:border-m3-primary text-m3-on-surface"
                     />
-                    <div className="flex gap-2">
-                      <button onClick={syncT5Data} disabled={t5Syncing}
-                        className="flex-1 py-2 bg-m3-primary text-white font-bold rounded-xl text-xs transition-colors cursor-pointer disabled:opacity-50">
-                        {t5Syncing ? "⏳ Đang đồng bộ..." : "🚀 Đồng bộ dữ liệu"}
-                      </button>
-                    </div>
-                    {t5SyncResult && (
-                      <p className={`text-[11px] font-medium ${t5SyncResult.startsWith("✅") ? "text-emerald-500" : "text-rose-500"}`}>{t5SyncResult}</p>
+                    <button onClick={saveT5Creds} disabled={t5Saving}
+                      className="w-full py-2 bg-m3-primary text-white font-bold rounded-xl text-xs transition-colors cursor-pointer disabled:opacity-50">
+                      {t5Saving ? "⏳ Đang lưu..." : "💾 Lưu thông tin"}
+                    </button>
+                    {t5SaveResult && (
+                      <p className={`text-[11px] font-medium ${t5SaveResult.startsWith("✅") ? "text-emerald-500" : "text-rose-500"}`}>{t5SaveResult}</p>
                     )}
                     <p className="text-[10px] text-m3-on-surface-variant/60 italic">
-                      Server tự login + refresh token (ko cần DPoP). Đồng bộ tự động mỗi 10 phút.
+                      Thông tin được lưu vào Supabase. GitHub Actions scraper tự login + refresh mỗi giờ. Không cần token thủ công.
                     </p>
                   </div>
                 </div>

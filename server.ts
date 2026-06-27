@@ -1567,14 +1567,28 @@ async function startServer() {
     });
   }
 
+  // ─── Save The5ers credentials to Supabase (for GH Actions scraper) ────────
+  app.post("/api/save-t5-creds", async (req, res) => {
+    const { email, password } = req.body || {};
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: "Missing email or password" });
+    }
+    const supabase = getServerSupabaseClient();
+    if (!supabase) {
+      return res.status(500).json({ success: false, message: "Supabase not configured" });
+    }
+    try {
+      await supabase.from("t5_config").upsert({ key: "THE5ERS_EMAIL", value: email, updated_at: new Date().toISOString() });
+      await supabase.from("t5_config").upsert({ key: "THE5ERS_PASSWORD", value: password, updated_at: new Date().toISOString() });
+      res.json({ success: true, message: "Saved! GH Actions will use these credentials on next cron run." });
+    } catch (e: any) {
+      res.status(500).json({ success: false, message: e.message });
+    }
+  });
+
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);
   });
 }
 
-const initPromise = startServer();
-
-export default async function handler(req: any, res: any) {
-  await initPromise;
-  app(req, res);
-}
+startServer();

@@ -21,13 +21,13 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-          THE5ERS_TOKEN: ${{ secrets.THE5ERS_TOKEN }}
-          THE5ERS_REFRESH_TOKEN: ${{ secrets.THE5ERS_REFRESH_TOKEN }}
+          THE5ERS_EMAIL: ${{ secrets.THE5ERS_EMAIL }}
+          THE5ERS_PASSWORD: ${{ secrets.THE5ERS_PASSWORD }}
         run: |
           cd scraper
           touch .env
           echo "SUPABASE_URL=$SUPABASE_URL" >> .env
           echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
-          echo "THE5ERS_TOKEN=*** >> .env
-          echo "THE5ERS_REFRESH_TOKEN=*** >> .env
+          echo "THE5ERS_EMAIL=$THE5ERS_EMAIL" >> .env
+          echo "THE5ERS_PASSWORD=$THE5ERS_PASSWORD" >> .env
           node fetch_data.mjs

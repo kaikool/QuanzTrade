@@ -11,8 +11,8 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 const DATA_DIR = path.join(process.cwd(), 'data');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
-const THE5ERS_TOKEN_ENV = process.env.THE5ERS_TOKEN || "";
-const THE5ERS_REFRESH_TOKEN = process.env.THE5ERS_REFRESH_TOKEN || "";
+const THE5ERS_EMAIL = process.env.THE5ERS_EMAIL || "";
+const THE5ERS_PASSWORD = process.env.THE5ERS_PASSWORD || "";
 const DESCOPE_PROJECT_ID = 'P37sOCdLJjVCAuLgqv2zMvS61Xbo';
 
 let headers = {};
@@ -24,66 +24,65 @@ async function fetchApi(path) {
   return json.data || json;
 }
 
-async function run() {
-  try {
-    let activeToken = THE5ERS_TOKEN_ENV;
-    let currentRefreshToken = THE5ERS_REFRESH_TOKEN;
-
-    if (supabase) {
-      const dbRefreshToken = await getConfig('THE5ERS_REFRESH_TOKEN');
-      if (dbRefreshToken) {
-        console.log('Cloud lay Refresh Token moi tu Supabase');
-        currentRefreshToken = dbRefreshToken;
-      }
-    }
-
-    if (currentRefreshToken) {
-      console.log('Dang tu dong lam moi Token...');
+async function getDescopeSession() {
+  // Try refresh token from Supabase first (password auth = no DPoP)
+  if (supabase) {
+    const storedRefresh = await getConfig('THE5ERS_REFRESH_TOKEN');
+    if (storedRefresh) {
       const refreshRes = await fetch('https://api.descope.com/v1/auth/refresh', {
         method: 'POST',
         headers: {
-          'Authorization': 'Bearer ' + DESCOPE_PROJECT_ID + ':' + currentRefreshToken,
+          'Authorization': 'Bearer ' + DESCOPE_PROJECT_ID + ':' + storedRefresh,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({})
       });
-
       if (refreshRes.ok) {
         const data = await refreshRes.json();
-        activeToken = data.sessionJwt;
-        console.log('Da lay duoc Token 15 phut moi!');
-
-        let newRefreshToken = data.refreshJwt;
-        if (!newRefreshToken) {
-          const setCookie = refreshRes.headers.get('set-cookie');
-          if (setCookie && setCookie.includes('DSR=')) {
-            newRefreshToken = setCookie.split('DSR=')[1].split(';')[0];
-          }
+        let newRefresh = data.refreshJwt;
+        if (!newRefresh) {
+          const setCookie = refreshRes.headers.get('set-cookie') || '';
+          const m = setCookie.match(/DSR=([^;]+)/);
+          if (m) newRefresh = m[1];
         }
-        if (newRefreshToken && newRefreshToken !== currentRefreshToken) {
-          console.log('Dang luu Refresh Token moi...');
-          const envPath = path.join(__dirname, '.env');
-          if (fs.existsSync(envPath)) {
-            let envContent = fs.readFileSync(envPath, 'utf8');
-            const key = 'THE5ERS_REFRESH_TOKEN=';
-            if (envContent.includes(key)) {
-              envContent = envContent.replace(
-                new RegExp(key + '.*', 'g'),
-                key + newRefreshToken
-              );
-            } else {
-              envContent += '\n' + key + newRefreshToken;
-            }
-            fs.writeFileSync(envPath, envContent);
-          }
-          if (supabase) {
-            await setConfig('THE5ERS_REFRESH_TOKEN', newRefreshToken);
-          }
+        if (newRefresh && newRefresh !== storedRefresh) {
+          await setConfig('THE5ERS_REFRESH_TOKEN', newRefresh);
         }
-      } else {
-        console.error('Loi lam moi Token:', await refreshRes.text());
+        return data.sessionJwt;
       }
     }
+  }
+
+  // Fresh login via password (no DPoP for password auth)
+  const signinRes = await fetch('https://api.descope.com/v1/auth/signin', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ loginId: THE5ERS_EMAIL, password: THE5ERS_PASSWORD, projectId: DESCOPE_PROJECT_ID })
+  });
+  if (!signinRes.ok) {
+    const errText = await signinRes.text().catch(() => '');
+    throw new Error('Descope login failed: ' + signinRes.status + ' ' + errText.slice(0, 200));
+  }
+  const data = await signinRes.json();
+  const sessionJwt = data.sessionJwt || '';
+  if (!sessionJwt) throw new Error('Descope returned no sessionJwt');
+
+  let refreshJwt = data.refreshJwt || '';
+  if (!refreshJwt) {
+    const setCookie = signinRes.headers.get('set-cookie') || '';
+    const m = setCookie.match(/DSR=([^;]+)/);
+    if (m) refreshJwt = m[1];
+  }
+  if (refreshJwt && supabase) {
+    await setConfig('THE5ERS_REFRESH_TOKEN', refreshJwt);
+  }
+  return sessionJwt;
+}
+
+async function run() {
+  try {
+    console.log('Dang login The5ers...');
+    const activeToken = await getDescopeSession();
 
     headers = {
       "accept": "application/json, text/plain, */*",
@@ -104,6 +103,7 @@ async function run() {
     const accounts = user.tsUsers || [];
     console.log('Lay ho so: ' + user.displayName + ' (' + accounts.length + ' tai khoan)');
 
+    // Purchases
     try {
       console.log('Dang lay Purchases...');
       let allPurchases = [];
