@@ -2508,7 +2508,7 @@ export default function App() {
                       <p className={`text-[11px] font-medium ${t5SaveResult.startsWith("✅") ? "text-emerald-500" : "text-rose-500"}`}>{t5SaveResult}</p>
                     )}
                     <p className="text-[10px] text-m3-on-surface-variant/60 italic">
-                      The5ers chặn đăng nhập Bot. Bố hãy login vào web The5ers, mở F12 -> Application -> Cookies -> Copy giá trị của thẻ "DSR" dán vào ô trên.
+                      The5ers chặn đăng nhập Bot. Bố hãy login vào web The5ers, mở F12 &rarr; Application &rarr; Cookies &rarr; Copy giá trị của thẻ "DSR" dán vào ô trên.
                     </p>
                   </div>
                 </div>
