@@ -11,8 +11,8 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 const DATA_DIR = path.join(process.cwd(), 'data');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
-const THE5ERS_EMAIL = process.env.THE5ERS_EMAIL || "";
-const THE5ERS_PASSWORD = process.env.THE5ERS_PASSWORD || "";
+let THE5ERS_EMAIL = process.env.THE5ERS_EMAIL || "";
+let THE5ERS_PASSWORD = process.env.THE5ERS_PASSWORD || "";
 const DESCOPE_PROJECT_ID = 'P37sOCdLJjVCAuLgqv2zMvS61Xbo';
 
 let headers = {};
@@ -81,6 +81,18 @@ async function getDescopeSession() {
 
 async function run() {
   try {
+    if (!THE5ERS_EMAIL || !THE5ERS_PASSWORD) {
+      if (supabase) {
+        THE5ERS_EMAIL = await getConfig('THE5ERS_EMAIL') || "";
+        THE5ERS_PASSWORD = await getConfig('THE5ERS_PASSWORD') || "";
+      }
+    }
+
+    if (!THE5ERS_EMAIL || !THE5ERS_PASSWORD) {
+      console.error('Thiếu thông tin đăng nhập (THE5ERS_EMAIL / THE5ERS_PASSWORD). Vui lòng lưu thông tin trên giao diện trước.');
+      return;
+    }
+
     console.log('Dang login The5ers...');
     const activeToken = await getDescopeSession();
 
