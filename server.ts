@@ -1466,22 +1466,37 @@ async function startServer() {
         }
         const userInfo = { userName: `${user.firstName || ""} ${user.lastName || ""}`.trim(), scrapedAt: new Date().toISOString() };
 
-        // 2. Fetch detail for every account in parallel
-        const accountPromises = accounts.map(async (acc: any) => {
+        // 2. Fetch detail for every account sequentially to avoid WAF rate limits
+        const accountResults: any[] = [];
+        let syncedAccounts = 0;
+        let syncedTrades = 0;
+
+        let existingAccounts: any[] = [];
+        if (supabase) {
+          const { data } = await supabase.from("t5_accounts").select("account_id, status");
+          if (data) existingAccounts = data;
+        }
+
+        for (const acc of accounts) {
           const accId = acc.externalId;
+          
+          // Optimize: Skip disabled accounts to save time and API requests
+          const existingAcc = existingAccounts.find((a: any) => a.account_id === String(accId));
+          if (existingAcc && existingAcc.status === "disabled") {
+             continue;
+          }
           let balanceData = { balance: 0, equity: 0 };
           let statsData: any = { totalNetProfit: 0 };
           let tsData: any = {};
           let positions: any[] = [];
 
-          await Promise.allSettled([
-            t5Fetch(`/account/ts/${accId}`, sessionToken).then(d => tsData = d).catch(() => {}),
-            t5Fetch(`/account/${accId}/balance`, sessionToken).then(d => balanceData = d).catch(() => {}),
-            t5Fetch(`/account/${accId}/stats`, sessionToken).then(d => statsData = d).catch(() => {}),
-            t5Fetch(`/position/all/${accId}?page=1&limit=50`, sessionToken).then(d => {
-              positions = Array.isArray(d) ? d : (d.results || d.data || d.positions || []);
-            }).catch(() => {}),
-          ]);
+          try { tsData = await t5Fetch(`/account/ts/${accId}`, sessionToken); } catch(e) {}
+          try { balanceData = await t5Fetch(`/account/${accId}/balance`, sessionToken); } catch(e) {}
+          try { statsData = await t5Fetch(`/account/${accId}/stats`, sessionToken); } catch(e) {}
+          try { 
+            const d = await t5Fetch(`/position/all/${accId}?page=1&limit=50`, sessionToken);
+            positions = Array.isArray(d) ? d : (d.results || d.data || d.positions || []);
+          } catch(e) {}
 
           const finalType = tsData.type || acc.accountType || "unknown";
           const finalStatus = tsData.status || "unknown";
@@ -1496,21 +1511,14 @@ async function startServer() {
             type: finalType,
           };
 
-          return { overview, stats: { ...statsData, balanceDetails: balanceData, accountState: tsData }, accountId: accId, positions };
-        });
+          const stats = { ...statsData, balanceDetails: balanceData, accountState: tsData };
 
-        const accountResults = await Promise.all(accountPromises);
+          // Small delay to prevent Cloudflare blocking
+          await new Promise(r => setTimeout(r, 200));
 
-        // 3. Write to Supabase (batch)
-        let syncedAccounts = 0;
-        let syncedTrades = 0;
-
-        if (supabase) {
-          for (const result of accountResults) {
-            const { overview, stats, accountId, positions } = result;
-
+          if (supabase) {
             const { error: accErr } = await supabase.from("t5_accounts").upsert({
-              account_id: accountId,
+              account_id: accId,
               name: overview.name,
               type: overview.type,
               balance: overview.balance,
@@ -1526,7 +1534,7 @@ async function startServer() {
             if (positions.length > 0) {
               const tradeRows = positions.map((t: any) => ({
                 trade_id: String(t.id || t._id),
-                account_id: accountId,
+                account_id: accId,
                 symbol: t.symbol || "Unknown",
                 side: t.side || "Unknown",
                 quantity: parseFloat(t.quantity) || 0,
@@ -1542,6 +1550,9 @@ async function startServer() {
               else syncedTrades += tradeRows.length;
             }
           }
+          accountResults.push({ overview, stats, accountId: accId, positions });
+        }
+
 
           // Purchases
           try {
@@ -1567,7 +1578,7 @@ async function startServer() {
           } catch (e: any) {
             console.error("[sync] purchases error:", e.message);
           }
-        }
+
 
         res.json({
           success: true,
