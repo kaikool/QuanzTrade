@@ -1764,10 +1764,13 @@ async function startServer() {
         const sessionSign = process.env.TV_SESSION_SIGN;
         
         if (sessionId && sessionSign) {
+          console.log(`[TV Snapshot] Injecting session cookies for layout ${layout}`);
           await page.setCookie(
-            { name: "sessionid", value: sessionId, domain: ".tradingview.com", path: "/", secure: true, httpOnly: true },
-            { name: "sessionid_sign", value: sessionSign, domain: ".tradingview.com", path: "/", secure: true, httpOnly: true }
+            { name: "sessionid", value: sessionId, url: "https://vn.tradingview.com", secure: true, httpOnly: true },
+            { name: "sessionid_sign", value: sessionSign, url: "https://vn.tradingview.com", secure: true, httpOnly: true }
           );
+        } else {
+          console.log("[TV Snapshot] WARNING: TV_SESSION_ID or TV_SESSION_SIGN is missing in environment variables!");
         }
 
         let chartUrl = `https://vn.tradingview.com/chart/${layout}/`;
