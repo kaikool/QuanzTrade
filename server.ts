@@ -1928,6 +1928,15 @@ async function startServer() {
       res.send(`window.ENV = { SUPABASE_URL: "${process.env.SUPABASE_URL || ''}", SUPABASE_ANON_KEY: "${process.env.SUPABASE_ANON_KEY || ''}" };`);
     });
 
+    app.get("/api/test-db", async (req, res) => {
+      const supabase = getServerSupabaseClient();
+      if (!supabase) return res.status(500).json({ error: "No Supabase" });
+      const { data, error } = await supabase.from("trades").upsert({ id: "test-db-connection", status: "OPEN", pair: "TEST", type: "BUY", size: 1, entry_price: 1, entry_date: new Date().toISOString() });
+      if (error) return res.status(500).json({ error: error.message });
+      await supabase.from("trades").delete().eq("id", "test-db-connection");
+      res.json({ success: true, message: "Database is working perfectly!" });
+    });
+
     app.get("*", (req, res) => {
       res.type("html").send(SPA_HTML);
     });
