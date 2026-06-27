@@ -2433,17 +2433,22 @@ export default function App() {
                       </button>
                     </div>
                     {formTVSnapshotUrl ? (
-                      <div className="relative border border-m3-outline rounded-lg overflow-hidden group max-h-[160px] flex items-center justify-center bg-black/10">
-                        <img src={formTVSnapshotUrl} alt="Chart" className="w-full object-cover" />
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-opacity">
-                          <a href={formTVSnapshotUrl} target="_blank" rel="noreferrer" className="p-2 bg-white/20 hover:bg-white/40 rounded-full text-white backdrop-blur-md transition-colors" title="Xem ảnh gốc">
-                            <Maximize2 size={16} />
-                          </a>
-                          <button type="button" onClick={() => setFormTVSnapshotUrl("")} className="p-2 bg-red-500/80 hover:bg-red-500 rounded-full text-white backdrop-blur-md transition-colors" title="Xoá ảnh">
-                            <X size={16} />
+                      <a href={formTVSnapshotUrl} target="_blank" rel="noreferrer" className="relative border border-m3-outline rounded-lg overflow-hidden group max-h-[160px] flex items-center justify-center bg-black/10 block cursor-zoom-in">
+                        <img src={formTVSnapshotUrl} alt="Chart" className="w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-4 transition-opacity">
+                          <div className="p-2.5 bg-m3-primary text-m3-on-primary rounded-full shadow-lg">
+                            <Maximize2 size={18} />
+                          </div>
+                          <button 
+                            type="button" 
+                            onClick={(e) => { e.preventDefault(); setFormTVSnapshotUrl(""); }} 
+                            className="p-2.5 bg-rose-500 text-white rounded-full shadow-lg hover:bg-rose-600 transition-colors" 
+                            title="Xoá ảnh"
+                          >
+                            <X size={18} />
                           </button>
                         </div>
-                      </div>
+                      </a>
                     ) : (
                       <div className="border border-dashed border-m3-outline rounded-lg p-4 flex flex-col items-center justify-center text-m3-on-surface-variant/60 gap-2 bg-m3-surface-container-lowest">
                         <Camera size={24} className="opacity-50" />

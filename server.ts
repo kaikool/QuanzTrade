@@ -1777,18 +1777,28 @@ async function startServer() {
         // Wait for the chart to be visible
         await page.waitForSelector('.chart-gui-wrapper canvas', { timeout: 15000 }).catch(() => {});
         
-        // Extra time for indicators/drawings to settle
-        await new Promise(r => setTimeout(r, 4000));
+        // Hide all TradingView toolbars and sidebars to make the chart fullscreen and beautifully centered
+        await page.evaluate(() => {
+          const selectorsToHide = [
+            '.layout__area--top',
+            '.layout__area--left',
+            '.layout__area--right',
+            '.layout__area--bottom'
+          ];
+          selectorsToHide.forEach(sel => {
+            const el = document.querySelector(sel);
+            if (el) (el as HTMLElement).style.display = 'none';
+          });
+          // Also hide the little popup ads or toasts if any
+          const toasts = document.querySelectorAll('.toast-wrap');
+          toasts.forEach(t => (t as HTMLElement).style.display = 'none');
+        });
 
-        // Attempt to take screenshot of the specific chart wrapper to cut off TV UI borders
-        const chartElement = await page.$('.layout__area--center');
-        let imageBuffer;
-        
-        if (chartElement) {
-          imageBuffer = await chartElement.screenshot({ type: "png" });
-        } else {
-          imageBuffer = await page.screenshot({ type: "png" });
-        }
+        // Extra time for the layout to recalculate and indicators to render
+        await new Promise(r => setTimeout(r, 6000));
+
+        // Take a screenshot of the entire page (which is now just the centered chart)
+        const imageBuffer = await page.screenshot({ type: "png", fullPage: false });
 
         await browser.close();
 
