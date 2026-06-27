@@ -201,6 +201,7 @@ export default function App() {
   const [formTVSnapshotUrl, setFormTVSnapshotUrl] = useState("");
   const [isCapturingSnapshot, setIsCapturingSnapshot] = useState(false);
   const [formPnl, setFormPnl] = useState("");
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   // ─── The5ers State ────────────────────────────────────────────────────────────
   const [t5Accounts, setT5Accounts] = useState<T5AccountOverview[]>([]);
@@ -1671,12 +1672,12 @@ export default function App() {
                             <td className="py-2.5 px-3 whitespace-nowrap">
                               <div className="flex items-center gap-2">
                                 {t.tv_snapshot_url ? (
-                                  <a href={t.tv_snapshot_url} target="_blank" rel="noreferrer" className="w-12 h-8 rounded border border-m3-outline-variant overflow-hidden flex-shrink-0 block relative group" title="Xem ảnh Chart">
+                                  <button onClick={() => setLightboxUrl(t.tv_snapshot_url!)} className="w-12 h-8 rounded border border-m3-outline-variant overflow-hidden flex-shrink-0 block relative group" title="Xem ảnh Chart">
                                     <img src={t.tv_snapshot_url} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
                                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                                       <Maximize2 size={10} className="text-white" />
                                     </div>
-                                  </a>
+                                  </button>
                                 ) : (
                                   <div className="w-12 h-8 rounded border border-dashed border-m3-outline-variant flex items-center justify-center bg-m3-surface-container flex-shrink-0" title="Chưa có ảnh Chart">
                                     <Camera size={12} className="text-m3-on-surface-variant/40" />
@@ -1859,12 +1860,12 @@ export default function App() {
                         )}
                         {/* TradingView Snapshot */}
                         {t.tv_snapshot_url && (
-                          <a href={t.tv_snapshot_url} target="_blank" rel="noreferrer" className="mt-2 block rounded-lg overflow-hidden border border-m3-outline-variant/30 relative">
+                          <button type="button" onClick={() => setLightboxUrl(t.tv_snapshot_url!)} className="mt-2 w-full block rounded-lg overflow-hidden border border-m3-outline-variant/30 relative">
                             <img src={t.tv_snapshot_url} alt="Chart Snapshot" className="w-full h-auto object-cover max-h-[120px]" />
                             <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                               <Camera size={24} className="text-white drop-shadow-md" />
                             </div>
-                          </a>
+                          </button>
                         )}
                       </div>
                     );
@@ -2437,7 +2438,7 @@ export default function App() {
                       </button>
                     </div>
                     {formTVSnapshotUrl ? (
-                      <a href={formTVSnapshotUrl} target="_blank" rel="noreferrer" className="relative border border-m3-outline rounded-lg overflow-hidden group max-h-[160px] flex items-center justify-center bg-black/10 block cursor-zoom-in">
+                      <button type="button" onClick={() => setLightboxUrl(formTVSnapshotUrl)} className="relative border border-m3-outline rounded-lg overflow-hidden group max-h-[160px] flex items-center justify-center bg-black/10 block cursor-zoom-in w-full">
                         <img src={formTVSnapshotUrl} alt="Chart" className="w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-4 transition-opacity">
                           <div className="p-2.5 bg-m3-primary text-m3-on-primary rounded-full shadow-lg">
@@ -2445,14 +2446,14 @@ export default function App() {
                           </div>
                           <button 
                             type="button" 
-                            onClick={(e) => { e.preventDefault(); setFormTVSnapshotUrl(""); }} 
+                            onClick={(e) => { e.stopPropagation(); setFormTVSnapshotUrl(""); }} 
                             className="p-2.5 bg-rose-500 text-white rounded-full shadow-lg hover:bg-rose-600 transition-colors" 
                             title="Xoá ảnh"
                           >
                             <X size={18} />
                           </button>
                         </div>
-                      </a>
+                      </button>
                     ) : (
                       <div className="border border-dashed border-m3-outline rounded-lg p-4 flex flex-col items-center justify-center text-m3-on-surface-variant/60 gap-2 bg-m3-surface-container-lowest">
                         <Camera size={24} className="opacity-50" />
@@ -2850,6 +2851,36 @@ export default function App() {
           <span className="m3-label-medium tracking-wide">Tin tức</span>
         </button>
       </footer>
+
+      {/* Lightbox Modal */}
+      <AnimatePresence>
+        {lightboxUrl && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-8"
+            onClick={() => setLightboxUrl(null)}
+          >
+            <button
+              className="absolute top-4 right-4 p-3 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
+              onClick={(e) => { e.stopPropagation(); setLightboxUrl(null); }}
+            >
+              <X size={24} />
+            </button>
+            <motion.img
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              src={lightboxUrl}
+              alt="Chart Snapshot Full"
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
