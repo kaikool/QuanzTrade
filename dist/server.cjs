@@ -1270,7 +1270,13 @@ async function startServer() {
       }
     });
     app.get("*", (req, res) => {
-      res.sendFile(import_path.default.join(distPath, "index.html"));
+      const indexPath = import_path.default.join(distPath, "index.html");
+      try {
+        const content = require("fs").readFileSync(indexPath, "utf8");
+        res.type("html").send(content);
+      } catch {
+        res.status(200).type("html").send("<!doctype html><html><body><p>Quantum Trade - App loading...</p><script src='/assets/index-k9cknLci.js'></script></body></html>");
+      }
     });
   }
   app.post("/api/save-t5-creds", async (req, res) => {
