@@ -1931,7 +1931,7 @@ async function startServer() {
     app.get("/test-db", async (req, res) => {
       const supabase = getServerSupabaseClient();
       if (!supabase) return res.status(500).json({ error: "No Supabase configured on Backend" });
-      const { data, error } = await supabase.from("trades").upsert({ id: "test-db-connection", status: "OPEN", pair: "TEST", type: "BUY", size: 1, entry_price: 1, entry_date: new Date().toISOString() });
+      const { data, error } = await supabase.from("trades").upsert({ id: "test-db-connection", status: "OPEN", pair: "TEST", type: "BUY", size: 1, entry_price: 1, pnl: 0, entry_date: new Date().toISOString() });
       if (error) return res.status(500).json({ error: error.message, hint: "Please check if your trades table has RLS enabled without policies, or if it is missing the tv_snapshot_url column." });
       await supabase.from("trades").delete().eq("id", "test-db-connection");
       res.json({ success: true, message: "Database is working perfectly! Upsert succeeded." });
