@@ -1750,7 +1750,7 @@ async function startServer() {
         const puppeteer = await import("puppeteer-core");
         
         const browser = await puppeteer.default.connect({
-          browserWSEndpoint: `wss://chrome.browserless.io?token=${token}`
+          browserWSEndpoint: `wss://chrome.browserless.io?token=${token}&stealth`
         });
 
         const page = await browser.newPage();
@@ -1760,8 +1760,8 @@ async function startServer() {
         await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
 
         // Check if user provided TV cookies
-        const sessionId = process.env.TV_SESSION_ID;
-        const sessionSign = process.env.TV_SESSION_SIGN;
+        const sessionId = (req.query.tv_session_id as string) || process.env.TV_SESSION_ID;
+        const sessionSign = (req.query.tv_session_sign as string) || process.env.TV_SESSION_SIGN;
         
         if (sessionId && sessionSign) {
           console.log(`[TV Snapshot] Injecting session cookies for layout ${layout}`);

@@ -224,6 +224,10 @@ export default function App() {
   const [t5Syncing, setT5Syncing] = useState(false);
   const [t5SaveResult, setT5SaveResult] = useState<string | null>(null);
 
+  // ─── TradingView Auth Config ──────────────────────────────────────────────
+  const [tvSessionId, setTvSessionId] = useState(() => localStorage.getItem("tv_session_id") || "");
+  const [tvSessionSign, setTvSessionSign] = useState(() => localStorage.getItem("tv_session_sign") || "");
+
   async function saveT5Creds() {
     const email = localStorage.getItem("t5_email");
     const dsrToken = localStorage.getItem("t5_dsr_token") || localStorage.getItem("t5_password");
@@ -891,8 +895,10 @@ export default function App() {
     try {
       // Encode the symbol e.g., EUR/USD -> EURUSD
       const encodedSymbol = encodeURIComponent("FX:" + formPair.replace("/", ""));
-      const token = localStorage.getItem("trade_app_auth_token");
-      const url = `/api/tv-snapshot?symbol=${encodedSymbol}&auth_token=${token}`;
+      const token = localStorage.getItem("trade_app_auth_token") || "";
+      const tvId = encodeURIComponent(tvSessionId);
+      const tvSign = encodeURIComponent(tvSessionSign);
+      const url = `/api/tv-snapshot?symbol=${encodedSymbol}&auth_token=${token}&tv_session_id=${tvId}&tv_session_sign=${tvSign}`;
       
       const res = await fetch(url);
       const json = await res.json();
@@ -2611,6 +2617,39 @@ export default function App() {
                         }`}
                       />
                     </button>
+                  </div>
+                </div>
+
+                {/* TradingView Cookie Configuration */}
+                <div className="border-t border-m3-outline-variant dark:border-m3-outline-variant pt-4">
+                  <h5 className="font-bold text-m3-on-surface-variant capitalize mb-2.5 flex items-center gap-1.5">
+                    <Camera size={13} className="text-m3-primary" />
+                    TradingView Cookie Session
+                  </h5>
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      placeholder="sessionid"
+                      value={tvSessionId}
+                      onChange={(e) => {
+                        setTvSessionId(e.target.value);
+                        localStorage.setItem("tv_session_id", e.target.value);
+                      }}
+                      className="w-full text-xs px-3 py-2 bg-m3-surface-container-lowest border border-m3-outline rounded font-mono text-m3-on-surface focus:border-m3-primary focus:outline-none"
+                    />
+                    <input
+                      type="text"
+                      placeholder="sessionid_sign"
+                      value={tvSessionSign}
+                      onChange={(e) => {
+                        setTvSessionSign(e.target.value);
+                        localStorage.setItem("tv_session_sign", e.target.value);
+                      }}
+                      className="w-full text-xs px-3 py-2 bg-m3-surface-container-lowest border border-m3-outline rounded font-mono text-m3-on-surface focus:border-m3-primary focus:outline-none"
+                    />
+                    <p className="text-[10px] text-m3-on-surface-variant italic">
+                      Dùng để giữ biểu đồ luôn hiển thị chỉ báo cá nhân khi chụp ảnh.
+                    </p>
                   </div>
                 </div>
 
