@@ -2542,22 +2542,34 @@ export default function App() {
                       </button>
                     </div>
                     {formTVSnapshotUrl ? (
-                      <button type="button" onClick={() => setLightboxUrl(formTVSnapshotUrl)} className="relative border border-m3-outline rounded-lg overflow-hidden group max-h-[160px] flex items-center justify-center bg-black/10 block cursor-zoom-in w-full">
-                        <img src={formTVSnapshotUrl} alt="Chart" className="w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-4 transition-opacity">
-                          <div className="p-2.5 bg-m3-primary text-m3-on-primary rounded-full shadow-lg">
+                      <div className="relative border border-m3-outline rounded-lg overflow-hidden group max-h-[160px] flex items-center justify-center bg-black/10 w-full">
+                        <button
+                          type="button"
+                          onClick={() => setLightboxUrl(formTVSnapshotUrl)}
+                          className="block w-full cursor-zoom-in"
+                          title="Xem ảnh lớn"
+                        >
+                          <img src={formTVSnapshotUrl} alt="Chart" className="w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                        </button>
+                        <div className="absolute top-2 right-2 z-10 flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setLightboxUrl(formTVSnapshotUrl)}
+                            className="p-2.5 bg-black/60 text-white rounded-full shadow-lg hover:bg-black/80 transition-colors"
+                            title="Xem ảnh lớn"
+                          >
                             <Maximize2 size={18} />
-                          </div>
-                          <button 
-                            type="button" 
-                            onClick={(e) => { e.stopPropagation(); setFormTVSnapshotUrl(""); }} 
-                            className="p-2.5 bg-rose-500 text-white rounded-full shadow-lg hover:bg-rose-600 transition-colors" 
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setFormTVSnapshotUrl("")}
+                            className="p-2.5 bg-rose-500 text-white rounded-full shadow-lg hover:bg-rose-600 transition-colors"
                             title="Xoá ảnh"
                           >
                             <X size={18} />
                           </button>
                         </div>
-                      </button>
+                      </div>
                     ) : (
                       <div className="border border-dashed border-m3-outline rounded-lg p-4 flex flex-col items-center justify-center text-m3-on-surface-variant/60 gap-2 bg-m3-surface-container-lowest">
                         <Camera size={24} className="opacity-50" />
@@ -3021,22 +3033,25 @@ export default function App() {
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-8"
             onClick={() => setLightboxUrl(null)}
           >
-            <button
-              className="absolute top-4 right-4 z-10 p-3 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
-              onClick={(e) => { e.stopPropagation(); setLightboxUrl(null); }}
-            >
-              <X size={24} />
-            </button>
-            <motion.img
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              src={lightboxUrl}
-              alt="Chart Snapshot Full"
-              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            />
+            <div className="relative max-w-full max-h-full" onClick={(e) => e.stopPropagation()}>
+              <button
+                type="button"
+                className="absolute top-2 right-2 z-10 p-3 bg-black/60 text-white rounded-full hover:bg-black/80 transition-colors shadow-lg"
+                onClick={() => setLightboxUrl(null)}
+                title="Đóng ảnh"
+              >
+                <X size={24} />
+              </button>
+              <motion.img
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                src={lightboxUrl}
+                alt="Chart Snapshot Full"
+                className="max-w-full max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-4rem)] object-contain rounded-lg shadow-2xl"
+              />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
