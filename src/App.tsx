@@ -30,6 +30,7 @@ import {
   Pencil,
   AlertTriangle,
   Newspaper,
+  ShieldCheck,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -50,15 +51,9 @@ import {
 import { M3DatePicker, M3TimePicker } from "./components/M3DatePicker";
 import { NewsPanel } from "./components/NewsPanel";
 import { fetchT5Accounts, fetchT5AccountDetail, fetchT5Purchases } from "./lib/supabase-the5ers";
+import { LoginScreen } from "./LoginScreen";
 
 const NEWS_PAGE_SIZE = 10;
-
-function sortNewsByNewest(items: NewsItem[]) {
-  return [...items].sort(
-    (a, b) =>
-      new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
-  );
-}
 
 const BentoStats = lazy(() =>
   import("./components/BentoStats").then((module) => ({
@@ -67,6 +62,9 @@ const BentoStats = lazy(() =>
 );
 
 export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem("trade_app_auth_token"));
+  const [authToken, setAuthToken] = useState(() => localStorage.getItem("trade_app_auth_token") || "");
+
   // App core state
   const [trades, setTrades] = useState<Trade[]>([]);
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
@@ -162,7 +160,10 @@ export default function App() {
     try {
       const res = await fetch("/api/save-t5-creds", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("trade_app_auth_token")}`
+        },
         body: JSON.stringify({ email, password: pass }),
       });
       const json = await res.json();
@@ -183,7 +184,10 @@ export default function App() {
     try {
       const res = await fetch("/api/the5ers/sync", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("trade_app_auth_token")}`
+        },
         body: JSON.stringify({ email, password: pass }),
       });
       const json = await res.json();
@@ -707,7 +711,9 @@ export default function App() {
   const loadCalendarData = async () => {
     setLoadingCalendar(true);
     try {
-      const res = await fetch("/api/calendar");
+      const res = await fetch("/api/calendar", {
+        headers: { "Authorization": `Bearer ${localStorage.getItem("trade_app_auth_token")}` }
+      });
       const json = await res.json();
       if (json && json.success) {
         setCalendarEvents(json.data);
@@ -1015,6 +1021,16 @@ export default function App() {
         };
     }
   };
+
+  const handleLoginSuccess = (token: string) => {
+    localStorage.setItem("trade_app_auth_token", token);
+    setAuthToken(token);
+    setIsLoggedIn(true);
+  };
+
+  if (!isLoggedIn) {
+    return <LoginScreen onLoginSuccess={handleLoginSuccess} />;
+  }
 
   return (
     <div
@@ -2509,6 +2525,49 @@ export default function App() {
                     )}
                     <p className="text-[10px] text-m3-on-surface-variant/60 italic">
                       The5ers chặn đăng nhập Bot. Bố hãy login vào web The5ers, mở F12 &rarr; Application &rarr; Cookies &rarr; Copy giá trị của thẻ "DSR" dán vào ô trên.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Web App Password Protection */}
+                <div className="border-t border-m3-outline-variant dark:border-m3-outline-variant pt-4">
+                  <h5 className="font-bold text-m3-on-surface-variant capitalize mb-2.5 flex items-center gap-1.5">
+                    <ShieldCheck size={13} className="text-m3-primary" />
+                    Bảo Mật Truy Cập Web
+                  </h5>
+                  <div className="space-y-2">
+                    <input
+                      type="password"
+                      id="site_password_input"
+                      placeholder="Mật khẩu bảo vệ Web App..."
+                      className="w-full px-2.5 py-1.5 bg-m3-surface-container-lowest border border-m3-outline rounded-lg text-[11px] font-mono focus:outline-none focus:border-m3-primary text-m3-on-surface"
+                    />
+                    <button
+                      onClick={async () => {
+                        const pass = (document.getElementById("site_password_input") as HTMLInputElement)?.value;
+                        if (!pass) return alert("Vui lòng nhập mật khẩu muốn cài!");
+                        try {
+                          const res = await fetch("/api/save-site-password", {
+                            method: "POST",
+                            headers: { 
+                              "Content-Type": "application/json",
+                              "Authorization": `Bearer ${localStorage.getItem("trade_app_auth_token")}`
+                            },
+                            body: JSON.stringify({ sitePassword: pass }),
+                          });
+                          const json = await res.json();
+                          alert(json.message || "Lưu thành công!");
+                          if (json.success) (document.getElementById("site_password_input") as HTMLInputElement).value = "";
+                        } catch (err: any) {
+                          alert("Lỗi: " + err.message);
+                        }
+                      }}
+                      className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer"
+                    >
+                      🔒 Cập Nhật Mật Khẩu
+                    </button>
+                    <p className="text-[10px] text-m3-on-surface-variant/60 italic">
+                      Sau khi thiết lập, bất kỳ ai truy cập vào trang web đều phải nhập mật khẩu này.
                     </p>
                   </div>
                 </div>

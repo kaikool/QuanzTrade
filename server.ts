@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import dotenv from "dotenv";
 import { createClient } from "@supabase/supabase-js";
+import crypto from "crypto";
 
 dotenv.config({ path: ".env.local" });
 dotenv.config();
@@ -12,7 +13,78 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 // Middlewares to parse bodies
 app.use(express.json());
 
+// In-memory session cache for auth tokens
+const activeSessions = new Set<string>();
+
+// Dynamic Supabase memory (to support frontend saving creds)
+let memorySupabaseUrl = "";
+let memorySupabaseAnon = "";
+
 async function startServer() {
+  function getServerSupabaseClient() {
+    const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || memorySupabaseUrl;
+    const key =
+      process.env.SUPABASE_SERVICE_ROLE_KEY ||
+      process.env.SUPABASE_ANON_KEY ||
+      process.env.VITE_SUPABASE_ANON_KEY ||
+      memorySupabaseAnon;
+
+    if (!url || !key) return null;
+
+    return createClient(url, key, {
+      auth: {
+        persistSession: false,
+      },
+    });
+  }
+
+  // Authentication Endpoint
+  app.post("/api/auth/login", async (req, res) => {
+    const { password, url, anon } = req.body;
+    if (!password) {
+      return res.status(400).json({ success: false, message: "Vui lòng nhập mật khẩu" });
+    }
+
+    // Update memory supabase config if passed from frontend (to allow checking t5_config)
+    if (url) memorySupabaseUrl = url;
+    if (anon) memorySupabaseAnon = anon;
+
+    let sitePassword = process.env.SITE_PASSWORD || "";
+    const supabase = getServerSupabaseClient();
+
+    if (supabase) {
+      try {
+        const { data } = await supabase.from("t5_config").select("value").eq("key", "SITE_PASSWORD").single();
+        if (data?.value) sitePassword = data.value;
+      } catch (err) {
+        // Ignore if table doesn't exist yet or connection fails
+      }
+    }
+
+    // Allow login if password matches OR if sitePassword is not configured yet
+    if (password === sitePassword || !sitePassword) {
+      const token = crypto.randomBytes(32).toString("hex");
+      activeSessions.add(token);
+      return res.json({ success: true, token, configured: !!sitePassword });
+    }
+
+    return res.status(401).json({ success: false, message: "Sai mật khẩu truy cập" });
+  });
+
+  // Protect /api/* routes (except auth)
+  app.use("/api", (req, res, next) => {
+    if (req.path === "/auth/login") return next();
+
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ success: false, message: "Unauthorized: Missing Token" });
+    }
+    const token = authHeader.split(" ")[1];
+    if (!activeSessions.has(token)) {
+      return res.status(401).json({ success: false, message: "Unauthorized: Invalid or expired token" });
+    }
+    next();
+  });
 
 
   // In-memory cache for calendar data
@@ -37,21 +109,7 @@ async function startServer() {
   const MIN_VISIBLE_NEWS_ITEMS = 5;
   let lastNewsDebug: any = {};
 
-  function getServerSupabaseClient() {
-    const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-    const key =
-      process.env.SUPABASE_SERVICE_ROLE_KEY ||
-      process.env.SUPABASE_ANON_KEY ||
-      process.env.VITE_SUPABASE_ANON_KEY;
 
-    if (!url || !key) return null;
-
-    return createClient(url, key, {
-      auth: {
-        persistSession: false,
-      },
-    });
-  }
 
   async function readFreshNewsFromDb(now: number) {
     const supabase = getServerSupabaseClient();
@@ -1588,6 +1646,25 @@ async function startServer() {
       } catch (err: any) {
         console.error("[sync] error:", err.message);
         res.status(500).json({ success: false, message: err.message });
+      }
+    });
+
+    app.post("/api/save-site-password", async (req, res) => {
+      const { sitePassword } = req.body || {};
+      if (typeof sitePassword !== "string") {
+        return res.status(400).json({ success: false, message: "Missing sitePassword" });
+      }
+      const supabase = getServerSupabaseClient();
+      if (!supabase) {
+        return res.status(500).json({ success: false, message: "Supabase not configured" });
+      }
+      try {
+        await supabase.from("t5_config").upsert({ key: "SITE_PASSWORD", value: sitePassword, updated_at: new Date().toISOString() });
+        // Update local memory so it takes effect immediately without restart
+        process.env.SITE_PASSWORD = sitePassword;
+        res.json({ success: true, message: "Đã lưu mật khẩu bảo vệ Web App!" });
+      } catch (e: any) {
+        res.status(500).json({ success: false, message: e.message });
       }
     });
 

@@ -26,12 +26,61 @@ var import_express = __toESM(require("express"), 1);
 var import_path = __toESM(require("path"), 1);
 var import_dotenv = __toESM(require("dotenv"), 1);
 var import_supabase_js = require("@supabase/supabase-js");
+var import_crypto = __toESM(require("crypto"), 1);
 import_dotenv.default.config({ path: ".env.local" });
 import_dotenv.default.config();
 var app = (0, import_express.default)();
 var PORT = process.env.PORT ? parseInt(process.env.PORT) : 3e3;
 app.use(import_express.default.json());
+var activeSessions = /* @__PURE__ */ new Set();
+var memorySupabaseUrl = "";
+var memorySupabaseAnon = "";
 async function startServer() {
+  function getServerSupabaseClient() {
+    const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || memorySupabaseUrl;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || memorySupabaseAnon;
+    if (!url || !key) return null;
+    return (0, import_supabase_js.createClient)(url, key, {
+      auth: {
+        persistSession: false
+      }
+    });
+  }
+  app.post("/api/auth/login", async (req, res) => {
+    const { password, url, anon } = req.body;
+    if (!password) {
+      return res.status(400).json({ success: false, message: "Vui l\xF2ng nh\u1EADp m\u1EADt kh\u1EA9u" });
+    }
+    if (url) memorySupabaseUrl = url;
+    if (anon) memorySupabaseAnon = anon;
+    let sitePassword = process.env.SITE_PASSWORD || "";
+    const supabase = getServerSupabaseClient();
+    if (supabase) {
+      try {
+        const { data } = await supabase.from("t5_config").select("value").eq("key", "SITE_PASSWORD").single();
+        if (data?.value) sitePassword = data.value;
+      } catch (err) {
+      }
+    }
+    if (password === sitePassword || !sitePassword) {
+      const token = import_crypto.default.randomBytes(32).toString("hex");
+      activeSessions.add(token);
+      return res.json({ success: true, token, configured: !!sitePassword });
+    }
+    return res.status(401).json({ success: false, message: "Sai m\u1EADt kh\u1EA9u truy c\u1EADp" });
+  });
+  app.use("/api", (req, res, next) => {
+    if (req.path === "/auth/login") return next();
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ success: false, message: "Unauthorized: Missing Token" });
+    }
+    const token = authHeader.split(" ")[1];
+    if (!activeSessions.has(token)) {
+      return res.status(401).json({ success: false, message: "Unauthorized: Invalid or expired token" });
+    }
+    next();
+  });
   let calendarCache = null;
   const CACHE_TTL_MS = 2 * 60 * 60 * 1e3;
   let newsCache = null;
@@ -49,16 +98,6 @@ async function startServer() {
   const MAX_HISTORY_LIMIT = 100;
   const MIN_VISIBLE_NEWS_ITEMS = 5;
   let lastNewsDebug = {};
-  function getServerSupabaseClient() {
-    const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
-    if (!url || !key) return null;
-    return (0, import_supabase_js.createClient)(url, key, {
-      auth: {
-        persistSession: false
-      }
-    });
-  }
   async function readFreshNewsFromDb(now) {
     const supabase = getServerSupabaseClient();
     if (!supabase) return null;
@@ -1139,35 +1178,20 @@ async function startServer() {
                   if (m) newRefresh = m[1];
                 }
                 if (newRefresh && newRefresh !== storedRefresh.data.value) {
-                  supabase.from("t5_config").upsert({ key: "THE5ERS_REFRESH_TOKEN", value: newRefresh, updated_at: (/* @__PURE__ */ new Date()).toISOString() });
+                  await supabase.from("t5_config").upsert({ key: "THE5ERS_REFRESH_TOKEN", value: newRefresh, updated_at: (/* @__PURE__ */ new Date()).toISOString() });
                 }
                 return d.sessionJwt;
               }
+            } else {
+              const errBody = await refreshRes.text().catch(() => "");
+              console.error("[Descope Refresh Error]", refreshRes.status, errBody);
+              throw new Error(`DSR Token h\u1EBFt h\u1EA1n ho\u1EB7c kh\xF4ng h\u1EE3p l\u1EC7 (M\xE3: ${refreshRes.status}). Chi ti\u1EBFt: ${errBody.slice(0, 150)}`);
             }
+          } else {
+            throw new Error("Kh\xF4ng t\xECm th\u1EA5y DSR Token trong h\u1EC7 th\u1ED1ng. B\u1ED1 c\u1EA7n l\u01B0u DSR Token tr\u01B0\u1EDBc.");
           }
         }
-        const signinRes = await fetch(`https://api.descope.com/v1/auth/signin?projectId=${descopeProjectId}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${descopeProjectId}` },
-          body: JSON.stringify({ loginId, password: pass })
-        });
-        if (!signinRes.ok) {
-          const errText = await signinRes.text().catch(() => "");
-          throw new Error(`Descope login failed: ${signinRes.status} ${errText.slice(0, 200)}`);
-        }
-        const data = await signinRes.json();
-        const sessionJwt = data.sessionJwt || "";
-        if (!sessionJwt) throw new Error("Descope returned no sessionJwt");
-        let refreshJwt = data.refreshJwt || "";
-        if (!refreshJwt) {
-          const setCookie = signinRes.headers.get("set-cookie") || "";
-          const m = setCookie.match(/DSR=([^;]+)/);
-          if (m) refreshJwt = m[1];
-        }
-        if (refreshJwt && supabase) {
-          supabase.from("t5_config").upsert({ key: "THE5ERS_REFRESH_TOKEN", value: refreshJwt, updated_at: (/* @__PURE__ */ new Date()).toISOString() });
-        }
-        return sessionJwt;
+        throw new Error("Supabase is not configured.");
       }
       async function t5Fetch(path2, token) {
         const r = await fetch(`${baseUrl}${path2}`, {
@@ -1187,26 +1211,46 @@ async function startServer() {
       try {
         const sessionToken = await getDescopeSession(email, password);
         const user = await t5Fetch("/user", sessionToken);
-        const accounts = user.tsUsers || [];
+        const accounts = user.tsUsers || user.accounts || user.data?.tsUsers || [];
+        if (!accounts || accounts.length === 0) {
+          throw new Error("Kh\xF4ng t\xECm th\u1EA5y t\xE0i kho\u1EA3n (Debug API): " + JSON.stringify(user).slice(0, 300));
+        }
         const userInfo = { userName: `${user.firstName || ""} ${user.lastName || ""}`.trim(), scrapedAt: (/* @__PURE__ */ new Date()).toISOString() };
-        const accountPromises = accounts.map(async (acc) => {
+        const accountResults = [];
+        let syncedAccounts = 0;
+        let syncedTrades = 0;
+        let existingAccounts = [];
+        if (supabase) {
+          const { data } = await supabase.from("t5_accounts").select("account_id, status");
+          if (data) existingAccounts = data;
+        }
+        for (const acc of accounts) {
           const accId = acc.externalId;
+          const existingAcc = existingAccounts.find((a) => a.account_id === String(accId));
+          if (existingAcc && existingAcc.status === "disabled") {
+            continue;
+          }
           let balanceData = { balance: 0, equity: 0 };
           let statsData = { totalNetProfit: 0 };
           let tsData = {};
           let positions = [];
-          await Promise.allSettled([
-            t5Fetch(`/account/ts/${accId}`, sessionToken).then((d) => tsData = d).catch(() => {
-            }),
-            t5Fetch(`/account/${accId}/balance`, sessionToken).then((d) => balanceData = d).catch(() => {
-            }),
-            t5Fetch(`/account/${accId}/stats`, sessionToken).then((d) => statsData = d).catch(() => {
-            }),
-            t5Fetch(`/position/all/${accId}?page=1&limit=50`, sessionToken).then((d) => {
-              positions = Array.isArray(d) ? d : d.results || d.data || d.positions || [];
-            }).catch(() => {
-            })
-          ]);
+          try {
+            tsData = await t5Fetch(`/account/ts/${accId}`, sessionToken);
+          } catch (e) {
+          }
+          try {
+            balanceData = await t5Fetch(`/account/${accId}/balance`, sessionToken);
+          } catch (e) {
+          }
+          try {
+            statsData = await t5Fetch(`/account/${accId}/stats`, sessionToken);
+          } catch (e) {
+          }
+          try {
+            const d = await t5Fetch(`/position/all/${accId}?page=1&limit=50`, sessionToken);
+            positions = Array.isArray(d) ? d : d.results || d.data || d.positions || [];
+          } catch (e) {
+          }
           const finalType = tsData.type || acc.accountType || "unknown";
           const finalStatus = tsData.status || "unknown";
           const overview = {
@@ -1218,16 +1262,11 @@ async function startServer() {
             status: finalStatus,
             type: finalType
           };
-          return { overview, stats: { ...statsData, balanceDetails: balanceData, accountState: tsData }, accountId: accId, positions };
-        });
-        const accountResults = await Promise.all(accountPromises);
-        let syncedAccounts = 0;
-        let syncedTrades = 0;
-        if (supabase) {
-          for (const result of accountResults) {
-            const { overview, stats, accountId, positions } = result;
+          const stats = { ...statsData, balanceDetails: balanceData, accountState: tsData };
+          await new Promise((r) => setTimeout(r, 200));
+          if (supabase) {
             const { error: accErr } = await supabase.from("t5_accounts").upsert({
-              account_id: accountId,
+              account_id: accId,
               name: overview.name,
               type: overview.type,
               balance: overview.balance,
@@ -1242,7 +1281,7 @@ async function startServer() {
             if (positions.length > 0) {
               const tradeRows = positions.map((t) => ({
                 trade_id: String(t.id || t._id),
-                account_id: accountId,
+                account_id: accId,
                 symbol: t.symbol || "Unknown",
                 side: t.side || "Unknown",
                 quantity: parseFloat(t.quantity) || 0,
@@ -1258,29 +1297,30 @@ async function startServer() {
               else syncedTrades += tradeRows.length;
             }
           }
-          try {
-            let allPurchases = [];
-            for (let page = 1; page <= 5; page++) {
-              const purchaseData = await t5Fetch(`/purchase?page=${page}&limit=50`, sessionToken);
-              const results = purchaseData?.results || [];
-              allPurchases.push(...results);
-              if (results.length < 50) break;
-            }
-            if (allPurchases.length > 0) {
-              const purchaseRows = allPurchases.map((p) => ({
-                purchase_id: p.purchaseId,
-                product_name: p.items?.[0]?.metadata?.productName || "N/A",
-                buying_power: p.items?.[0]?.metadata?.buyingPower || 0,
-                price: p.paymentData?.convertedPrice || 0,
-                currency: p.paymentData?.currency || "USD",
-                status: p.status || "unknown",
-                created_at: p.createdAt || (/* @__PURE__ */ new Date()).toISOString()
-              }));
-              await supabase.from("t5_purchases").upsert(purchaseRows, { onConflict: "purchase_id" });
-            }
-          } catch (e) {
-            console.error("[sync] purchases error:", e.message);
+          accountResults.push({ overview, stats, accountId: accId, positions });
+        }
+        try {
+          let allPurchases = [];
+          for (let page = 1; page <= 5; page++) {
+            const purchaseData = await t5Fetch(`/purchase?page=${page}&limit=50`, sessionToken);
+            const results = purchaseData?.results || [];
+            allPurchases.push(...results);
+            if (results.length < 50) break;
           }
+          if (allPurchases.length > 0) {
+            const purchaseRows = allPurchases.map((p) => ({
+              purchase_id: p.purchaseId,
+              product_name: p.items?.[0]?.metadata?.productName || "N/A",
+              buying_power: p.items?.[0]?.metadata?.buyingPower || 0,
+              price: p.paymentData?.convertedPrice || 0,
+              currency: p.paymentData?.currency || "USD",
+              status: p.status || "unknown",
+              created_at: p.createdAt || (/* @__PURE__ */ new Date()).toISOString()
+            }));
+            await supabase.from("t5_purchases").upsert(purchaseRows, { onConflict: "purchase_id" });
+          }
+        } catch (e) {
+          console.error("[sync] purchases error:", e.message);
         }
         res.json({
           success: true,
@@ -1292,6 +1332,23 @@ async function startServer() {
         res.status(500).json({ success: false, message: err.message });
       }
     });
+    app.post("/api/save-site-password", async (req, res) => {
+      const { sitePassword } = req.body || {};
+      if (typeof sitePassword !== "string") {
+        return res.status(400).json({ success: false, message: "Missing sitePassword" });
+      }
+      const supabase = getServerSupabaseClient();
+      if (!supabase) {
+        return res.status(500).json({ success: false, message: "Supabase not configured" });
+      }
+      try {
+        await supabase.from("t5_config").upsert({ key: "SITE_PASSWORD", value: sitePassword, updated_at: (/* @__PURE__ */ new Date()).toISOString() });
+        process.env.SITE_PASSWORD = sitePassword;
+        res.json({ success: true, message: "\u0110\xE3 l\u01B0u m\u1EADt kh\u1EA9u b\u1EA3o v\u1EC7 Web App!" });
+      } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
+      }
+    });
     app.get("*", (req, res) => {
       res.type("html").send(SPA_HTML);
     });
@@ -1299,7 +1356,7 @@ async function startServer() {
   app.post("/api/save-t5-creds", async (req, res) => {
     const { email, password } = req.body || {};
     if (!email || !password) {
-      return res.status(400).json({ success: false, message: "Missing email or password" });
+      return res.status(400).json({ success: false, message: "Missing email or DSR token" });
     }
     const supabase = getServerSupabaseClient();
     if (!supabase) {
@@ -1307,8 +1364,8 @@ async function startServer() {
     }
     try {
       await supabase.from("t5_config").upsert({ key: "THE5ERS_EMAIL", value: email, updated_at: (/* @__PURE__ */ new Date()).toISOString() });
-      await supabase.from("t5_config").upsert({ key: "THE5ERS_PASSWORD", value: password, updated_at: (/* @__PURE__ */ new Date()).toISOString() });
-      res.json({ success: true, message: "Saved! GH Actions will use these credentials on next cron run." });
+      await supabase.from("t5_config").upsert({ key: "THE5ERS_REFRESH_TOKEN", value: password, updated_at: (/* @__PURE__ */ new Date()).toISOString() });
+      res.json({ success: true, message: "\u2705 Saved! T5 will now use DSR Token." });
     } catch (e) {
       res.status(500).json({ success: false, message: e.message });
     }
