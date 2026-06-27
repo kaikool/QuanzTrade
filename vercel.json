@@ -1,23 +1,8 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/index.ts",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "dist/**",
+  "overrides": {
+    "dist/**": {
       "use": "@vercel/static"
     }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/index.ts"
-    },
-    {
-      "src": "/",
-      "dest": "/api/index.ts"
-    }
-  ]
+  }
 }
