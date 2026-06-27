@@ -2371,7 +2371,7 @@ export default function App() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 120 }}
               transition={{ type: "spring", damping: 26, stiffness: 220 }}
-              className="relative w-full max-w-md bg-m3-surface p-5 sm:p-6 rounded-t-3xl sm:rounded-[24px] shadow-level5 z-10 m3-body-small pb-[calc(1.5rem+env(safe-area-inset-bottom,16px))] sm:pb-6"
+              className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-m3-surface p-5 sm:p-6 rounded-t-3xl sm:rounded-[24px] shadow-level5 z-10 m3-body-small pb-[calc(1.5rem+env(safe-area-inset-bottom,16px))] sm:pb-6"
               id="settings-modal-window"
             >
               {/* Material Design 3 Bottom Sheet handle wrapper */}
