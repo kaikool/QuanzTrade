@@ -73,6 +73,11 @@ async function startServer() {
   });
   app.use("/api", (req, res, next) => {
     if (req.path === "/auth/login") return next();
+    if (req.path === "/tv-snapshot" && req.query.auth_token) {
+      if (req.query.auth_token === getStatelessToken()) {
+        return next();
+      }
+    }
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({ success: false, message: "Unauthorized: Missing Token" });
@@ -1403,6 +1408,76 @@ async function startServer() {
         res.json({ success: true, message: "\u2705 Saved! T5 will now use DSR Token." });
       } catch (e) {
         res.status(500).json({ success: false, message: e.message });
+      }
+    });
+    app.get("/api/tv-snapshot", async (req, res) => {
+      const { symbol } = req.query;
+      const layout = "fCLTltqk";
+      const token = process.env.BROWSERLESS_TOKEN;
+      if (!token) {
+        return res.status(500).json({ success: false, message: "Server ch\u01B0a c\u1EA5u h\xECnh BROWSERLESS_TOKEN trong m\xF4i tr\u01B0\u1EDDng." });
+      }
+      try {
+        const puppeteer = await import("puppeteer-core");
+        const browser = await puppeteer.default.connect({
+          browserWSEndpoint: `wss://chrome.browserless.io?token=${token}`
+        });
+        const page = await browser.newPage();
+        await page.setViewport({ width: 1280, height: 800 });
+        const sessionId = process.env.TV_SESSION_ID;
+        const sessionSign = process.env.TV_SESSION_SIGN;
+        if (sessionId && sessionSign) {
+          await page.setCookie(
+            { name: "sessionid", value: sessionId, domain: ".tradingview.com" },
+            { name: "sessionid_sign", value: sessionSign, domain: ".tradingview.com" }
+          );
+        }
+        let chartUrl = `https://vn.tradingview.com/chart/${layout}/`;
+        if (symbol) {
+          chartUrl += `?symbol=${symbol}`;
+        }
+        await page.goto(chartUrl, { waitUntil: "networkidle2", timeout: 3e4 });
+        await page.waitForSelector(".chart-gui-wrapper canvas", { timeout: 15e3 }).catch(() => {
+        });
+        await new Promise((r) => setTimeout(r, 4e3));
+        const chartElement = await page.$(".layout__area--center");
+        let imageBuffer;
+        if (chartElement) {
+          imageBuffer = await chartElement.screenshot({ type: "png" });
+        } else {
+          imageBuffer = await page.screenshot({ type: "png" });
+        }
+        await browser.close();
+        const blob = new Blob([imageBuffer], { type: "image/png" });
+        const formData = new FormData();
+        formData.append("preparedImage", blob, "blob");
+        const tvRes = await fetch("https://vn.tradingview.com/snapshot/", {
+          method: "POST",
+          headers: {
+            "Cookie": `sessionid=${sessionId}; sessionid_sign=${sessionSign}`
+          },
+          body: formData
+        });
+        if (!tvRes.ok) {
+          throw new Error(`TradingView upload failed with status: ${tvRes.status}`);
+        }
+        const tvId = await tvRes.text();
+        let s3Url = "";
+        try {
+          const parsed = JSON.parse(tvId);
+          if (parsed.detail) throw new Error(parsed.detail);
+        } catch (e) {
+        }
+        if (tvId && !tvId.includes("{")) {
+          const firstChar = tvId.charAt(0).toLowerCase();
+          s3Url = `https://s3.tradingview.com/snapshots/${firstChar}/${tvId}.png`;
+        } else {
+          throw new Error("Invalid response from TradingView: " + tvId);
+        }
+        res.json({ success: true, url: s3Url });
+      } catch (err) {
+        console.error("TV Snapshot error:", err);
+        res.status(500).json({ success: false, message: "L\u1ED7i ch\u1EE5p \u1EA3nh: " + err.message });
       }
     });
     app.get("*", (req, res) => {
