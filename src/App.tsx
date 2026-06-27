@@ -476,6 +476,26 @@ export default function App() {
   };
   // ─── The5ers Data Loading ──────────────────────────────────────────────────────
 
+  
+  const loadT5CredsFromServer = async () => {
+    try {
+      const res = await fetch("/api/get-t5-creds", {
+        headers: { "Authorization": `Bearer ${localStorage.getItem("trade_app_auth_token")}` }
+      });
+      const json = await res.json();
+      if (json.success) {
+        if (json.email && !t5Email) {
+          setT5Email(json.email);
+          localStorage.setItem("trade_app_t5_email", json.email);
+        }
+        if (json.password && !t5Password) {
+          setT5Password(json.password);
+          localStorage.setItem("trade_app_t5_password", json.password);
+        }
+      }
+    } catch (e) {}
+  };
+
   async function loadT5Data() {
     setT5Loading(true);
     setT5Error(null);
@@ -566,7 +586,7 @@ export default function App() {
     // Load fast market news
     loadNewsData();
     // Load The5ers data
-    loadT5Data();
+      loadT5CredsFromServer().then(() => loadT5Data());
     // Default dates on form
     const now = new Date();
     setFormEntryDate(now.toISOString().slice(0, 16));
