@@ -3004,7 +3004,7 @@ export default function App() {
             onClick={() => setLightboxUrl(null)}
           >
             <button
-              className="absolute top-4 right-4 p-3 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
+              className="absolute top-4 right-4 z-10 p-3 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
               onClick={(e) => { e.stopPropagation(); setLightboxUrl(null); }}
             >
               <X size={24} />
