@@ -681,7 +681,37 @@ export default function App() {
 
   // Merged trades for display: manual + The5ers
   const mergedTrades = useMemo(() => {
-    return [...t5MappedTrades, ...trades].sort(
+    // 1. Map manual trades by ID for quick lookup
+    const manualTradesMap = new Map<string, Trade>();
+    trades.forEach((t) => manualTradesMap.set(t.id, t));
+
+    // 2. Process T5 trades: if the user added notes/images, merge them into the Live T5 data
+    const enrichedT5Trades = t5MappedTrades.map((t5) => {
+      const manual = manualTradesMap.get(t5.id);
+      if (manual) {
+        // If the scraper says the trade is closed, but the manual version is still open, 
+        // the scraper has fresh exit data. Update the manual version with the scraper's exit data.
+        if (t5.status === "CLOSED" && manual.status === "OPEN") {
+          return {
+            ...manual,
+            status: "CLOSED",
+            exit_price: t5.exit_price,
+            exit_date: t5.exit_date,
+            pnl: t5.pnl,
+          };
+        }
+        // Otherwise, use the user's manual edit (which contains their snapshot URL and notes)
+        return manual;
+      }
+      return t5;
+    });
+
+    // 3. Collect pure manual trades (ones that are NOT from T5)
+    const t5Ids = new Set(t5MappedTrades.map(t => t.id));
+    const pureManualTrades = trades.filter((t) => !t5Ids.has(t.id));
+
+    // Combine and sort by entry date descending
+    return [...enrichedT5Trades, ...pureManualTrades].sort(
       (a, b) => new Date(b.entry_date).getTime() - new Date(a.entry_date).getTime(),
     );
   }, [trades, t5MappedTrades]);
