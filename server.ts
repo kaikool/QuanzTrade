@@ -1851,20 +1851,17 @@ async function startServer() {
         // Hiding them manually causes the canvas to stay small, leaving giant gray gaps.
         // Instead, we just let it render normally and then screenshot specifically the center chart element.
 
-        // Force scroll to newest bar by simulating 5 quick horizontal swipes to the left
+        // Force scroll to newest bar
         const chartElement = await page.$('.layout__area--center');
         if (chartElement) {
           await chartElement.click(); // Focus chart
-          const box = await chartElement.boundingBox();
-          if (box) {
-            for (let i = 0; i < 5; i++) {
-              await page.mouse.move(box.x + box.width - 100, box.y + box.height / 2);
-              await page.mouse.down();
-              await page.mouse.move(box.x + 100, box.y + box.height / 2, { steps: 5 });
-              await page.mouse.up();
-              await new Promise(r => setTimeout(r, 100));
-            }
-          }
+          
+          // Send Shift + RightArrow to jump to the most recent bar
+          await page.keyboard.down('Shift');
+          await page.keyboard.press('ArrowRight');
+          await page.keyboard.up('Shift');
+          
+          await new Promise(r => setTimeout(r, 500));
         }
 
         // Reset Price Scale (Alt + R) to ensure candles are scaled correctly

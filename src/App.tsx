@@ -1035,7 +1035,7 @@ export default function App() {
       tag: formTag,
       stop_loss: slNum,
       take_profit: tpNum,
-      tv_snapshot_url: formTVSnapshotUrl || undefined,
+      tv_snapshot_url: formTVSnapshotUrl || null,
     };
 
     try {
