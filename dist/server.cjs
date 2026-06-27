@@ -1087,7 +1087,7 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = import_path.default.resolve("dist");
+    const distPath = import_path.default.join(__dirname, "..", "dist");
     app.use(import_express.default.static(distPath));
     app.post("/api/the5ers/sync", async (req, res) => {
       const { email, password } = req.body || {};

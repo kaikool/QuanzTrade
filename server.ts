@@ -1351,7 +1351,7 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.resolve("dist");
+    const distPath = path.join(__dirname, "..", "dist");
     app.use(express.static(distPath));
     // ─── The5ers: server-side Descope login → The5ers proxy sync (no DPoP) ────
     // Server takes email+password, logs in via Descope v1/auth/signin, gets session
