@@ -3,8 +3,8 @@ import type { T5AccountOverview, T5Trade, T5Purchase } from "../types";
 
 function getSupabase(): SupabaseClient | null {
   const metaEnv = (import.meta as any).env || {};
-  const url = metaEnv.VITE_SUPABASE_URL || "";
-  const anonKey = metaEnv.VITE_SUPABASE_ANON_KEY || "";
+  const url = (window as any).ENV?.SUPABASE_URL || metaEnv.VITE_SUPABASE_URL || "";
+  const anonKey = (window as any).ENV?.SUPABASE_ANON_KEY || metaEnv.VITE_SUPABASE_ANON_KEY || "";
   if (url && anonKey && url.includes("supabase.co")) {
     return createClient(url, anonKey);
   }

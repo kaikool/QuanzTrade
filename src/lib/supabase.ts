@@ -11,8 +11,8 @@ const DEFAULT_TRADES: Trade[] = [];
 
 export function getSavedSupabaseKeys() {
   const metaEnv = (import.meta as any).env || {};
-  const url = metaEnv.VITE_SUPABASE_URL || localStorage.getItem(SUPABASE_URL_KEY) || "";
-  const anonKey = metaEnv.VITE_SUPABASE_ANON_KEY || localStorage.getItem(SUPABASE_ANON_KEY) || "";
+  const url = (window as any).ENV?.SUPABASE_URL || metaEnv.VITE_SUPABASE_URL || localStorage.getItem(SUPABASE_URL_KEY) || "";
+  const anonKey = (window as any).ENV?.SUPABASE_ANON_KEY || metaEnv.VITE_SUPABASE_ANON_KEY || localStorage.getItem(SUPABASE_ANON_KEY) || "";
   return { url, anonKey };
 }
 
