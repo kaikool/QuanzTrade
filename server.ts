@@ -13,8 +13,11 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 // Middlewares to parse bodies
 app.use(express.json());
 
-// In-memory session cache for auth tokens
-const activeSessions = new Set<string>();
+// Stateless auth token generation
+function getStatelessToken() {
+  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY || "quanztrade-secret";
+  return crypto.createHmac("sha256", secret).update(process.env.SITE_PASSWORD || "no-auth").digest("hex");
+}
 
 // Dynamic Supabase memory (to support frontend saving creds)
 let memorySupabaseUrl = "";
@@ -63,8 +66,7 @@ async function startServer() {
 
     // Allow login if password matches OR if sitePassword is not configured yet
     if (password === sitePassword || !sitePassword) {
-      const token = crypto.randomBytes(32).toString("hex");
-      activeSessions.add(token);
+      const token = getStatelessToken();
       return res.json({ success: true, token, configured: !!sitePassword });
     }
 
@@ -80,7 +82,7 @@ async function startServer() {
       return res.status(401).json({ success: false, message: "Unauthorized: Missing Token" });
     }
     const token = authHeader.split(" ")[1];
-    if (!activeSessions.has(token)) {
+    if (token !== getStatelessToken()) {
       return res.status(401).json({ success: false, message: "Unauthorized: Invalid or expired token" });
     }
     next();
