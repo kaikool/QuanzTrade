@@ -748,9 +748,7 @@ export default function App() {
         offset: String(page * NEWS_PAGE_SIZE),
         limit: String(NEWS_PAGE_SIZE),
       });
-      const res = await fetch(`/api/news?${params.toString()}`, {
-        cache: "no-store",
-      });
+      const res = await fetch(`/api/news?${params.toString()}`, { cache: "no-store", headers: { "Authorization": `Bearer ${localStorage.getItem("trade_app_auth_token")}` } });
       const json = await res.json();
       if (json && json.success) {
         setNewsItems(sortNewsByNewest(json.data || []));
@@ -782,9 +780,7 @@ export default function App() {
         offset: String(nextPage * NEWS_PAGE_SIZE),
         limit: String(NEWS_PAGE_SIZE),
       });
-      const res = await fetch(`/api/news?${params.toString()}`, {
-        cache: "no-store",
-      });
+      const res = await fetch(`/api/news?${params.toString()}`, { cache: "no-store", headers: { "Authorization": `Bearer ${localStorage.getItem("trade_app_auth_token")}` } });
       const json = await res.json();
       if (json && json.success) {
         setNewsItems(sortNewsByNewest(json.data || []));
