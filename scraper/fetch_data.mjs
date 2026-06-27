@@ -53,30 +53,7 @@ async function getDescopeSession() {
     }
   }
 
-  // Fresh login via password (no DPoP for password auth)
-  const signinRes = await fetch('https://api.descope.com/v1/auth/password/signin', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ loginId: THE5ERS_EMAIL, password: THE5ERS_PASSWORD, projectId: DESCOPE_PROJECT_ID })
-  });
-  if (!signinRes.ok) {
-    const errText = await signinRes.text().catch(() => '');
-    throw new Error('Descope login failed: ' + signinRes.status + ' ' + errText.slice(0, 200));
-  }
-  const data = await signinRes.json();
-  const sessionJwt = data.sessionJwt || '';
-  if (!sessionJwt) throw new Error('Descope returned no sessionJwt');
-
-  let refreshJwt = data.refreshJwt || '';
-  if (!refreshJwt) {
-    const setCookie = signinRes.headers.get('set-cookie') || '';
-    const m = setCookie.match(/DSR=([^;]+)/);
-    if (m) refreshJwt = m[1];
-  }
-  if (refreshJwt && supabase) {
-    await setConfig('THE5ERS_REFRESH_TOKEN', refreshJwt);
-  }
-  return sessionJwt;
+  throw new Error('DSR Token (Refresh Token) is missing or expired. You must update it in the UI and save to Supabase.');
 }
 
 async function run() {

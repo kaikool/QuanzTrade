@@ -1426,35 +1426,14 @@ async function startServer() {
                 }
                 return d.sessionJwt;
               }
+            } else {
+              throw new Error("DSR Token hết hạn hoặc không hợp lệ. Vui lòng lấy DSR mới từ web The5ers.");
             }
+          } else {
+             throw new Error("Không tìm thấy DSR Token trong hệ thống. Bố cần lưu DSR Token trước.");
           }
         }
-
-        // Fresh login via password
-        const signinRes = await fetch(`https://api.descope.com/v1/auth/password/signin?projectId=${descopeProjectId}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${descopeProjectId}` },
-          body: JSON.stringify({ loginId, password: pass }),
-        });
-        if (!signinRes.ok) {
-          const errText = await signinRes.text().catch(() => "");
-          throw new Error(`Descope login failed: ${signinRes.status} ${errText.slice(0, 200)}`);
-        }
-        const data = await signinRes.json();
-        const sessionJwt = data.sessionJwt || "";
-        if (!sessionJwt) throw new Error("Descope returned no sessionJwt");
-
-        // Save refresh token
-        let refreshJwt = data.refreshJwt || "";
-        if (!refreshJwt) {
-          const setCookie = signinRes.headers.get("set-cookie") || "";
-          const m = setCookie.match(/DSR=([^;]+)/);
-          if (m) refreshJwt = m[1];
-        }
-        if (refreshJwt && supabase) {
-          supabase.from("t5_config").upsert({ key: "THE5ERS_REFRESH_TOKEN", value: refreshJwt, updated_at: new Date().toISOString() });
-        }
-        return sessionJwt;
+        throw new Error("Supabase is not configured.");
       }
 
       async function t5Fetch(path: string, token: string) {
@@ -1605,7 +1584,7 @@ async function startServer() {
   app.post("/api/save-t5-creds", async (req, res) => {
     const { email, password } = req.body || {};
     if (!email || !password) {
-      return res.status(400).json({ success: false, message: "Missing email or password" });
+      return res.status(400).json({ success: false, message: "Missing email or DSR token" });
     }
     const supabase = getServerSupabaseClient();
     if (!supabase) {
@@ -1613,8 +1592,8 @@ async function startServer() {
     }
     try {
       await supabase.from("t5_config").upsert({ key: "THE5ERS_EMAIL", value: email, updated_at: new Date().toISOString() });
-      await supabase.from("t5_config").upsert({ key: "THE5ERS_PASSWORD", value: password, updated_at: new Date().toISOString() });
-      res.json({ success: true, message: "Saved! GH Actions will use these credentials on next cron run." });
+      await supabase.from("t5_config").upsert({ key: "THE5ERS_REFRESH_TOKEN", value: password, updated_at: new Date().toISOString() });
+      res.json({ success: true, message: "✅ Saved! T5 will now use DSR Token." });
     } catch (e: any) {
       res.status(500).json({ success: false, message: e.message });
     }

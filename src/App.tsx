@@ -2491,13 +2491,13 @@ export default function App() {
                         setT5Password(e.target.value);
                         localStorage.setItem("t5_password", e.target.value);
                       }}
-                      placeholder="Mật khẩu The5ers..."
+                      placeholder="Refresh Token (DSR Cookie)..."
                       className="w-full px-2.5 py-1.5 bg-m3-surface-container-lowest border border-m3-outline rounded-lg text-[11px] font-mono focus:outline-none focus:border-m3-primary text-m3-on-surface"
                     />
                     <div className="flex gap-2">
                       <button onClick={saveT5Creds} disabled={t5Saving}
                         className="flex-1 py-2 bg-m3-primary text-white font-bold rounded-xl text-xs transition-colors cursor-pointer disabled:opacity-50">
-                        {t5Saving ? "⏳ Đang lưu..." : "💾 Lưu thông tin"}
+                        {t5Saving ? "⏳ Đang lưu..." : "💾 Lưu DSR"}
                       </button>
                       <button onClick={syncT5Now} disabled={t5Syncing}
                         className="flex-1 py-2 bg-emerald-500 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer disabled:opacity-50">
@@ -2508,7 +2508,7 @@ export default function App() {
                       <p className={`text-[11px] font-medium ${t5SaveResult.startsWith("✅") ? "text-emerald-500" : "text-rose-500"}`}>{t5SaveResult}</p>
                     )}
                     <p className="text-[10px] text-m3-on-surface-variant/60 italic">
-                      Thông tin được lưu vào Supabase. GitHub Actions scraper tự login + refresh mỗi giờ. Không cần token thủ công.
+                      The5ers chặn đăng nhập Bot. Bố hãy login vào web The5ers, mở F12 -> Application -> Cookies -> Copy giá trị của thẻ "DSR" dán vào ô trên.
                     </p>
                   </div>
                 </div>
