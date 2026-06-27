@@ -68,19 +68,43 @@ export async function captureAndSaveSnapshot(tradeId, symbol, pair, type, entryP
         });
 
         // Get the chart container bounding box
+        // Force scroll to newest bar (Aggressive approach)
         const chartEl = await page.$('.layout__area--center');
         if (chartEl) {
-            await chartEl.click();
-            
-            // Send Shift + RightArrow to jump to the most recent bar
-            await page.keyboard.down('Shift');
-            await page.keyboard.press('ArrowRight');
-            await page.keyboard.up('Shift');
-            
-            await new Promise(r => setTimeout(r, 500));
+            const box = await chartEl.boundingBox();
+            if (box) {
+                // 1. Click center to focus chart
+                await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+                await new Promise(r => setTimeout(r, 500));
+
+                // 2. Press Escape to deselect any drawings/indicators
+                await page.keyboard.press('Escape');
+                await new Promise(r => setTimeout(r, 200));
+
+                // 3. Try native shortcut first
+                await page.keyboard.down('Shift');
+                await page.keyboard.press('ArrowRight');
+                await page.keyboard.up('Shift');
+                await new Promise(r => setTimeout(r, 500));
+
+                // 4. Aggressively drag mouse to the left (pans chart to the right)
+                for (let i = 0; i < 4; i++) {
+                    await page.mouse.move(box.x + box.width - 150, box.y + box.height / 2);
+                    await page.mouse.down();
+                    await page.mouse.move(box.x + 150, box.y + box.height / 2, { steps: 5 });
+                    await page.mouse.up();
+                    await new Promise(r => setTimeout(r, 300));
+                }
+
+                // 5. One final native shortcut
+                await page.keyboard.down('Shift');
+                await page.keyboard.press('ArrowRight');
+                await page.keyboard.up('Shift');
+                await new Promise(r => setTimeout(r, 500));
+            }
         }
 
-        // Reset Price Scale (Alt + R) to ensure candles are scaled correctly
+        // Reset Price Scale (Alt + R) to ensure candles are scaled correctly vertically
         await page.keyboard.down('Alt');
         await page.keyboard.press('r');
         await page.keyboard.up('Alt');
