@@ -1087,7 +1087,7 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = import_path.default.join(process.cwd(), "dist");
+    const distPath = import_path.default.join(__dirname, "..", "dist");
     app.use(import_express.default.static(distPath));
     app.post("/api/the5ers/sync", async (req, res) => {
       const { email, password } = req.body || {};
@@ -1123,10 +1123,10 @@ async function startServer() {
             }
           }
         }
-        const signinRes = await fetch("https://api.descope.com/v1/auth/signin", {
+        const signinRes = await fetch(`https://api.descope.com/v1/auth/signin?projectId=${descopeProjectId}`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ loginId, password: pass, projectId: descopeProjectId })
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${descopeProjectId}` },
+          body: JSON.stringify({ loginId, password: pass })
         });
         if (!signinRes.ok) {
           const errText = await signinRes.text().catch(() => "");

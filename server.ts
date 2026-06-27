@@ -1351,7 +1351,7 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), "dist");
+    const distPath = path.join(__dirname, "..", "dist");
     app.use(express.static(distPath));
     // ─── The5ers: server-side Descope login → The5ers proxy sync (no DPoP) ────
     // Server takes email+password, logs in via Descope v1/auth/signin, gets session
@@ -1397,10 +1397,10 @@ async function startServer() {
         }
 
         // Fresh login via password
-        const signinRes = await fetch("https://api.descope.com/v1/auth/signin", {
+        const signinRes = await fetch(`https://api.descope.com/v1/auth/signin?projectId=${descopeProjectId}`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ loginId, password: pass, projectId: descopeProjectId }),
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${descopeProjectId}` },
+          body: JSON.stringify({ loginId, password: pass }),
         });
         if (!signinRes.ok) {
           const errText = await signinRes.text().catch(() => "");
