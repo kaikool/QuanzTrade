@@ -1675,25 +1675,34 @@ export default function App() {
                           >
                             <td className="py-2.5 px-3 whitespace-nowrap">
                               <div className="flex items-center gap-2">
-                                <span
-                                  className={`px-1.5 py-0.5 rounded text-[10px] font-black font-mono ${t.type === "BUY" ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"}`}
-                                >
-                                  {t.type}
-                                </span>
-                                <div>
-                                  <div className="font-bold text-m3-on-surface text-xs leading-tight flex items-center gap-1.5">
-                                    {t.pair}
-                                    {t.tv_snapshot_url && (
-                                      <a href={t.tv_snapshot_url} target="_blank" rel="noreferrer" title="Xem ảnh Chart" className="text-m3-primary hover:text-blue-500 transition-colors">
-                                        <Camera size={12} />
-                                      </a>
-                                    )}
-                                    {t.status === "OPEN" && (
-                                      <span className="text-[9px] px-1 py-0.5 rounded bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 font-extrabold uppercase">OPEN</span>
-                                    )}
+                                {t.tv_snapshot_url ? (
+                                  <a href={t.tv_snapshot_url} target="_blank" rel="noreferrer" className="w-12 h-8 rounded border border-m3-outline-variant overflow-hidden flex-shrink-0 block relative group" title="Xem ảnh Chart">
+                                    <img src={t.tv_snapshot_url} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                      <Maximize2 size={10} className="text-white" />
+                                    </div>
+                                  </a>
+                                ) : (
+                                  <div className="w-12 h-8 rounded border border-dashed border-m3-outline-variant flex items-center justify-center bg-m3-surface-container flex-shrink-0" title="Chưa có ảnh Chart">
+                                    <Camera size={12} className="text-m3-on-surface-variant/40" />
                                   </div>
-                                  <div className="text-[10px] text-m3-on-surface-variant mt-0.5">
-                                    {t.timeframe || "M15"} • {new Date(t.entry_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                                )}
+                                <div className="flex items-center gap-2">
+                                  <span
+                                    className={`px-1.5 py-0.5 rounded text-[10px] font-black font-mono ${t.type === "BUY" ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"}`}
+                                  >
+                                    {t.type}
+                                  </span>
+                                  <div>
+                                    <div className="font-bold text-m3-on-surface text-xs leading-tight flex items-center gap-1.5">
+                                      {t.pair}
+                                      {t.status === "OPEN" && (
+                                        <span className="text-[9px] px-1 py-0.5 rounded bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 font-extrabold uppercase">OPEN</span>
+                                      )}
+                                    </div>
+                                    <div className="text-[10px] text-m3-on-surface-variant mt-0.5">
+                                      {t.timeframe || "M15"} • {new Date(t.entry_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                                    </div>
                                   </div>
                                 </div>
                               </div>
