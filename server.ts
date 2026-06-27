@@ -1447,34 +1447,33 @@ async function startServer() {
     </script>
   </body>
 </html>`;
-    // ─── The5ers: server-side Descope login → The5ers proxy sync (no DPoP) ────
-    // Server takes email+password, logs in via Descope v1/auth/signin, gets session
-    // JWT (15 min), proxies to The5ers API, writes Supabase. Refresh token saved to
-    // Supabase t5_config for automatic token refresh on subsequent calls.
+    // ─── The5ers: DSR refresh token → The5ers proxy sync ─────────────────────
+    // Server uses stored Descope refresh token (DSR) from Supabase t5_config,
+    // refreshes a session JWT, proxies to The5ers API, then writes Supabase.
     app.post("/api/the5ers/sync", async (req, res) => {
-      let { email, password } = req.body || {};
+      let { email, dsrToken, password } = req.body || {};
+      let refreshToken = dsrToken || password;
       const supabase = getServerSupabaseClient();
 
-      if (!email || !password) {
+      if (!email || !refreshToken) {
         if (supabase) {
           const [eData, pData] = await Promise.all([
             supabase.from("t5_config").select("value").eq("key", "THE5ERS_EMAIL").single(),
             supabase.from("t5_config").select("value").eq("key", "THE5ERS_REFRESH_TOKEN").single()
           ]);
           if (!email) email = eData.data?.value;
-          if (!password) password = pData.data?.value;
+          if (!refreshToken) refreshToken = pData.data?.value;
         }
       }
 
-      if (!email || !password) {
+      if (!email || !refreshToken) {
         return res.status(400).json({ success: false, message: "Vui lòng nhập Email và mã DSR lần đầu trên web để lưu lại." });
       }
 
       const descopeProjectId = "P37sOCdLJjVCAuLgqv2zMvS61Xbo";
       const baseUrl = "https://api.the5ers.com";
 
-      // Step 1: Login via Descope password signin
-      async function getDescopeSession(loginId: string, pass: string): Promise<string> {
+      async function getDescopeSession(): Promise<string> {
         // Try stored refresh token first
         if (supabase) {
           const storedRefresh = await supabase.from("t5_config").select("value").eq("key", "THE5ERS_REFRESH_TOKEN").single();
@@ -1529,7 +1528,7 @@ async function startServer() {
 
       try {
         // Get Descope session
-        const sessionToken = await getDescopeSession(email, password);
+        const sessionToken = await getDescopeSession();
 
         // Fetch The5ers API
         const user = await t5Fetch("/user", sessionToken);
@@ -1703,8 +1702,28 @@ async function startServer() {
         res.json({
           success: true,
           email: eData.data?.value || "",
-          password: pData.data?.value || ""
+          dsrToken: pData.data?.value || ""
         });
+      } catch (e: any) {
+        res.status(500).json({ success: false, message: e.message });
+      }
+    });
+
+    // Save The5ers DSR token to Supabase (for GH Actions scraper)
+    app.post("/api/save-t5-creds", async (req, res) => {
+      const { email, dsrToken, password } = req.body || {};
+      const refreshToken = dsrToken || password;
+      if (!email || !refreshToken) {
+        return res.status(400).json({ success: false, message: "Missing email or DSR token" });
+      }
+      const supabase = getServerSupabaseClient();
+      if (!supabase) {
+        return res.status(500).json({ success: false, message: "Supabase not configured" });
+      }
+      try {
+        await supabase.from("t5_config").upsert({ key: "THE5ERS_EMAIL", value: email, updated_at: new Date().toISOString() });
+        await supabase.from("t5_config").upsert({ key: "THE5ERS_REFRESH_TOKEN", value: refreshToken, updated_at: new Date().toISOString() });
+        res.json({ success: true, message: "✅ Saved! T5 will now use DSR Token." });
       } catch (e: any) {
         res.status(500).json({ success: false, message: e.message });
       }
@@ -1714,26 +1733,6 @@ async function startServer() {
       res.type("html").send(SPA_HTML);
     });
   }
-
-
-  // ─── Save The5ers credentials to Supabase (for GH Actions scraper) ────────
-  app.post("/api/save-t5-creds", async (req, res) => {
-    const { email, password } = req.body || {};
-    if (!email || !password) {
-      return res.status(400).json({ success: false, message: "Missing email or DSR token" });
-    }
-    const supabase = getServerSupabaseClient();
-    if (!supabase) {
-      return res.status(500).json({ success: false, message: "Supabase not configured" });
-    }
-    try {
-      await supabase.from("t5_config").upsert({ key: "THE5ERS_EMAIL", value: email, updated_at: new Date().toISOString() });
-      await supabase.from("t5_config").upsert({ key: "THE5ERS_REFRESH_TOKEN", value: password, updated_at: new Date().toISOString() });
-      res.json({ success: true, message: "✅ Saved! T5 will now use DSR Token." });
-    } catch (e: any) {
-      res.status(500).json({ success: false, message: e.message });
-    }
-  });
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);

@@ -207,15 +207,15 @@ export default function App() {
 
   // ─── The5ers (GH Actions scraper) ──────────────────────────────────────────
   const [t5Email, setT5Email] = useState(() => localStorage.getItem("t5_email") || "");
-  const [t5Password, setT5Password] = useState(() => localStorage.getItem("t5_password") || "");
+  const [t5DsrToken, setT5DsrToken] = useState(() => localStorage.getItem("t5_dsr_token") || localStorage.getItem("t5_password") || "");
   const [t5Saving, setT5Saving] = useState(false);
   const [t5Syncing, setT5Syncing] = useState(false);
   const [t5SaveResult, setT5SaveResult] = useState<string | null>(null);
 
   async function saveT5Creds() {
     const email = localStorage.getItem("t5_email");
-    const pass = localStorage.getItem("t5_password");
-    if (!email || !pass) { setT5SaveResult("Nhập email + mật khẩu"); return; }
+    const dsrToken = localStorage.getItem("t5_dsr_token") || localStorage.getItem("t5_password");
+    if (!email || !dsrToken) { setT5SaveResult("Nhập email + DSR token"); return; }
     setT5Saving(true);
     setT5SaveResult(null);
     try {
@@ -225,7 +225,7 @@ export default function App() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${localStorage.getItem("trade_app_auth_token")}`
         },
-        body: JSON.stringify({ email, password: pass }),
+        body: JSON.stringify({ email, dsrToken }),
       });
       const json = await res.json();
       setT5SaveResult(json.success ? `✅ ${json.message}` : `❌ ${json.message}`);
@@ -238,8 +238,8 @@ export default function App() {
 
   async function syncT5Now() {
     const email = localStorage.getItem("t5_email");
-    const pass = localStorage.getItem("t5_password");
-    if (!email || !pass) { setT5SaveResult("Nhập email + mật khẩu trước!"); return; }
+    const dsrToken = localStorage.getItem("t5_dsr_token") || localStorage.getItem("t5_password");
+    if (!email || !dsrToken) { setT5SaveResult("Nhập email + DSR token trước!"); return; }
     setT5Syncing(true);
     setT5SaveResult("Đang cào dữ liệu The5ers (mất 5-10 giây)...");
     try {
@@ -249,7 +249,7 @@ export default function App() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${localStorage.getItem("trade_app_auth_token")}`
         },
-        body: JSON.stringify({ email, password: pass }),
+        body: JSON.stringify({ email, dsrToken }),
       });
       const json = await res.json();
       setT5SaveResult(json.success ? `✅ Cào xong: ${json.message}` : `❌ Lỗi: ${json.message}`);
@@ -539,9 +539,9 @@ export default function App() {
           setT5Email(json.email);
           localStorage.setItem("trade_app_t5_email", json.email);
         }
-        if (json.password && !t5Password) {
-          setT5Password(json.password);
-          localStorage.setItem("trade_app_t5_password", json.password);
+        if (json.dsrToken && !t5DsrToken) {
+          setT5DsrToken(json.dsrToken);
+          localStorage.setItem("t5_dsr_token", json.dsrToken);
         }
       }
     } catch (e) {}
@@ -2582,11 +2582,11 @@ export default function App() {
                       className="w-full px-2.5 py-1.5 bg-m3-surface-container-lowest border border-m3-outline rounded-lg text-[11px] font-mono focus:outline-none focus:border-m3-primary text-m3-on-surface"
                     />
                     <textarea
-                      value={t5Password}
+                      value={t5DsrToken}
                       onChange={(e) => {
                         const val = e.target.value.trim();
-                        setT5Password(val);
-                        localStorage.setItem("t5_password", val);
+                        setT5DsrToken(val);
+                        localStorage.setItem("t5_dsr_token", val);
                       }}
                       placeholder="Dán mã Refresh Token (DSR) vào đây..."
                       className="w-full px-2.5 py-2.5 bg-m3-surface-container-lowest border border-m3-outline rounded-lg text-[10px] font-mono focus:outline-none focus:border-m3-primary text-m3-on-surface h-20 resize-none break-all"

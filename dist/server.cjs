@@ -1154,24 +1154,25 @@ async function startServer() {
   </body>
 </html>`;
     app.post("/api/the5ers/sync", async (req, res) => {
-      let { email, password } = req.body || {};
+      let { email, dsrToken, password } = req.body || {};
+      let refreshToken = dsrToken || password;
       const supabase = getServerSupabaseClient();
-      if (!email || !password) {
+      if (!email || !refreshToken) {
         if (supabase) {
           const [eData, pData] = await Promise.all([
             supabase.from("t5_config").select("value").eq("key", "THE5ERS_EMAIL").single(),
             supabase.from("t5_config").select("value").eq("key", "THE5ERS_REFRESH_TOKEN").single()
           ]);
           if (!email) email = eData.data?.value;
-          if (!password) password = pData.data?.value;
+          if (!refreshToken) refreshToken = pData.data?.value;
         }
       }
-      if (!email || !password) {
+      if (!email || !refreshToken) {
         return res.status(400).json({ success: false, message: "Vui l\xF2ng nh\u1EADp Email v\xE0 m\xE3 DSR l\u1EA7n \u0111\u1EA7u tr\xEAn web \u0111\u1EC3 l\u01B0u l\u1EA1i." });
       }
       const descopeProjectId = "P37sOCdLJjVCAuLgqv2zMvS61Xbo";
       const baseUrl = "https://api.the5ers.com";
-      async function getDescopeSession(loginId, pass) {
+      async function getDescopeSession() {
         if (supabase) {
           const storedRefresh = await supabase.from("t5_config").select("value").eq("key", "THE5ERS_REFRESH_TOKEN").single();
           if (storedRefresh.data?.value) {
@@ -1222,7 +1223,7 @@ async function startServer() {
         return json.data || json;
       }
       try {
-        const sessionToken = await getDescopeSession(email, password);
+        const sessionToken = await getDescopeSession();
         const user = await t5Fetch("/user", sessionToken);
         const accounts = user.tsUsers || user.accounts || user.data?.tsUsers || [];
         if (!accounts || accounts.length === 0) {
@@ -1380,8 +1381,26 @@ async function startServer() {
         res.json({
           success: true,
           email: eData.data?.value || "",
-          password: pData.data?.value || ""
+          dsrToken: pData.data?.value || ""
         });
+      } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
+      }
+    });
+    app.post("/api/save-t5-creds", async (req, res) => {
+      const { email, dsrToken, password } = req.body || {};
+      const refreshToken = dsrToken || password;
+      if (!email || !refreshToken) {
+        return res.status(400).json({ success: false, message: "Missing email or DSR token" });
+      }
+      const supabase = getServerSupabaseClient();
+      if (!supabase) {
+        return res.status(500).json({ success: false, message: "Supabase not configured" });
+      }
+      try {
+        await supabase.from("t5_config").upsert({ key: "THE5ERS_EMAIL", value: email, updated_at: (/* @__PURE__ */ new Date()).toISOString() });
+        await supabase.from("t5_config").upsert({ key: "THE5ERS_REFRESH_TOKEN", value: refreshToken, updated_at: (/* @__PURE__ */ new Date()).toISOString() });
+        res.json({ success: true, message: "\u2705 Saved! T5 will now use DSR Token." });
       } catch (e) {
         res.status(500).json({ success: false, message: e.message });
       }
@@ -1390,23 +1409,6 @@ async function startServer() {
       res.type("html").send(SPA_HTML);
     });
   }
-  app.post("/api/save-t5-creds", async (req, res) => {
-    const { email, password } = req.body || {};
-    if (!email || !password) {
-      return res.status(400).json({ success: false, message: "Missing email or DSR token" });
-    }
-    const supabase = getServerSupabaseClient();
-    if (!supabase) {
-      return res.status(500).json({ success: false, message: "Supabase not configured" });
-    }
-    try {
-      await supabase.from("t5_config").upsert({ key: "THE5ERS_EMAIL", value: email, updated_at: (/* @__PURE__ */ new Date()).toISOString() });
-      await supabase.from("t5_config").upsert({ key: "THE5ERS_REFRESH_TOKEN", value: password, updated_at: (/* @__PURE__ */ new Date()).toISOString() });
-      res.json({ success: true, message: "\u2705 Saved! T5 will now use DSR Token." });
-    } catch (e) {
-      res.status(500).json({ success: false, message: e.message });
-    }
-  });
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);
   });
