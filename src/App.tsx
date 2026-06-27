@@ -1092,10 +1092,10 @@ export default function App() {
     const t5OpenTrades = t5Trades.filter(t => selectedIds.has(t.accountId) && !t.closePrice).length;
     const t5ClosedTrades = t5Trades.filter(t => selectedIds.has(t.accountId) && t.closePrice).length;
 
-    const totalPnl = trades.reduce((sum, t) => sum + t.pnl, 0);
-    const manualPnl = trades.filter(t => t.status === "CLOSED").reduce((sum, t) => sum + t.pnl, 0);
-    const openCount = trades.filter(t => t.status === "OPEN").length;
-    const closedCount = trades.filter(t => t.status === "CLOSED").length;
+    const totalPnl = trades.filter(t => !t.id.startsWith("t5-")).reduce((sum, t) => sum + t.pnl, 0);
+    const manualPnl = trades.filter(t => t.status === "CLOSED" && !t.id.startsWith("t5-")).reduce((sum, t) => sum + t.pnl, 0);
+    const openCount = trades.filter(t => t.status === "OPEN" && !t.id.startsWith("t5-")).length;
+    const closedCount = trades.filter(t => t.status === "CLOSED" && !t.id.startsWith("t5-")).length;
 
     return {
       balance: t5Balance,
