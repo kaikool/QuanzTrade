@@ -150,6 +150,7 @@ export default function App() {
   const [t5Email, setT5Email] = useState(() => localStorage.getItem("t5_email") || "");
   const [t5Password, setT5Password] = useState(() => localStorage.getItem("t5_password") || "");
   const [t5Saving, setT5Saving] = useState(false);
+  const [t5Syncing, setT5Syncing] = useState(false);
   const [t5SaveResult, setT5SaveResult] = useState<string | null>(null);
 
   async function saveT5Creds() {
@@ -170,6 +171,30 @@ export default function App() {
       setT5SaveResult(`❌ ${e.message}`);
     } finally {
       setT5Saving(false);
+    }
+  }
+
+  async function syncT5Now() {
+    const email = localStorage.getItem("t5_email");
+    const pass = localStorage.getItem("t5_password");
+    if (!email || !pass) { setT5SaveResult("Nhập email + mật khẩu trước!"); return; }
+    setT5Syncing(true);
+    setT5SaveResult("Đang cào dữ liệu The5ers (mất 5-10 giây)...");
+    try {
+      const res = await fetch("/api/the5ers/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password: pass }),
+      });
+      const json = await res.json();
+      setT5SaveResult(json.success ? `✅ Cào xong: ${json.message}` : `❌ Lỗi: ${json.message}`);
+      if (json.success) {
+        await loadT5Data();
+      }
+    } catch (e: any) {
+      setT5SaveResult(`❌ Lỗi kết nối: ${e.message}`);
+    } finally {
+      setT5Syncing(false);
     }
   }
 
@@ -1855,7 +1880,7 @@ export default function App() {
                         {dayName}
                       </h4>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-2">
                         {events.map((ev, index) => {
                           const style = getImpactColorClasses(ev.impact);
                           const evTime = new Date(ev.date).toLocaleTimeString(
@@ -1866,70 +1891,50 @@ export default function App() {
                           return (
                             <div
                               key={`${dayName}-${index}`}
-                              className="p-4 sm:p-5 bg-m3-surface-container-low dark:bg-[#1f2021]/60 hover:bg-m3-surface-container dark:hover:bg-[#1f2021]/90 rounded-[24px] flex flex-col justify-between hover:scale-[1.01] transition-all ease-[var(--ease-m3-enter)] duration-200"
+                              className="flex items-center gap-2 sm:gap-4 p-2.5 sm:p-3.5 bg-m3-surface-container-low dark:bg-m3-surface-container/45 rounded-[16px] border border-m3-outline-variant/15 dark:border-m3-outline-variant hover:bg-m3-surface-container transition-colors"
                             >
-                              <div className="flex justify-between items-start gap-2">
-                                <div className="flex gap-2.5 items-start">
-                                  <div
-                                    className={`w-1 h-9 rounded-full mt-0.5 flex-shrink-0 ${style.indicator}`}
-                                  ></div>
-                                  <div>
-                                    <h5 className="font-bold m3-body-medium sm:m3-body-large tracking-tight text-m3-on-surface leading-tight">
-                                      {ev.title}
-                                    </h5>
-                                    <span className="m3-body-small text-m3-on-surface-variant uppercase font-mono tracking-wider">
-                                      {ev.country} • {timezoneOffsetStr}
-                                    </span>
-                                  </div>
-                                </div>
-
-                                <div className="text-right flex-shrink-0">
-                                  <span className="m3-body-small sm:m3-label-large text-m3-on-surface-variant flex items-center gap-1 justify-end font-mono">
-                                    <Clock
-                                      size={12}
-                                      className="text-m3-on-surface-variant"
-                                    />
-                                    {evTime}
-                                  </span>
-                                  <div className="mt-1">
-                                    <span
-                                      className={`text-[10px] sm:m3-label-medium rounded px-2 py-0.5 uppercase tracking-wider inline-block ${style.text} ${style.bg}`}
-                                    >
-                                      {style.label}
-                                    </span>
-                                  </div>
+                              {/* Cột 1: Giờ & Impact */}
+                              <div className="flex flex-col items-center justify-center min-w-[48px] sm:min-w-[60px] flex-shrink-0">
+                                <span className="font-mono font-bold text-xs text-m3-on-surface">{evTime}</span>
+                                <div className={`mt-1 rounded px-1.5 py-0.5 text-[9px] uppercase tracking-wider font-extrabold ${style.text} ${style.bg}`}>
+                                  {style.label}
                                 </div>
                               </div>
 
-                              {/* Forecast vs Previous display block */}
-                              <div className="mt-4 pt-3 border-t border-m3-outline-variant/20 dark:border-m3-outline-variant grid grid-cols-3 gap-2 text-center m3-body-small sm:m3-body-medium">
-                                <div className="bg-m3-surface p-2 rounded-[16px]">
-                                  <div className="text-[10px] sm:m3-body-small uppercase font-extrabold text-m3-on-surface-variant">
-                                    Dự báo
-                                  </div>
-                                  <div className="font-mono font-bold text-m3-on-surface mt-1 m3-body-small sm:m3-body-medium truncate">
-                                    {ev.forecast || "-"}
-                                  </div>
+                              {/* Cột 2: Tiêu đề & Quốc gia */}
+                              <div className="flex-1 min-w-0 flex flex-col justify-center">
+                                <h5 className="font-bold text-xs sm:text-sm text-m3-on-surface truncate leading-snug mb-0.5">
+                                  {ev.title}
+                                </h5>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-[10px] bg-m3-on-surface/5 dark:bg-m3-on-surface/10 px-1.5 py-0.5 rounded text-m3-on-surface-variant uppercase font-mono tracking-wider">
+                                    {ev.country}
+                                  </span>
+                                  <span className="text-[9px] text-m3-on-surface-variant hidden sm:inline-block">
+                                    {timezoneOffsetStr}
+                                  </span>
                                 </div>
-                                <div className="bg-m3-surface p-2 rounded-[16px]">
-                                  <div className="text-[10px] sm:m3-body-small uppercase font-extrabold text-m3-on-surface-variant">
-                                    Kỳ trước
-                                  </div>
-                                  <div className="font-mono font-bold text-m3-on-surface mt-1 m3-body-small sm:m3-body-medium truncate">
-                                    {ev.previous || "-"}
-                                  </div>
+                              </div>
+
+                              {/* Cột 3: Desktop Stats */}
+                              <div className="hidden md:flex flex-col items-end flex-shrink-0 gap-1.5 border-l border-m3-outline-variant/20 pl-4">
+                                <div className="flex items-center gap-3 font-mono text-[11px] text-m3-on-surface-variant">
+                                  <span>Dự báo: <strong className="text-m3-on-surface">{ev.forecast || "-"}</strong></span>
+                                  <span>Trước: <strong className="text-m3-on-surface">{ev.previous || "-"}</strong></span>
                                 </div>
-                                <div className="bg-[#f0f9ff] dark:bg-indigo-950/20 p-2 rounded-[16px]">
-                                  <div className="text-[10px] sm:m3-body-small uppercase font-extrabold text-sky-600 dark:text-sky-400">
-                                    Thực tế
-                                  </div>
-                                  <div className="font-mono font-bold text-sky-600 dark:text-sky-300 mt-1 m3-body-small sm:m3-body-medium truncate">
-                                    {ev.actual || (
-                                      <span className="italic font-normal m3-body-small text-m3-on-surface-variant">
-                                        Đợi tin
-                                      </span>
-                                    )}
-                                  </div>
+                                <div className="font-mono text-[13px] flex items-center gap-1.5">
+                                  <span className="text-[10px] uppercase font-bold text-sky-600 dark:text-sky-400">Thực tế:</span>
+                                  <strong className="text-sky-700 dark:text-sky-300 font-black">{ev.actual || "Đợi tin"}</strong>
+                                </div>
+                              </div>
+
+                              {/* Cột 3: Mobile Stats */}
+                              <div className="flex md:hidden flex-col items-end justify-center flex-shrink-0 min-w-[70px]">
+                                <div className="font-mono text-[9px] text-m3-on-surface-variant mb-0.5 flex items-center gap-1">
+                                  <span className="opacity-60">DB:</span> <strong>{ev.forecast || "-"}</strong>
+                                </div>
+                                <div className="font-mono text-[11px] font-black text-sky-600 dark:text-sky-400 flex items-center gap-1">
+                                  <span className="opacity-60 text-[9px] uppercase">TT:</span> {ev.actual || "-"}
                                 </div>
                               </div>
                             </div>
@@ -2489,10 +2494,16 @@ export default function App() {
                       placeholder="Mật khẩu The5ers..."
                       className="w-full px-2.5 py-1.5 bg-m3-surface-container-lowest border border-m3-outline rounded-lg text-[11px] font-mono focus:outline-none focus:border-m3-primary text-m3-on-surface"
                     />
-                    <button onClick={saveT5Creds} disabled={t5Saving}
-                      className="w-full py-2 bg-m3-primary text-white font-bold rounded-xl text-xs transition-colors cursor-pointer disabled:opacity-50">
-                      {t5Saving ? "⏳ Đang lưu..." : "💾 Lưu thông tin"}
-                    </button>
+                    <div className="flex gap-2">
+                      <button onClick={saveT5Creds} disabled={t5Saving}
+                        className="flex-1 py-2 bg-m3-primary text-white font-bold rounded-xl text-xs transition-colors cursor-pointer disabled:opacity-50">
+                        {t5Saving ? "⏳ Đang lưu..." : "💾 Lưu thông tin"}
+                      </button>
+                      <button onClick={syncT5Now} disabled={t5Syncing}
+                        className="flex-1 py-2 bg-emerald-500 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer disabled:opacity-50">
+                        {t5Syncing ? "⏳ Đang cào..." : "🚀 Cào Dữ Liệu Ngay"}
+                      </button>
+                    </div>
                     {t5SaveResult && (
                       <p className={`text-[11px] font-medium ${t5SaveResult.startsWith("✅") ? "text-emerald-500" : "text-rose-500"}`}>{t5SaveResult}</p>
                     )}
