@@ -579,10 +579,10 @@ export default function App() {
         if (ev.data?.type === "NOTIFIED_EVENTS_STATE" && Array.isArray(ev.data.notifiedIds)) {
           setNotifiedEvents(ev.data.notifiedIds);
           localStorage.setItem("pwa_notified_events", JSON.stringify(ev.data.notifiedIds));
-        }
-      });
-    }
-  }, []);
+          }
+        });
+      }
+    }, [isLoggedIn]);
 
   // Auto-refresh The5ers data every 5 minutes (reads Supabase)
   useEffect(() => {
