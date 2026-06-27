@@ -1,0 +1,20 @@
+name: Keep Render Awake
+
+on:
+  schedule:
+    # Chạy mỗi 14 phút để giữ server Render không bị sleep (Render sẽ sleep sau 15p không có request)
+    - cron: '*/14 * * * *'
+  workflow_dispatch: # Cho phép bấm chạy thủ công nếu cần
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render URL
+        # LƯU Ý: Bố cần đổi 'YOUR_RENDER_URL_HERE' thành link thật của app trên Render nhé!
+        # Ví dụ: https://quanztrade-app.onrender.com
+        run: |
+          RENDER_URL="https://quanztrade-app.onrender.com/"
+          echo "Pinging $RENDER_URL to keep it awake..."
+          curl -s "$RENDER_URL" > /dev/null
+          echo "Ping successful!"
