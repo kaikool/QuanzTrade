@@ -1755,6 +1755,9 @@ async function startServer() {
 
         const page = await browser.newPage();
         await page.setViewport({ width: 1280, height: 800 });
+        
+        // Use a realistic user agent to prevent TradingView from rejecting the session cookies
+        await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
 
         // Check if user provided TV cookies
         const sessionId = process.env.TV_SESSION_ID;
@@ -1777,22 +1780,9 @@ async function startServer() {
         // Wait for the chart to be visible
         await page.waitForSelector('.chart-gui-wrapper canvas', { timeout: 15000 }).catch(() => {});
         
-        // Hide all TradingView toolbars and sidebars to make the chart fullscreen and beautifully centered
-        await page.evaluate(() => {
-          const selectorsToHide = [
-            '.layout__area--top',
-            '.layout__area--left',
-            '.layout__area--right',
-            '.layout__area--bottom'
-          ];
-          selectorsToHide.forEach(sel => {
-            const el = document.querySelector(sel);
-            if (el) (el as HTMLElement).style.display = 'none';
-          });
-          // Also hide the little popup ads or toasts if any
-          const toasts = document.querySelectorAll('.toast-wrap');
-          toasts.forEach(t => (t as HTMLElement).style.display = 'none');
-        });
+        // We DO NOT hide the toolbars manually because TradingView uses JS to calculate canvas dimensions.
+        // Hiding them manually causes the canvas to stay small, leaving giant gray gaps.
+        // Instead, we just let it render normally and then screenshot specifically the center chart element.
 
         // Extra time for the layout to recalculate and indicators to render
         await new Promise(r => setTimeout(r, 6000));
