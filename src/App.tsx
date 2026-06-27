@@ -558,6 +558,7 @@ export default function App() {
 
   // Initialize data and db keys
   useEffect(() => {
+    if (!isLoggedIn) return;
     // Load trades
     loadTradesData();
     // Load calendar
@@ -585,16 +586,18 @@ export default function App() {
 
   // Auto-refresh The5ers data every 5 minutes (reads Supabase)
   useEffect(() => {
+    if (!isLoggedIn) return;
     const id = setInterval(() => { loadT5Data(); }, 300000);
     return () => clearInterval(id);
-  }, []);
+  }, [isLoggedIn]);
 
   useEffect(() => {
+    if (!isLoggedIn) return;
     const intervalId = window.setInterval(() => {
       loadNewsData(false);
     }, 2 * 60 * 1000);
     return () => window.clearInterval(intervalId);
-  }, []);
+  }, [isLoggedIn]);
 
   // Update body and html dark class & persist choice
   useEffect(() => {
