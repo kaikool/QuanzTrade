@@ -12,6 +12,22 @@
   ],
   "routes": [
     {
+      "src": "/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "/icon.svg",
+      "dest": "/icon.svg"
+    },
+    {
+      "src": "/manifest.json",
+      "dest": "/manifest.json"
+    },
+    {
+      "src": "/sw.js",
+      "dest": "/sw.js"
+    },
+    {
       "src": "/(.*)",
       "dest": "/api/index.ts"
     }
