@@ -1427,7 +1427,9 @@ async function startServer() {
                 return d.sessionJwt;
               }
             } else {
-              throw new Error("DSR Token hết hạn hoặc không hợp lệ. Vui lòng lấy DSR mới từ web The5ers.");
+              const errBody = await refreshRes.text().catch(() => "");
+              console.error("[Descope Refresh Error]", refreshRes.status, errBody);
+              throw new Error(`DSR Token hết hạn hoặc không hợp lệ (Mã: ${refreshRes.status}). Chi tiết: ${errBody.slice(0, 150)}`);
             }
           } else {
              throw new Error("Không tìm thấy DSR Token trong hệ thống. Bố cần lưu DSR Token trước.");

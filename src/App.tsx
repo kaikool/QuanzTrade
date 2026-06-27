@@ -2484,15 +2484,15 @@ export default function App() {
                       placeholder="Email The5ers..."
                       className="w-full px-2.5 py-1.5 bg-m3-surface-container-lowest border border-m3-outline rounded-lg text-[11px] font-mono focus:outline-none focus:border-m3-primary text-m3-on-surface"
                     />
-                    <input
-                      type="password"
+                    <textarea
                       value={t5Password}
                       onChange={(e) => {
-                        setT5Password(e.target.value);
-                        localStorage.setItem("t5_password", e.target.value);
+                        const val = e.target.value.trim();
+                        setT5Password(val);
+                        localStorage.setItem("t5_password", val);
                       }}
-                      placeholder="Refresh Token (DSR Cookie)..."
-                      className="w-full px-2.5 py-1.5 bg-m3-surface-container-lowest border border-m3-outline rounded-lg text-[11px] font-mono focus:outline-none focus:border-m3-primary text-m3-on-surface"
+                      placeholder="Dán mã Refresh Token (DSR) vào đây..."
+                      className="w-full px-2.5 py-2.5 bg-m3-surface-container-lowest border border-m3-outline rounded-lg text-[10px] font-mono focus:outline-none focus:border-m3-primary text-m3-on-surface h-20 resize-none break-all"
                     />
                     <div className="flex gap-2">
                       <button onClick={saveT5Creds} disabled={t5Saving}
