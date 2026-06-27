@@ -1509,7 +1509,8 @@ async function startServer() {
           },
         });
         if (!r.ok) throw new Error(`T5 ${path}: ${r.status} ${r.statusText}`);
-        return r.json();
+        const json = await r.json();
+        return json.data || json;
       }
 
       try {
@@ -1554,7 +1555,9 @@ async function startServer() {
           try { 
             const d = await t5Fetch(`/position/all/${accId}?page=1&limit=50`, sessionToken);
             positions = Array.isArray(d) ? d : (d.results || d.data || d.positions || []);
-          } catch(e) {}
+          } catch(e: any) {
+            console.error(`[sync] Lỗi cào lệnh tk ${accId}:`, e.message);
+          }
 
           const finalType = tsData.type || acc.accountType || "unknown";
           const finalStatus = tsData.status || "unknown";
