@@ -2,8 +2,8 @@ name: Keep Render Awake
 
 on:
   schedule:
-    # Chạy mỗi 13 phút để giữ server Render không bị sleep (Render free tier sleep sau 15p không có request)
-    - cron: '*/13 * * * *'
+    # Chạy mỗi 5 phút để giữ server Render không bị sleep
+    - cron: '*/5 * * * *'
   workflow_dispatch: # Cho phép bấm chạy thủ công nếu cần
 
 jobs:

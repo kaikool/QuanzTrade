@@ -2023,10 +2023,10 @@ async function startServer() {
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);
 
-    // Self-ping to prevent Render free tier from sleeping (every 13 minutes)
+    // Self-ping to prevent Render free tier from sleeping (every 5 minutes)
     const RENDER_URL = process.env.RENDER_EXTERNAL_URL || "https://quanztrade-app.onrender.com";
     if (RENDER_URL) {
-      const PING_INTERVAL = 13 * 60 * 1000; // 13 minutes
+      const PING_INTERVAL = 5 * 60 * 1000; // 5 minutes
       setInterval(async () => {
         try {
           const res = await fetch(`${RENDER_URL}/health`);
@@ -2035,7 +2035,7 @@ async function startServer() {
           console.error(`[Self-Ping] Failed: ${err.message}`);
         }
       }, PING_INTERVAL);
-      console.log(`[Self-Ping] Enabled: will ping ${RENDER_URL}/health every 13 minutes`);
+      console.log(`[Self-Ping] Enabled: will ping ${RENDER_URL}/health every 5 minutes`);
     } else {
       console.log("[Self-Ping] Skipped: RENDER_EXTERNAL_URL not set (not running on Render)");
     }
