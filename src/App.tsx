@@ -1884,79 +1884,115 @@ export default function App() {
                     return (
                       <div
                         key={`mob-trade-${t.id}`}
-                        className="p-3 bg-m3-surface-container-low dark:bg-m3-surface-container/45 rounded-[16px] border border-m3-outline-variant/15 dark:border-m3-outline-variant"
+                        className="bg-m3-surface-container-low dark:bg-m3-surface-container/50 rounded-[20px] border border-m3-outline-variant/15 dark:border-m3-outline-variant/40 overflow-hidden shadow-sm"
                       >
-                        {/* Row 1: Pair + Type + P&L */}
-                        <div className="flex items-center justify-between gap-2 mb-1.5">
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-black font-mono ${t.type === "BUY" ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"}`}>
-                              {t.type}
-                            </span>
-                            <span className="font-bold text-sm text-m3-on-surface truncate">{t.pair}</span>
-                            {t.status === "OPEN" && (
-                              <span className="text-[9px] px-1 py-0.5 rounded bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 font-extrabold uppercase">OPEN</span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-1.5 flex-shrink-0">
-                            <span className={`font-mono font-black text-sm ${t.pnl >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
-                              {t.pnl >= 0 ? "+" : ""}${t.pnl.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                            </span>
-                            <div className="w-10 h-1.5 bg-m3-outline-variant/30 rounded-full overflow-hidden">
-                              <div className={`h-full rounded-full ${t.pnl >= 0 ? "bg-emerald-500" : "bg-rose-500"}`} style={{ width: `${pnlBarWidth}%` }} />
-                            </div>
-                          </div>
-                        </div>
-                        {/* Row 2: Price + SL/TP + Meta */}
-                        <div className="flex items-center justify-between text-[11px] font-mono text-m3-on-surface-variant">
-                          <div className="flex items-center gap-1 min-w-0">
-                            <span className="text-m3-on-surface font-semibold">{t.entry_price}</span>
-                            <span className="text-m3-outline-variant">→</span>
-                            <span className={t.exit_price ? "text-m3-on-surface font-semibold" : "opacity-40"}>{t.exit_price || "---"}</span>
-                          </div>
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            <span className="text-m3-outline-variant">SL: {t.stop_loss ?? "—"}</span>
-                            <span className="text-m3-outline-variant">TP: {t.take_profit ?? "—"}</span>
-                          </div>
-                        </div>
-                        {/* Row 3: Tag + Rating + Date + Actions */}
-                        <div className="flex items-center justify-between mt-1.5 pt-1.5 border-t border-m3-outline-variant/20">
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            {t.tag && (
-                              <span className="text-[9px] uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 px-1 py-0.5 rounded font-bold">{t.tag}</span>
-                            )}
-                            <div className="flex gap-0.5">
-                              {Array.from({ length: 5 }).map((_, i) => (
-                                <span key={i} className={`text-[8px] ${i < t.rating ? "text-amber-500" : "text-m3-outline-variant"}`}>★</span>
-                              ))}
-                            </div>
-                            <span className="text-[10px] text-m3-on-surface-variant ml-1">
-                              {t.timeframe || "M15"} • {new Date(t.entry_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
-                            </span>
-                          </div>
-                          <div className="flex gap-1">
-                            <button onClick={() => handleBeginEditTrade(t)} className="p-1 rounded-lg bg-m3-surface-container-low dark:bg-m3-surface-container text-m3-on-surface-variant hover:text-m3-primary cursor-pointer">
-                              <Pencil size={11} />
-                            </button>
-                            <button onClick={() => handleDeleteTrade(t.id)} className="p-1 rounded-lg bg-m3-surface-container-low dark:bg-m3-surface-container text-m3-on-surface-variant hover:text-rose-500 cursor-pointer">
-                              <Trash2 size={11} />
-                            </button>
-                          </div>
-                        </div>
-                        {/* Notes as togglable line */}
-                        {t.notes && (
-                          <p className="text-[10px] text-m3-on-surface-variant italic mt-1.5 bg-m3-surface-container/50 dark:bg-m3-surface-container/30 p-1.5 rounded-lg line-clamp-1 leading-relaxed">
-                            {t.notes}
-                          </p>
-                        )}
-                        {/* TradingView Snapshot */}
+                        {/* Hero: Chart Snapshot */}
                         {t.tv_snapshot_url && (
-                          <button type="button" onClick={() => setLightboxUrl(t.tv_snapshot_url!)} className="mt-2 w-full block rounded-xl overflow-hidden border border-m3-outline-variant/30 relative shadow-sm group">
-                            <img src={t.tv_snapshot_url} alt="Chart Snapshot" className="w-full aspect-[16/10] object-contain bg-black/5 dark:bg-white/5" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent flex items-end justify-center pb-2 opacity-0 group-hover:opacity-100 active:opacity-100 transition-opacity duration-200">
-                              <span className="text-white text-[10px] font-bold flex items-center gap-1 drop-shadow-md"><Maximize2 size={12} /> Xem lớn</span>
+                          <button type="button" onClick={() => setLightboxUrl(t.tv_snapshot_url!)} className="w-full block relative group">
+                            <img src={t.tv_snapshot_url} alt="Chart" className="w-full aspect-[16/10] object-contain bg-m3-surface-container-lowest dark:bg-black/30" />
+                            {/* PnL overlay badge */}
+                            <div className="absolute top-2.5 right-2.5">
+                              <span className={`px-2.5 py-1 rounded-full text-xs font-black font-mono shadow-lg backdrop-blur-sm ${t.pnl >= 0 ? "bg-emerald-500/90 text-white" : "bg-rose-500/90 text-white"}`}>
+                                {t.pnl >= 0 ? "+" : ""}${t.pnl.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                              </span>
+                            </div>
+                            {/* Direction overlay badge */}
+                            <div className="absolute top-2.5 left-2.5">
+                              <span className={`px-2 py-1 rounded-full text-[10px] font-black font-mono shadow-lg backdrop-blur-sm ${t.type === "BUY" ? "bg-emerald-500/90 text-white" : "bg-rose-500/90 text-white"}`}>
+                                {t.type} {t.pair}
+                              </span>
+                            </div>
+                            {/* Zoom hint on hover/tap */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 active:opacity-100 transition-opacity duration-200 flex items-end justify-center pb-2">
+                              <span className="text-white text-[10px] font-bold flex items-center gap-1 drop-shadow-lg"><Maximize2 size={12} /> Phóng to</span>
                             </div>
                           </button>
                         )}
+
+                        {/* Card body */}
+                        <div className="p-3 space-y-2">
+                          {/* Header: Pair + Direction + PnL (only if no chart image) */}
+                          {!t.tv_snapshot_url && (
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-black font-mono ${t.type === "BUY" ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"}`}>
+                                  {t.type}
+                                </span>
+                                <span className="font-bold text-sm text-m3-on-surface truncate">{t.pair}</span>
+                                {t.status === "OPEN" && (
+                                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 font-extrabold uppercase animate-pulse">OPEN</span>
+                                )}
+                              </div>
+                              <span className={`font-mono font-black text-base ${t.pnl >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
+                                {t.pnl >= 0 ? "+" : ""}${t.pnl.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* If has chart: show pair name + status below image */}
+                          {t.tv_snapshot_url && (
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-bold text-sm text-m3-on-surface">{t.pair}</span>
+                              {t.status === "OPEN" && (
+                                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 font-extrabold uppercase animate-pulse">OPEN</span>
+                              )}
+                              <span className="text-[10px] text-m3-on-surface-variant">•</span>
+                              <span className="text-[10px] text-m3-on-surface-variant font-medium">{t.size} lots</span>
+                            </div>
+                          )}
+
+                          {/* Price info grid */}
+                          <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
+                            <div className="flex items-center gap-1">
+                              <span className="text-m3-on-surface-variant">Vào:</span>
+                              <span className="text-m3-on-surface font-mono font-semibold">{t.entry_price}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="text-m3-on-surface-variant">Ra:</span>
+                              <span className={`font-mono font-semibold ${t.exit_price ? "text-m3-on-surface" : "text-m3-on-surface-variant/40 italic"}`}>{t.exit_price || "---"}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="text-rose-400">SL:</span>
+                              <span className="text-m3-on-surface-variant font-mono">{t.stop_loss ?? "—"}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="text-emerald-400">TP:</span>
+                              <span className="text-m3-on-surface-variant font-mono">{t.take_profit ?? "—"}</span>
+                            </div>
+                          </div>
+
+                          {/* Notes */}
+                          {t.notes && (
+                            <p className="text-[11px] text-m3-on-surface-variant italic bg-m3-surface-container/40 dark:bg-m3-surface-container/20 px-2.5 py-1.5 rounded-xl leading-relaxed line-clamp-2">
+                              💡 {t.notes}
+                            </p>
+                          )}
+
+                          {/* Footer: Meta + Actions */}
+                          <div className="flex items-center justify-between pt-1.5 border-t border-m3-outline-variant/15">
+                            <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+                              {t.tag && (
+                                <span className="text-[9px] uppercase tracking-wider bg-m3-primary/10 text-m3-primary px-1.5 py-0.5 rounded-full font-bold">{t.tag}</span>
+                              )}
+                              <div className="flex gap-px">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <span key={i} className={`text-[9px] ${i < t.rating ? "text-amber-500" : "text-m3-outline-variant/40"}`}>★</span>
+                                ))}
+                              </div>
+                              <span className="text-[10px] text-m3-on-surface-variant">
+                                {t.timeframe || "M15"} • {new Date(t.entry_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                              </span>
+                            </div>
+                            <div className="flex gap-1 flex-shrink-0">
+                              <button onClick={() => handleBeginEditTrade(t)} className="p-1.5 rounded-xl bg-m3-surface-container dark:bg-m3-surface-container-high text-m3-on-surface-variant hover:text-m3-primary active:scale-95 transition-all cursor-pointer" title="Sửa">
+                                <Pencil size={13} />
+                              </button>
+                              <button onClick={() => handleDeleteTrade(t.id)} className="p-1.5 rounded-xl bg-m3-surface-container dark:bg-m3-surface-container-high text-m3-on-surface-variant hover:text-rose-500 active:scale-95 transition-all cursor-pointer" title="Xoá">
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     );
                   })
