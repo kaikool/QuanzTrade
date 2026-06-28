@@ -1889,7 +1889,7 @@ export default function App() {
                         {/* Hero: Chart Snapshot */}
                         {t.tv_snapshot_url && (
                           <button type="button" onClick={() => setLightboxUrl(t.tv_snapshot_url!)} className="w-full block relative group">
-                            <img src={t.tv_snapshot_url} alt="Chart" className="w-full aspect-[16/10] object-contain bg-m3-surface-container-lowest dark:bg-black/30" />
+                            <img src={t.tv_snapshot_url} alt="Chart" className="w-full h-auto block bg-m3-surface-container-lowest dark:bg-black/30" />
                             {/* PnL overlay badge */}
                             <div className="absolute top-2.5 right-2.5">
                               <span className={`px-2.5 py-1 rounded-full text-xs font-black font-mono shadow-lg backdrop-blur-sm ${t.pnl >= 0 ? "bg-emerald-500/90 text-white" : "bg-rose-500/90 text-white"}`}>

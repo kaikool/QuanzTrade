@@ -1863,93 +1863,67 @@ async function startServer() {
         const chartElement = await page.$('.layout__area--center');
 
         // Wait for TradingView's chart API to fully initialize
-        console.log('[TV Snapshot] Waiting for TradingView API...');
-        await page.waitForFunction(() => {
-          const w = (window as any);
-          return w.TradingView && typeof w.TradingView.activeChart === 'function';
-        }, { timeout: 15000 }).catch(() => {
-          console.log('[TV Snapshot] TradingView.activeChart() not found within timeout');
-        });
+        // Wait for 6 seconds to ensure the chart data streams in and stabilizes
+        console.log('[TV Snapshot] Waiting for chart to load data...');
+        await new Promise(r => setTimeout(r, 6000));
 
-        // Use the API to position the chart
-        const apiResult = await page.evaluate(() => {
+        // Dismiss any popups, cookie banners, trial dialogs, overlay managers
+        await page.evaluate(() => {
           try {
-            const w = (window as any);
-            if (!w.TradingView || typeof w.TradingView.activeChart !== 'function') {
-              return { ok: false, reason: 'API not available' };
-            }
-
-            const chart = w.TradingView.activeChart();
-
-            // First: go to realtime (latest bar)
-            if (typeof chart.resetTimeScale === 'function') {
-              chart.resetTimeScale();
-            }
-
-            // Try setVisibleRange: extend the "to" to create right margin
-            if (typeof chart.getVisibleRange === 'function' && typeof chart.setVisibleRange === 'function') {
-              const range = chart.getVisibleRange();
-              if (range && range.from && range.to) {
-                const span = range.to - range.from;
-                // Extend "to" by 50% of the span → last candle ends up at ~2/3
-                const newTo = range.to + Math.round(span * 0.5);
-                chart.setVisibleRange({ from: range.from, to: newTo });
-                return { ok: true, method: 'setVisibleRange', from: range.from, to: newTo };
-              }
-            }
-
-            // Fallback: try applyOverrides to set rightOffset
-            if (typeof chart.applyOverrides === 'function') {
-              chart.applyOverrides({ 'timeScale.rightOffset': 50 });
-              return { ok: true, method: 'applyOverrides' };
-            }
-
-            return { ok: false, reason: 'no suitable method found' };
-          } catch (e: any) {
-            return { ok: false, reason: e.message };
-          }
+            const selectors = [
+              '.tv-dialog',
+              '[class*="dialog-"]',
+              '[class*="overlap-"]',
+              '[class*="toast-"]',
+              '[class*="banner-"]',
+              '[class*="notification-"]',
+              '[id*="cookie"]',
+              '[class*="cookie"]',
+              '.toast'
+            ];
+            selectors.forEach(sel => {
+              document.querySelectorAll(sel).forEach(el => (el as HTMLElement).remove());
+            });
+          } catch (e) {}
         });
 
-        console.log('[TV Snapshot] API result:', JSON.stringify(apiResult));
-
-        // If API failed, fall back to keyboard
-        if (!apiResult || !apiResult.ok) {
-          console.log('[TV Snapshot] Falling back to keyboard approach');
-          // Click chart to focus
-          if (chartElement) {
-            const box = await chartElement.boundingBox();
-            if (box) {
-              await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
-              await new Promise(r => setTimeout(r, 300));
-              await page.keyboard.press('Escape');
-              await new Promise(r => setTimeout(r, 200));
-            }
-          }
-          await page.keyboard.press('End');
-          await new Promise(r => setTimeout(r, 1000));
-          for (let i = 0; i < 50; i++) {
-            await page.keyboard.press('ArrowRight');
-          }
-          await new Promise(r => setTimeout(r, 500));
-        }
-
-        // Wait for the chart to re-render with new position
-        await new Promise(r => setTimeout(r, 1000));
-
-        // Reset Price Scale (Alt + R) to auto-fit candles vertically
-        if (chartElement) {
-          const box = await chartElement.boundingBox();
+        const canvasElement = await page.$('.chart-gui-wrapper canvas');
+        if (canvasElement) {
+          const box = await canvasElement.boundingBox();
           if (box) {
+            // Click center of the canvas to focus it
             await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+            await new Promise(r => setTimeout(r, 300));
+            
+            // Press Escape to dismiss any drawing tools/legend selection
+            await page.keyboard.press('Escape');
             await new Promise(r => setTimeout(r, 200));
+
+            // Jump to realtime (latest bar)
+            await page.keyboard.press('End');
+            await new Promise(r => setTimeout(r, 1200));
+
+            // Press Shift + ArrowRight 5 times to scroll the chart into the "future".
+            // On TradingView, Shift + ArrowRight scrolls by a larger step (~10 bars).
+            // 5 times ≈ 50 bars, which places the last candle at roughly 2/3 of the viewport.
+            // We add a delay between presses to make sure TradingView handles each key event.
+            for (let i = 0; i < 5; i++) {
+              await page.keyboard.down('Shift');
+              await page.keyboard.press('ArrowRight');
+              await page.keyboard.up('Shift');
+              await new Promise(r => setTimeout(r, 150));
+            }
+            await new Promise(r => setTimeout(r, 500));
+
+            // Reset Price Scale (Alt + R) to auto-fit candles vertically
+            await page.keyboard.down('Alt');
+            await page.keyboard.press('r');
+            await page.keyboard.up('Alt');
           }
         }
-        await page.keyboard.down('Alt');
-        await page.keyboard.press('r');
-        await page.keyboard.up('Alt');
 
-        // Extra time for the layout to recalculate and indicators to render
-        await new Promise(r => setTimeout(r, 3000));
+        // Final delay for rendering
+        await new Promise(r => setTimeout(r, 2500));
 
         // Take a screenshot of specifically the chart area to avoid any gray backgrounds
         let imageBuffer;

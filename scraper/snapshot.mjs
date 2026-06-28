@@ -67,75 +67,60 @@ export async function captureAndSaveSnapshot(tradeId, symbol, pair, type, entryP
             });
         });
 
-        // ═══════════════════════════════════════════════════════
-        // GOAL: Position the last candle at ~2/3 of viewport
-        // STRATEGY: TradingView API (setVisibleRange) — single call
-        // ═══════════════════════════════════════════════════════
-
-        const chartEl = await page.$('.layout__area--center');
-
-        // Wait for TradingView's chart API to initialize
-        await page.waitForFunction(() => {
-            return window.TradingView && typeof window.TradingView.activeChart === 'function';
-        }, { timeout: 15000 }).catch(() => {});
-
-        // Use the API to position the chart
-        const apiOk = await page.evaluate(() => {
+        // Dismiss any popups, cookie banners, trial dialogs, overlay managers
+        await page.evaluate(() => {
             try {
-                if (!window.TradingView || typeof window.TradingView.activeChart !== 'function') return false;
-                const chart = window.TradingView.activeChart();
-
-                if (typeof chart.resetTimeScale === 'function') chart.resetTimeScale();
-
-                if (typeof chart.getVisibleRange === 'function' && typeof chart.setVisibleRange === 'function') {
-                    const range = chart.getVisibleRange();
-                    if (range && range.from && range.to) {
-                        const span = range.to - range.from;
-                        chart.setVisibleRange({ from: range.from, to: range.to + Math.round(span * 0.5) });
-                        return true;
-                    }
-                }
-
-                if (typeof chart.applyOverrides === 'function') {
-                    chart.applyOverrides({ 'timeScale.rightOffset': 50 });
-                    return true;
-                }
-                return false;
-            } catch(e) { return false; }
+                const selectors = [
+                    '.tv-dialog',
+                    '[class*="dialog-"]',
+                    '[class*="overlap-"]',
+                    '[class*="toast-"]',
+                    '[class*="banner-"]',
+                    '[class*="notification-"]',
+                    '[id*="cookie"]',
+                    '[class*="cookie"]',
+                    '.toast'
+                ];
+                selectors.forEach(sel => {
+                    document.querySelectorAll(sel).forEach(el => (el as HTMLElement).remove());
+                });
+            } catch (e) {}
         });
 
-        // Keyboard fallback if API failed
-        if (!apiOk) {
-            if (chartEl) {
-                const box = await chartEl.boundingBox();
-                if (box) {
-                    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
-                    await new Promise(r => setTimeout(r, 300));
-                    await page.keyboard.press('Escape');
-                    await new Promise(r => setTimeout(r, 200));
-                }
-            }
-            await page.keyboard.press('End');
-            await new Promise(r => setTimeout(r, 1000));
-            for (let i = 0; i < 50; i++) await page.keyboard.press('ArrowRight');
-            await new Promise(r => setTimeout(r, 500));
-        }
-
-        await new Promise(r => setTimeout(r, 1000));
-
-        // Reset Price Scale (Alt + R)
-        if (chartEl) {
-            const box = await chartEl.boundingBox();
+        const canvasEl = await page.$('.chart-gui-wrapper canvas');
+        if (canvasEl) {
+            const box = await canvasEl.boundingBox();
             if (box) {
+                // Click center of the canvas to focus it
                 await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+                await new Promise(r => setTimeout(r, 300));
+                
+                // Press Escape to dismiss any drawing tools/legend selection
+                await page.keyboard.press('Escape');
                 await new Promise(r => setTimeout(r, 200));
+
+                // Jump to realtime (latest bar)
+                await page.keyboard.press('End');
+                await new Promise(r => setTimeout(r, 1200));
+
+                // Press Shift + ArrowRight 5 times to scroll the chart into the "future".
+                // We add a delay between presses to make sure TradingView handles each key event.
+                for (let i = 0; i < 5; i++) {
+                    await page.keyboard.down('Shift');
+                    await page.keyboard.press('ArrowRight');
+                    await page.keyboard.up('Shift');
+                    await new Promise(r => setTimeout(r, 150));
+                }
+                await new Promise(r => setTimeout(r, 500));
+
+                // Reset Price Scale (Alt + R)
+                await page.keyboard.down('Alt');
+                await page.keyboard.press('r');
+                await page.keyboard.up('Alt');
             }
         }
-        await page.keyboard.down('Alt');
-        await page.keyboard.press('r');
-        await page.keyboard.up('Alt');
 
-        await new Promise(r => setTimeout(r, 2000));
+        await new Promise(r => setTimeout(r, 2500));
 
         let clip = null;
         if (chartEl) {
