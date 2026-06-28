@@ -1743,15 +1743,15 @@ export default function App() {
                   <table className="w-full text-left border-collapse min-w-[650px]">
                     <thead>
                       <tr className="border-b border-m3-outline-variant m3-label-medium uppercase text-m3-on-surface-variant tracking-wider">
-                        <th className="py-2.5 px-3 whitespace-nowrap text-[11px]">Cặp / Hướng</th>
-                        <th className="py-2.5 px-3 whitespace-nowrap text-[11px]">Khối lượng</th>
-                        <th className="py-2.5 px-3 whitespace-nowrap text-[11px]">Vào → Ra / SL • TP</th>
-                        <th className="py-2.5 px-3 whitespace-nowrap text-[11px]">Tag</th>
-                        <th className="py-2.5 px-3 text-right whitespace-nowrap text-[11px]">Lời / Lỗ</th>
-                        <th className="py-2.5 px-3 text-center whitespace-nowrap text-[11px]">Sửa</th>
+                        <th className="py-3.5 px-4 whitespace-nowrap text-[13px]">Cặp / Hướng</th>
+                        <th className="py-3.5 px-4 whitespace-nowrap text-[13px]">Khối lượng</th>
+                        <th className="py-3.5 px-4 whitespace-nowrap text-[13px]">Vào → Ra / SL • TP</th>
+                        <th className="py-3.5 px-4 whitespace-nowrap text-[13px]">Tag</th>
+                        <th className="py-3.5 px-4 text-right whitespace-nowrap text-[13px]">Lời / Lỗ</th>
+                        <th className="py-3.5 px-4 text-center whitespace-nowrap text-[13px]">Sửa</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-m3-outline-variant/60 m3-body-small">
+                    <tbody className="divide-y divide-m3-outline-variant/60 m3-body-medium">
                       {filteredTrades.map((t) => {
                         const pnlBarWidth = Math.min(Math.abs(t.pnl) / 1000, 1) * 100;
                         return (
@@ -1759,77 +1759,77 @@ export default function App() {
                             key={t.id}
                             className="group hover:bg-m3-surface-container-low/50 dark:hover:bg-m3-surface-container/30 transition-colors ease-[var(--ease-m3-enter)]"
                           >
-                            <td className="py-2.5 px-3 whitespace-nowrap">
-                              <div className="flex items-center gap-2">
+                            <td className="py-3 px-4 whitespace-nowrap">
+                              <div className="flex items-center gap-3">
                                 {t.tv_snapshot_url ? (
-                                  <button onClick={() => setLightboxUrl(t.tv_snapshot_url!)} className="w-24 aspect-[16/10] rounded-lg border border-m3-outline-variant overflow-hidden flex-shrink-0 block relative group shadow-sm" title="Xem ảnh Chart">
+                                  <button onClick={() => setLightboxUrl(t.tv_snapshot_url!)} className="w-28 aspect-[16/10] rounded-lg border border-m3-outline-variant overflow-hidden flex-shrink-0 block relative group shadow-sm animate-fade-in" title="Xem ảnh Chart">
                                     <img src={t.tv_snapshot_url} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 flex items-end justify-center pb-1 transition-opacity duration-200">
-                                      <Maximize2 size={12} className="text-white drop-shadow-md" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 flex items-end justify-center pb-1.5 transition-opacity duration-200">
+                                      <Maximize2 size={13} className="text-white drop-shadow-md" />
                                     </div>
                                   </button>
                                 ) : (
-                                  <div className="w-24 aspect-[16/10] rounded-lg border border-dashed border-m3-outline-variant flex items-center justify-center bg-m3-surface-container flex-shrink-0" title="Chưa có ảnh Chart">
-                                    <Camera size={14} className="text-m3-on-surface-variant/30" />
+                                  <div className="w-28 aspect-[16/10] rounded-lg border border-dashed border-m3-outline-variant flex items-center justify-center bg-m3-surface-container flex-shrink-0" title="Chưa có ảnh Chart">
+                                    <Camera size={16} className="text-m3-on-surface-variant/30" />
                                   </div>
                                 )}
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2.5">
                                   <span
-                                    className={`px-1.5 py-0.5 rounded text-[10px] font-black font-mono ${t.type === "BUY" ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"}`}
+                                    className={`px-2 py-0.5 rounded text-[11px] font-black font-mono ${t.type === "BUY" ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"}`}
                                   >
                                     {t.type}
                                   </span>
                                   <div>
-                                    <div className="font-bold text-m3-on-surface text-xs leading-tight flex items-center gap-1.5">
+                                    <div className="font-bold text-m3-on-surface text-[13px] leading-tight flex items-center gap-1.5">
                                       {t.pair}
                                       {t.status === "OPEN" && (
-                                        <span className="text-[9px] px-1 py-0.5 rounded bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 font-extrabold uppercase">OPEN</span>
+                                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 font-extrabold uppercase">OPEN</span>
                                       )}
                                     </div>
-                                    <div className="text-[10px] text-m3-on-surface-variant mt-0.5">
+                                    <div className="text-[11px] text-m3-on-surface-variant mt-0.5">
                                       {t.timeframe || "M15"} • {new Date(t.entry_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
                                     </div>
                                   </div>
                                 </div>
                               </div>
                             </td>
-                            <td className="py-2.5 px-3 font-mono font-bold text-m3-on-surface whitespace-nowrap text-xs">
+                            <td className="py-3 px-4 font-mono font-bold text-m3-on-surface whitespace-nowrap text-[13px]">
                               {t.size}
                             </td>
-                            <td className="py-2.5 px-3 font-mono text-[11px] text-m3-on-surface-variant whitespace-nowrap">
-                              <div className="flex items-center gap-1 text-[11px]">
+                            <td className="py-3 px-4 font-mono text-[12px] text-m3-on-surface-variant whitespace-nowrap">
+                              <div className="flex items-center gap-1 text-[12px]">
                                 <span className="text-m3-on-surface font-semibold">{t.entry_price}</span>
                                 <span className="text-m3-outline-variant">→</span>
                                 <span className={t.exit_price ? "text-m3-on-surface font-semibold" : "opacity-40 italic"}>
                                   {t.exit_price || "---"}
                                 </span>
                               </div>
-                              <div className="text-[10px] text-m3-outline-variant mt-0.5">
+                              <div className="text-[11px] text-m3-outline-variant mt-0.5">
                                 SL: {t.stop_loss ?? "—"} • TP: {t.take_profit ?? "—"}
                               </div>
                             </td>
-                            <td className="py-2.5 px-3 whitespace-nowrap">
-                              <div className="flex flex-col gap-0.5">
+                            <td className="py-3 px-4 whitespace-nowrap">
+                              <div className="flex flex-col gap-1">
                                 {t.tag && (
-                                  <span className="text-[9px] uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 px-1 py-0.5 rounded font-bold inline-block w-fit">
+                                  <span className="text-[10px] uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded font-bold inline-block w-fit">
                                     {t.tag}
                                   </span>
                                 )}
                                 <div className="flex gap-0.5">
                                   {Array.from({ length: 5 }).map((_, i) => (
-                                    <span key={i} className={`text-[9px] ${i < t.rating ? "text-amber-500" : "text-m3-outline-variant"}`}>★</span>
+                                    <span key={i} className={`text-[10px] ${i < t.rating ? "text-amber-500" : "text-m3-outline-variant"}`}>★</span>
                                   ))}
                                 </div>
                               </div>
                             </td>
-                            <td className="py-2.5 px-3 text-right whitespace-nowrap">
-                              <div className="flex items-center justify-end gap-2">
+                            <td className="py-3 px-4 text-right whitespace-nowrap">
+                              <div className="flex items-center justify-end gap-2.5">
                                 <div className="flex flex-col items-end">
-                                  <span className={`font-mono font-black text-xs ${t.pnl >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
+                                  <span className={`font-mono font-black text-[13px] ${t.pnl >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
                                     {t.pnl >= 0 ? "+" : ""}${t.pnl.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                                   </span>
                                 </div>
-                                <div className="w-12 h-1.5 bg-m3-outline-variant/30 rounded-full overflow-hidden flex-shrink-0">
+                                <div className="w-14 h-1.5 bg-m3-outline-variant/30 rounded-full overflow-hidden flex-shrink-0">
                                   <div
                                     className={`h-full rounded-full ${t.pnl >= 0 ? "bg-emerald-500" : "bg-rose-500"}`}
                                     style={{ width: `${pnlBarWidth}%` }}
@@ -1892,38 +1892,38 @@ export default function App() {
                             <img src={t.tv_snapshot_url} alt="Chart" className="w-full h-auto block bg-m3-surface-container-lowest dark:bg-black/30" />
                             {/* PnL overlay badge */}
                             <div className="absolute top-2.5 right-2.5">
-                              <span className={`px-2.5 py-1 rounded-full text-xs font-black font-mono shadow-lg backdrop-blur-sm ${t.pnl >= 0 ? "bg-emerald-500/90 text-white" : "bg-rose-500/90 text-white"}`}>
+                              <span className={`px-2.5 py-1 rounded-full text-sm font-black font-mono shadow-lg backdrop-blur-sm ${t.pnl >= 0 ? "bg-emerald-500/90 text-white" : "bg-rose-500/90 text-white"}`}>
                                 {t.pnl >= 0 ? "+" : ""}${t.pnl.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                               </span>
                             </div>
                             {/* Direction overlay badge */}
                             <div className="absolute top-2.5 left-2.5">
-                              <span className={`px-2 py-1 rounded-full text-[10px] font-black font-mono shadow-lg backdrop-blur-sm ${t.type === "BUY" ? "bg-emerald-500/90 text-white" : "bg-rose-500/90 text-white"}`}>
+                              <span className={`px-2.5 py-1 rounded-full text-xs font-black font-mono shadow-lg backdrop-blur-sm ${t.type === "BUY" ? "bg-emerald-500/90 text-white" : "bg-rose-500/90 text-white"}`}>
                                 {t.type} {t.pair}
                               </span>
                             </div>
                             {/* Zoom hint on hover/tap */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 active:opacity-100 transition-opacity duration-200 flex items-end justify-center pb-2">
-                              <span className="text-white text-[10px] font-bold flex items-center gap-1 drop-shadow-lg"><Maximize2 size={12} /> Phóng to</span>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 active:opacity-100 transition-opacity duration-200 flex items-end justify-center pb-2.5">
+                              <span className="text-white text-xs font-bold flex items-center gap-1.5 drop-shadow-lg"><Maximize2 size={13} /> Phóng to</span>
                             </div>
                           </button>
                         )}
 
                         {/* Card body */}
-                        <div className="p-3 space-y-2">
+                        <div className="p-3.5 space-y-2.5">
                           {/* Header: Pair + Direction + PnL (only if no chart image) */}
                           {!t.tv_snapshot_url && (
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-1.5 min-w-0">
-                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-black font-mono ${t.type === "BUY" ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"}`}>
+                                <span className={`px-2.5 py-0.5 rounded-full text-xs font-black font-mono ${t.type === "BUY" ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"}`}>
                                   {t.type}
                                 </span>
-                                <span className="font-bold text-sm text-m3-on-surface truncate">{t.pair}</span>
+                                <span className="font-bold text-base text-m3-on-surface truncate">{t.pair}</span>
                                 {t.status === "OPEN" && (
-                                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 font-extrabold uppercase animate-pulse">OPEN</span>
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 font-extrabold uppercase animate-pulse">OPEN</span>
                                 )}
                               </div>
-                              <span className={`font-mono font-black text-base ${t.pnl >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
+                              <span className={`font-mono font-black text-lg ${t.pnl >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
                                 {t.pnl >= 0 ? "+" : ""}${t.pnl.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                               </span>
                             </div>
@@ -1931,64 +1931,64 @@ export default function App() {
 
                           {/* If has chart: show pair name + status below image */}
                           {t.tv_snapshot_url && (
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-bold text-sm text-m3-on-surface">{t.pair}</span>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-base text-m3-on-surface">{t.pair}</span>
                               {t.status === "OPEN" && (
-                                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 font-extrabold uppercase animate-pulse">OPEN</span>
+                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 font-extrabold uppercase animate-pulse">OPEN</span>
                               )}
-                              <span className="text-[10px] text-m3-on-surface-variant">•</span>
-                              <span className="text-[10px] text-m3-on-surface-variant font-medium">{t.size} lots</span>
+                              <span className="text-[11px] text-m3-on-surface-variant">•</span>
+                              <span className="text-xs text-m3-on-surface-variant font-medium">{t.size} lots</span>
                             </div>
                           )}
 
                           {/* Price info grid */}
-                          <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
-                            <div className="flex items-center gap-1">
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[13px]">
+                            <div className="flex items-center gap-1.5">
                               <span className="text-m3-on-surface-variant">Vào:</span>
                               <span className="text-m3-on-surface font-mono font-semibold">{t.entry_price}</span>
                             </div>
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-1.5">
                               <span className="text-m3-on-surface-variant">Ra:</span>
                               <span className={`font-mono font-semibold ${t.exit_price ? "text-m3-on-surface" : "text-m3-on-surface-variant/40 italic"}`}>{t.exit_price || "---"}</span>
                             </div>
-                            <div className="flex items-center gap-1">
-                              <span className="text-rose-400">SL:</span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-rose-500 font-medium">SL:</span>
                               <span className="text-m3-on-surface-variant font-mono">{t.stop_loss ?? "—"}</span>
                             </div>
-                            <div className="flex items-center gap-1">
-                              <span className="text-emerald-400">TP:</span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-emerald-500 font-medium">TP:</span>
                               <span className="text-m3-on-surface-variant font-mono">{t.take_profit ?? "—"}</span>
                             </div>
                           </div>
 
                           {/* Notes */}
                           {t.notes && (
-                            <p className="text-[11px] text-m3-on-surface-variant italic bg-m3-surface-container/40 dark:bg-m3-surface-container/20 px-2.5 py-1.5 rounded-xl leading-relaxed line-clamp-2">
+                            <p className="text-xs text-m3-on-surface-variant italic bg-m3-surface-container/40 dark:bg-m3-surface-container/20 px-3 py-2 rounded-xl leading-relaxed line-clamp-2">
                               💡 {t.notes}
                             </p>
                           )}
 
                           {/* Footer: Meta + Actions */}
-                          <div className="flex items-center justify-between pt-1.5 border-t border-m3-outline-variant/15">
-                            <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+                          <div className="flex items-center justify-between pt-2 border-t border-m3-outline-variant/15">
+                            <div className="flex items-center gap-2 min-w-0 flex-wrap">
                               {t.tag && (
-                                <span className="text-[9px] uppercase tracking-wider bg-m3-primary/10 text-m3-primary px-1.5 py-0.5 rounded-full font-bold">{t.tag}</span>
+                                <span className="text-[10px] uppercase tracking-wider bg-m3-primary/10 text-m3-primary px-2 py-0.5 rounded-full font-bold">{t.tag}</span>
                               )}
                               <div className="flex gap-px">
                                 {Array.from({ length: 5 }).map((_, i) => (
-                                  <span key={i} className={`text-[9px] ${i < t.rating ? "text-amber-500" : "text-m3-outline-variant/40"}`}>★</span>
+                                  <span key={i} className={`text-[10px] ${i < t.rating ? "text-amber-500" : "text-m3-outline-variant/40"}`}>★</span>
                                 ))}
                               </div>
-                              <span className="text-[10px] text-m3-on-surface-variant">
+                              <span className="text-xs text-m3-on-surface-variant">
                                 {t.timeframe || "M15"} • {new Date(t.entry_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
                               </span>
                             </div>
-                            <div className="flex gap-1 flex-shrink-0">
-                              <button onClick={() => handleBeginEditTrade(t)} className="p-1.5 rounded-xl bg-m3-surface-container dark:bg-m3-surface-container-high text-m3-on-surface-variant hover:text-m3-primary active:scale-95 transition-all cursor-pointer" title="Sửa">
-                                <Pencil size={13} />
+                            <div className="flex gap-1.5 flex-shrink-0">
+                              <button onClick={() => handleBeginEditTrade(t)} className="p-2 rounded-xl bg-m3-surface-container dark:bg-m3-surface-container-high text-m3-on-surface-variant hover:text-m3-primary active:scale-95 transition-all cursor-pointer" title="Sửa">
+                                <Pencil size={14} />
                               </button>
-                              <button onClick={() => handleDeleteTrade(t.id)} className="p-1.5 rounded-xl bg-m3-surface-container dark:bg-m3-surface-container-high text-m3-on-surface-variant hover:text-rose-500 active:scale-95 transition-all cursor-pointer" title="Xoá">
-                                <Trash2 size={13} />
+                              <button onClick={() => handleDeleteTrade(t.id)} className="p-2 rounded-xl bg-m3-surface-container dark:bg-m3-surface-container-high text-m3-on-surface-variant hover:text-rose-500 active:scale-95 transition-all cursor-pointer" title="Xoá">
+                                <Trash2 size={14} />
                               </button>
                             </div>
                           </div>
