@@ -67,44 +67,43 @@ export async function captureAndSaveSnapshot(tradeId, symbol, pair, type, entryP
             });
         });
 
-        // Get the chart container bounding box
-        // Force scroll to newest bar (Aggressive approach)
+        // Force scroll to newest bar using TradingView's JS API
         const chartEl = await page.$('.layout__area--center');
         if (chartEl) {
             const box = await chartEl.boundingBox();
             if (box) {
-                // 1. Click center to focus chart
                 await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
-                await new Promise(r => setTimeout(r, 500));
-
-                // 2. Press Escape to deselect any drawings/indicators
-                await page.keyboard.press('Escape');
-                await new Promise(r => setTimeout(r, 200));
-
-                // 3. Try native shortcut first
-                await page.keyboard.down('Shift');
-                await page.keyboard.press('ArrowRight');
-                await page.keyboard.up('Shift');
-                await new Promise(r => setTimeout(r, 500));
-
-                // 4. Aggressively drag mouse to the left (pans chart to the right)
-                for (let i = 0; i < 4; i++) {
-                    await page.mouse.move(box.x + box.width - 150, box.y + box.height / 2);
-                    await page.mouse.down();
-                    await page.mouse.move(box.x + 150, box.y + box.height / 2, { steps: 5 });
-                    await page.mouse.up();
-                    await new Promise(r => setTimeout(r, 300));
-                }
-
-                // 5. One final native shortcut
-                await page.keyboard.down('Shift');
-                await page.keyboard.press('ArrowRight');
-                await page.keyboard.up('Shift');
-                await new Promise(r => setTimeout(r, 500));
+                await new Promise(r => setTimeout(r, 300));
             }
         }
 
-        // Reset Price Scale (Alt + R) to ensure candles are scaled correctly vertically
+        // Use TradingView's internal API to jump to the latest bar
+        await page.evaluate(() => {
+            return new Promise((resolve) => {
+                try {
+                    const w = window;
+                    if (w.TradingView && w.TradingView.activeChart) {
+                        w.TradingView.activeChart().resetTimeScale();
+                    }
+                } catch(e) {}
+
+                document.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', code: 'End', keyCode: 35, bubbles: true }));
+                
+                const goToRealtimeBtn = document.querySelector('[data-name="go-to-date"], .goToRealtimeBtn, [class*="goToRealtime"], button[aria-label*="realtime"]');
+                if (goToRealtimeBtn) goToRealtimeBtn.click();
+
+                const scrollBtns = document.querySelectorAll('button[class*="scroll"], div[class*="scrollToLast"]');
+                scrollBtns.forEach(btn => btn.click());
+                
+                setTimeout(resolve, 500);
+            });
+        });
+
+        // Keyboard backup
+        await page.keyboard.press('End');
+        await new Promise(r => setTimeout(r, 500));
+
+        // Reset Price Scale (Alt + R) to auto-fit candles vertically
         await page.keyboard.down('Alt');
         await page.keyboard.press('r');
         await page.keyboard.up('Alt');

@@ -1851,43 +1851,53 @@ async function startServer() {
         // Hiding them manually causes the canvas to stay small, leaving giant gray gaps.
         // Instead, we just let it render normally and then screenshot specifically the center chart element.
 
-        // Force scroll to newest bar (Aggressive approach)
+        // Force scroll to newest bar using TradingView's internal JS API
+        // This is FAR more reliable than mouse dragging or keyboard shortcuts
         const chartElement = await page.$('.layout__area--center');
         if (chartElement) {
+          // 1. Click center to focus chart
           const box = await chartElement.boundingBox();
           if (box) {
-            // 1. Click center to focus chart
             await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
-            await new Promise(r => setTimeout(r, 500));
-
-            // 2. Press Escape to deselect any drawings/indicators we might have accidentally clicked
-            await page.keyboard.press('Escape');
-            await new Promise(r => setTimeout(r, 200));
-
-            // 3. Try native shortcut first
-            await page.keyboard.down('Shift');
-            await page.keyboard.press('ArrowRight');
-            await page.keyboard.up('Shift');
-            await new Promise(r => setTimeout(r, 500));
-
-            // 4. Aggressively drag mouse to the left (pans chart to the right) to guarantee we hit the end
-            for (let i = 0; i < 4; i++) {
-              await page.mouse.move(box.x + box.width - 150, box.y + box.height / 2);
-              await page.mouse.down();
-              await page.mouse.move(box.x + 150, box.y + box.height / 2, { steps: 5 });
-              await page.mouse.up();
-              await new Promise(r => setTimeout(r, 300));
-            }
-
-            // 5. One final native shortcut just in case new data streamed in
-            await page.keyboard.down('Shift');
-            await page.keyboard.press('ArrowRight');
-            await page.keyboard.up('Shift');
-            await new Promise(r => setTimeout(r, 500));
+            await new Promise(r => setTimeout(r, 300));
           }
         }
 
-        // Reset Price Scale (Alt + R) to ensure candles are scaled correctly vertically
+        // 2. Use TradingView's internal API to jump to the latest bar
+        //    This calls the chart widget's goToRealtime/scrollToRealtime methods
+        await page.evaluate(() => {
+          return new Promise<void>((resolve) => {
+            // Method 1: Use the active chart's built-in method
+            try {
+              const w = (window as any);
+              // TradingView stores chart references in various places
+              if (w.TradingView && w.TradingView.activeChart) {
+                w.TradingView.activeChart().resetTimeScale();
+              }
+            } catch(e) {}
+
+            // Method 2: Dispatch keyboard event for "Go to latest bar" (End key)
+            document.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', code: 'End', keyCode: 35, bubbles: true }));
+            
+            // Method 3: Find and click the "Go to Realtime" button if visible
+            const goToRealtimeBtn = document.querySelector('[data-name="go-to-date"], .goToRealtimeBtn, [class*="goToRealtime"], button[aria-label*="realtime"]');
+            if (goToRealtimeBtn) {
+              (goToRealtimeBtn as HTMLElement).click();
+            }
+
+            // Method 4: Look for the small arrow button at the bottom-right that scrolls to latest
+            const scrollBtns = document.querySelectorAll('button[class*="scroll"], div[class*="scrollToLast"]');
+            scrollBtns.forEach(btn => (btn as HTMLElement).click());
+            
+            setTimeout(resolve, 500);
+          });
+        });
+
+        // 3. Also try the keyboard shortcut as a backup
+        await page.keyboard.press('End');
+        await new Promise(r => setTimeout(r, 500));
+
+        // 4. Reset Price Scale (Alt + R) to auto-fit candles vertically
         await page.keyboard.down('Alt');
         await page.keyboard.press('r');
         await page.keyboard.up('Alt');
@@ -1960,6 +1970,11 @@ async function startServer() {
       res.json({ success: true, message: "Database is working perfectly! Upsert succeeded." });
     });
 
+    // Health check endpoint for keep-alive pings
+    app.get("/health", (req, res) => {
+      res.json({ status: "ok", uptime: process.uptime(), timestamp: new Date().toISOString() });
+    });
+
     app.get("*", (req, res) => {
       res.type("html").send(SPA_HTML);
     });
@@ -1967,6 +1982,23 @@ async function startServer() {
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);
+
+    // Self-ping to prevent Render free tier from sleeping (every 13 minutes)
+    const RENDER_URL = process.env.RENDER_EXTERNAL_URL; // Render sets this automatically
+    if (RENDER_URL) {
+      const PING_INTERVAL = 13 * 60 * 1000; // 13 minutes
+      setInterval(async () => {
+        try {
+          const res = await fetch(`${RENDER_URL}/health`);
+          console.log(`[Self-Ping] ${new Date().toISOString()} → status ${res.status}`);
+        } catch (err: any) {
+          console.error(`[Self-Ping] Failed: ${err.message}`);
+        }
+      }, PING_INTERVAL);
+      console.log(`[Self-Ping] Enabled: will ping ${RENDER_URL}/health every 13 minutes`);
+    } else {
+      console.log("[Self-Ping] Skipped: RENDER_EXTERNAL_URL not set (not running on Render)");
+    }
   });
 }
 
