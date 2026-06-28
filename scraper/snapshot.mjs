@@ -69,34 +69,68 @@ export async function captureAndSaveSnapshot(tradeId, symbol, pair, type, entryP
 
         // ═══════════════════════════════════════════════════════
         // GOAL: Position the last candle at ~2/3 of viewport
-        // STRATEGY: End → Right Arrow x50 (push into "future")
+        // STRATEGY: TradingView API (setVisibleRange) — single call
         // ═══════════════════════════════════════════════════════
 
         const chartEl = await page.$('.layout__area--center');
-        
-        // Step 1: Click chart center to focus and dismiss overlays
+
+        // Wait for TradingView's chart API to initialize
+        await page.waitForFunction(() => {
+            return window.TradingView && typeof window.TradingView.activeChart === 'function';
+        }, { timeout: 15000 }).catch(() => {});
+
+        // Use the API to position the chart
+        const apiOk = await page.evaluate(() => {
+            try {
+                if (!window.TradingView || typeof window.TradingView.activeChart !== 'function') return false;
+                const chart = window.TradingView.activeChart();
+
+                if (typeof chart.resetTimeScale === 'function') chart.resetTimeScale();
+
+                if (typeof chart.getVisibleRange === 'function' && typeof chart.setVisibleRange === 'function') {
+                    const range = chart.getVisibleRange();
+                    if (range && range.from && range.to) {
+                        const span = range.to - range.from;
+                        chart.setVisibleRange({ from: range.from, to: range.to + Math.round(span * 0.5) });
+                        return true;
+                    }
+                }
+
+                if (typeof chart.applyOverrides === 'function') {
+                    chart.applyOverrides({ 'timeScale.rightOffset': 50 });
+                    return true;
+                }
+                return false;
+            } catch(e) { return false; }
+        });
+
+        // Keyboard fallback if API failed
+        if (!apiOk) {
+            if (chartEl) {
+                const box = await chartEl.boundingBox();
+                if (box) {
+                    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+                    await new Promise(r => setTimeout(r, 300));
+                    await page.keyboard.press('Escape');
+                    await new Promise(r => setTimeout(r, 200));
+                }
+            }
+            await page.keyboard.press('End');
+            await new Promise(r => setTimeout(r, 1000));
+            for (let i = 0; i < 50; i++) await page.keyboard.press('ArrowRight');
+            await new Promise(r => setTimeout(r, 500));
+        }
+
+        await new Promise(r => setTimeout(r, 1000));
+
+        // Reset Price Scale (Alt + R)
         if (chartEl) {
             const box = await chartEl.boundingBox();
             if (box) {
                 await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
-                await new Promise(r => setTimeout(r, 500));
-                await page.keyboard.press('Escape');
-                await new Promise(r => setTimeout(r, 300));
+                await new Promise(r => setTimeout(r, 200));
             }
         }
-
-        // Step 2: Jump to latest bar
-        await page.keyboard.press('End');
-        await new Promise(r => setTimeout(r, 1500));
-
-        // Step 3: Press Right Arrow 50 times to create right margin
-        for (let i = 0; i < 50; i++) {
-            await page.keyboard.press('ArrowRight');
-            if (i % 10 === 9) await new Promise(r => setTimeout(r, 100));
-        }
-        await new Promise(r => setTimeout(r, 800));
-
-        // Step 4: Reset Price Scale (Alt + R)
         await page.keyboard.down('Alt');
         await page.keyboard.press('r');
         await page.keyboard.up('Alt');

@@ -1853,47 +1853,97 @@ async function startServer() {
 
         // ═══════════════════════════════════════════════════════════════════
         // GOAL: Position the last candle at ~2/3 of the viewport width
-        //       (i.e., 1/3 empty space on the right side)
         //
-        // STRATEGY: Press End → go to latest bar. Then press Right Arrow
-        //           50 times to scroll the viewport into the "future",
-        //           creating empty space to the right of the last candle.
-        //           TradingView natively supports scrolling past the last bar.
-        //           This is FAR more reliable than mouse dragging (which gets
-        //           reset by auto-scroll) or JS API (which is obfuscated).
+        // STRATEGY: Use TradingView's chart API (setVisibleRange) to extend
+        //           the visible time range into the "future", creating empty
+        //           space on the right. This is a single deterministic API
+        //           call — no keyboard spam, no mouse drag.
         // ═══════════════════════════════════════════════════════════════════
 
         const chartElement = await page.$('.layout__area--center');
-        
-        // Step 1: Click chart center to focus it and dismiss any overlays
+
+        // Wait for TradingView's chart API to fully initialize
+        console.log('[TV Snapshot] Waiting for TradingView API...');
+        await page.waitForFunction(() => {
+          const w = (window as any);
+          return w.TradingView && typeof w.TradingView.activeChart === 'function';
+        }, { timeout: 15000 }).catch(() => {
+          console.log('[TV Snapshot] TradingView.activeChart() not found within timeout');
+        });
+
+        // Use the API to position the chart
+        const apiResult = await page.evaluate(() => {
+          try {
+            const w = (window as any);
+            if (!w.TradingView || typeof w.TradingView.activeChart !== 'function') {
+              return { ok: false, reason: 'API not available' };
+            }
+
+            const chart = w.TradingView.activeChart();
+
+            // First: go to realtime (latest bar)
+            if (typeof chart.resetTimeScale === 'function') {
+              chart.resetTimeScale();
+            }
+
+            // Try setVisibleRange: extend the "to" to create right margin
+            if (typeof chart.getVisibleRange === 'function' && typeof chart.setVisibleRange === 'function') {
+              const range = chart.getVisibleRange();
+              if (range && range.from && range.to) {
+                const span = range.to - range.from;
+                // Extend "to" by 50% of the span → last candle ends up at ~2/3
+                const newTo = range.to + Math.round(span * 0.5);
+                chart.setVisibleRange({ from: range.from, to: newTo });
+                return { ok: true, method: 'setVisibleRange', from: range.from, to: newTo };
+              }
+            }
+
+            // Fallback: try applyOverrides to set rightOffset
+            if (typeof chart.applyOverrides === 'function') {
+              chart.applyOverrides({ 'timeScale.rightOffset': 50 });
+              return { ok: true, method: 'applyOverrides' };
+            }
+
+            return { ok: false, reason: 'no suitable method found' };
+          } catch (e: any) {
+            return { ok: false, reason: e.message };
+          }
+        });
+
+        console.log('[TV Snapshot] API result:', JSON.stringify(apiResult));
+
+        // If API failed, fall back to keyboard
+        if (!apiResult || !apiResult.ok) {
+          console.log('[TV Snapshot] Falling back to keyboard approach');
+          // Click chart to focus
+          if (chartElement) {
+            const box = await chartElement.boundingBox();
+            if (box) {
+              await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+              await new Promise(r => setTimeout(r, 300));
+              await page.keyboard.press('Escape');
+              await new Promise(r => setTimeout(r, 200));
+            }
+          }
+          await page.keyboard.press('End');
+          await new Promise(r => setTimeout(r, 1000));
+          for (let i = 0; i < 50; i++) {
+            await page.keyboard.press('ArrowRight');
+          }
+          await new Promise(r => setTimeout(r, 500));
+        }
+
+        // Wait for the chart to re-render with new position
+        await new Promise(r => setTimeout(r, 1000));
+
+        // Reset Price Scale (Alt + R) to auto-fit candles vertically
         if (chartElement) {
           const box = await chartElement.boundingBox();
           if (box) {
             await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
-            await new Promise(r => setTimeout(r, 500));
-            // Escape to deselect any accidentally selected drawing/indicator
-            await page.keyboard.press('Escape');
-            await new Promise(r => setTimeout(r, 300));
+            await new Promise(r => setTimeout(r, 200));
           }
         }
-
-        // Step 2: Jump to the latest bar (End key = go to realtime)
-        await page.keyboard.press('End');
-        await new Promise(r => setTimeout(r, 1500));
-
-        // Step 3: Press Right Arrow 50 times to add empty space to the right
-        //         With ~160 candles visible on 1280px viewport, 50 bars of
-        //         right space places the last candle at roughly 110/160 ≈ 2/3
-        for (let i = 0; i < 50; i++) {
-          await page.keyboard.press('ArrowRight');
-          // Small delay every 10 presses to let the chart render
-          if (i % 10 === 9) {
-            await new Promise(r => setTimeout(r, 100));
-          }
-        }
-        await new Promise(r => setTimeout(r, 800));
-
-        // Step 4: Reset Price Scale (Alt + R) to auto-fit candles vertically
         await page.keyboard.down('Alt');
         await page.keyboard.press('r');
         await page.keyboard.up('Alt');
