@@ -1851,11 +1851,15 @@ async function startServer() {
         // Hiding them manually causes the canvas to stay small, leaving giant gray gaps.
         // Instead, we just let it render normally and then screenshot specifically the center chart element.
 
-        // Force scroll to newest bar using TradingView's internal JS API
-        // This is FAR more reliable than mouse dragging or keyboard shortcuts
+        // ═══════════════════════════════════════════════════════════════════
+        // GOAL: Position the last candle at ~2/3 of the viewport width
+        //       (i.e., 1/3 empty space on the right side)
+        // ═══════════════════════════════════════════════════════════════════
+
         const chartElement = await page.$('.layout__area--center');
+        
+        // Step 1: Click chart center to focus it
         if (chartElement) {
-          // 1. Click center to focus chart
           const box = await chartElement.boundingBox();
           if (box) {
             await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
@@ -1863,41 +1867,77 @@ async function startServer() {
           }
         }
 
-        // 2. Use TradingView's internal API to jump to the latest bar
-        //    This calls the chart widget's goToRealtime/scrollToRealtime methods
-        await page.evaluate(() => {
-          return new Promise<void>((resolve) => {
-            // Method 1: Use the active chart's built-in method
-            try {
-              const w = (window as any);
-              // TradingView stores chart references in various places
-              if (w.TradingView && w.TradingView.activeChart) {
-                w.TradingView.activeChart().resetTimeScale();
-              }
-            } catch(e) {}
+        // Step 2: Jump to the latest bar first (gets us to the right edge)
+        await page.keyboard.press('End');
+        await new Promise(r => setTimeout(r, 800));
 
-            // Method 2: Dispatch keyboard event for "Go to latest bar" (End key)
-            document.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', code: 'End', keyCode: 35, bubbles: true }));
+        // Step 3: Use TradingView's internal API to set the right offset
+        //         so the last candle appears at ~2/3 of the viewport
+        await page.evaluate(() => {
+          try {
+            const w = (window as any);
+            // TradingView's chart widget stores its state in various internal objects.
+            // The rightOffset property controls how many bars of empty space appear
+            // to the right of the latest candle.
+            // With viewport=1280px and ~8px per candle, we see ~160 candles.
+            // 1/3 of 160 = ~53 bars of right padding puts the last candle at 2/3.
             
-            // Method 3: Find and click the "Go to Realtime" button if visible
-            const goToRealtimeBtn = document.querySelector('[data-name="go-to-date"], .goToRealtimeBtn, [class*="goToRealtime"], button[aria-label*="realtime"]');
-            if (goToRealtimeBtn) {
-              (goToRealtimeBtn as HTMLElement).click();
+            // Method 1: Direct chart API
+            if (w.TradingView && w.TradingView.activeChart) {
+              const chart = w.TradingView.activeChart();
+              // setRightOffset controls empty space to the right of the last bar
+              if (typeof chart.setRightOffset === 'function') {
+                chart.setRightOffset(50);
+              }
+              // Alternative: use applyOverrides
+              if (typeof chart.applyOverrides === 'function') {
+                chart.applyOverrides({ 'timeScale.rightOffset': 50 });
+              }
             }
 
-            // Method 4: Look for the small arrow button at the bottom-right that scrolls to latest
-            const scrollBtns = document.querySelectorAll('button[class*="scroll"], div[class*="scrollToLast"]');
-            scrollBtns.forEach(btn => (btn as HTMLElement).click());
-            
-            setTimeout(resolve, 500);
-          });
+            // Method 2: Look for ChartWidget instances
+            if (w._exposed_chartWidgetCollection) {
+              const widgets = w._exposed_chartWidgetCollection;
+              if (widgets.activeChartWidget) {
+                const model = widgets.activeChartWidget.model();
+                if (model && model.timeScale) {
+                  model.timeScale().setRightOffset(50);
+                }
+              }
+            }
+          } catch(e) {
+            console.log('[Snapshot] JS API approach failed:', e);
+          }
         });
-
-        // 3. Also try the keyboard shortcut as a backup
-        await page.keyboard.press('End');
         await new Promise(r => setTimeout(r, 500));
 
-        // 4. Reset Price Scale (Alt + R) to auto-fit candles vertically
+        // Step 4: Physical drag as a guaranteed fallback
+        //         Drag chart to the RIGHT = scrolls back in time = last candle moves leftward
+        //         We want to move it from the right edge to ~2/3 position
+        //         That means dragging about 1/3 of the viewport width to the right
+        if (chartElement) {
+          const box = await chartElement.boundingBox();
+          if (box) {
+            const dragDistance = Math.round(box.width / 3); // 1/3 of viewport
+            const centerY = box.y + box.height / 2;
+            const startX = box.x + box.width / 2;
+            const endX = startX + dragDistance;
+
+            await page.mouse.move(startX, centerY);
+            await page.mouse.down();
+            // Smooth drag in small steps for reliability
+            const steps = 15;
+            for (let i = 1; i <= steps; i++) {
+              const x = startX + (dragDistance * i / steps);
+              await page.mouse.move(x, centerY);
+              await new Promise(r => setTimeout(r, 30));
+            }
+            await page.mouse.up();
+            await new Promise(r => setTimeout(r, 500));
+          }
+        }
+
+        // Step 5: Reset Price Scale (Alt + R) to auto-fit candles vertically
         await page.keyboard.down('Alt');
         await page.keyboard.press('r');
         await page.keyboard.up('Alt');
@@ -1984,7 +2024,7 @@ async function startServer() {
     console.log(`Server running on http://0.0.0.0:${PORT}`);
 
     // Self-ping to prevent Render free tier from sleeping (every 13 minutes)
-    const RENDER_URL = process.env.RENDER_EXTERNAL_URL; // Render sets this automatically
+    const RENDER_URL = process.env.RENDER_EXTERNAL_URL || "https://quanztrade-app.onrender.com";
     if (RENDER_URL) {
       const PING_INTERVAL = 13 * 60 * 1000; // 13 minutes
       setInterval(async () => {

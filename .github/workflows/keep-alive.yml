@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Ping Render URL
         run: |
-          RENDER_URL="https://quanztrade.onrender.com/"
+          RENDER_URL="https://quanztrade-app.onrender.com/"
           echo "Pinging $RENDER_URL to keep it awake..."
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$RENDER_URL")
           echo "Response status: $HTTP_STATUS"

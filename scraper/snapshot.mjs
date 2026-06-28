@@ -67,8 +67,13 @@ export async function captureAndSaveSnapshot(tradeId, symbol, pair, type, entryP
             });
         });
 
-        // Force scroll to newest bar using TradingView's JS API
+        // ═══════════════════════════════════════════════════════
+        // GOAL: Position the last candle at ~2/3 of viewport
+        // ═══════════════════════════════════════════════════════
+
         const chartEl = await page.$('.layout__area--center');
+        
+        // Step 1: Click chart center to focus
         if (chartEl) {
             const box = await chartEl.boundingBox();
             if (box) {
@@ -77,33 +82,51 @@ export async function captureAndSaveSnapshot(tradeId, symbol, pair, type, entryP
             }
         }
 
-        // Use TradingView's internal API to jump to the latest bar
-        await page.evaluate(() => {
-            return new Promise((resolve) => {
-                try {
-                    const w = window;
-                    if (w.TradingView && w.TradingView.activeChart) {
-                        w.TradingView.activeChart().resetTimeScale();
-                    }
-                } catch(e) {}
-
-                document.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', code: 'End', keyCode: 35, bubbles: true }));
-                
-                const goToRealtimeBtn = document.querySelector('[data-name="go-to-date"], .goToRealtimeBtn, [class*="goToRealtime"], button[aria-label*="realtime"]');
-                if (goToRealtimeBtn) goToRealtimeBtn.click();
-
-                const scrollBtns = document.querySelectorAll('button[class*="scroll"], div[class*="scrollToLast"]');
-                scrollBtns.forEach(btn => btn.click());
-                
-                setTimeout(resolve, 500);
-            });
-        });
-
-        // Keyboard backup
+        // Step 2: Jump to latest bar
         await page.keyboard.press('End');
+        await new Promise(r => setTimeout(r, 800));
+
+        // Step 3: Use TradingView's internal API to set right offset (~50 bars)
+        await page.evaluate(() => {
+            try {
+                const w = window;
+                if (w.TradingView && w.TradingView.activeChart) {
+                    const chart = w.TradingView.activeChart();
+                    if (typeof chart.setRightOffset === 'function') chart.setRightOffset(50);
+                    if (typeof chart.applyOverrides === 'function') chart.applyOverrides({ 'timeScale.rightOffset': 50 });
+                }
+                if (w._exposed_chartWidgetCollection) {
+                    const widgets = w._exposed_chartWidgetCollection;
+                    if (widgets.activeChartWidget) {
+                        const model = widgets.activeChartWidget.model();
+                        if (model && model.timeScale) model.timeScale().setRightOffset(50);
+                    }
+                }
+            } catch(e) {}
+        });
         await new Promise(r => setTimeout(r, 500));
 
-        // Reset Price Scale (Alt + R) to auto-fit candles vertically
+        // Step 4: Physical drag to the right as fallback (1/3 of viewport)
+        if (chartEl) {
+            const box = await chartEl.boundingBox();
+            if (box) {
+                const dragDistance = Math.round(box.width / 3);
+                const centerY = box.y + box.height / 2;
+                const startX = box.x + box.width / 2;
+
+                await page.mouse.move(startX, centerY);
+                await page.mouse.down();
+                const steps = 15;
+                for (let i = 1; i <= steps; i++) {
+                    await page.mouse.move(startX + (dragDistance * i / steps), centerY);
+                    await new Promise(r => setTimeout(r, 30));
+                }
+                await page.mouse.up();
+                await new Promise(r => setTimeout(r, 500));
+            }
+        }
+
+        // Step 5: Reset Price Scale (Alt + R) to auto-fit candles vertically
         await page.keyboard.down('Alt');
         await page.keyboard.press('r');
         await page.keyboard.up('Alt');
