@@ -1762,15 +1762,15 @@ export default function App() {
                             <td className="py-2.5 px-3 whitespace-nowrap">
                               <div className="flex items-center gap-2">
                                 {t.tv_snapshot_url ? (
-                                  <button onClick={() => setLightboxUrl(t.tv_snapshot_url!)} className="w-12 h-8 rounded border border-m3-outline-variant overflow-hidden flex-shrink-0 block relative group" title="Xem ảnh Chart">
-                                    <img src={t.tv_snapshot_url} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
-                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                      <Maximize2 size={10} className="text-white" />
+                                  <button onClick={() => setLightboxUrl(t.tv_snapshot_url!)} className="w-24 aspect-[16/10] rounded-lg border border-m3-outline-variant overflow-hidden flex-shrink-0 block relative group shadow-sm" title="Xem ảnh Chart">
+                                    <img src={t.tv_snapshot_url} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 flex items-end justify-center pb-1 transition-opacity duration-200">
+                                      <Maximize2 size={12} className="text-white drop-shadow-md" />
                                     </div>
                                   </button>
                                 ) : (
-                                  <div className="w-12 h-8 rounded border border-dashed border-m3-outline-variant flex items-center justify-center bg-m3-surface-container flex-shrink-0" title="Chưa có ảnh Chart">
-                                    <Camera size={12} className="text-m3-on-surface-variant/40" />
+                                  <div className="w-24 aspect-[16/10] rounded-lg border border-dashed border-m3-outline-variant flex items-center justify-center bg-m3-surface-container flex-shrink-0" title="Chưa có ảnh Chart">
+                                    <Camera size={14} className="text-m3-on-surface-variant/30" />
                                   </div>
                                 )}
                                 <div className="flex items-center gap-2">
@@ -1950,10 +1950,10 @@ export default function App() {
                         )}
                         {/* TradingView Snapshot */}
                         {t.tv_snapshot_url && (
-                          <button type="button" onClick={() => setLightboxUrl(t.tv_snapshot_url!)} className="mt-2 w-full block rounded-lg overflow-hidden border border-m3-outline-variant/30 relative">
-                            <img src={t.tv_snapshot_url} alt="Chart Snapshot" className="w-full h-auto object-cover max-h-[120px]" />
-                            <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                              <Camera size={24} className="text-white drop-shadow-md" />
+                          <button type="button" onClick={() => setLightboxUrl(t.tv_snapshot_url!)} className="mt-2 w-full block rounded-xl overflow-hidden border border-m3-outline-variant/30 relative shadow-sm group">
+                            <img src={t.tv_snapshot_url} alt="Chart Snapshot" className="w-full aspect-[16/10] object-contain bg-black/5 dark:bg-white/5" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent flex items-end justify-center pb-2 opacity-0 group-hover:opacity-100 active:opacity-100 transition-opacity duration-200">
+                              <span className="text-white text-[10px] font-bold flex items-center gap-1 drop-shadow-md"><Maximize2 size={12} /> Xem lớn</span>
                             </div>
                           </button>
                         )}
