@@ -1854,90 +1854,46 @@ async function startServer() {
         // ═══════════════════════════════════════════════════════════════════
         // GOAL: Position the last candle at ~2/3 of the viewport width
         //       (i.e., 1/3 empty space on the right side)
+        //
+        // STRATEGY: Press End → go to latest bar. Then press Right Arrow
+        //           50 times to scroll the viewport into the "future",
+        //           creating empty space to the right of the last candle.
+        //           TradingView natively supports scrolling past the last bar.
+        //           This is FAR more reliable than mouse dragging (which gets
+        //           reset by auto-scroll) or JS API (which is obfuscated).
         // ═══════════════════════════════════════════════════════════════════
 
         const chartElement = await page.$('.layout__area--center');
         
-        // Step 1: Click chart center to focus it
+        // Step 1: Click chart center to focus it and dismiss any overlays
         if (chartElement) {
           const box = await chartElement.boundingBox();
           if (box) {
             await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+            await new Promise(r => setTimeout(r, 500));
+            // Escape to deselect any accidentally selected drawing/indicator
+            await page.keyboard.press('Escape');
             await new Promise(r => setTimeout(r, 300));
           }
         }
 
-        // Step 2: Jump to the latest bar first (gets us to the right edge)
+        // Step 2: Jump to the latest bar (End key = go to realtime)
         await page.keyboard.press('End');
-        await new Promise(r => setTimeout(r, 800));
+        await new Promise(r => setTimeout(r, 1500));
 
-        // Step 3: Use TradingView's internal API to set the right offset
-        //         so the last candle appears at ~2/3 of the viewport
-        await page.evaluate(() => {
-          try {
-            const w = (window as any);
-            // TradingView's chart widget stores its state in various internal objects.
-            // The rightOffset property controls how many bars of empty space appear
-            // to the right of the latest candle.
-            // With viewport=1280px and ~8px per candle, we see ~160 candles.
-            // 1/3 of 160 = ~53 bars of right padding puts the last candle at 2/3.
-            
-            // Method 1: Direct chart API
-            if (w.TradingView && w.TradingView.activeChart) {
-              const chart = w.TradingView.activeChart();
-              // setRightOffset controls empty space to the right of the last bar
-              if (typeof chart.setRightOffset === 'function') {
-                chart.setRightOffset(50);
-              }
-              // Alternative: use applyOverrides
-              if (typeof chart.applyOverrides === 'function') {
-                chart.applyOverrides({ 'timeScale.rightOffset': 50 });
-              }
-            }
-
-            // Method 2: Look for ChartWidget instances
-            if (w._exposed_chartWidgetCollection) {
-              const widgets = w._exposed_chartWidgetCollection;
-              if (widgets.activeChartWidget) {
-                const model = widgets.activeChartWidget.model();
-                if (model && model.timeScale) {
-                  model.timeScale().setRightOffset(50);
-                }
-              }
-            }
-          } catch(e) {
-            console.log('[Snapshot] JS API approach failed:', e);
-          }
-        });
-        await new Promise(r => setTimeout(r, 500));
-
-        // Step 4: Physical drag as a guaranteed fallback
-        //         Drag chart to the RIGHT = scrolls back in time = last candle moves leftward
-        //         We want to move it from the right edge to ~2/3 position
-        //         That means dragging about 1/3 of the viewport width to the right
-        if (chartElement) {
-          const box = await chartElement.boundingBox();
-          if (box) {
-            const dragDistance = Math.round(box.width / 3); // 1/3 of viewport
-            const centerY = box.y + box.height / 2;
-            const startX = box.x + box.width / 2;
-            const endX = startX + dragDistance;
-
-            await page.mouse.move(startX, centerY);
-            await page.mouse.down();
-            // Smooth drag in small steps for reliability
-            const steps = 15;
-            for (let i = 1; i <= steps; i++) {
-              const x = startX + (dragDistance * i / steps);
-              await page.mouse.move(x, centerY);
-              await new Promise(r => setTimeout(r, 30));
-            }
-            await page.mouse.up();
-            await new Promise(r => setTimeout(r, 500));
+        // Step 3: Press Right Arrow 50 times to add empty space to the right
+        //         With ~160 candles visible on 1280px viewport, 50 bars of
+        //         right space places the last candle at roughly 110/160 ≈ 2/3
+        for (let i = 0; i < 50; i++) {
+          await page.keyboard.press('ArrowRight');
+          // Small delay every 10 presses to let the chart render
+          if (i % 10 === 9) {
+            await new Promise(r => setTimeout(r, 100));
           }
         }
+        await new Promise(r => setTimeout(r, 800));
 
-        // Step 5: Reset Price Scale (Alt + R) to auto-fit candles vertically
+        // Step 4: Reset Price Scale (Alt + R) to auto-fit candles vertically
         await page.keyboard.down('Alt');
         await page.keyboard.press('r');
         await page.keyboard.up('Alt');

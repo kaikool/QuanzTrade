@@ -69,64 +69,34 @@ export async function captureAndSaveSnapshot(tradeId, symbol, pair, type, entryP
 
         // ═══════════════════════════════════════════════════════
         // GOAL: Position the last candle at ~2/3 of viewport
+        // STRATEGY: End → Right Arrow x50 (push into "future")
         // ═══════════════════════════════════════════════════════
 
         const chartEl = await page.$('.layout__area--center');
         
-        // Step 1: Click chart center to focus
+        // Step 1: Click chart center to focus and dismiss overlays
         if (chartEl) {
             const box = await chartEl.boundingBox();
             if (box) {
                 await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+                await new Promise(r => setTimeout(r, 500));
+                await page.keyboard.press('Escape');
                 await new Promise(r => setTimeout(r, 300));
             }
         }
 
         // Step 2: Jump to latest bar
         await page.keyboard.press('End');
+        await new Promise(r => setTimeout(r, 1500));
+
+        // Step 3: Press Right Arrow 50 times to create right margin
+        for (let i = 0; i < 50; i++) {
+            await page.keyboard.press('ArrowRight');
+            if (i % 10 === 9) await new Promise(r => setTimeout(r, 100));
+        }
         await new Promise(r => setTimeout(r, 800));
 
-        // Step 3: Use TradingView's internal API to set right offset (~50 bars)
-        await page.evaluate(() => {
-            try {
-                const w = window;
-                if (w.TradingView && w.TradingView.activeChart) {
-                    const chart = w.TradingView.activeChart();
-                    if (typeof chart.setRightOffset === 'function') chart.setRightOffset(50);
-                    if (typeof chart.applyOverrides === 'function') chart.applyOverrides({ 'timeScale.rightOffset': 50 });
-                }
-                if (w._exposed_chartWidgetCollection) {
-                    const widgets = w._exposed_chartWidgetCollection;
-                    if (widgets.activeChartWidget) {
-                        const model = widgets.activeChartWidget.model();
-                        if (model && model.timeScale) model.timeScale().setRightOffset(50);
-                    }
-                }
-            } catch(e) {}
-        });
-        await new Promise(r => setTimeout(r, 500));
-
-        // Step 4: Physical drag to the right as fallback (1/3 of viewport)
-        if (chartEl) {
-            const box = await chartEl.boundingBox();
-            if (box) {
-                const dragDistance = Math.round(box.width / 3);
-                const centerY = box.y + box.height / 2;
-                const startX = box.x + box.width / 2;
-
-                await page.mouse.move(startX, centerY);
-                await page.mouse.down();
-                const steps = 15;
-                for (let i = 1; i <= steps; i++) {
-                    await page.mouse.move(startX + (dragDistance * i / steps), centerY);
-                    await new Promise(r => setTimeout(r, 30));
-                }
-                await page.mouse.up();
-                await new Promise(r => setTimeout(r, 500));
-            }
-        }
-
-        // Step 5: Reset Price Scale (Alt + R) to auto-fit candles vertically
+        // Step 4: Reset Price Scale (Alt + R)
         await page.keyboard.down('Alt');
         await page.keyboard.press('r');
         await page.keyboard.up('Alt');
