@@ -667,17 +667,17 @@ export default function App() {
   const t5MappedTrades = useMemo(() => {
     const activeIds = new Set(selectedT5AccountIds);
     return t5Trades
-      .filter(t => !selectedT5AccountIds.length || activeIds.has(t.accountId))
+      .filter(t => t && t.accountId && (!selectedT5AccountIds.length || activeIds.has(t.accountId)))
       .map(t => ({
         id: `t5-${t.tradeId}`,
-        pair: t.instrument.replace(/(.{3})/, "$1/"),
+        pair: (t.instrument || "Unknown").replace(/(.{3})/, "$1/"),
         type: t.direction === "buy" ? "BUY" as const : "SELL" as const,
         entry_price: t.openPrice,
         exit_price: t.closePrice,
         size: t.volume,
-        pnl: t.pnl,
+        pnl: t.pnl || 0,
         status: (t.closeTime ? "CLOSED" : "OPEN") as "CLOSED" | "OPEN",
-        entry_date: t.openTime,
+        entry_date: t.openTime || new Date().toISOString(),
         exit_date: t.closeTime,
         notes: `The5ers - ${t.accountId}`,
         timeframe: "N/A",
@@ -1103,16 +1103,16 @@ export default function App() {
   // Compute stats for header and badges
   const summary = useMemo(() => {
     const selectedIds = new Set(selectedT5AccountIds);
-    const selectedAccounts = t5Accounts.filter(a => selectedIds.has(a.accountId));
-    const t5Balance = selectedAccounts.reduce((s, a) => s + a.balance, 0);
-    const t5Pnl = selectedAccounts.reduce((s, a) => s + a.pnl, 0);
-    const t5OpenTrades = t5Trades.filter(t => selectedIds.has(t.accountId) && !t.closeTime).length;
-    const t5ClosedTrades = t5Trades.filter(t => selectedIds.has(t.accountId) && t.closeTime).length;
+    const selectedAccounts = t5Accounts.filter(a => a && selectedIds.has(a.accountId));
+    const t5Balance = selectedAccounts.reduce((s, a) => s + (a.balance || 0), 0);
+    const t5Pnl = selectedAccounts.reduce((s, a) => s + (a.pnl || 0), 0);
+    const t5OpenTrades = t5Trades.filter(t => t && t.accountId && selectedIds.has(t.accountId) && !t.closeTime).length;
+    const t5ClosedTrades = t5Trades.filter(t => t && t.accountId && selectedIds.has(t.accountId) && t.closeTime).length;
 
-    const totalPnl = trades.filter(t => !t.id.startsWith("t5-")).reduce((sum, t) => sum + t.pnl, 0);
-    const manualPnl = trades.filter(t => t.status === "CLOSED" && !t.id.startsWith("t5-")).reduce((sum, t) => sum + t.pnl, 0);
-    const openCount = trades.filter(t => t.status === "OPEN" && !t.id.startsWith("t5-")).length;
-    const closedCount = trades.filter(t => t.status === "CLOSED" && !t.id.startsWith("t5-")).length;
+    const totalPnl = trades.filter(t => t && t.id && !t.id.startsWith("t5-")).reduce((sum, t) => sum + (t.pnl || 0), 0);
+    const manualPnl = trades.filter(t => t && t.id && t.status === "CLOSED" && !t.id.startsWith("t5-")).reduce((sum, t) => sum + (t.pnl || 0), 0);
+    const openCount = trades.filter(t => t && t.status === "OPEN" && !t.id.startsWith("t5-")).length;
+    const closedCount = trades.filter(t => t && t.status === "CLOSED" && !t.id.startsWith("t5-")).length;
 
     return {
       balance: t5Balance,
@@ -1124,7 +1124,7 @@ export default function App() {
 
   // Filters candidates
   const uniquePairs = useMemo(() => {
-    const set = new Set(mergedTrades.map((t) => t.pair));
+    const set = new Set(mergedTrades.map((t) => t && t.pair).filter(Boolean));
     return ["ALL", ...Array.from(set)];
   }, [mergedTrades]);
 
@@ -1837,7 +1837,7 @@ export default function App() {
                                       )}
                                     </div>
                                     <div className="text-[11px] text-m3-on-surface-variant mt-0.5">
-                                      {t.timeframe || "M15"} • {new Date(t.entry_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                                      {t.timeframe || "M15"} • {(!t.entry_date || isNaN(new Date(t.entry_date).getTime())) ? "—" : new Date(t.entry_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
                                     </div>
                                   </div>
                                 </div>
@@ -1875,14 +1875,14 @@ export default function App() {
                             <td className="py-3 px-4 text-right whitespace-nowrap">
                               <div className="flex items-center justify-end gap-2.5">
                                 <div className="flex flex-col items-end">
-                                  <span className={`font-mono font-black text-[13px] ${t.pnl >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
-                                    {t.pnl >= 0 ? "+" : ""}${t.pnl.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                  <span className={`font-mono font-black text-[13px] ${(t.pnl ?? 0) >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
+                                    {(t.pnl ?? 0) >= 0 ? "+" : ""}${(t.pnl ?? 0).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                                   </span>
                                 </div>
                                 <div className="w-14 h-1.5 bg-m3-outline-variant/30 rounded-full overflow-hidden flex-shrink-0">
                                   <div
-                                    className={`h-full rounded-full ${t.pnl >= 0 ? "bg-emerald-500" : "bg-rose-500"}`}
-                                    style={{ width: `${pnlBarWidth}%` }}
+                                    className={`h-full rounded-full ${(t.pnl ?? 0) >= 0 ? "bg-emerald-500" : "bg-rose-500"}`}
+                                    style={{ width: `${Math.min(Math.abs(t.pnl ?? 0) / 1000, 1) * 100}%` }}
                                   />
                                 </div>
                               </div>
@@ -1959,8 +1959,8 @@ export default function App() {
                             </div>
                             {/* PnL overlay badge */}
                             <div className="absolute top-2.5 right-2.5 z-10">
-                              <span className={`px-2.5 py-1 rounded-full text-xs font-black font-mono shadow-lg backdrop-blur-sm ${t.pnl >= 0 ? "bg-emerald-500/90 text-white" : "bg-rose-500/90 text-white"}`}>
-                                {t.pnl >= 0 ? "+" : ""}${t.pnl.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                              <span className={`px-2.5 py-1 rounded-full text-xs font-black font-mono shadow-lg backdrop-blur-sm ${(t.pnl ?? 0) >= 0 ? "bg-emerald-500/90 text-white" : "bg-rose-500/90 text-white"}`}>
+                                {(t.pnl ?? 0) >= 0 ? "+" : ""}${(t.pnl ?? 0).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                               </span>
                             </div>
                             {/* Direction overlay badge */}
@@ -1988,8 +1988,8 @@ export default function App() {
                                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-m3-outline-variant/30 text-m3-on-surface-variant font-extrabold uppercase">CLOSED</span>
                                 )}
                               </div>
-                              <span className={`font-mono font-black text-lg ${t.pnl >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
-                                {t.pnl >= 0 ? "+" : ""}${t.pnl.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                              <span className={`font-mono font-black text-lg ${(t.pnl ?? 0) >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
+                                {(t.pnl ?? 0) >= 0 ? "+" : ""}${(t.pnl ?? 0).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                               </span>
                             </div>
                           )}
@@ -2048,7 +2048,7 @@ export default function App() {
                                 ))}
                               </div>
                               <span className="text-xs text-m3-on-surface-variant">
-                                {t.timeframe || "M15"} • {new Date(t.entry_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                                {t.timeframe || "M15"} • {(!t.entry_date || isNaN(new Date(t.entry_date).getTime())) ? "—" : new Date(t.entry_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
                               </span>
                             </div>
                             <div className="flex gap-1.5 flex-shrink-0">
