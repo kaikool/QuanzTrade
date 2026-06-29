@@ -30,7 +30,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
       if (!contentType || !contentType.includes("application/json")) {
         const text = await res.text();
         console.error("Non-JSON Server Response:", text);
-        setError("Máy chủ đang khởi động hoặc gặp sự cố (502 Bad Gateway). Vui lòng đợi 30 giây rồi thử lại!");
+        setError(`Lỗi PWA: HTTP ${res.status} ${res.statusText} - ${text.substring(0, 100)}...`);
         return;
       }
 

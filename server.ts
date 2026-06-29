@@ -10,10 +10,18 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
-// Request logger middleware
+// In-memory request logger for debugging PWA issues
+const requestLogs: string[] = [];
 app.use((req, res, next) => {
+  const log = `[${new Date().toISOString()}] ${req.method} ${req.url} - IP: ${req.ip} - Headers: ${JSON.stringify(req.headers)}`;
+  requestLogs.unshift(log);
+  if (requestLogs.length > 100) requestLogs.pop();
   console.log(`[Request] ${req.method} ${req.url}`);
   next();
+});
+
+app.get("/api/logs", (req, res) => {
+  res.json({ logs: requestLogs });
 });
 
 // Middlewares to parse bodies

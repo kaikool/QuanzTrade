@@ -31,9 +31,16 @@ import_dotenv.default.config({ path: ".env.local" });
 import_dotenv.default.config();
 var app = (0, import_express.default)();
 var PORT = process.env.PORT ? parseInt(process.env.PORT) : 3e3;
+var requestLogs = [];
 app.use((req, res, next) => {
+  const log = `[${(/* @__PURE__ */ new Date()).toISOString()}] ${req.method} ${req.url} - IP: ${req.ip} - Headers: ${JSON.stringify(req.headers)}`;
+  requestLogs.unshift(log);
+  if (requestLogs.length > 100) requestLogs.pop();
   console.log(`[Request] ${req.method} ${req.url}`);
   next();
+});
+app.get("/api/logs", (req, res) => {
+  res.json({ logs: requestLogs });
 });
 app.use(import_express.default.json());
 function getStatelessToken() {
