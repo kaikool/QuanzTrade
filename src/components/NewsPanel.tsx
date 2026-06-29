@@ -18,29 +18,29 @@ interface NewsPanelProps {
 
 const categoryClasses: Record<NewsItem["category"], string> = {
   Forex:
-    "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20",
+    "bg-[var(--sys-green)]/100/10 text-[var(--sys-green)] dark:text-emerald-300 border-emerald-500/20",
   Macro:
-    "bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20",
+    "bg-[var(--sys-blue)]/100/10 text-[var(--sys-blue)] dark:text-[var(--sys-blue)] border-blue-500/20",
   "Central Bank":
-    "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/20",
+    "bg-[var(--sys-blue)]/100/10 text-indigo-700 dark:text-[var(--sys-blue)] border-indigo-500/20",
   Energy:
     "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20",
 };
 
 const impactClasses: Record<NewsItem["impact"], string> = {
-  High: "bg-rose-500 text-white",
+  High: "bg-[var(--sys-red)]/100 text-white",
   Medium: "bg-orange-500 text-white",
   Low: "bg-yellow-400 text-yellow-950",
 };
 
 const effectClasses: Record<string, string> = {
-  Tốt: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-  Xấu: "bg-rose-500/10 text-rose-700 dark:text-rose-300",
-  "Trung lập": "bg-m3-surface-container-high text-m3-on-surface-variant",
+  Tốt: "bg-[var(--sys-green)]/100/10 text-[var(--sys-green)] dark:text-emerald-300",
+  Xấu: "bg-[var(--sys-red)]/100/10 text-[var(--sys-red)] dark:text-rose-300",
+  "Trung lập": "bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-text-secondary)]",
 };
 
 const defaultEffectClass =
-  "bg-m3-surface-container-high text-m3-on-surface-variant";
+  "bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-text-secondary)]";
 
 function deriveEffectLabel(sentiment: NewsItem["sentiment"]) {
   if (sentiment === "Bullish") return "Tốt";
@@ -99,21 +99,21 @@ export function NewsPanel({
   return (
     <div className="space-y-5" id="news-panel">
       <section
-        className={`p-4 sm:p-6 rounded-[24px] shadow-level1 ${darkMode ? "bg-m3-surface" : "bg-m3-surface"}`}
+        className={`p-4 sm:p-6 rounded-[24px] shadow-ios-sm ${darkMode ? "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm" : "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm"}`}
       >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-m3-outline-variant pb-4 mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--sys-border)] pb-4 mb-4">
           <div>
-            <h3 className="m3-title-medium text-m3-on-surface font-display">
+            <h3 className="text-lg font-semibold text-[var(--sys-text)] font-display">
               Tin tức thị trường
             </h3>
-            <p className="m3-body-small text-m3-on-surface-variant mt-1">
+            <p className="text-base text-[var(--sys-text-secondary)] mt-1">
               Mới nhất lên trước, mỗi trang hiển thị {pageSize} tin.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {lastUpdatedAt && (
-              <span className="m3-body-small text-m3-on-surface-variant font-mono">
+              <span className="text-base text-[var(--sys-text-secondary)] font-mono">
                 {new Date(lastUpdatedAt).toLocaleTimeString("vi-VN", {
                   hour: "2-digit",
                   minute: "2-digit",
@@ -121,24 +121,24 @@ export function NewsPanel({
                 })}
               </span>
             )}
-            <div className="flex items-center gap-1 rounded-full border border-m3-outline-variant bg-m3-surface-container-lowest p-1">
+            <div className="flex items-center gap-1 rounded-full border border-[var(--sys-border)] bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm p-1">
               <button
                 type="button"
                 onClick={() => onPageChange(page - 1)}
                 disabled={!canGoPrevious}
-                className="h-9 w-9 rounded-full text-m3-primary grid place-items-center m3-state-layer disabled:opacity-40 disabled:cursor-not-allowed"
+                className="h-9 w-9 rounded-full text-[var(--sys-blue)] grid place-items-center active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed"
                 title="Trang mới hơn"
               >
                 <ChevronLeft size={17} />
               </button>
-              <span className="min-w-20 px-2 text-center m3-label-medium text-m3-on-surface">
+              <span className="min-w-20 px-2 text-center text-sm font-medium text-[var(--sys-text)]">
                 {pageLabel}
               </span>
               <button
                 type="button"
                 onClick={() => onPageChange(page + 1)}
                 disabled={!canGoNext}
-                className="h-9 w-9 rounded-full text-m3-primary grid place-items-center m3-state-layer disabled:opacity-40 disabled:cursor-not-allowed"
+                className="h-9 w-9 rounded-full text-[var(--sys-blue)] grid place-items-center active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed"
                 title="Trang cũ hơn"
               >
                 <ChevronRight size={17} />
@@ -146,7 +146,7 @@ export function NewsPanel({
             </div>
             <button
               onClick={onRefresh}
-              className="px-3 py-2 rounded-full bg-m3-primary text-m3-on-primary m3-label-medium flex items-center gap-1.5 m3-state-layer"
+              className="px-3 py-2 rounded-full bg-[var(--sys-blue)] text-white text-sm font-medium flex items-center gap-1.5 active:scale-95 transition-transform"
               type="button"
             >
               <RefreshCw
@@ -163,16 +163,16 @@ export function NewsPanel({
             {Array.from({ length: 6 }).map((_, index) => (
               <div
                 key={index}
-                className="h-24 rounded-[16px] bg-m3-surface-container animate-pulse"
+                className="h-24 rounded-[16px] bg-[var(--sys-surface-2)] animate-pulse"
               />
             ))}
           </div>
         ) : newsItems.length === 0 ? (
-          <div className="py-16 text-center text-m3-on-surface-variant">
-            <p className="m3-body-medium font-semibold">
+          <div className="py-16 text-center text-[var(--sys-text-secondary)]">
+            <p className="text-lg font-semibold">
               Chưa có tin trong trang này.
             </p>
-            <p className="m3-body-small mt-1">
+            <p className="text-base mt-1">
               Bấm làm mới hoặc quay lại trang trước để đọc tin gần hơn.
             </p>
           </div>
@@ -184,19 +184,19 @@ export function NewsPanel({
               return (
                 <article
                   key={item.id}
-                  className="p-4 rounded-[16px] bg-m3-surface-container-lowest border border-m3-outline-variant hover:border-m3-primary/60 transition-colors"
+                  className="p-4 rounded-[16px] bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm border border-[var(--sys-border)] hover:border-[var(--sys-blue)]/60 transition-colors"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2 mb-2">
                         <span
-                          className={`px-2 py-0.5 rounded-full m3-label-small font-black ${impactClasses[item.impact]}`}
+                          className={`px-2 py-0.5 rounded-full text-sm font-medium font-black ${impactClasses[item.impact]}`}
                           title={`Điểm quan trọng: ${item.score}/100`}
                         >
                           {item.impact} {item.score}
                         </span>
                         <span
-                          className={`px-2 py-0.5 rounded-full m3-label-small font-bold ${effectClasses[effect] || defaultEffectClass}`}
+                          className={`px-2 py-0.5 rounded-full text-sm font-medium font-bold ${effectClasses[effect] || defaultEffectClass}`}
                           title={`Sentiment: ${item.sentiment} (${item.sentimentScore})`}
                         >
                           {effect}
@@ -204,24 +204,24 @@ export function NewsPanel({
                         {item.affectedAssets.map((asset) => (
                           <span
                             key={asset}
-                            className="px-2 py-0.5 rounded-full bg-m3-surface-container m3-label-small text-m3-on-surface-variant font-mono"
+                            className="px-2 py-0.5 rounded-full bg-[var(--sys-surface-2)] text-sm font-medium text-[var(--sys-text-secondary)] font-mono"
                           >
                             {asset}
                           </span>
                         ))}
                         <span
-                          className={`px-2 py-0.5 rounded-full border m3-label-small font-bold ${categoryClasses[item.category]}`}
+                          className={`px-2 py-0.5 rounded-full border text-sm font-medium font-bold ${categoryClasses[item.category]}`}
                         >
                           {item.category}
                         </span>
-                        <span className="m3-body-small text-m3-on-surface-variant font-mono">
+                        <span className="text-base text-[var(--sys-text-secondary)] font-mono">
                           {item.source}
                         </span>
-                        <span className="m3-body-small text-m3-on-surface-variant">
+                        <span className="text-base text-[var(--sys-text-secondary)]">
                           {formatRelativeTime(item.publishedAt)}
                         </span>
                       </div>
-                      <h4 className="m3-body-medium sm:m3-body-large font-extrabold text-m3-on-surface leading-snug">
+                      <h4 className="text-lg sm:text-lg font-extrabold text-[var(--sys-text)] leading-snug">
                         {item.titleVi || item.title}
                       </h4>
                     </div>
@@ -229,14 +229,14 @@ export function NewsPanel({
                       href={item.link}
                       target="_blank"
                       rel="noreferrer"
-                      className="p-2 rounded-full bg-m3-surface-container-high text-m3-primary flex-shrink-0 m3-state-layer"
+                      className="p-2 rounded-full bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-blue)] flex-shrink-0 active:scale-95 transition-transform"
                       title="Mở tin gốc"
                     >
                       <ExternalLink size={15} />
                     </a>
                   </div>
 
-                  <p className="m3-body-small text-m3-on-surface-variant mt-3 line-clamp-3">
+                  <p className="text-base text-[var(--sys-text-secondary)] mt-3 line-clamp-3">
                     {compactSummary(item)}
                   </p>
 
@@ -245,7 +245,7 @@ export function NewsPanel({
                       {item.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="px-2 py-0.5 rounded-full bg-m3-surface-container m3-label-small text-m3-on-surface-variant font-mono"
+                          className="px-2 py-0.5 rounded-full bg-[var(--sys-surface-2)] text-sm font-medium text-[var(--sys-text-secondary)] font-mono"
                         >
                           {tag}
                         </span>
@@ -260,7 +260,7 @@ export function NewsPanel({
 
         {newsItems.length > 0 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-5">
-            <span className="m3-body-small text-m3-on-surface-variant">
+            <span className="text-base text-[var(--sys-text-secondary)]">
               Đang xem tin {pageStart}-{pageEnd}
             </span>
             <div className="grid grid-cols-2 gap-2 w-full sm:w-auto">
@@ -268,7 +268,7 @@ export function NewsPanel({
                 type="button"
                 onClick={() => onPageChange(page - 1)}
                 disabled={!canGoPrevious}
-                className="px-4 py-2.5 rounded-full border border-m3-outline-variant bg-m3-surface-container-lowest text-m3-primary m3-label-medium flex items-center justify-center gap-2 m3-state-layer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2.5 rounded-full border border-[var(--sys-border)] bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-blue)] text-sm font-medium flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronLeft size={16} />
                 Mới hơn
@@ -277,7 +277,7 @@ export function NewsPanel({
                 type="button"
                 onClick={() => onPageChange(page + 1)}
                 disabled={!canGoNext}
-                className="px-4 py-2.5 rounded-full border border-m3-outline-variant bg-m3-surface-container-lowest text-m3-primary m3-label-medium flex items-center justify-center gap-2 m3-state-layer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2.5 rounded-full border border-[var(--sys-border)] bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-blue)] text-sm font-medium flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cũ hơn
                 <ChevronRight size={16} />

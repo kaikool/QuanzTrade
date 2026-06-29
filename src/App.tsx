@@ -79,53 +79,62 @@ const The5ersMetrics = ({ t5Accounts, selectedIds }: { t5Accounts: import('./typ
   if (activeAccounts.length === 0) return null;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-      {activeAccounts.map(acc => {
-        const dailyPnlVal = acc.dailyLoss || 0;
-        const dailyLossUsed = Math.max(0, -dailyPnlVal);
-        const dailyLimitVal = Math.abs(acc.dailyLossLimit || 0);
-        const dailyPct = dailyLimitVal > 0 ? Math.min(100, (dailyLossUsed / dailyLimitVal) * 100) : 0;
-        const dailyValueClass = dailyLossUsed >= dailyLimitVal && dailyLimitVal > 0
-          ? "text-rose-500"
-          : dailyPnlVal >= 0
-            ? "text-emerald-500"
-            : "text-m3-on-surface";
-        
-        const maxLossVal = Math.abs(acc.maxLoss || 0);
-        const pnlVal = (acc.pnl || 0);
-        
-        return (
-        <div key={acc.accountId} className="bg-m3-surface rounded-[24px] p-5 shadow-level1 flex flex-col gap-3 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1.5 h-full bg-m3-primary opacity-80" />
-          <h3 className="font-bold text-sm text-m3-on-surface flex justify-between items-center">
-            {acc.name}
-            <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${acc.type === "funded" ? "bg-emerald-500/10 text-emerald-600" : "bg-blue-500/10 text-blue-600"}`}>{acc.type}</span>
-          </h3>
+    <div className="mb-6 overflow-x-auto no-scrollbar pb-2">
+      <div className="flex gap-4 min-w-max px-2">
+        {activeAccounts.map(acc => {
+          const dailyPnlVal = acc.dailyLoss || 0;
+          const dailyLossUsed = Math.max(0, -dailyPnlVal);
+          const dailyLimitVal = Math.abs(acc.dailyLossLimit || 0);
+          const dailyPct = dailyLimitVal > 0 ? Math.min(100, (dailyLossUsed / dailyLimitVal) * 100) : 0;
+          const isWarning = dailyPct > 80;
           
-          <div className="flex flex-col gap-1">
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-m3-on-surface-variant font-medium">P&L ngày / Giới hạn lỗ ngày</span>
-              <span className={`font-bold ${dailyValueClass}`}>
-                {dailyPnlVal >= 0 ? '+' : ''}{dailyPnlVal.toFixed(2)}$ / -{dailyLimitVal.toFixed(2)}$
-              </span>
-            </div>
-            <div className="w-full bg-m3-surface-container-high rounded-full h-2 overflow-hidden">
-              <div className={`h-full rounded-full transition-all duration-500 ${dailyPct > 80 ? "bg-rose-500" : "bg-emerald-500"}`} style={{ width: `${dailyPct}%` }} />
-            </div>
-          </div>
+          const maxLossVal = Math.abs(acc.maxLoss || 0);
+          const pnlVal = (acc.pnl || 0);
           
-          <div className="flex justify-between items-center text-xs pt-1 border-t border-m3-outline-variant/30">
-            <span className="text-m3-on-surface-variant font-medium">Lỗ tối đa cho phép (Max Loss)</span>
-            <span className="font-bold text-m3-on-surface">{maxLossVal.toFixed(2)}$</span>
+          return (
+          <div key={acc.accountId} className="bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm rounded-[24px] p-5 shadow-ios-md flex flex-col justify-between w-[280px] sm:w-[320px] relative overflow-hidden flex-shrink-0">
+            <div className={`absolute top-0 left-0 w-full h-1.5 ${acc.type === "funded" ? "bg-[var(--sys-green)]/100" : "bg-[var(--sys-blue)]"}`} />
+            
+            <div>
+              <h3 className="font-bold text-lg text-[var(--sys-text)] flex justify-between items-center gap-2 mb-1 min-w-0">
+                {acc.name}
+                <span className={`text-sm px-2 py-0.5 rounded-full font-bold uppercase ${acc.type === "funded" ? "bg-[var(--sys-green)]/100/15 text-[var(--sys-green)] dark:text-[var(--sys-green)]" : "bg-[var(--sys-blue)]/15 text-[var(--sys-blue)]"}`}>{acc.type}</span>
+              </h3>
+              <div className="text-[var(--sys-text-secondary)] text-sm font-medium mb-4 truncate">Mã TK: {acc.accountId}</div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex justify-between items-end">
+                <div className="flex flex-col">
+                  <span className="text-[var(--sys-text-secondary)] text-sm font-medium mb-1">Lợi nhuận hiện tại</span>
+                  <span className={`font-bold text-xl ${pnlVal >= 0 ? "text-[var(--sys-green)]" : "text-[var(--sys-red)]"}`}>
+                    {pnlVal >= 0 ? '+' : ''}${pnlVal.toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex flex-col text-right">
+                  <span className="text-[var(--sys-text-secondary)] text-sm font-medium mb-1">Max Loss</span>
+                  <span className="font-semibold text-[var(--sys-text)]">${maxLossVal.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-[var(--sys-border)]">
+                <div className="flex justify-between items-center text-sm mb-1.5">
+                  <span className="text-[var(--sys-text-secondary)] font-medium">Giới hạn lỗ trong ngày</span>
+                  <span className={`font-semibold ${isWarning ? "text-[var(--sys-red)]" : "text-[var(--sys-text)]"}`}>
+                    -${dailyLossUsed.toFixed(2)} / -${dailyLimitVal.toFixed(2)}
+                  </span>
+                </div>
+                <progress
+                  className={`ios26-progress ${isWarning ? "is-warning" : ""}`}
+                  value={dailyPct}
+                  max={100}
+                  aria-label="Daily loss usage"
+                />
+              </div>
+            </div>
           </div>
-          <div className="flex justify-between items-center text-xs">
-            <span className="text-m3-on-surface-variant font-medium">Lợi nhuận (P&L)</span>
-            <span className={`font-bold ${pnlVal >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
-              {pnlVal >= 0 ? '+' : ''}{pnlVal.toFixed(2)}$
-            </span>
-          </div>
-        </div>
-      )})}
+        )})}
+      </div>
     </div>
   );
 };
@@ -156,6 +165,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPairFilter, setSelectedPairFilter] = useState("ALL");
   const [selectedStatusFilter, setSelectedStatusFilter] = useState("ALL");
+  const [selectedJournalAccountId, setSelectedJournalAccountId] = useState("ALL");
 
   // Edit & Supabase Database Configuration states
   const [editingTradeId, setEditingTradeId] = useState<string | null>(null);
@@ -166,6 +176,7 @@ export default function App() {
     () => localStorage.getItem("trade_app_supabase_anon") || "",
   );
   const [supabaseConnected, setSupabaseConnected] = useState(false);
+  const [sitePassword, setSitePassword] = useState("");
 
   // Tab control
   // On Desktop we show a majestic integrated Bento layout.
@@ -725,6 +736,31 @@ export default function App() {
     );
   }, [trades, t5MappedTrades]);
 
+  const accountById = useMemo(() => {
+    return new Map(t5Accounts.map((account) => [account.accountId, account]));
+  }, [t5Accounts]);
+
+  const getTradeAccountId = (trade: Trade) => {
+    if (!trade.id.startsWith("t5-")) return "MANUAL";
+    const match = trade.notes?.match(/The5ers\s*-\s*(.+)$/);
+    return match?.[1] || "UNKNOWN";
+  };
+
+  const journalAccountOptions = useMemo(() => {
+    return [
+      { accountId: "ALL", name: "Tất cả tài khoản" },
+      ...t5Accounts.map((account) => ({
+        accountId: account.accountId,
+        name: account.name || account.accountId,
+      })),
+      { accountId: "MANUAL", name: "Lệnh thủ công" },
+    ];
+  }, [t5Accounts]);
+
+  const selectedJournalAccount = selectedJournalAccountId === "ALL"
+    ? null
+    : accountById.get(selectedJournalAccountId);
+
   // Initialize data and db keys
   useEffect(() => {
     if (!isLoggedIn) return;
@@ -1139,9 +1175,13 @@ export default function App() {
         selectedPairFilter === "ALL" || t.pair === selectedPairFilter;
       const matchStatus =
         selectedStatusFilter === "ALL" || t.status === selectedStatusFilter;
-      return matchSearch && matchPair && matchStatus;
+      const tradeAccountId = getTradeAccountId(t);
+      const matchAccount =
+        selectedJournalAccountId === "ALL" ||
+        selectedJournalAccountId === tradeAccountId;
+      return matchSearch && matchPair && matchStatus && matchAccount;
     });
-  }, [mergedTrades, searchQuery, selectedPairFilter, selectedStatusFilter]);
+  }, [mergedTrades, searchQuery, selectedPairFilter, selectedStatusFilter, selectedJournalAccountId, t5Accounts]);
 
   // Filtered Calendar Events
   const filteredEventsByFilters = useMemo(() => {
@@ -1233,8 +1273,8 @@ export default function App() {
     switch (impact) {
       case "High":
         return {
-          bg: "bg-rose-500 text-white shadow-xs",
-          text: "text-rose-700 dark:text-rose-400 border-2 border-rose-500 dark:border-rose-400 bg-rose-50 dark:bg-rose-950/30",
+          bg: "bg-[var(--sys-red)]/100 text-white shadow-xs",
+          text: "text-[var(--sys-red)] dark:text-[var(--sys-red)] border-2 border-rose-500 dark:border-rose-400 bg-[var(--sys-red)]/10 dark:bg-[var(--sys-red)]/20",
           indicator: "bg-rose-600",
           label: "Tin Đỏ",
         };
@@ -1267,7 +1307,7 @@ export default function App() {
 
   return (
     <div
-      className={`min-h-screen ${darkMode ? "dark bg-m3-surface-container-low text-m3-on-surface" : "bg-m3-surface-container-low text-m3-on-surface"} transition-all ease-[var(--ease-m3-enter)] duration-300 font-display pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-6`}
+      className={`min-h-screen ${darkMode ? "dark bg-[var(--sys-bg)] text-[var(--sys-text)]" : "bg-[var(--sys-bg)] text-[var(--sys-text)]"} transition-all ease-[ease-out] duration-300 font-display pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-6`}
       id="app-root-theme"
     >
       {/* Main Container */}
@@ -1277,18 +1317,18 @@ export default function App() {
       >
         {/* Red Event Alert Banner */}
         {upcomingRedEvents.length > 0 && (
-          <div className="bg-rose-600 text-white p-3 sm:p-4 rounded-[20px] shadow-level2 flex flex-row items-start sm:items-center gap-3 sm:gap-4 animate-pulse-once border border-rose-500">
+          <div className="bg-rose-600 text-white p-3 sm:p-4 rounded-[20px] shadow-ios-md flex flex-row items-start sm:items-center gap-3 sm:gap-4 animate-pulse-once border border-rose-500">
             <div className="bg-white/20 p-2 rounded-full flex-shrink-0">
               <AlertTriangle size={24} className="text-white" />
             </div>
             <div className="min-w-0 flex-1">
-              <h4 className="font-bold m3-title-medium uppercase tracking-wider flex items-center flex-wrap gap-2">
+              <h4 className="font-bold text-lg font-semibold uppercase tracking-wider flex items-center flex-wrap gap-2">
                 Cảnh báo tin đỏ sắp ra mắt
-                <span className="m3-label-small bg-white text-rose-600 px-2 py-0.5 rounded-full font-black">
+                <span className="text-sm font-medium bg-white text-[var(--sys-red)] px-2 py-0.5 rounded-full font-black">
                   CAO
                 </span>
               </h4>
-              <p className="m3-body-medium text-white/90 mt-1 line-clamp-2 sm:line-clamp-none">
+              <p className="text-lg text-white/90 mt-1 line-clamp-2 sm:line-clamp-none">
                 {upcomingRedEvents
                   .map(
                     (e) =>
@@ -1303,27 +1343,27 @@ export default function App() {
         {/* Google Workspace Style Tonal Top Header */}
         {(currentTab === "dashboard" || currentTab === "journal") && (
         <header
-          className={`flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-6 ${darkMode ? "bg-m3-surface" : "bg-m3-surface"} rounded-[24px] shadow-level1 space-y-4 md:space-y-0`}
-          id="google-m3-header"
+          className={`flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-6 ${darkMode ? "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm" : "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm"} rounded-[24px] shadow-ios-sm space-y-4 md:space-y-0`}
+          id="google-ios-header"
         >
           <div className="flex items-center gap-3 sm:gap-4">
             <div
-              className="w-11 h-11 sm:w-12 sm:h-12 bg-m3-primary text-m3-on-primary rounded-[16px] flex items-center justify-center shadow-level2 font-extrabold flex-shrink-0"
+              className="w-11 h-11 sm:w-12 sm:h-12 bg-[var(--sys-blue)] text-white rounded-[16px] flex items-center justify-center shadow-ios-md font-extrabold flex-shrink-0"
               id="logo-icon"
             >
               <CloudLightning size={22} className="sm:w-6 sm:h-6" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:m3-headline-small tracking-tight text-m3-on-surface font-display truncate">
-                  Quantum Trade
+                <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-[var(--sys-text)] font-display truncate">
+                  Táo Tầu Journal
                 </h1>
-                <span className="px-2 py-0.5 m3-label-medium uppercase tracking-wider bg-m3-primary-container text-m3-primary dark:bg-m3-primary-container/30 dark:text-m3-on-primary-container rounded-md flex-shrink-0">
+                <span className="px-2 py-0.5 text-sm font-medium uppercase tracking-wider bg-[var(--sys-blue)]/10 text-[var(--sys-blue)] dark:transparent dark:text-white-container rounded-md flex-shrink-0">
                   PRO
                 </span>
               </div>
-              <p className="m3-body-small sm:m3-body-medium text-m3-on-surface-variant mt-1 leading-snug truncate">
-                Đồng bộ hóa tin vĩ mô USD & nhật ký giao dịch hiệu năng cao
+              <p className="text-base sm:text-lg text-[var(--sys-text-secondary)] mt-1 leading-snug truncate">
+                Tin USD & nhật ký giao dịch
               </p>
             </div>
           </div>
@@ -1335,25 +1375,25 @@ export default function App() {
             {/* Dynamic Light/Dark Switch under Material 3 */}
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className="p-2.5 sm:p-3 bg-m3-surface-container-high rounded-full transition-colors ease-[var(--ease-m3-enter)] cursor-pointer"
+              className="p-2.5 sm:p-3 bg-[var(--sys-surface-2)] border border-[var(--sys-border)] rounded-full transition-colors ease-[ease-out] cursor-pointer"
               title="Giao diện sáng/tối"
               id="btn-darkmode"
             >
               {darkMode ? (
-                <Sun size={16} className="text-amber-400" />
+                <Sun size={16} className="text-amber-500" />
               ) : (
-                <Moon size={16} className="text-m3-on-surface-variant" />
+                <Moon size={16} className="text-[var(--sys-text-secondary)]" />
               )}
             </button>
 
             {/* Account size indicator in dynamic style */}
             <div className="text-right min-w-0">
-              <span className="m3-body-small sm:m3-label-medium tracking-wider text-m3-on-surface-variant uppercase block truncate">
+              <span className="text-base sm:text-sm font-medium tracking-wider text-[var(--sys-text-secondary)] uppercase block truncate">
                 Số Dư Tài Khoản
               </span>
               <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5 justify-end">
                 <span
-                  className="text-xl sm:text-2xl font-black text-m3-on-surface font-display truncate"
+                  className="text-xl sm:text-2xl font-black text-[var(--sys-text)] font-display truncate"
                   id="live-balance-text"
                 >
                   $
@@ -1363,7 +1403,7 @@ export default function App() {
                   })}
                 </span>
                 <span
-                  className={`m3-body-small sm:m3-body-small px-2 py-1 rounded-full font-bold flex items-center gap-0.5 flex-shrink-0 ${summary.pnl >= 0 ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-rose-500/10 text-rose-600 dark:text-rose-400"}`}
+                  className={`text-base sm:text-base px-2 py-1 rounded-full font-bold flex items-center gap-0.5 flex-shrink-0 ${summary.pnl >= 0 ? "bg-[var(--sys-green)]/100/10 text-[var(--sys-green)] dark:text-[var(--sys-green)]" : "bg-[var(--sys-red)]/100/10 text-[var(--sys-red)] dark:text-[var(--sys-red)]"}`}
                   id="summary-badge-pnl"
                 >
                   {summary.pnl >= 0 ? "+" : ""}${summary.pnl.toFixed(0)}
@@ -1374,11 +1414,11 @@ export default function App() {
             {/* Profile Settings Click */}
             <button
               onClick={() => setIsSettingsOpen(true)}
-              className="w-10 h-10 sm:w-11 sm:h-11 bg-m3-surface-container-high m3-state-layer dark:bg-m3-surface-container rounded-full flex items-center justify-center text-m3-on-surface font-bold font-mono cursor-pointer relative shadow-level1 flex-shrink-0 m3-body-medium"
+              className="w-10 h-10 sm:w-11 sm:h-11 bg-[var(--sys-surface-2)] border border-[var(--sys-border)] active:scale-95 transition-transform dark:bg-[var(--sys-surface-2)] rounded-full flex items-center justify-center text-[var(--sys-text)] font-bold font-mono cursor-pointer relative shadow-ios-sm flex-shrink-0 text-lg"
               id="avatar-button"
             >
               JD
-              <span className="absolute -bottom-0.5 -right-0.5 bg-m3-primary text-m3-on-primary rounded-[28px] m3-state-layer p-1 border border-white dark:border-m3-surface shadow-xs m3-body-small animate-pulse-once">
+              <span className="absolute -bottom-0.5 -right-0.5 bg-[var(--sys-blue)] text-white rounded-[28px] active:scale-95 transition-transform p-1 border border-white dark:border-ios-surface shadow-xs text-base animate-pulse-once">
                 <Settings size={12} />
               </span>
             </button>
@@ -1388,39 +1428,39 @@ export default function App() {
 
         {/* Google-style Pill Navigation Tab Segment Manager */}
         <div
-          className={`hidden md:flex justify-between items-center ${darkMode ? "bg-m3-surface" : "bg-m3-surface"} p-1.5 rounded-full shadow-level1 overflow-x-auto no-scrollbar`}
+          className={`hidden md:flex justify-between items-center ${darkMode ? "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm" : "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm"} p-1.5 rounded-full shadow-ios-sm overflow-x-auto no-scrollbar`}
           id="segmented-controller"
         >
           <div className="flex gap-1 sm:gap-1.5 flex-shrink-0">
             <button
               onClick={() => setCurrentTab("dashboard")}
-              className={`px-4 sm:px-6 py-2.5 rounded-[100px] m3-label-large transition-all ease-[var(--ease-m3-enter)] duration-200 m3-state-layer flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "dashboard" ? "bg-m3-primary-container text-m3-primary dark:bg-m3-primary-container/30 dark:text-m3-primary" : "text-m3-on-surface-variant hover:text-m3-on-surface dark:hover:text-m3-on-surface dark:text-m3-on-surface-variant"}`}
+              className={`px-4 sm:px-6 py-2.5 rounded-[100px] text-base font-semibold transition-all ease-[ease-out] duration-200 active:scale-95 transition-transform flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "dashboard" ? "bg-[var(--sys-blue)]/10 text-[var(--sys-blue)] dark:transparent dark:text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)] hover:text-[var(--sys-text)] dark:hover:text-[var(--sys-text)] dark:text-[var(--sys-text-secondary)]"}`}
             >
               <BarChart2 size={16} className="flex-shrink-0" />
               <span>Tổng quan</span>
             </button>
             <button
               onClick={() => setCurrentTab("journal")}
-              className={`px-4 sm:px-6 py-2.5 rounded-[100px] m3-label-large transition-all ease-[var(--ease-m3-enter)] duration-200 m3-state-layer flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "journal" ? "bg-m3-primary-container text-m3-primary dark:bg-m3-primary-container/30 dark:text-m3-primary" : "text-m3-on-surface-variant hover:text-m3-on-surface dark:hover:text-m3-on-surface dark:text-m3-on-surface-variant"}`}
+              className={`px-4 sm:px-6 py-2.5 rounded-[100px] text-base font-semibold transition-all ease-[ease-out] duration-200 active:scale-95 transition-transform flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "journal" ? "bg-[var(--sys-blue)]/10 text-[var(--sys-blue)] dark:transparent dark:text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)] hover:text-[var(--sys-text)] dark:hover:text-[var(--sys-text)] dark:text-[var(--sys-text-secondary)]"}`}
             >
               <FileText size={16} className="flex-shrink-0" />
               <span>
                 Nhật ký{" "}
-                <span className="m3-body-small font-mono text-m3-on-surface-variant">
+                <span className="text-base font-mono text-[var(--sys-text-secondary)]">
                   ({mergedTrades.length})
                 </span>
               </span>
             </button>
             <button
               onClick={() => setCurrentTab("calendar")}
-              className={`px-4 sm:px-6 py-2.5 rounded-[100px] m3-label-large transition-all ease-[var(--ease-m3-enter)] duration-200 m3-state-layer flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "calendar" ? "bg-m3-primary-container text-m3-primary dark:bg-m3-primary-container/30 dark:text-m3-primary" : "text-m3-on-surface-variant hover:text-m3-on-surface dark:hover:text-m3-on-surface dark:text-m3-on-surface-variant"}`}
+              className={`px-4 sm:px-6 py-2.5 rounded-[100px] text-base font-semibold transition-all ease-[ease-out] duration-200 active:scale-95 transition-transform flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "calendar" ? "bg-[var(--sys-blue)]/10 text-[var(--sys-blue)] dark:transparent dark:text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)] hover:text-[var(--sys-text)] dark:hover:text-[var(--sys-text)] dark:text-[var(--sys-text-secondary)]"}`}
             >
               <CalendarIcon size={16} className="flex-shrink-0" />
               <span>Lịch kinh tế</span>
             </button>
             <button
               onClick={() => setCurrentTab("news")}
-              className={`px-4 sm:px-6 py-2.5 rounded-[100px] m3-label-large transition-all ease-[var(--ease-m3-enter)] duration-200 m3-state-layer flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "news" ? "bg-m3-primary-container text-m3-primary dark:bg-m3-primary-container/30 dark:text-m3-primary" : "text-m3-on-surface-variant hover:text-m3-on-surface dark:hover:text-m3-on-surface dark:text-m3-on-surface-variant"}`}
+              className={`px-4 sm:px-6 py-2.5 rounded-[100px] text-base font-semibold transition-all ease-[ease-out] duration-200 active:scale-95 transition-transform flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "news" ? "bg-[var(--sys-blue)]/10 text-[var(--sys-blue)] dark:transparent dark:text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)] hover:text-[var(--sys-text)] dark:hover:text-[var(--sys-text)] dark:text-[var(--sys-text-secondary)]"}`}
             >
               <Newspaper size={16} className="flex-shrink-0" />
               <span>Tin tức thị trường</span>
@@ -1431,10 +1471,55 @@ export default function App() {
         {/* 1. OVERVIEW BENTO TAB SCREEN */}
         {currentTab === "dashboard" && (
           <div className="space-y-6" id="dashboard-bento-section">
+            <section className="ios26-card p-4 sm:p-5" id="t5-account-command-center">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-4">
+                <div className="min-w-0">
+                  <p className="text-sm font-bold uppercase text-[var(--sys-text-secondary)] tracking-wider truncate">The5ers Accounts</p>
+                  <h2 className="text-2xl sm:text-3xl font-black text-[var(--sys-text)] truncate">Nhật ký theo từng tài khoản</h2>
+                </div>
+                <button type="button" onClick={() => setCurrentTab("journal")} className="ios26-control px-4 py-2.5 rounded-full bg-[var(--sys-blue)] text-white font-bold text-sm">Mở journal</button>
+              </div>
+              {t5Accounts.length === 0 ? (
+                <div className="rounded-[24px] border border-[var(--sys-border)] bg-[var(--sys-surface-2)] p-4 text-[var(--sys-text-secondary)] text-sm">
+                  Chưa có tài khoản The5ers. Khi scraper đồng bộ xong, từng tài khoản sẽ có card riêng và journal riêng tại đây.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                  {t5Accounts.map((account) => {
+                    const accountTrades = t5Trades.filter((trade) => trade.accountId === account.accountId);
+                    const openTrades = accountTrades.filter((trade) => !trade.closeTime).length;
+                    const dailyLimit = Math.abs(account.dailyLossLimit || 0);
+                    const dailyUsed = Math.max(0, -(account.dailyLoss || 0));
+                    const dailyRisk = dailyLimit > 0 ? Math.min(100, (dailyUsed / dailyLimit) * 100) : 0;
+                    const riskLabel = dailyRisk >= 80 ? "Nguy hiểm" : dailyRisk >= 55 ? "Cần chú ý" : "Ổn";
+                    return (
+                      <button key={account.accountId} type="button" onClick={() => { setSelectedJournalAccountId(account.accountId); if (!selectedT5AccountIds.includes(account.accountId)) { const next = [...selectedT5AccountIds, account.accountId]; setSelectedT5AccountIds(next); localStorage.setItem("t5_selected_accounts", JSON.stringify(next)); } loadT5AccountTrades(account.accountId); setCurrentTab("journal"); }} className="ios26-metric-card p-4 text-left transition-all">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <h3 className="text-lg font-black text-[var(--sys-text)] truncate">{account.name || account.accountId}</h3>
+                            <p className="text-sm text-[var(--sys-text-secondary)] truncate">#{account.accountId} · {account.type}</p>
+                          </div>
+                          <span className={`ios26-chip px-2 py-1 rounded-full text-xs font-black uppercase ${account.status === "active" || account.status === "available" ? "text-[var(--sys-green)]" : "text-[var(--sys-text-secondary)]"}`}>{account.status}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 mt-4">
+                          <div><p className="text-xs font-bold uppercase text-[var(--sys-text-secondary)] truncate">Balance</p><p className="text-lg font-black text-[var(--sys-text)] truncate">${account.balance.toLocaleString("en-US", { maximumFractionDigits: 0 })}</p></div>
+                          <div><p className="text-xs font-bold uppercase text-[var(--sys-text-secondary)] truncate">P&L</p><p className={`text-lg font-black truncate ${(account.pnl || 0) >= 0 ? "text-[var(--sys-green)]" : "text-[var(--sys-red)]"}`}>{(account.pnl || 0) >= 0 ? "+" : ""}${(account.pnl || 0).toFixed(0)}</p></div>
+                        </div>
+                        <div className="mt-4">
+                          <div className="flex items-center justify-between gap-2 text-xs font-bold text-[var(--sys-text-secondary)] mb-1"><span className="truncate">Daily risk</span><span className="truncate">{riskLabel} · {openTrades} open</span></div>
+                          <progress className={`ios26-progress ${dailyRisk >= 80 ? "is-warning" : ""}`} value={dailyRisk} max={100} aria-label="Daily risk" />
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+
             {/* Numeric and graphs bento core statistics wrapper */}
             <Suspense
               fallback={
-                <div className="min-h-[260px] rounded-[24px] bg-m3-surface shadow-level1 animate-pulse" />
+                <div className="min-h-[260px] rounded-[24px] bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm shadow-ios-sm animate-pulse" />
               }
             >
               <The5ersMetrics t5Accounts={t5Accounts} selectedIds={selectedT5AccountIds} />
@@ -1448,43 +1533,43 @@ export default function App() {
             >
               {/* Calendar Feed Fast-View Card */}
               <div
-                className={`lg:col-span-2 p-5 sm:p-6 ${darkMode ? "bg-m3-surface" : "bg-m3-surface"} rounded-[24px] shadow-level1 flex flex-col justify-between`}
+                className={`lg:col-span-2 p-5 sm:p-6 ${darkMode ? "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm" : "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm"} rounded-[24px] shadow-ios-sm flex flex-col justify-between`}
                 id="bento-calendar-fastview"
               >
                 <div>
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-m3-outline-variant pb-4 mb-4 gap-3 sm:gap-0">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[var(--sys-border)] pb-4 mb-4 gap-3 sm:gap-0">
                     <div className="flex items-center gap-2.5">
-                      <div className="p-2 bg-m3-primary-container dark:bg-m3-primary-container/30 text-m3-primary rounded-[16px] flex-shrink-0">
+                      <div className="p-2 bg-[var(--sys-blue)]/10 dark:transparent text-[var(--sys-blue)] rounded-[16px] flex-shrink-0">
                         <CalendarIcon size={18} />
                       </div>
                       <div className="min-w-0">
-                        <h4 className="m3-body-large sm:m3-title-medium text-m3-on-surface leading-tight">
+                        <h4 className="text-lg sm:text-lg font-semibold text-[var(--sys-text)] leading-tight">
                           Điểm Tin Kinh Tế Nổi Bật
                         </h4>
-                        <p className="m3-body-small sm:m3-body-medium text-m3-on-surface-variant mt-0.5 truncate">
+                        <p className="text-base sm:text-lg text-[var(--sys-text-secondary)] mt-0.5 truncate">
                           Các sự kiện vĩ mô tác động mạnh tới USD
                         </p>
                       </div>
                     </div>
 
                     {/* Quick filter inside header - M3 Segmented Button */}
-                    <div className="flex border border-m3-outline rounded-full w-full sm:w-auto mt-2 sm:mt-0 flex-shrink-0 h-10">
+                    <div className="flex border border-[var(--sys-border)] rounded-full w-full sm:w-auto mt-2 sm:mt-0 flex-shrink-0 h-10">
                       <button
                         onClick={() => setCalendarPeriodFilter("DAY")}
-                        className={`flex-1 sm:flex-initial text-center px-5 flex items-center justify-center m3-label-large rounded-l-full border-r border-m3-outline transition-colors ease-[var(--ease-m3-enter)] cursor-pointer m3-state-layer ${
+                        className={`flex-1 sm:flex-initial text-center px-5 flex items-center justify-center text-base font-semibold rounded-l-full border-r border-[var(--sys-border)] transition-colors ease-[ease-out] cursor-pointer active:scale-95 transition-transform ${
                           calendarPeriodFilter === "DAY"
-                            ? "bg-m3-primary-container text-m3-on-primary-container"
-                            : "bg-transparent text-m3-on-surface"
+                            ? "bg-[var(--sys-blue)]/10 text-white-container"
+                            : "bg-transparent text-[var(--sys-text)]"
                         }`}
                       >
                         Hôm nay
                       </button>
                       <button
                         onClick={() => setCalendarPeriodFilter("WEEK")}
-                        className={`flex-1 sm:flex-initial text-center px-5 flex items-center justify-center m3-label-large rounded-r-full transition-colors ease-[var(--ease-m3-enter)] cursor-pointer m3-state-layer ${
+                        className={`flex-1 sm:flex-initial text-center px-5 flex items-center justify-center text-base font-semibold rounded-r-full transition-colors ease-[ease-out] cursor-pointer active:scale-95 transition-transform ${
                           calendarPeriodFilter === "WEEK"
-                            ? "bg-m3-primary-container text-m3-on-primary-container"
-                            : "bg-transparent text-m3-on-surface"
+                            ? "bg-[var(--sys-blue)]/10 text-white-container"
+                            : "bg-transparent text-[var(--sys-text)]"
                         }`}
                       >
                         Tuần này
@@ -1497,21 +1582,21 @@ export default function App() {
                     id="fastview-events-scroller"
                   >
                     {loadingCalendar ? (
-                      <div className="py-12 text-center text-m3-on-surface-variant space-y-2">
+                      <div className="py-12 text-center text-[var(--sys-text-secondary)] space-y-2">
                         <RefreshCw
-                          className="animate-spin text-m3-primary mx-auto"
+                          className="animate-spin text-[var(--sys-blue)] mx-auto"
                           size={24}
                         />
-                        <p className="m3-body-medium">
+                        <p className="text-lg">
                           Đang nạp cập nhật lịch kinh tế thực tế...
                         </p>
                       </div>
                     ) : filteredEventsByFilters.length === 0 ? (
-                      <div className="py-12 text-center text-m3-on-surface-variant">
-                        <p className="m3-body-medium">
+                      <div className="py-12 text-center text-[var(--sys-text-secondary)]">
+                        <p className="text-lg">
                           Không có sự kiện kinh tế USD nào tương thích bộ lọc đã chọn.
                         </p>
-                        <p className="m3-body-small text-m3-on-surface-variant mt-1.5">
+                        <p className="text-base text-[var(--sys-text-secondary)] mt-1.5">
                           Lưu ý: Bạn có thể chọn sự kiện có tác động thấp hơn ở tab
                           Lịch Kinh Tế
                         </p>
@@ -1523,7 +1608,7 @@ export default function App() {
                         return (
                           <div
                             key={`fast-ev-${idx}`}
-                            className="flex items-center justify-between p-3.5 bg-m3-surface rounded-[16px] border border-transparent hover:border-m3-outline-variant transition-colors ease-[var(--ease-m3-enter)] gap-2"
+                            className="flex items-center justify-between p-3.5 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm rounded-[16px] border border-transparent hover:border-[var(--sys-border)] transition-colors ease-[ease-out] gap-2"
                           >
                             <div className="flex items-center gap-3.5 min-w-0">
                               <div
@@ -1531,13 +1616,13 @@ export default function App() {
                               ></div>
                               <div className="min-w-0">
                                 <h5
-                                  className="m3-body-medium sm:m3-title-medium text-m3-on-surface tracking-tight truncate"
+                                  className="text-lg sm:text-lg font-semibold text-[var(--sys-text)] tracking-tight truncate"
                                   title={ev.title}
                                 >
                                   {ev.title}
                                 </h5>
-                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1 m3-body-small text-m3-on-surface-variant">
-                                  <span className="font-mono bg-m3-surface-container-high px-1.5 py-0.5 rounded text-m3-on-surface-variant font-bold">
+                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1 text-base text-[var(--sys-text-secondary)]">
+                                  <span className="font-mono bg-[var(--sys-surface-2)] border border-[var(--sys-border)] px-1.5 py-0.5 rounded text-[var(--sys-text-secondary)] font-bold">
                                     {ev.country}
                                   </span>
                                   <span>•</span>
@@ -1548,7 +1633,7 @@ export default function App() {
                               </div>
                             </div>
                             <div className="text-right flex-shrink-0">
-                              <span className="m3-label-large text-m3-on-surface block font-mono">
+                              <span className="text-base font-semibold text-[var(--sys-text)] block font-mono">
                                 {eventDate.toLocaleTimeString("vi-VN", {
                                   hour: "2-digit",
                                   minute: "2-digit",
@@ -1556,7 +1641,7 @@ export default function App() {
                               </span>
                               <div className="mt-1">
                                 <span
-                                  className={`text-[10px] sm:m3-body-small px-2 py-0.5 rounded font-extrabold uppercase tracking-wider ${styleInfo.text} ${styleInfo.bg}`}
+                                  className={`text-sm sm:text-base px-2 py-0.5 rounded font-extrabold uppercase tracking-wider ${styleInfo.text} ${styleInfo.bg}`}
                                 >
                                   {styleInfo.label}
                                 </span>
@@ -1569,10 +1654,10 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-m3-outline-variant dark:border-m3-outline-variant flex justify-end items-center m3-body-medium">
+                <div className="mt-4 pt-4 border-t border-[var(--sys-border)] dark:border-[var(--sys-border)] flex justify-end items-center text-lg">
                   <button
                     onClick={() => setCurrentTab("calendar")}
-                    className="text-m3-primary hover:underline flex items-center gap-1 font-extrabold"
+                    className="text-[var(--sys-blue)] hover:underline flex items-center gap-1 font-extrabold"
                   >
                     Xem lịch toàn bộ chi tiết <ChevronRight size={16} />
                   </button>
@@ -1581,15 +1666,15 @@ export default function App() {
 
               {/* Recent Trade History Widget Panel */}
               <div
-                className={`p-5 sm:p-6 ${darkMode ? "bg-m3-surface" : "bg-m3-surface"} rounded-[24px] shadow-level1 flex flex-col justify-between`}
+                className={`p-5 sm:p-6 ${darkMode ? "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm" : "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm"} rounded-[24px] shadow-ios-sm flex flex-col justify-between`}
                 id="bento-recent-history"
               >
                 <div>
                   <div className="flex justify-between items-center mb-4 gap-2">
-                    <h4 className="m3-body-large sm:text-lg font-extrabold text-m3-on-surface truncate">
+                    <h4 className="text-lg sm:text-lg font-extrabold text-[var(--sys-text)] truncate">
                       Lệnh Gần Đây
                     </h4>
-                    <span className="m3-body-small bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-300 px-2.5 py-1 rounded-full font-bold flex-shrink-0">
+                    <span className="text-base bg-[var(--sys-blue)]/10 dark:bg-[var(--sys-blue)]/20 text-[var(--sys-blue)] dark:text-[var(--sys-blue)] px-2.5 py-1 rounded-full font-bold flex-shrink-0">
                       Lịch Sử
                     </span>
                   </div>
@@ -1599,10 +1684,10 @@ export default function App() {
                     id="recent-trades-list"
                   >
                     {mergedTrades.length === 0 ? (
-                      <div className="text-center py-12 text-m3-on-surface-variant m3-body-medium">
+                      <div className="text-center py-12 text-[var(--sys-text-secondary)] text-lg">
                         <BookOpen
                           size={24}
-                          className="mx-auto text-m3-outline-variant dark:text-m3-on-surface-variant animate-pulse mb-2"
+                          className="mx-auto text-[var(--sys-text-secondary)] dark:text-[var(--sys-text-secondary)] animate-pulse mb-2"
                         />
                         Chưa có lịch sử giao dịch.
                       </div>
@@ -1610,26 +1695,26 @@ export default function App() {
                       mergedTrades.slice(0, 4).map((t) => (
                         <div
                           key={t.id}
-                          className="flex items-center gap-3 p-2.5 hover:bg-m3-surface-container-low dark:hover:bg-m3-surface-container-low/20 rounded-[16px] transition-all ease-[var(--ease-m3-enter)]"
+                          className="flex items-center gap-3 p-2.5 hover:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:hover:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm/20 rounded-[16px] transition-all ease-[ease-out]"
                         >
                           <div
-                            className={`w-10 h-10 rounded-[16px] flex items-center justify-center font-bold m3-body-small ${t.type === "BUY" ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"}`}
+                            className={`w-10 h-10 rounded-[16px] flex items-center justify-center font-bold text-base ${t.type === "BUY" ? "bg-[var(--sys-green)]/100/10 text-[var(--sys-green)]" : "bg-[var(--sys-red)]/100/10 text-[var(--sys-red)]"}`}
                           >
                             {t.type}
                           </div>
 
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
-                              <span className="font-extrabold m3-body-medium text-m3-on-surface">
+                              <span className="font-extrabold text-lg text-[var(--sys-text)]">
                                 {t.pair}
                               </span>
                               <span
-                                className={`m3-body-medium font-black font-mono ${t.pnl >= 0 ? "text-emerald-500" : "text-rose-500"}`}
+                                className={`text-lg font-black font-mono ${t.pnl >= 0 ? "text-[var(--sys-green)]" : "text-[var(--sys-red)]"}`}
                               >
                                 {t.pnl >= 0 ? "+" : ""}${t.pnl.toLocaleString()}
                               </span>
                             </div>
-                            <div className="flex justify-between items-center m3-body-small text-m3-on-surface-variant mt-1">
+                            <div className="flex justify-between items-center text-base text-[var(--sys-text-secondary)] mt-1">
                               <span>
                                 {t.size} Lots • {t.timeframe}
                               </span>
@@ -1644,10 +1729,10 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-m3-outline-variant dark:border-m3-outline-variant">
+                <div className="mt-4 pt-4 border-t border-[var(--sys-border)] dark:border-[var(--sys-border)]">
                   <button
                     onClick={() => setCurrentTab("journal")}
-                    className="w-full py-2.5 bg-m3-surface-container dark:bg-m3-surface-container-high text-m3-on-surface rounded-full m3-body-small sm:m3-label-large transition-all ease-[var(--ease-m3-enter)]"
+                    className="w-full py-2.5 bg-[var(--sys-surface-2)] dark:bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-text)] rounded-full text-base sm:text-base font-semibold transition-all ease-[ease-out]"
                     id="bento-view-journal-btn"
                   >
                     Quản lý toàn bộ {mergedTrades.length} giao dịch
@@ -1665,30 +1750,35 @@ export default function App() {
             id="journal-standalone-section"
           >
             <div
-              className="p-4 sm:p-6 bg-m3-surface rounded-[24px] shadow-level1 max-w-full overflow-hidden"
+              className="p-4 sm:p-6 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm rounded-[24px] shadow-ios-sm max-w-full overflow-hidden"
               id="journal-master-card"
             >
               {/* Journal controls header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-m3-outline-variant dark:border-m3-outline-variant pb-3 mb-4 w-full min-w-0">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--sys-border)] dark:border-[var(--sys-border)] pb-3 mb-4 w-full min-w-0">
                 <div className="flex-shrink-0">
-                  <h3 className="m3-body-medium sm:m3-title-medium text-m3-on-surface flex items-center gap-1.5">
-                    <FileText className="text-m3-primary" size={16} />
-                    Lịch sử Giao dịch
+                  <h3 className="text-lg sm:text-lg font-semibold text-[var(--sys-text)] flex items-center gap-1.5">
+                    <FileText className="text-[var(--sys-blue)]" size={16} />
+                    {selectedJournalAccount ? `Journal: ${selectedJournalAccount.name}` : "Lịch sử giao dịch"}
                   </h3>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 w-full sm:flex sm:flex-row sm:items-center sm:gap-1.5 sm:w-auto pb-1 sm:pb-0">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full sm:flex sm:flex-row sm:items-center sm:gap-1.5 sm:w-auto pb-1 sm:pb-0">
+                  <div className="flex items-center justify-center gap-1.5 bg-[var(--sys-surface-2)] dark:bg-[var(--sys-surface-2)] border border-[var(--sys-border)] px-2 py-2.5 sm:px-2.5 sm:py-1.5 rounded-[16px] text-sm font-medium w-full sm:w-auto">
+                    <select value={selectedJournalAccountId} onChange={(e) => setSelectedJournalAccountId(e.target.value)} className="bg-transparent focus:outline-none cursor-pointer text-[var(--sys-text)] font-bold w-full sm:max-w-[180px] text-center sm:text-left truncate text-base">
+                      {journalAccountOptions.map((account) => (<option key={account.accountId} value={account.accountId}>{account.name}</option>))}
+                    </select>
+                  </div>
                   {/* Pair filter select - M3 standard */}
-                  <div className="flex items-center justify-center gap-1.5 bg-m3-surface-container dark:bg-m3-surface-container-high px-2 py-2.5 sm:px-2.5 sm:py-1.5 rounded-[16px] m3-label-medium w-full sm:w-auto">
-                    <Filter size={11} className="text-m3-on-surface-variant" />
+                  <div className="flex items-center justify-center gap-1.5 bg-[var(--sys-surface-2)] dark:bg-[var(--sys-surface-2)] border border-[var(--sys-border)] px-2 py-2.5 sm:px-2.5 sm:py-1.5 rounded-[16px] text-sm font-medium w-full sm:w-auto">
+                    <Filter size={11} className="text-[var(--sys-text-secondary)]" />
                     <select
                       value={selectedPairFilter}
                       onChange={(e) => setSelectedPairFilter(e.target.value)}
-                      className="bg-transparent focus:outline-none cursor-pointer text-m3-on-surface font-bold w-full sm:max-w-none text-center sm:text-left truncate m3-body-small"
+                      className="bg-transparent focus:outline-none cursor-pointer text-[var(--sys-text)] font-bold w-full sm:max-w-none text-center sm:text-left truncate text-base"
                     >
                       <option
                         value="ALL"
-                        className="bg-m3-surface dark:bg-m3-surface-container-low text-m3-on-surface"
+                        className="bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-text)]"
                       >
                         Cặp: Tất cả
                       </option>
@@ -1698,7 +1788,7 @@ export default function App() {
                           <option
                             key={p}
                             value={p}
-                            className="bg-m3-surface dark:bg-m3-surface-container-low text-m3-on-surface"
+                            className="bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-text)]"
                           >
                             {p}
                           </option>
@@ -1707,27 +1797,27 @@ export default function App() {
                   </div>
 
                   {/* Status filter select - M3 standard */}
-                  <div className="flex items-center justify-center gap-1.5 bg-m3-surface-container dark:bg-m3-surface-container-high px-2 py-2.5 sm:px-2.5 sm:py-1.5 rounded-[16px] m3-label-medium w-full sm:w-auto">
+                  <div className="flex items-center justify-center gap-1.5 bg-[var(--sys-surface-2)] dark:bg-[var(--sys-surface-2)] border border-[var(--sys-border)] px-2 py-2.5 sm:px-2.5 sm:py-1.5 rounded-[16px] text-sm font-medium w-full sm:w-auto">
                     <select
                       value={selectedStatusFilter}
                       onChange={(e) => setSelectedStatusFilter(e.target.value)}
-                      className="bg-transparent focus:outline-none cursor-pointer text-m3-on-surface font-bold w-full sm:max-w-none text-center sm:text-left truncate m3-body-small"
+                      className="bg-transparent focus:outline-none cursor-pointer text-[var(--sys-text)] font-bold w-full sm:max-w-none text-center sm:text-left truncate text-base"
                     >
                       <option
                         value="ALL"
-                        className="bg-m3-surface dark:bg-m3-surface-container-low text-m3-on-surface"
+                        className="bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-text)]"
                       >
                         Tất cả lệnh
                       </option>
                       <option
                         value="OPEN"
-                        className="bg-m3-surface dark:bg-m3-surface-container-low text-m3-on-surface"
+                        className="bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-text)]"
                       >
                         Lệnh Mở (OPEN)
                       </option>
                       <option
                         value="CLOSED"
-                        className="bg-m3-surface dark:bg-m3-surface-container-low text-m3-on-surface"
+                        className="bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-text)]"
                       >
                         Đã Đóng (CLOSED)
                       </option>
@@ -1738,7 +1828,7 @@ export default function App() {
 
               {/* Live search input bar - M3 Workspace Style */}
               <div className="relative mb-6">
-                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-m3-on-surface-variant">
+                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-[var(--sys-text-secondary)]">
                   <Search size={15} />
                 </div>
                 <input
@@ -1746,7 +1836,7 @@ export default function App() {
                   placeholder="Nhập cặp tiền hoặc phân tích để tìm kiếm nhanh..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-m3-surface-container rounded-[12px] m3-body-small border border-m3-outline-variant/50 dark:border-m3-outline-variant focus:border-m3-primary focus:bg-m3-surface dark:focus:bg-m3-surface-container-low focus:outline-none focus:ring-1 focus:ring-m3-primary transition-all ease-[var(--ease-m3-enter)] font-sans"
+                  className="w-full pl-10 pr-4 py-2 bg-[var(--sys-surface-2)] rounded-[12px] text-base border border-[var(--sys-border)]/50 dark:border-[var(--sys-border)] focus:border-[var(--sys-blue)] focus:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:focus:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm focus:outline-none focus:ring-1 focus:ring-[var(--sys-blue)] transition-all ease-[ease-out] font-sans"
                   id="trade-search-input"
                 />
               </div>
@@ -1757,15 +1847,15 @@ export default function App() {
                 id="trades-table-scroller"
               >
                 {filteredTrades.length === 0 ? (
-                  <div className="text-center py-20 text-m3-on-surface-variant">
+                  <div className="text-center py-20 text-[var(--sys-text-secondary)]">
                     <BookOpen
                       size={48}
-                      className="mx-auto text-m3-outline-variant dark:text-m3-on-surface-variant mb-2 animate-pulse"
+                      className="mx-auto text-[var(--sys-text-secondary)] dark:text-[var(--sys-text-secondary)] mb-2 animate-pulse"
                     />
-                    <p className="m3-body-medium font-semibold">
+                    <p className="text-lg font-semibold">
                       Không tìm thấy giao dịch nào
                     </p>
-                    <p className="m3-body-small text-m3-on-surface-variant mt-1">
+                    <p className="text-base text-[var(--sys-text-secondary)] mt-1">
                       Sử dụng bộ lọc khác hoặc nhập một giao dịch mới để tiếp
                       tục!
                     </p>
@@ -1773,101 +1863,101 @@ export default function App() {
                 ) : (
                   <table className="w-full text-left border-collapse min-w-[650px]">
                     <thead>
-                      <tr className="border-b border-m3-outline-variant m3-label-medium uppercase text-m3-on-surface-variant tracking-wider">
-                        <th className="py-3.5 px-4 whitespace-nowrap text-[13px]">Cặp / Hướng</th>
-                        <th className="py-3.5 px-4 whitespace-nowrap text-[13px]">Khối lượng</th>
-                        <th className="py-3.5 px-4 whitespace-nowrap text-[13px]">Vào → Ra / SL • TP</th>
-                        <th className="py-3.5 px-4 whitespace-nowrap text-[13px]">Tag</th>
-                        <th className="py-3.5 px-4 text-right whitespace-nowrap text-[13px]">Lời / Lỗ</th>
-                        <th className="py-3.5 px-4 text-center whitespace-nowrap text-[13px]">Sửa</th>
+                      <tr className="border-b border-[var(--sys-border)] text-sm font-medium uppercase text-[var(--sys-text-secondary)] tracking-wider">
+                        <th className="py-3.5 px-4 whitespace-nowrap text-base">Cặp / Hướng</th>
+                        <th className="py-3.5 px-4 whitespace-nowrap text-base">Khối lượng</th>
+                        <th className="py-3.5 px-4 whitespace-nowrap text-base">Vào → Ra / SL • TP</th>
+                        <th className="py-3.5 px-4 whitespace-nowrap text-base">Tag</th>
+                        <th className="py-3.5 px-4 text-right whitespace-nowrap text-base">Lời / Lỗ</th>
+                        <th className="py-3.5 px-4 text-center whitespace-nowrap text-base">Sửa</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-m3-outline-variant/60 m3-body-medium">
+                    <tbody className="divide-y divide-ios-outline-variant/60 text-lg">
                       {filteredTrades.map((t) => {
                         const pnlBarWidth = Math.min(Math.abs(t.pnl) / 1000, 1) * 100;
                         return (
                           <tr
                             key={t.id}
-                            className="group hover:bg-m3-surface-container-low/50 dark:hover:bg-m3-surface-container/30 transition-colors ease-[var(--ease-m3-enter)]"
+                            className="group hover:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm/50 dark:hover:bg-[var(--sys-surface-2)]/30 transition-colors ease-[ease-out]"
                           >
                             <td className="py-3 px-4 whitespace-nowrap">
                               <div className="flex items-center gap-3">
                                 <div className="flex gap-2">
                                   {/* Open Snapshot */}
                                   {t.tv_snapshot_url ? (
-                                    <button onClick={() => setLightboxUrl(t.tv_snapshot_url!)} className="w-20 aspect-[16/10] rounded-lg border border-m3-outline-variant overflow-hidden flex-shrink-0 block relative group shadow-sm animate-fade-in" title="Ảnh Mở Lệnh">
+                                    <button onClick={() => setLightboxUrl(t.tv_snapshot_url!)} className="w-20 aspect-[16/10] rounded-lg border border-[var(--sys-border)] overflow-hidden flex-shrink-0 block relative group shadow-sm animate-fade-in" title="Ảnh Mở Lệnh">
                                       <img src={t.tv_snapshot_url} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
                                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 flex items-end justify-center pb-1 transition-opacity duration-200">
-                                        <span className="text-[9px] text-white font-bold">Mở Lệnh</span>
+                                        <span className="text-xs text-white font-bold">Mở Lệnh</span>
                                       </div>
                                     </button>
                                   ) : (
-                                    <div className="w-20 aspect-[16/10] rounded-lg border border-dashed border-m3-outline-variant flex items-center justify-center bg-m3-surface-container flex-shrink-0" title="Chưa có ảnh Mở Lệnh">
-                                      <Camera size={14} className="text-m3-on-surface-variant/30" />
+                                    <div className="w-20 aspect-[16/10] rounded-lg border border-dashed border-[var(--sys-border)] flex items-center justify-center bg-[var(--sys-surface-2)] flex-shrink-0" title="Chưa có ảnh Mở Lệnh">
+                                      <Camera size={14} className="text-[var(--sys-text-secondary)]/30" />
                                     </div>
                                   )}
 
                                   {/* Close Snapshot */}
                                   {t.tv_snapshot_url_close ? (
-                                    <button onClick={() => setLightboxUrl(t.tv_snapshot_url_close!)} className="w-20 aspect-[16/10] rounded-lg border border-m3-outline-variant overflow-hidden flex-shrink-0 block relative group shadow-sm animate-fade-in" title="Ảnh Đóng Lệnh">
+                                    <button onClick={() => setLightboxUrl(t.tv_snapshot_url_close!)} className="w-20 aspect-[16/10] rounded-lg border border-[var(--sys-border)] overflow-hidden flex-shrink-0 block relative group shadow-sm animate-fade-in" title="Ảnh Đóng Lệnh">
                                       <img src={t.tv_snapshot_url_close} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
                                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 flex items-end justify-center pb-1 transition-opacity duration-200">
-                                        <span className="text-[9px] text-white font-bold">Đóng Lệnh</span>
+                                        <span className="text-xs text-white font-bold">Đóng Lệnh</span>
                                       </div>
                                     </button>
                                   ) : t.status === "CLOSED" ? (
-                                    <div className="w-20 aspect-[16/10] rounded-lg border border-dashed border-m3-outline-variant flex items-center justify-center bg-m3-surface-container flex-shrink-0" title="Chưa có ảnh Đóng Lệnh">
-                                      <Camera size={14} className="text-m3-on-surface-variant/30" />
+                                    <div className="w-20 aspect-[16/10] rounded-lg border border-dashed border-[var(--sys-border)] flex items-center justify-center bg-[var(--sys-surface-2)] flex-shrink-0" title="Chưa có ảnh Đóng Lệnh">
+                                      <Camera size={14} className="text-[var(--sys-text-secondary)]/30" />
                                     </div>
                                   ) : null}
                                 </div>
                                 <div className="flex items-center gap-2.5">
                                   <span
-                                    className={`px-2 py-0.5 rounded text-[11px] font-black font-mono ${t.type === "BUY" ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"}`}
+                                    className={`px-2 py-0.5 rounded text-sm font-black font-mono ${t.type === "BUY" ? "bg-[var(--sys-green)]/100/10 text-[var(--sys-green)]" : "bg-[var(--sys-red)]/100/10 text-[var(--sys-red)]"}`}
                                   >
                                     {t.type}
                                   </span>
                                   <div>
-                                    <div className="font-bold text-m3-on-surface text-[13px] leading-tight flex items-center gap-1.5">
+                                    <div className="font-bold text-[var(--sys-text)] text-base leading-tight flex items-center gap-1.5">
                                       {t.pair}
                                       {t.status === "OPEN" ? (
-                                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 font-extrabold uppercase animate-pulse">OPEN</span>
+                                        <span className="text-sm px-1.5 py-0.5 rounded bg-[var(--sys-blue)]/10 text-[var(--sys-blue)] dark:bg-[var(--sys-blue)]/20 dark:text-[var(--sys-blue)] font-extrabold uppercase animate-pulse">OPEN</span>
                                       ) : (
-                                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-m3-outline-variant/30 text-m3-on-surface-variant font-extrabold uppercase">CLOSED</span>
+                                        <span className="text-sm px-1.5 py-0.5 rounded bg-[var(--sys-border)]/30 text-[var(--sys-text-secondary)] font-extrabold uppercase">CLOSED</span>
                                       )}
                                     </div>
-                                    <div className="text-[11px] text-m3-on-surface-variant mt-0.5">
+                                    <div className="text-sm text-[var(--sys-text-secondary)] mt-0.5">
                                       {t.timeframe || "M15"} • {(!t.entry_date || isNaN(new Date(t.entry_date).getTime())) ? "—" : new Date(t.entry_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
                                     </div>
                                   </div>
                                 </div>
                               </div>
                             </td>
-                            <td className="py-3 px-4 font-mono font-bold text-m3-on-surface whitespace-nowrap text-[13px]">
+                            <td className="py-3 px-4 font-mono font-bold text-[var(--sys-text)] whitespace-nowrap text-base">
                               {t.size}
                             </td>
-                            <td className="py-3 px-4 font-mono text-[12px] text-m3-on-surface-variant whitespace-nowrap">
-                              <div className="flex items-center gap-1 text-[12px]">
-                                <span className="text-m3-on-surface font-semibold">{t.entry_price}</span>
-                                <span className="text-m3-outline-variant">→</span>
-                                <span className={t.exit_price ? "text-m3-on-surface font-semibold" : "opacity-40 italic"}>
+                            <td className="py-3 px-4 font-mono text-base text-[var(--sys-text-secondary)] whitespace-nowrap">
+                              <div className="flex items-center gap-1 text-base">
+                                <span className="text-[var(--sys-text)] font-semibold">{t.entry_price}</span>
+                                <span className="text-[var(--sys-text-secondary)]">→</span>
+                                <span className={t.exit_price ? "text-[var(--sys-text)] font-semibold" : "opacity-40 italic"}>
                                   {t.exit_price || "---"}
                                 </span>
                               </div>
-                              <div className="text-[11px] text-m3-outline-variant mt-0.5">
+                              <div className="text-sm text-[var(--sys-text-secondary)] mt-0.5">
                                 SL: {t.stop_loss ?? "—"} • TP: {t.take_profit ?? "—"}
                               </div>
                             </td>
                             <td className="py-3 px-4 whitespace-nowrap">
                               <div className="flex flex-col gap-1">
                                 {t.tag && (
-                                  <span className="text-[10px] uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded font-bold inline-block w-fit">
+                                  <span className="text-sm uppercase tracking-wider bg-[var(--sys-blue)]/100/10 text-[var(--sys-blue)] dark:text-[var(--sys-blue)] px-1.5 py-0.5 rounded font-bold inline-block w-fit">
                                     {t.tag}
                                   </span>
                                 )}
                                 <div className="flex gap-0.5">
                                   {Array.from({ length: 5 }).map((_, i) => (
-                                    <span key={i} className={`text-[10px] ${i < t.rating ? "text-amber-500" : "text-m3-outline-variant"}`}>★</span>
+                                    <span key={i} className={`text-sm ${i < t.rating ? "text-amber-500" : "text-[var(--sys-text-secondary)]"}`}>★</span>
                                   ))}
                                 </div>
                               </div>
@@ -1875,30 +1965,30 @@ export default function App() {
                             <td className="py-3 px-4 text-right whitespace-nowrap">
                               <div className="flex items-center justify-end gap-2.5">
                                 <div className="flex flex-col items-end">
-                                  <span className={`font-mono font-black text-[13px] ${(t.pnl ?? 0) >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
+                                  <span className={`font-mono font-black text-base ${(t.pnl ?? 0) >= 0 ? "text-[var(--sys-green)]" : "text-[var(--sys-red)]"}`}>
                                     {(t.pnl ?? 0) >= 0 ? "+" : ""}${(t.pnl ?? 0).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                                   </span>
                                 </div>
-                                <div className="w-14 h-1.5 bg-m3-outline-variant/30 rounded-full overflow-hidden flex-shrink-0">
-                                  <div
-                                    className={`h-full rounded-full ${(t.pnl ?? 0) >= 0 ? "bg-emerald-500" : "bg-rose-500"}`}
-                                    style={{ width: `${Math.min(Math.abs(t.pnl ?? 0) / 1000, 1) * 100}%` }}
-                                  />
-                                </div>
+                                <progress
+                                  className={`ios26-pnl-progress ${(t.pnl ?? 0) >= 0 ? "is-profit" : "is-loss"}`}
+                                  value={Math.min(Math.abs(t.pnl ?? 0) / 1000, 1) * 100}
+                                  max={100}
+                                  aria-label="P&L scale"
+                                />
                               </div>
                             </td>
                             <td className="py-2.5 px-3 text-center">
                               <div className="flex items-center justify-center gap-1">
                                 <button
                                   onClick={() => handleBeginEditTrade(t)}
-                                  className="p-1.5 rounded-lg bg-m3-surface-container-low dark:bg-m3-surface-container text-m3-on-surface-variant hover:text-m3-primary hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all cursor-pointer"
+                                  className="p-1.5 rounded-lg bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:bg-[var(--sys-surface-2)] text-[var(--sys-text-secondary)] hover:text-[var(--sys-blue)] hover:bg-[var(--sys-blue)]/10 dark:hover:bg-[var(--sys-blue)]/20 transition-all cursor-pointer"
                                   title="Sửa"
                                 >
                                   <Pencil size={12} />
                                 </button>
                                 <button
                                   onClick={() => handleDeleteTrade(t.id)}
-                                  className="p-1.5 rounded-lg bg-m3-surface-container-low dark:bg-m3-surface-container text-m3-on-surface-variant hover:text-rose-500 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition-all cursor-pointer"
+                                  className="p-1.5 rounded-lg bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:bg-[var(--sys-surface-2)] text-[var(--sys-text-secondary)] hover:text-[var(--sys-red)] hover:bg-[var(--sys-red)]/10/50 dark:hover:bg-[var(--sys-red)]/10 transition-all cursor-pointer"
                                   title="Xoá"
                                 >
                                   <Trash2 size={12} />
@@ -1919,10 +2009,10 @@ export default function App() {
                 id="trades-mobile-scroller"
               >
                 {filteredTrades.length === 0 ? (
-                  <div className="text-center py-12 text-m3-on-surface-variant m3-body-small">
+                  <div className="text-center py-12 text-[var(--sys-text-secondary)] text-base">
                     <BookOpen
                       size={36}
-                      className="mx-auto text-m3-on-surface-variant mb-2 animate-pulse"
+                      className="mx-auto text-[var(--sys-text-secondary)] mb-2 animate-pulse"
                     />
                     <p className="font-semibold">
                       Không tìm thấy giao dịch nào
@@ -1934,38 +2024,38 @@ export default function App() {
                     return (
                       <div
                         key={`mob-trade-${t.id}`}
-                        className="bg-m3-surface-container-low dark:bg-m3-surface-container/50 rounded-[20px] border border-m3-outline-variant/15 dark:border-m3-outline-variant/40 overflow-hidden shadow-sm"
+                        className="bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:bg-[var(--sys-surface-2)]/50 rounded-[20px] border border-[var(--sys-border)]/15 dark:border-[var(--sys-border)]/40 overflow-hidden shadow-sm"
                       >
                         {/* Hero: Chart Snapshot */}
                         {(t.tv_snapshot_url || t.tv_snapshot_url_close) && (
                           <div className="w-full relative">
                             <div className={`grid ${t.tv_snapshot_url && t.tv_snapshot_url_close ? 'grid-cols-2 gap-0.5' : 'grid-cols-1'} w-full`}>
                               {t.tv_snapshot_url && (
-                                <div onClick={() => setLightboxUrl(t.tv_snapshot_url!)} className="w-full block relative cursor-pointer overflow-hidden aspect-[16/10] bg-m3-surface-container-lowest dark:bg-black/30">
+                                <div onClick={() => setLightboxUrl(t.tv_snapshot_url!)} className="w-full block relative cursor-pointer overflow-hidden aspect-[16/10] bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:bg-black/30">
                                   <img src={t.tv_snapshot_url} alt="Chart Mở Lệnh" className="w-full h-full object-cover block" />
                                   <div className="absolute bottom-2 left-2 z-10">
-                                    <span className="px-2 py-0.5 rounded bg-black/60 text-[9px] font-bold text-white uppercase backdrop-blur-sm">Mở Lệnh</span>
+                                    <span className="px-2 py-0.5 rounded bg-black/60 text-xs font-bold text-white uppercase backdrop-blur-sm">Mở Lệnh</span>
                                   </div>
                                 </div>
                               )}
                               {t.tv_snapshot_url_close && (
-                                <div onClick={() => setLightboxUrl(t.tv_snapshot_url_close!)} className="w-full block relative cursor-pointer overflow-hidden aspect-[16/10] bg-m3-surface-container-lowest dark:bg-black/30">
+                                <div onClick={() => setLightboxUrl(t.tv_snapshot_url_close!)} className="w-full block relative cursor-pointer overflow-hidden aspect-[16/10] bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:bg-black/30">
                                   <img src={t.tv_snapshot_url_close} alt="Chart Đóng Lệnh" className="w-full h-full object-cover block" />
                                   <div className="absolute bottom-2 left-2 z-10">
-                                    <span className="px-2 py-0.5 rounded bg-black/60 text-[9px] font-bold text-white uppercase backdrop-blur-sm">Đóng Lệnh</span>
+                                    <span className="px-2 py-0.5 rounded bg-black/60 text-xs font-bold text-white uppercase backdrop-blur-sm">Đóng Lệnh</span>
                                   </div>
                                 </div>
                               )}
                             </div>
                             {/* PnL overlay badge */}
                             <div className="absolute top-2.5 right-2.5 z-10">
-                              <span className={`px-2.5 py-1 rounded-full text-xs font-black font-mono shadow-lg backdrop-blur-sm ${(t.pnl ?? 0) >= 0 ? "bg-emerald-500/90 text-white" : "bg-rose-500/90 text-white"}`}>
+                              <span className={`px-2.5 py-1 rounded-full text-sm font-black font-mono shadow-lg backdrop-blur-sm ${(t.pnl ?? 0) >= 0 ? "bg-[var(--sys-green)]/100/90 text-white" : "bg-[var(--sys-red)]/100/90 text-white"}`}>
                                 {(t.pnl ?? 0) >= 0 ? "+" : ""}${(t.pnl ?? 0).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                               </span>
                             </div>
                             {/* Direction overlay badge */}
                             <div className="absolute top-2.5 left-2.5 z-10">
-                              <span className={`px-2.5 py-1 rounded-full text-[10px] font-black font-mono shadow-lg backdrop-blur-sm ${t.type === "BUY" ? "bg-emerald-500/90 text-white" : "bg-rose-500/90 text-white"}`}>
+                              <span className={`px-2.5 py-1 rounded-full text-sm font-black font-mono shadow-lg backdrop-blur-sm ${t.type === "BUY" ? "bg-[var(--sys-green)]/100/90 text-white" : "bg-[var(--sys-red)]/100/90 text-white"}`}>
                                 {t.type} {t.pair}
                               </span>
                             </div>
@@ -1978,17 +2068,17 @@ export default function App() {
                           {!(t.tv_snapshot_url || t.tv_snapshot_url_close) && (
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-1.5 min-w-0">
-                                <span className={`px-2.5 py-0.5 rounded-full text-xs font-black font-mono ${t.type === "BUY" ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"}`}>
+                                <span className={`px-2.5 py-0.5 rounded-full text-sm font-black font-mono ${t.type === "BUY" ? "bg-[var(--sys-green)]/100/10 text-[var(--sys-green)]" : "bg-[var(--sys-red)]/100/10 text-[var(--sys-red)]"}`}>
                                   {t.type}
                                 </span>
-                                <span className="font-bold text-base text-m3-on-surface truncate">{t.pair}</span>
+                                <span className="font-bold text-lg text-[var(--sys-text)] truncate">{t.pair}</span>
                                 {t.status === "OPEN" ? (
-                                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 font-extrabold uppercase animate-pulse">OPEN</span>
+                                  <span className="text-sm px-2 py-0.5 rounded-full bg-[var(--sys-blue)]/10 text-[var(--sys-blue)] dark:bg-[var(--sys-blue)]/20 dark:text-[var(--sys-blue)] font-extrabold uppercase animate-pulse">OPEN</span>
                                 ) : (
-                                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-m3-outline-variant/30 text-m3-on-surface-variant font-extrabold uppercase">CLOSED</span>
+                                  <span className="text-sm px-2 py-0.5 rounded-full bg-[var(--sys-border)]/30 text-[var(--sys-text-secondary)] font-extrabold uppercase">CLOSED</span>
                                 )}
                               </div>
-                              <span className={`font-mono font-black text-lg ${(t.pnl ?? 0) >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
+                              <span className={`font-mono font-black text-lg ${(t.pnl ?? 0) >= 0 ? "text-[var(--sys-green)]" : "text-[var(--sys-red)]"}`}>
                                 {(t.pnl ?? 0) >= 0 ? "+" : ""}${(t.pnl ?? 0).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                               </span>
                             </div>
@@ -1997,65 +2087,65 @@ export default function App() {
                           {/* If has chart: show pair name + status below image */}
                           {(t.tv_snapshot_url || t.tv_snapshot_url_close) && (
                             <div className="flex items-center gap-2">
-                              <span className="font-bold text-base text-m3-on-surface">{t.pair}</span>
+                              <span className="font-bold text-lg text-[var(--sys-text)]">{t.pair}</span>
                               {t.status === "OPEN" ? (
-                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 font-extrabold uppercase animate-pulse">OPEN</span>
+                                <span className="text-sm px-2 py-0.5 rounded-full bg-[var(--sys-blue)]/10 text-[var(--sys-blue)] dark:bg-[var(--sys-blue)]/20 dark:text-[var(--sys-blue)] font-extrabold uppercase animate-pulse">OPEN</span>
                               ) : (
-                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-m3-outline-variant/30 text-m3-on-surface-variant font-extrabold uppercase">CLOSED</span>
+                                <span className="text-sm px-2 py-0.5 rounded-full bg-[var(--sys-border)]/30 text-[var(--sys-text-secondary)] font-extrabold uppercase">CLOSED</span>
                               )}
-                              <span className="text-[11px] text-m3-on-surface-variant">•</span>
-                              <span className="text-xs text-m3-on-surface-variant font-medium">{t.size} lots</span>
+                              <span className="text-sm text-[var(--sys-text-secondary)]">•</span>
+                              <span className="text-sm text-[var(--sys-text-secondary)] font-medium">{t.size} lots</span>
                             </div>
                           )}
 
 
                           {/* Price info grid */}
-                          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[13px]">
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-base">
                             <div className="flex items-center gap-1.5">
-                              <span className="text-m3-on-surface-variant">Vào:</span>
-                              <span className="text-m3-on-surface font-mono font-semibold">{t.entry_price}</span>
+                              <span className="text-[var(--sys-text-secondary)]">Vào:</span>
+                              <span className="text-[var(--sys-text)] font-mono font-semibold">{t.entry_price}</span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                              <span className="text-m3-on-surface-variant">Ra:</span>
-                              <span className={`font-mono font-semibold ${t.exit_price ? "text-m3-on-surface" : "text-m3-on-surface-variant/40 italic"}`}>{t.exit_price || "---"}</span>
+                              <span className="text-[var(--sys-text-secondary)]">Ra:</span>
+                              <span className={`font-mono font-semibold ${t.exit_price ? "text-[var(--sys-text)]" : "text-[var(--sys-text-secondary)]/40 italic"}`}>{t.exit_price || "---"}</span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                              <span className="text-rose-500 font-medium">SL:</span>
-                              <span className="text-m3-on-surface-variant font-mono">{t.stop_loss ?? "—"}</span>
+                              <span className="text-[var(--sys-red)] font-medium">SL:</span>
+                              <span className="text-[var(--sys-text-secondary)] font-mono">{t.stop_loss ?? "—"}</span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                              <span className="text-emerald-500 font-medium">TP:</span>
-                              <span className="text-m3-on-surface-variant font-mono">{t.take_profit ?? "—"}</span>
+                              <span className="text-[var(--sys-green)] font-medium">TP:</span>
+                              <span className="text-[var(--sys-text-secondary)] font-mono">{t.take_profit ?? "—"}</span>
                             </div>
                           </div>
 
                           {/* Notes */}
                           {t.notes && (
-                            <p className="text-xs text-m3-on-surface-variant italic bg-m3-surface-container/40 dark:bg-m3-surface-container/20 px-3 py-2 rounded-xl leading-relaxed line-clamp-2">
+                            <p className="text-sm text-[var(--sys-text-secondary)] italic bg-[var(--sys-surface-2)]/40 dark:bg-[var(--sys-surface-2)]/20 px-3 py-2 rounded-xl leading-relaxed line-clamp-2">
                               💡 {t.notes}
                             </p>
                           )}
 
                           {/* Footer: Meta + Actions */}
-                          <div className="flex items-center justify-between pt-2 border-t border-m3-outline-variant/15">
+                          <div className="flex items-center justify-between pt-2 border-t border-[var(--sys-border)]/15">
                             <div className="flex items-center gap-2 min-w-0 flex-wrap">
                               {t.tag && (
-                                <span className="text-[10px] uppercase tracking-wider bg-m3-primary/10 text-m3-primary px-2 py-0.5 rounded-full font-bold">{t.tag}</span>
+                                <span className="text-sm uppercase tracking-wider bg-[var(--sys-blue)]/10 text-[var(--sys-blue)] px-2 py-0.5 rounded-full font-bold">{t.tag}</span>
                               )}
                               <div className="flex gap-px">
                                 {Array.from({ length: 5 }).map((_, i) => (
-                                  <span key={i} className={`text-[10px] ${i < t.rating ? "text-amber-500" : "text-m3-outline-variant/40"}`}>★</span>
+                                  <span key={i} className={`text-sm ${i < t.rating ? "text-amber-500" : "text-[var(--sys-text-secondary)]/40"}`}>★</span>
                                 ))}
                               </div>
-                              <span className="text-xs text-m3-on-surface-variant">
+                              <span className="text-sm text-[var(--sys-text-secondary)]">
                                 {t.timeframe || "M15"} • {(!t.entry_date || isNaN(new Date(t.entry_date).getTime())) ? "—" : new Date(t.entry_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
                               </span>
                             </div>
                             <div className="flex gap-1.5 flex-shrink-0">
-                              <button onClick={() => handleBeginEditTrade(t)} className="p-2 rounded-xl bg-m3-surface-container dark:bg-m3-surface-container-high text-m3-on-surface-variant hover:text-m3-primary active:scale-95 transition-all cursor-pointer" title="Sửa">
+                              <button onClick={() => handleBeginEditTrade(t)} className="p-2 rounded-xl bg-[var(--sys-surface-2)] dark:bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-text-secondary)] hover:text-[var(--sys-blue)] active:scale-95 transition-all cursor-pointer" title="Sửa">
                                 <Pencil size={14} />
                               </button>
-                              <button onClick={() => handleDeleteTrade(t.id)} className="p-2 rounded-xl bg-m3-surface-container dark:bg-m3-surface-container-high text-m3-on-surface-variant hover:text-rose-500 active:scale-95 transition-all cursor-pointer" title="Xoá">
+                              <button onClick={() => handleDeleteTrade(t.id)} className="p-2 rounded-xl bg-[var(--sys-surface-2)] dark:bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-text-secondary)] hover:text-[var(--sys-red)] active:scale-95 transition-all cursor-pointer" title="Xoá">
                                 <Trash2 size={14} />
                               </button>
                             </div>
@@ -2074,19 +2164,19 @@ export default function App() {
         {currentTab === "calendar" && (
           <div className="space-y-6" id="calendar-master-view">
             <div
-              className="p-4 sm:p-6 bg-m3-surface rounded-[24px] shadow-level1 max-w-full overflow-hidden"
+              className="p-4 sm:p-6 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm rounded-[24px] shadow-ios-sm max-w-full overflow-hidden"
               id="calendar-card"
             >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-m3-outline-variant dark:border-m3-outline-variant pb-3 mb-4 w-full min-w-0">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--sys-border)] dark:border-[var(--sys-border)] pb-3 mb-4 w-full min-w-0">
                 <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-m3-primary-container dark:bg-m3-primary-container/30 text-m3-primary rounded-[16px] sm:rounded-[24px] flex items-center justify-center font-bold flex-shrink-0">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[var(--sys-blue)]/10 dark:transparent text-[var(--sys-blue)] rounded-[16px] sm:rounded-[24px] flex items-center justify-center font-bold flex-shrink-0">
                     <CalendarIcon size={18} className="sm:size-5" />
                   </div>
                   <div>
-                    <h3 className="m3-body-large sm:m3-title-medium text-m3-on-surface">
+                    <h3 className="text-lg sm:text-lg font-semibold text-[var(--sys-text)]">
                       Lịch Kinh Tế Vĩ Mô
                     </h3>
-                    <p className="m3-body-small sm:m3-body-medium text-m3-on-surface-variant mt-0.5">
+                    <p className="text-base sm:text-lg text-[var(--sys-text-secondary)] mt-0.5">
                       Chỉ số USD quan trọng
                     </p>
                   </div>
@@ -2096,32 +2186,32 @@ export default function App() {
                 <div className="grid grid-cols-[1.3fr_1.1fr_auto] gap-2 w-full sm:flex sm:flex-row sm:items-center sm:gap-1.5 sm:w-auto pb-1 sm:pb-0">
                   {/* Segmented Period Selection */}
                   <div
-                    className={`flex ${darkMode ? "bg-m3-surface-container-lowest" : "bg-m3-surface-container"} p-1 rounded-[16px] w-full sm:w-auto`}
+                    className={`flex ${darkMode ? "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm" : "bg-[var(--sys-surface-2)]"} p-1 rounded-[16px] w-full sm:w-auto`}
                   >
                     <button
                       onClick={() => setCalendarPeriodFilter("DAY")}
-                      className={`flex-1 py-1.5 sm:px-4 m3-label-medium rounded-[12px] transition-all ease-[var(--ease-m3-enter)] cursor-pointer text-center ${
+                      className={`flex-1 py-1.5 sm:px-4 text-sm font-medium rounded-[12px] transition-all ease-[ease-out] cursor-pointer text-center ${
                         calendarPeriodFilter === "DAY"
                           ? darkMode
-                            ? "bg-m3-surface-container-high text-m3-primary shadow-xs"
-                            : "bg-m3-surface text-m3-primary shadow-xs"
+                            ? "bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-blue)] shadow-xs"
+                            : "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-blue)] shadow-xs"
                           : darkMode
-                            ? "text-m3-on-surface-variant hover:text-m3-on-surface"
-                            : "text-m3-on-surface-variant hover:text-m3-on-surface"
+                            ? "text-[var(--sys-text-secondary)] hover:text-[var(--sys-text)]"
+                            : "text-[var(--sys-text-secondary)] hover:text-[var(--sys-text)]"
                       }`}
                     >
                       Hôm Nay
                     </button>
                     <button
                       onClick={() => setCalendarPeriodFilter("WEEK")}
-                      className={`flex-1 py-1.5 sm:px-4 m3-label-medium rounded-[12px] transition-all ease-[var(--ease-m3-enter)] cursor-pointer text-center ${
+                      className={`flex-1 py-1.5 sm:px-4 text-sm font-medium rounded-[12px] transition-all ease-[ease-out] cursor-pointer text-center ${
                         calendarPeriodFilter === "WEEK"
                           ? darkMode
-                            ? "bg-m3-surface-container-high text-m3-primary shadow-xs"
-                            : "bg-m3-surface text-m3-primary shadow-xs"
+                            ? "bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-blue)] shadow-xs"
+                            : "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-blue)] shadow-xs"
                           : darkMode
-                            ? "text-m3-on-surface-variant hover:text-m3-on-surface"
-                            : "text-m3-on-surface-variant hover:text-m3-on-surface"
+                            ? "text-[var(--sys-text-secondary)] hover:text-[var(--sys-text)]"
+                            : "text-[var(--sys-text-secondary)] hover:text-[var(--sys-text)]"
                       }`}
                     >
                       Tuần Này
@@ -2130,15 +2220,15 @@ export default function App() {
 
                   {/* Beautiful Dot Markers as Interactive Filters */}
                   <div
-                    className={`flex ${darkMode ? "bg-m3-surface-container-lowest" : "bg-m3-surface-container"} p-1 rounded-[16px] items-center justify-around w-full sm:w-auto sm:gap-1`}
+                    className={`flex ${darkMode ? "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm" : "bg-[var(--sys-surface-2)]"} p-1 rounded-[16px] items-center justify-around w-full sm:w-auto sm:gap-1`}
                   >
                     <button
                       onClick={() => setCalendarImpactFilter("ALL")}
-                      className={`px-3 py-1.5 rounded-[12px] flex items-center justify-center gap-1 transition-all ease-[var(--ease-m3-enter)] cursor-pointer flex-1 ${
+                      className={`px-3 py-1.5 rounded-[12px] flex items-center justify-center gap-1 transition-all ease-[ease-out] cursor-pointer flex-1 ${
                         calendarImpactFilter === "ALL"
                           ? darkMode
-                            ? "bg-m3-surface-container-high text-m3-primary shadow-xs"
-                            : "bg-m3-surface text-m3-primary shadow-xs"
+                            ? "bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-blue)] shadow-xs"
+                            : "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-blue)] shadow-xs"
                           : "opacity-40 hover:opacity-95"
                       }`}
                       title="Tất cả sự kiện kinh tế (Đỏ, Vàng, Xanh)"
@@ -2149,11 +2239,11 @@ export default function App() {
                     </button>
                     <button
                       onClick={() => setCalendarImpactFilter("MEDIUM")}
-                      className={`px-3 py-1.5 rounded-[12px] flex items-center justify-center gap-1 transition-all ease-[var(--ease-m3-enter)] cursor-pointer flex-1 ${
+                      className={`px-3 py-1.5 rounded-[12px] flex items-center justify-center gap-1 transition-all ease-[ease-out] cursor-pointer flex-1 ${
                         calendarImpactFilter === "MEDIUM"
                           ? darkMode
-                            ? "bg-m3-surface-container-high text-m3-primary shadow-xs"
-                            : "bg-m3-surface text-m3-primary shadow-xs"
+                            ? "bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-blue)] shadow-xs"
+                            : "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-blue)] shadow-xs"
                           : "opacity-40 hover:opacity-95"
                       }`}
                       title="Tin từ trung bình trở lên (Đỏ, Vàng)"
@@ -2163,11 +2253,11 @@ export default function App() {
                     </button>
                     <button
                       onClick={() => setCalendarImpactFilter("HIGH")}
-                      className={`px-3 py-1.5 rounded-[12px] flex items-center justify-center gap-1 transition-all ease-[var(--ease-m3-enter)] cursor-pointer flex-1 ${
+                      className={`px-3 py-1.5 rounded-[12px] flex items-center justify-center gap-1 transition-all ease-[ease-out] cursor-pointer flex-1 ${
                         calendarImpactFilter === "HIGH"
                           ? darkMode
-                            ? "bg-m3-surface-container-high text-m3-primary shadow-xs"
-                            : "bg-m3-surface text-m3-primary shadow-xs"
+                            ? "bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-blue)] shadow-xs"
+                            : "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-blue)] shadow-xs"
                           : "opacity-40 hover:opacity-95"
                       }`}
                       title="Chỉ sự kiện kinh tế quan trọng (Đỏ)"
@@ -2179,15 +2269,15 @@ export default function App() {
                   {/* Manual Refresh Call inside same line */}
                   <button
                     onClick={syncCalendar}
-                    className="p-2.5 bg-m3-surface-container dark:bg-m3-surface-container-lowest dark:hover:bg-m3-surface-container-high rounded-[16px] transition-all ease-[var(--ease-m3-enter)] cursor-pointer flex items-center justify-center min-w-[36px] min-h-[36px]"
+                    className="p-2.5 bg-[var(--sys-surface-2)] dark:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:hover:bg-[var(--sys-surface-2)] border border-[var(--sys-border)] rounded-[16px] transition-all ease-[ease-out] cursor-pointer flex items-center justify-center min-w-[36px] min-h-[36px]"
                     title="Cập nhật lịch kinh tế mới nhất"
                   >
                     <RefreshCw
                       size={14}
                       className={
                         refreshingCalendar
-                          ? "animate-spin text-m3-primary"
-                          : "text-m3-on-surface-variant"
+                          ? "animate-spin text-[var(--sys-blue)]"
+                          : "text-[var(--sys-text-secondary)]"
                       }
                     />
                   </button>
@@ -2198,23 +2288,23 @@ export default function App() {
               {loadingCalendar ? (
                 <div className="py-24 text-center space-y-4">
                   <RefreshCw
-                    className="animate-spin text-m3-primary mx-auto"
+                    className="animate-spin text-[var(--sys-blue)] mx-auto"
                     size={32}
                   />
-                  <p className="m3-body-medium text-m3-on-surface-variant">
+                  <p className="text-lg text-[var(--sys-text-secondary)]">
                     Đang quét nguồn dữ liệu Forex Factory Live...
                   </p>
                 </div>
               ) : groupedEventsByDay.length === 0 ? (
-                <div className="py-20 text-center text-m3-on-surface-variant">
+                <div className="py-20 text-center text-[var(--sys-text-secondary)]">
                   <CloudLightning
-                    className="mx-auto text-m3-outline-variant dark:text-m3-on-surface-variant animate-pulse mb-3"
+                    className="mx-auto text-[var(--sys-text-secondary)] dark:text-[var(--sys-text-secondary)] animate-pulse mb-3"
                     size={48}
                   />
-                  <p className="font-semibold m3-body-medium">
+                  <p className="font-semibold text-lg">
                     Không thấy sự kiện kinh tế USD tương thích
                   </p>
-                  <p className="m3-body-small text-m3-on-surface-variant mt-1">
+                  <p className="text-base text-[var(--sys-text-secondary)] mt-1">
                     Vui lòng thử điều chỉnh lại bộ lọc tác động sự kiện.
                   </p>
                 </div>
@@ -2222,7 +2312,7 @@ export default function App() {
                 <div className="space-y-8" id="calendar-days-feed">
                   {groupedEventsByDay.map(([dayName, events]) => (
                     <div key={dayName} className="space-y-4">
-                      <h4 className="m3-body-small sm:m3-label-large uppercase tracking-widest text-[#001d3d] dark:text-[#e0f1ff] bg-m3-primary-container dark:bg-m3-primary-container/30 px-3 py-1.5 rounded-[12px] inline-block">
+                      <h4 className="text-base sm:text-base font-semibold uppercase tracking-widest text-[var(--sys-blue)] dark:text-[var(--sys-blue)] bg-[var(--sys-blue)]/10 dark:transparent px-3 py-1.5 rounded-[12px] inline-block">
                         {dayName}
                       </h4>
 
@@ -2237,50 +2327,50 @@ export default function App() {
                           return (
                             <div
                               key={`${dayName}-${index}`}
-                              className="flex items-center gap-2 sm:gap-4 p-2.5 sm:p-3.5 bg-m3-surface-container-low dark:bg-m3-surface-container/45 rounded-[16px] border border-m3-outline-variant/15 dark:border-m3-outline-variant hover:bg-m3-surface-container transition-colors"
+                              className="flex items-center gap-2 sm:gap-4 p-2.5 sm:p-3.5 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:bg-[var(--sys-surface-2)]/45 rounded-[16px] border border-[var(--sys-border)]/15 dark:border-[var(--sys-border)] hover:bg-[var(--sys-surface-2)] transition-colors"
                             >
                               {/* Cột 1: Giờ & Impact */}
                               <div className="flex flex-col items-center justify-center min-w-[48px] sm:min-w-[60px] flex-shrink-0">
-                                <span className="font-mono font-bold text-xs text-m3-on-surface">{evTime}</span>
-                                <div className={`mt-1 rounded px-1.5 py-0.5 text-[9px] uppercase tracking-wider font-extrabold ${style.text} ${style.bg}`}>
+                                <span className="font-mono font-bold text-sm text-[var(--sys-text)]">{evTime}</span>
+                                <div className={`mt-1 rounded px-1.5 py-0.5 text-xs uppercase tracking-wider font-extrabold ${style.text} ${style.bg}`}>
                                   {style.label}
                                 </div>
                               </div>
 
                               {/* Cột 2: Tiêu đề & Quốc gia */}
                               <div className="flex-1 min-w-0 flex flex-col justify-center">
-                                <h5 className="font-bold text-xs sm:text-sm text-m3-on-surface truncate leading-snug mb-0.5">
+                                <h5 className="font-bold text-sm sm:text-base text-[var(--sys-text)] truncate leading-snug mb-0.5">
                                   {ev.title}
                                 </h5>
                                 <div className="flex items-center gap-1.5">
-                                  <span className="text-[10px] bg-m3-on-surface/5 dark:bg-m3-on-surface/10 px-1.5 py-0.5 rounded text-m3-on-surface-variant uppercase font-mono tracking-wider">
+                                  <span className="text-sm bg-[var(--sys-text)]/5 dark:bg-[var(--sys-text)]/10 px-1.5 py-0.5 rounded text-[var(--sys-text-secondary)] uppercase font-mono tracking-wider">
                                     {ev.country}
                                   </span>
-                                  <span className="text-[9px] text-m3-on-surface-variant hidden sm:inline-block">
+                                  <span className="text-xs text-[var(--sys-text-secondary)] hidden sm:inline-block">
                                     {timezoneOffsetStr}
                                   </span>
                                 </div>
                               </div>
 
                               {/* Cột 3: Desktop Stats */}
-                              <div className="hidden md:flex flex-col items-end flex-shrink-0 gap-1.5 border-l border-m3-outline-variant/20 pl-4">
-                                <div className="flex items-center gap-3 font-mono text-[11px] text-m3-on-surface-variant">
-                                  <span>Dự báo: <strong className="text-m3-on-surface">{ev.forecast || "-"}</strong></span>
-                                  <span>Trước: <strong className="text-m3-on-surface">{ev.previous || "-"}</strong></span>
+                              <div className="hidden md:flex flex-col items-end flex-shrink-0 gap-1.5 border-l border-[var(--sys-border)]/20 pl-4">
+                                <div className="flex items-center gap-3 font-mono text-sm text-[var(--sys-text-secondary)]">
+                                  <span>Dự báo: <strong className="text-[var(--sys-text)]">{ev.forecast || "-"}</strong></span>
+                                  <span>Trước: <strong className="text-[var(--sys-text)]">{ev.previous || "-"}</strong></span>
                                 </div>
-                                <div className="font-mono text-[13px] flex items-center gap-1.5">
-                                  <span className="text-[10px] uppercase font-bold text-sky-600 dark:text-sky-400">Thực tế:</span>
-                                  <strong className="text-sky-700 dark:text-sky-300 font-black">{ev.actual || "Đợi tin"}</strong>
+                                <div className="font-mono text-base flex items-center gap-1.5">
+                                  <span className="text-sm uppercase font-bold text-[var(--sys-blue)] dark:text-[var(--sys-blue)]">Thực tế:</span>
+                                  <strong className="text-[var(--sys-blue)] dark:text-[var(--sys-blue)] font-black">{ev.actual || "Đợi tin"}</strong>
                                 </div>
                               </div>
 
                               {/* Cột 3: Mobile Stats */}
                               <div className="flex md:hidden flex-col items-end justify-center flex-shrink-0 min-w-[70px]">
-                                <div className="font-mono text-[9px] text-m3-on-surface-variant mb-0.5 flex items-center gap-1">
+                                <div className="font-mono text-xs text-[var(--sys-text-secondary)] mb-0.5 flex items-center gap-1">
                                   <span className="opacity-60">DB:</span> <strong>{ev.forecast || "-"}</strong>
                                 </div>
-                                <div className="font-mono text-[11px] font-black text-sky-600 dark:text-sky-400 flex items-center gap-1">
-                                  <span className="opacity-60 text-[9px] uppercase">TT:</span> {ev.actual || "-"}
+                                <div className="font-mono text-sm font-black text-[var(--sys-blue)] dark:text-[var(--sys-blue)] flex items-center gap-1">
+                                  <span className="opacity-60 text-xs uppercase">TT:</span> {ev.actual || "-"}
                                 </div>
                               </div>
                             </div>
@@ -2336,21 +2426,21 @@ export default function App() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 120 }}
               transition={{ type: "spring", damping: 26, stiffness: 220 }}
-              className="relative w-full max-w-[100vw] sm:max-w-2xl bg-m3-surface sm:rounded-[28px] rounded-t-[28px] shadow-level5 z-10 flex flex-col h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-x-hidden overflow-y-hidden"
+              className="relative w-full max-w-[100vw] sm:max-w-2xl bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm sm:rounded-[28px] rounded-t-[28px] shadow-level5 z-10 flex flex-col h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-x-hidden overflow-y-hidden"
               id="new-trade-modal-window"
             >
-              <div className="flex justify-between items-center px-5 sm:px-8 py-4 sm:py-6 border-b border-m3-outline-variant bg-m3-surface z-20 shrink-0">
+              <div className="flex justify-between items-center px-5 sm:px-8 py-4 sm:py-6 border-b border-[var(--sys-border)] bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm z-20 shrink-0">
                 <div className="flex items-center gap-3">
-                  <div className="hidden sm:flex p-3 bg-m3-primary-container text-m3-primary dark:bg-m3-primary-container/30 dark:text-m3-primary rounded-[16px]">
+                  <div className="hidden sm:flex p-3 bg-[var(--sys-blue)]/10 text-[var(--sys-blue)] dark:transparent dark:text-[var(--sys-blue)] rounded-[16px]">
                     <Plus size={18} />
                   </div>
                   <div>
-                    <h3 className="m3-title-medium text-m3-on-surface font-display">
+                    <h3 className="text-lg font-semibold text-[var(--sys-text)] font-display">
                       {editingTradeId
                         ? "Cập Nhật Giao Dịch"
                         : "Ghi Chép Giao Dịch Mới"}
                     </h3>
-                    <p className="m3-body-small text-m3-on-surface-variant mt-0.5">
+                    <p className="text-base text-[var(--sys-text-secondary)] mt-0.5">
                       {editingTradeId
                         ? "Cập nhật các số liệu, ghi chú hoặc tất toán giao dịch"
                         : "Ghi nhận chi tiết để theo dõi biểu đồ tăng trưởng"}
@@ -2360,7 +2450,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => setIsAddOpen(false)}
-                  className="p-2 sm:p-1.5 hover:bg-m3-surface-container dark:hover:bg-white/5 rounded-full transition-colors ease-[var(--ease-m3-enter)] text-m3-on-surface-variant hover:text-m3-on-surface dark:hover:text-m3-on-surface cursor-pointer"
+                  className="p-2 sm:p-1.5 hover:bg-[var(--sys-surface-2)] dark:hover:bg-white/5 rounded-full transition-colors ease-[ease-out] text-[var(--sys-text-secondary)] hover:text-[var(--sys-text)] dark:hover:text-[var(--sys-text)] cursor-pointer"
                   title="Đóng"
                 >
                   <X size={24} className="sm:w-[20px] sm:h-[20px]" />
@@ -2376,13 +2466,13 @@ export default function App() {
                   {/* BUY SELL TOGGLE & Pairs Selection */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
                     <div className="min-w-0">
-                      <label className="m3-label-medium text-m3-on-surface-variant mb-1.5 block">
+                      <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
                         Cặp ngoại tệ
                       </label>
                       <select
                         value={formPair}
                         onChange={(e) => setFormPair(e.target.value)}
-                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] font-bold cursor-pointer"
+                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm border border-[var(--sys-border)] rounded-[4px] text-lg focus:outline-none focus:ring-0 focus:border-[var(--sys-blue)] focus:border-2 text-[var(--sys-text)] transition-colors ease-[ease-out] font-bold cursor-pointer"
                       >
                         <option value="EUR/USD">EUR/USD</option>
                         <option value="GBP/USD">GBP/USD</option>
@@ -2395,21 +2485,21 @@ export default function App() {
                     </div>
 
                     <div className="min-w-0">
-                      <label className="m3-label-medium text-m3-on-surface-variant mb-1.5 block">
+                      <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
                         Hướng lệnh
                       </label>
-                      <div className="flex border border-m3-outline rounded-full w-full h-12 overflow-hidden m3-label-large">
+                      <div className="flex border border-[var(--sys-border)] rounded-full w-full h-12 overflow-hidden text-base font-semibold">
                         <button
                           type="button"
                           onClick={() => setFormType("BUY")}
-                          className={`flex-1 h-full flex items-center justify-center transition-colors ease-[var(--ease-m3-enter)] cursor-pointer m3-state-layer border-r border-m3-outline ${formType === "BUY" ? "bg-emerald-600 text-m3-on-primary" : "bg-transparent text-m3-on-surface"}`}
+                          className={`flex-1 h-full flex items-center justify-center transition-colors ease-[ease-out] cursor-pointer active:scale-95 transition-transform border-r border-[var(--sys-border)] ${formType === "BUY" ? "bg-emerald-600 text-white" : "bg-transparent text-[var(--sys-text)]"}`}
                         >
                           MUA
                         </button>
                         <button
                           type="button"
                           onClick={() => setFormType("SELL")}
-                          className={`flex-1 h-full flex items-center justify-center transition-colors ease-[var(--ease-m3-enter)] cursor-pointer m3-state-layer ${formType === "SELL" ? "bg-rose-600 text-m3-on-primary" : "bg-transparent text-m3-on-surface"}`}
+                          className={`flex-1 h-full flex items-center justify-center transition-colors ease-[ease-out] cursor-pointer active:scale-95 transition-transform ${formType === "SELL" ? "bg-rose-600 text-white" : "bg-transparent text-[var(--sys-text)]"}`}
                         >
                           BÁN
                         </button>
@@ -2420,7 +2510,7 @@ export default function App() {
                   {/* Entry Price & Lots Size */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
                     <div className="min-w-0">
-                      <label className="m3-label-medium text-m3-on-surface-variant mb-1.5 block">
+                      <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
                         Giá vào lệnh *
                       </label>
                       <input
@@ -2430,12 +2520,12 @@ export default function App() {
                         placeholder="VD: 1.0854"
                         value={formEntryPrice}
                         onChange={(e) => setFormEntryPrice(e.target.value)}
-                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] font-mono"
+                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm border border-[var(--sys-border)] rounded-[4px] text-lg focus:outline-none focus:ring-0 focus:border-[var(--sys-blue)] focus:border-2 text-[var(--sys-text)] transition-colors ease-[ease-out] font-mono"
                       />
                     </div>
 
                     <div className="min-w-0">
-                      <label className="m3-label-medium text-m3-on-surface-variant mb-1.5 block">
+                      <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
                         Khối lượng (Lots) *
                       </label>
                       <input
@@ -2445,7 +2535,7 @@ export default function App() {
                         min="0.01"
                         value={formSize}
                         onChange={(e) => setFormSize(e.target.value)}
-                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] font-mono font-bold"
+                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm border border-[var(--sys-border)] rounded-[4px] text-lg focus:outline-none focus:ring-0 focus:border-[var(--sys-blue)] focus:border-2 text-[var(--sys-text)] transition-colors ease-[ease-out] font-mono font-bold"
                       />
                     </div>
                   </div>
@@ -2453,7 +2543,7 @@ export default function App() {
                   {/* SL, TP Options */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
                     <div className="min-w-0">
-                      <label className="m3-label-medium text-m3-on-surface-variant mb-1.5 block">
+                      <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
                         Chặn lỗ
                       </label>
                       <input
@@ -2462,12 +2552,12 @@ export default function App() {
                         placeholder="Tùy chọn - SL"
                         value={formStopLoss}
                         onChange={(e) => setFormStopLoss(e.target.value)}
-                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] font-mono"
+                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm border border-[var(--sys-border)] rounded-[4px] text-lg focus:outline-none focus:ring-0 focus:border-[var(--sys-blue)] focus:border-2 text-[var(--sys-text)] transition-colors ease-[ease-out] font-mono"
                       />
                     </div>
 
                     <div className="min-w-0">
-                      <label className="m3-label-medium text-m3-on-surface-variant mb-1.5 block">
+                      <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
                         Chốt lời
                       </label>
                       <input
@@ -2476,7 +2566,7 @@ export default function App() {
                         placeholder="Tùy chọn - TP"
                         value={formTakeProfit}
                         onChange={(e) => setFormTakeProfit(e.target.value)}
-                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] font-mono"
+                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm border border-[var(--sys-border)] rounded-[4px] text-lg focus:outline-none focus:ring-0 focus:border-[var(--sys-blue)] focus:border-2 text-[var(--sys-text)] transition-colors ease-[ease-out] font-mono"
                       />
                     </div>
                   </div>
@@ -2484,21 +2574,21 @@ export default function App() {
                   {/* Status Switch Open / Closed & Timeframe */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
                     <div className="min-w-0">
-                      <label className="m3-label-medium text-m3-on-surface-variant mb-1.5 block">
+                      <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
                         Trạng thái giao dịch
                       </label>
-                      <div className="flex border border-m3-outline rounded-full w-full h-12 overflow-hidden m3-label-large text-sm sm:text-base">
+                      <div className="flex border border-[var(--sys-border)] rounded-full w-full h-12 overflow-hidden text-base font-semibold text-base sm:text-lg">
                         <button
                           type="button"
                           onClick={() => setFormStatus("CLOSED")}
-                          className={`flex-1 h-full flex items-center justify-center transition-colors ease-[var(--ease-m3-enter)] cursor-pointer m3-state-layer border-r border-m3-outline min-w-0 px-2 ${formStatus === "CLOSED" ? "bg-indigo-600 text-m3-on-primary" : "bg-transparent text-m3-on-surface"}`}
+                          className={`flex-1 h-full flex items-center justify-center transition-colors ease-[ease-out] cursor-pointer active:scale-95 transition-transform border-r border-[var(--sys-border)] min-w-0 px-2 ${formStatus === "CLOSED" ? "bg-indigo-600 text-white" : "bg-transparent text-[var(--sys-text)]"}`}
                         >
                           <span className="truncate">ĐÃ ĐÓNG</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => setFormStatus("OPEN")}
-                          className={`flex-1 h-full flex items-center justify-center transition-colors ease-[var(--ease-m3-enter)] cursor-pointer m3-state-layer min-w-0 px-2 ${formStatus === "OPEN" ? "bg-cyan-600 text-m3-on-primary" : "bg-transparent text-m3-on-surface"}`}
+                          className={`flex-1 h-full flex items-center justify-center transition-colors ease-[ease-out] cursor-pointer active:scale-95 transition-transform min-w-0 px-2 ${formStatus === "OPEN" ? "bg-cyan-600 text-white" : "bg-transparent text-[var(--sys-text)]"}`}
                         >
                           <span className="truncate">ĐANG MỞ</span>
                         </button>
@@ -2506,13 +2596,13 @@ export default function App() {
                     </div>
 
                     <div className="min-w-0">
-                      <label className="m3-label-medium text-m3-on-surface-variant mb-1.5 block">
+                      <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
                         Khung thời gian
                       </label>
                       <select
                         value={formTimeframe}
                         onChange={(e) => setFormTimeframe(e.target.value)}
-                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] font-bold cursor-pointer"
+                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm border border-[var(--sys-border)] rounded-[4px] text-lg focus:outline-none focus:ring-0 focus:border-[var(--sys-blue)] focus:border-2 text-[var(--sys-text)] transition-colors ease-[ease-out] font-bold cursor-pointer"
                       >
                         <option value="M5">M5 (5 phút)</option>
                         <option value="M15">M15 (15 phút)</option>
@@ -2525,9 +2615,9 @@ export default function App() {
 
                   {/* Conditional exit fields if state is closed */}
                   {formStatus === "CLOSED" && (
-                    <div className="p-3 sm:p-5 rounded-[16px] sm:rounded-[20px] bg-m3-surface-container-lowest border border-m3-outline-variant grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+                    <div className="p-3 sm:p-5 rounded-[16px] sm:rounded-[20px] bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm border border-[var(--sys-border)] grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
                       <div className="min-w-0">
-                        <label className="m3-label-medium text-m3-on-surface-variant mb-1.5 block">
+                        <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
                           Giá đóng lệnh
                         </label>
                         <input
@@ -2536,11 +2626,11 @@ export default function App() {
                           placeholder="VD: 1.0920"
                           value={formExitPrice}
                           onChange={(e) => setFormExitPrice(e.target.value)}
-                          className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] font-mono"
+                          className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm border border-[var(--sys-border)] rounded-[4px] text-lg focus:outline-none focus:ring-0 focus:border-[var(--sys-blue)] focus:border-2 text-[var(--sys-text)] transition-colors ease-[ease-out] font-mono"
                         />
                       </div>
                       <div className="min-w-0">
-                        <label className="m3-label-medium text-m3-on-surface-variant mb-1.5 block">
+                        <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
                           Ngày đóng lệnh
                         </label>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -2562,7 +2652,7 @@ export default function App() {
                   {/* Entry Date & Tags Row */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
                     <div className="min-w-0">
-                      <label className="m3-label-medium text-m3-on-surface-variant mb-1.5 block">
+                      <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
                         Ngày vào lệnh
                       </label>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -2580,13 +2670,13 @@ export default function App() {
                     </div>
 
                     <div className="min-w-0">
-                      <label className="m3-label-medium text-m3-on-surface-variant mb-1.5 block">
+                      <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
                         Chiến lược
                       </label>
                       <select
                         value={formTag}
                         onChange={(e) => setFormTag(e.target.value)}
-                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] font-bold cursor-pointer"
+                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm border border-[var(--sys-border)] rounded-[4px] text-lg focus:outline-none focus:ring-0 focus:border-[var(--sys-blue)] focus:border-2 text-[var(--sys-text)] transition-colors ease-[ease-out] font-bold cursor-pointer"
                       >
                         <option value="News-Trade">
                           Giao dịch theo tin tức
@@ -2600,7 +2690,7 @@ export default function App() {
 
                   {/* Notes Input */}
                   <div>
-                    <label className="m3-label-medium text-m3-on-surface-variant mb-1.5 block">
+                    <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
                       Lý do vào lệnh
                     </label>
                     <textarea
@@ -2608,21 +2698,21 @@ export default function App() {
                       placeholder="Tại sao bạn khớp lệnh này? Khung cảm xúc, phân tích kỹ thuật hoặc nhận định tin tức của bạn..."
                       value={formNotes}
                       onChange={(e) => setFormNotes(e.target.value)}
-                      className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-m3-surface-container-lowest border border-m3-outline rounded-[4px] m3-body-medium focus:outline-none focus:ring-0 focus:border-m3-primary focus:border-2 text-m3-on-surface transition-colors ease-[var(--ease-m3-enter)] resize-none"
+                      className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm border border-[var(--sys-border)] rounded-[4px] text-lg focus:outline-none focus:ring-0 focus:border-[var(--sys-blue)] focus:border-2 text-[var(--sys-text)] transition-colors ease-[ease-out] resize-none"
                     ></textarea>
                   </div>
 
                   {/* TradingView Snapshot Open Feature */}
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
-                      <label className="m3-label-medium text-m3-on-surface-variant block">
+                      <label className="text-sm font-medium text-[var(--sys-text-secondary)] block">
                         Ảnh biểu đồ Mở Lệnh (TradingView)
                       </label>
                       <button
                         type="button"
                         onClick={handleCaptureSnapshot}
                         disabled={isCapturingSnapshot || !formPair}
-                        className="text-xs font-bold text-m3-primary flex items-center gap-1 hover:underline disabled:opacity-50"
+                        className="text-sm font-bold text-[var(--sys-blue)] flex items-center gap-1 hover:underline disabled:opacity-50"
                       >
                         {isCapturingSnapshot ? (
                           <><RefreshCw size={12} className="animate-spin" /> Đang chụp...</>
@@ -2632,7 +2722,7 @@ export default function App() {
                       </button>
                     </div>
                     {formTVSnapshotUrl ? (
-                      <div className="relative border border-m3-outline rounded-lg overflow-hidden group max-h-[160px] flex items-center justify-center bg-black/10 w-full">
+                      <div className="relative border border-[var(--sys-border)] rounded-lg overflow-hidden group max-h-[160px] flex items-center justify-center bg-black/10 w-full">
                         <button
                           type="button"
                           onClick={() => setLightboxUrl(formTVSnapshotUrl)}
@@ -2653,7 +2743,7 @@ export default function App() {
                           <button
                             type="button"
                             onClick={() => setFormTVSnapshotUrl("")}
-                            className="p-2.5 bg-rose-500 text-white rounded-full shadow-lg hover:bg-rose-600 transition-colors"
+                            className="p-2.5 bg-[var(--sys-red)]/100 text-white rounded-full shadow-lg hover:bg-rose-600 transition-colors"
                             title="Xoá ảnh"
                           >
                             <X size={18} />
@@ -2661,9 +2751,9 @@ export default function App() {
                         </div>
                       </div>
                     ) : (
-                      <div className="border border-dashed border-m3-outline rounded-lg p-4 flex flex-col items-center justify-center text-m3-on-surface-variant/60 gap-2 bg-m3-surface-container-lowest">
+                      <div className="border border-dashed border-[var(--sys-border)] rounded-lg p-4 flex flex-col items-center justify-center text-[var(--sys-text-secondary)]/60 gap-2 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm">
                         <Camera size={24} className="opacity-50" />
-                        <span className="text-xs">Chưa có ảnh chụp biểu đồ mở lệnh</span>
+                        <span className="text-sm">Chưa có ảnh chụp biểu đồ mở lệnh</span>
                       </div>
                     )}
                   </div>
@@ -2672,14 +2762,14 @@ export default function App() {
                   {formStatus === "CLOSED" && (
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
-                        <label className="m3-label-medium text-m3-on-surface-variant block">
+                        <label className="text-sm font-medium text-[var(--sys-text-secondary)] block">
                           Ảnh biểu đồ Đóng Lệnh (TradingView)
                         </label>
                         <button
                           type="button"
                           onClick={handleCaptureSnapshotClose}
                           disabled={isCapturingSnapshotClose || !formPair}
-                          className="text-xs font-bold text-m3-primary flex items-center gap-1 hover:underline disabled:opacity-50"
+                          className="text-sm font-bold text-[var(--sys-blue)] flex items-center gap-1 hover:underline disabled:opacity-50"
                         >
                           {isCapturingSnapshotClose ? (
                             <><RefreshCw size={12} className="animate-spin" /> Đang chụp...</>
@@ -2689,7 +2779,7 @@ export default function App() {
                         </button>
                       </div>
                       {formTVSnapshotUrlClose ? (
-                        <div className="relative border border-m3-outline rounded-lg overflow-hidden group max-h-[160px] flex items-center justify-center bg-black/10 w-full">
+                        <div className="relative border border-[var(--sys-border)] rounded-lg overflow-hidden group max-h-[160px] flex items-center justify-center bg-black/10 w-full">
                           <button
                             type="button"
                             onClick={() => setLightboxUrl(formTVSnapshotUrlClose)}
@@ -2710,7 +2800,7 @@ export default function App() {
                             <button
                               type="button"
                               onClick={() => setFormTVSnapshotUrlClose("")}
-                              className="p-2.5 bg-rose-500 text-white rounded-full shadow-lg hover:bg-rose-600 transition-colors"
+                              className="p-2.5 bg-[var(--sys-red)]/100 text-white rounded-full shadow-lg hover:bg-rose-600 transition-colors"
                               title="Xoá ảnh"
                             >
                               <X size={18} />
@@ -2718,21 +2808,21 @@ export default function App() {
                           </div>
                         </div>
                       ) : (
-                        <div className="border border-dashed border-m3-outline rounded-lg p-4 flex flex-col items-center justify-center text-m3-on-surface-variant/60 gap-2 bg-m3-surface-container-lowest">
+                        <div className="border border-dashed border-[var(--sys-border)] rounded-lg p-4 flex flex-col items-center justify-center text-[var(--sys-text-secondary)]/60 gap-2 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm">
                           <Camera size={24} className="opacity-50" />
-                          <span className="text-xs">Chưa có ảnh chụp biểu đồ đóng lệnh</span>
+                          <span className="text-sm">Chưa có ảnh chụp biểu đồ đóng lệnh</span>
                         </div>
                       )}
                     </div>
                   )}
 
                   {/* Rating selection (Stars) */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-m3-surface-container-low/50 dark:bg-m3-surface-container-lowest/30 rounded-[16px] border border-m3-outline-variant dark:border-m3-outline-variant">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm/50 dark:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm/30 rounded-[16px] border border-[var(--sys-border)] dark:border-[var(--sys-border)]">
                     <div>
-                      <span className="font-bold text-m3-on-surface m3-body-small block">
+                      <span className="font-bold text-[var(--sys-text)] text-base block">
                         Mức Độ Tuân Thủ Kỷ Luật
                       </span>
-                      <span className="m3-body-small text-m3-on-surface-variant mt-1 block">
+                      <span className="text-base text-[var(--sys-text-secondary)] mt-1 block">
                         Bạn có làm đúng kế hoạch giao dịch ban đầu không?
                       </span>
                     </div>
@@ -2748,8 +2838,8 @@ export default function App() {
                             <span
                               className={
                                 i < formRating
-                                  ? "text-amber-400 drop-shadow-xs font-bold"
-                                  : "text-m3-outline-variant dark:text-m3-outline-variant hover:text-m3-on-surface-variant"
+                                  ? "text-amber-500 drop-shadow-xs font-bold"
+                                  : "text-[var(--sys-text-secondary)] dark:text-[var(--sys-text-secondary)] hover:text-[var(--sys-text-secondary)]"
                               }
                             >
                               ★
@@ -2757,7 +2847,7 @@ export default function App() {
                           </button>
                         ))}
                       </div>
-                      <span className="m3-body-small text-m3-on-surface-variant font-bold font-mono min-w-[45px]">
+                      <span className="text-base text-[var(--sys-text-secondary)] font-bold font-mono min-w-[45px]">
                         ({formRating}/5 sao)
                       </span>
                     </div>
@@ -2765,17 +2855,17 @@ export default function App() {
                 </div>
 
                 {/* Save controls */}
-                <div className="px-5 sm:px-8 py-4 sm:py-5 border-t border-m3-outline-variant bg-m3-surface flex flex-col-reverse sm:flex-row gap-3 justify-end items-center z-20 shrink-0 pb-[max(1rem,env(safe-area-inset-bottom,16px))] sm:pb-5">
+                <div className="px-5 sm:px-8 py-4 sm:py-5 border-t border-[var(--sys-border)] bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm flex flex-col-reverse sm:flex-row gap-3 justify-end items-center z-20 shrink-0 pb-[max(1rem,env(safe-area-inset-bottom,16px))] sm:pb-5">
                   <button
                     type="button"
                     onClick={() => setIsAddOpen(false)}
-                    className="w-full sm:w-auto px-6 py-2.5 bg-transparent border border-m3-outline text-m3-primary rounded-[20px] m3-label-large m3-state-layer cursor-pointer transition-colors ease-[var(--ease-m3-enter)] text-center"
+                    className="w-full sm:w-auto px-6 py-2.5 bg-transparent border border-[var(--sys-border)] text-[var(--sys-blue)] rounded-[20px] text-base font-semibold active:scale-95 transition-transform cursor-pointer transition-colors ease-[ease-out] text-center"
                   >
                     Hủy bỏ
                   </button>
                   <button
                     type="submit"
-                    className="w-full sm:w-auto px-8 py-2.5 bg-m3-primary text-m3-on-primary rounded-[20px] m3-label-large m3-state-layer active:scale-[0.98] transition-all ease-[var(--ease-m3-enter)] cursor-pointer text-center"
+                    className="w-full sm:w-auto px-8 py-2.5 bg-[var(--sys-blue)] text-white rounded-[20px] text-base font-semibold active:scale-95 transition-transform active:scale-[0.98] transition-all ease-[ease-out] cursor-pointer text-center"
                   >
                     {editingTradeId ? "Cập nhật dữ liệu" : "Ghi lại giao dịch"}
                   </button>
@@ -2786,314 +2876,149 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* 6. CORNER SETTINGS MODAL */}
+      {/* 6. SYSTEM SETTINGS MODAL */}
       <AnimatePresence>
         {isSettingsOpen && (
-          <div
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
-            id="settings-modal-root"
-          >
+          <div className="settings-modal-root" id="settings-modal-root">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsSettingsOpen(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-md"
-            ></motion.div>
+              className="settings-backdrop"
+            />
 
             <motion.div
-              initial={{ opacity: 0, y: 100 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 120 }}
-              transition={{ type: "spring", damping: 26, stiffness: 220 }}
-              className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-m3-surface p-5 sm:p-6 rounded-t-3xl sm:rounded-[24px] shadow-level5 z-10 m3-body-small pb-[calc(1.5rem+env(safe-area-inset-bottom,16px))] sm:pb-6"
+              initial={{ opacity: 0, y: 80, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 90, scale: 0.98 }}
+              transition={{ type: "spring", damping: 28, stiffness: 240 }}
+              className="settings-sheet"
               id="settings-modal-window"
             >
-              {/* Material Design 3 Bottom Sheet handle wrapper */}
-              <div className="w-10 h-1 bg-m3-outline-variant rounded-full mx-auto mb-4 block sm:hidden"></div>
+              <div className="settings-handle" />
 
-              <div className="flex justify-between items-center pb-4 mb-4 border-b border-m3-outline-variant dark:border-m3-outline-variant">
-                <h4 className="m3-body-medium sm:m3-title-medium text-m3-on-surface font-display">
-                  Cài Đặt Hệ Thống
-                </h4>
-                <button
-                  onClick={() => setIsSettingsOpen(false)}
-                  className="p-1.5 rounded-full bg-m3-surface-container-high m3-state-layer dark:bg-m3-surface-container text-m3-on-surface-variant cursor-pointer"
-                >
-                  <X size={14} />
+              <header className="settings-header">
+                <div className="settings-title-wrap">
+                  <span className="settings-icon-badge"><Settings size={18} /></span>
+                  <div className="min-w-0">
+                    <h4>Cài đặt</h4>
+                    <p>Hệ thống, tài khoản và bảo mật</p>
+                  </div>
+                </div>
+                <button onClick={() => setIsSettingsOpen(false)} className="settings-close" aria-label="Đóng cài đặt">
+                  <X size={16} />
                 </button>
-              </div>
+              </header>
 
-              <div className="space-y-5">
-                <div>
-                  <h5 className="font-bold text-m3-on-surface-variant capitalize mb-2">
-                    Chủ Đề Giao Diện
-                  </h5>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setDarkMode(false)}
-                      className={`flex-1 py-1.5 sm:py-2 rounded-full font-bold flex items-center justify-center gap-2 border m3-body-small transition-all ease-[var(--ease-m3-enter)] ${!darkMode ? "bg-m3-surface border-m3-primary text-m3-primary shadow-xs" : "bg-m3-surface-container-low border-m3-outline-variant text-m3-on-surface-variant dark:bg-m3-surface-container dark:border-m3-outline-variant dark:text-m3-on-surface-variant"}`}
-                    >
-                      ☀ Sáng (Material Lite)
+              <div className="settings-content">
+                <section className="settings-section">
+                  <div className="settings-section-title">Giao diện</div>
+                  <div className="settings-choice-grid">
+                    <button type="button" onClick={() => setDarkMode(false)} className={`settings-choice ${!darkMode ? "is-active" : ""}`}>
+                      <Sun size={16} />
+                      <span>Sáng</span>
                     </button>
-                    <button
-                      onClick={() => setDarkMode(true)}
-                      className={`flex-1 py-1.5 sm:py-2 rounded-full font-bold flex items-center justify-center gap-2 border m3-body-small transition-all ease-[var(--ease-m3-enter)] ${darkMode ? "bg-m3-surface-container-low border-m3-primary text-m3-primary shadow-xs" : "bg-m3-surface-container-low border-m3-outline-variant text-m3-on-surface-variant dark:bg-m3-surface-container dark:border-m3-outline-variant dark:text-m3-on-surface-variant"}`}
-                    >
-                      ☽ Tối (Material Dark)
+                    <button type="button" onClick={() => setDarkMode(true)} className={`settings-choice ${darkMode ? "is-active" : ""}`}>
+                      <Moon size={16} />
+                      <span>Tối</span>
                     </button>
                   </div>
-                </div>
+                </section>
 
-                <div className="border-t border-m3-outline-variant dark:border-m3-outline-variant pt-4">
-                  <h5 className="font-bold text-m3-on-surface-variant capitalize mb-2.5 flex items-center gap-1.5">
-                    <BellRing size={13} className="text-m3-primary" />
-                    Thông Báo Đẩy PWA
-                  </h5>
-                  <div className="flex items-center justify-between p-3 bg-m3-surface-container rounded-[16px] border border-transparent">
-                    <div>
-                      <p className="font-semibold text-m3-on-surface">
-                        Cảnh báo sự kiện vĩ mô
-                      </p>
-                      <p className="m3-body-small text-m3-on-surface-variant mt-1 dark:text-m3-on-surface-variant">
-                        Báo trước 1 giờ khi có tin đỏ (USD High Impact)
-                      </p>
+                <section className="settings-section">
+                  <div className="settings-section-title">Đồng bộ dữ liệu</div>
+                  <div className="settings-group">
+                    <label className="settings-field">
+                      <span>Supabase URL</span>
+                      <input type="text" value={dbUrl} onChange={(e) => setDbUrl(e.target.value)} placeholder="https://...supabase.co" className="settings-input" />
+                    </label>
+                    <label className="settings-field">
+                      <span>Anon key</span>
+                      <input type="password" value={dbAnon} onChange={(e) => setDbAnon(e.target.value)} placeholder="Khóa Supabase" className="settings-input settings-input-mono" />
+                    </label>
+                    <div className="settings-actions two">
+                      <button type="button" onClick={handleSaveSupabaseConfig} className="settings-button secondary">Lưu</button>
+                      <button type="button" onClick={testSupabaseConnection} className="settings-button primary">Kiểm tra</button>
                     </div>
-                    <button
-                      onClick={toggleNotifications}
-                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ease-[var(--ease-m3-enter)] duration-200 ease-in-out focus:outline-none ${
-                        notificationsEnabled
-                          ? "bg-m3-primary"
-                          : "bg-m3-outline-variant"
-                      }`}
-                    >
-                      <span
-                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-m3-surface shadow-xs ring-0 transition duration-200 ease-in-out ${
-                          notificationsEnabled
-                            ? "translate-x-5"
-                            : "translate-x-0"
-                        }`}
-                      />
-                    </button>
+                    <p className={`settings-hint ${supabaseConnected ? "is-ok" : ""}`}>{supabaseConnected ? "Đã kết nối Supabase." : "Dùng để đồng bộ nhật ký giao dịch."}</p>
                   </div>
-                </div>
+                </section>
 
-                {/* TradingView Cookie Configuration */}
-                <div className="border-t border-m3-outline-variant dark:border-m3-outline-variant pt-4">
-                  <h5 className="font-bold text-m3-on-surface-variant capitalize mb-2.5 flex items-center gap-1.5">
-                    <Camera size={13} className="text-m3-primary" />
-                    TradingView Cookie Session
-                  </h5>
-                  <div className="space-y-2">
-                    <input
-                      type="text"
-                      placeholder="sessionid"
-                      value={tvSessionId}
-                      onChange={(e) => {
-                        setTvSessionId(e.target.value);
-                        localStorage.setItem("tv_session_id", e.target.value);
-                      }}
-                      className="w-full text-xs px-3 py-2 bg-m3-surface-container-lowest border border-m3-outline rounded font-mono text-m3-on-surface focus:border-m3-primary focus:outline-none"
-                    />
-                    <input
-                      type="text"
-                      placeholder="sessionid_sign"
-                      value={tvSessionSign}
-                      onChange={(e) => {
-                        setTvSessionSign(e.target.value);
-                        localStorage.setItem("tv_session_sign", e.target.value);
-                      }}
-                      className="w-full text-xs px-3 py-2 bg-m3-surface-container-lowest border border-m3-outline rounded font-mono text-m3-on-surface focus:border-m3-primary focus:outline-none"
-                    />
-                    <div className="flex flex-col mb-3">
-                      <label className="text-[11px] font-bold text-m3-on-surface-variant mb-1 uppercase tracking-wider">Browserless Token (Dùng cho Auto-Screenshot)</label>
-                      <input 
-                        type="password"
-                        value={browserlessToken}
-                        onChange={(e) => setBrowserlessToken(e.target.value)}
-                        placeholder="Nhập Token của Browserless..."
-                        className="w-full px-2.5 py-1.5 bg-m3-surface-container-lowest border border-m3-outline rounded-lg text-xs focus:outline-none focus:border-m3-primary text-m3-on-surface transition-colors"
-                      />
+                <section className="settings-section">
+                  <div className="settings-section-title">Thông báo</div>
+                  <div className="settings-row-group">
+                    <div className="settings-row">
+                      <span className="settings-row-icon"><BellRing size={17} /></span>
+                      <div className="settings-row-copy"><strong>Tin đỏ USD</strong><span>Báo trước 1 giờ</span></div>
+                      <button type="button" onClick={toggleNotifications} className={`ios-toggle ${notificationsEnabled ? "is-on" : ""}`} aria-pressed={notificationsEnabled}><span /></button>
                     </div>
-                    <p className="text-[10px] text-m3-on-surface-variant italic">
-                      Dùng để giữ biểu đồ luôn hiển thị chỉ báo cá nhân khi chụp ảnh.
-                    </p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <button 
-                        onClick={saveTVCreds} 
-                        disabled={tvSaving}
-                        className="flex-1 py-2 bg-m3-primary text-white font-bold rounded-xl text-xs transition-colors cursor-pointer disabled:opacity-50"
-                      >
-                        {tvSaving ? "Đang lưu..." : "Lưu Cookie Server"}
-                      </button>
+                  </div>
+                </section>
+
+                <section className="settings-section">
+                  <div className="settings-section-title">TradingView</div>
+                  <div className="settings-group">
+                    <label className="settings-field"><span>Session ID</span><input type="text" value={tvSessionId} onChange={(e) => { setTvSessionId(e.target.value); localStorage.setItem("tv_session_id", e.target.value); }} placeholder="sessionid" className="settings-input settings-input-mono" /></label>
+                    <label className="settings-field"><span>Session sign</span><input type="text" value={tvSessionSign} onChange={(e) => { setTvSessionSign(e.target.value); localStorage.setItem("tv_session_sign", e.target.value); }} placeholder="sessionid_sign" className="settings-input settings-input-mono" /></label>
+                    <label className="settings-field"><span>Browserless token</span><input type="password" value={browserlessToken} onChange={(e) => setBrowserlessToken(e.target.value)} placeholder="Token chụp ảnh biểu đồ" className="settings-input settings-input-mono" /></label>
+                    <button type="button" onClick={saveTVCreds} disabled={tvSaving} className="settings-button primary full">{tvSaving ? "Đang lưu..." : "Lưu TradingView"}</button>
+                    {tvSaveResult && <p className={`settings-result ${tvSaveResult.startsWith("✅") ? "is-ok" : "is-error"}`}>{tvSaveResult}</p>}
+                  </div>
+                </section>
+
+                <section className="settings-section">
+                  <div className="settings-section-title">The5ers</div>
+                  <div className="settings-group">
+                    <div className="settings-row compact">
+                      <span className="settings-row-icon"><TrendingUp size={17} /></span>
+                      <div className="settings-row-copy"><strong>Tài khoản theo dõi</strong><span>{selectedT5AccountIds.length}/{t5Accounts.length} đang chọn</span></div>
+                      <button type="button" onClick={loadT5Data} disabled={t5Loading} className="settings-mini-button"><RefreshCw size={14} className={t5Loading ? "animate-spin" : ""} /><span>{t5Loading ? "Tải" : "Làm mới"}</span></button>
                     </div>
-                    {tvSaveResult && (
-                      <p className={`text-[11px] font-medium ${tvSaveResult.startsWith("✅") ? "text-emerald-500" : "text-rose-500"}`}>{tvSaveResult}</p>
+                    {t5Loading ? (
+                      <p className="settings-hint">Đang tải tài khoản...</p>
+                    ) : t5Accounts.length === 0 ? (
+                      <p className="settings-hint">Chưa có dữ liệu The5ers.</p>
+                    ) : (
+                      <div className="settings-account-list">
+                        {t5Accounts.map((acc) => {
+                          const checked = selectedT5AccountIds.includes(acc.accountId);
+                          const isActive = acc.status === "active" || acc.status === "available";
+                          return (
+                            <label key={acc.accountId} className={`settings-account ${!isActive ? "is-muted" : ""}`}>
+                              <input type="checkbox" checked={checked} onChange={() => { const next = checked ? selectedT5AccountIds.filter((id) => id !== acc.accountId) : [...selectedT5AccountIds, acc.accountId]; setSelectedT5AccountIds(next); localStorage.setItem("t5_selected_accounts", JSON.stringify(next)); if (!checked && !isActive) loadT5AccountTrades(acc.accountId); }} />
+                              <span className="settings-account-name">{acc.name}</span>
+                              <span className={`settings-pill ${acc.type === "funded" ? "green" : acc.type === "evaluation" ? "blue" : "neutral"}`}>{acc.type === "funded" ? "Funded" : acc.type === "evaluation" ? "Eval" : "Demo"}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
                     )}
+                    <button type="button" onClick={() => { const activeIds = t5Accounts.filter((a) => a.status === "active" || a.status === "available").map((a) => a.accountId); setSelectedT5AccountIds(activeIds); localStorage.setItem("t5_selected_accounts", JSON.stringify(activeIds)); }} className="settings-button secondary full">Chọn tất cả active</button>
+                    <label className="settings-field"><span>Email The5ers</span><input type="email" value={t5Email} onChange={(e) => { setT5Email(e.target.value); localStorage.setItem("t5_email", e.target.value); }} placeholder="email@domain.com" className="settings-input settings-input-mono" /></label>
+                    <label className="settings-field"><span>DSR token</span><textarea value={t5DsrToken} onChange={(e) => { const val = e.target.value.trim(); setT5DsrToken(val); localStorage.setItem("t5_dsr_token", val); }} placeholder="Dán token DSR" className="settings-input settings-textarea settings-input-mono" /></label>
+                    <div className="settings-actions two">
+                      <button type="button" onClick={saveT5Creds} disabled={t5Saving} className="settings-button primary">{t5Saving ? "Đang lưu..." : "Lưu DSR"}</button>
+                      <button type="button" onClick={syncT5Now} disabled={t5Syncing} className="settings-button success">{t5Syncing ? "Đang đồng bộ..." : "Đồng bộ ngay"}</button>
+                    </div>
+                    {t5SaveResult && <p className={`settings-result ${t5SaveResult.startsWith("✅") ? "is-ok" : "is-error"}`}>{t5SaveResult}</p>}
                   </div>
-                </div>
+                </section>
 
-                {/* The5ers Account Selection */}
-                <div className="border-t border-m3-outline-variant dark:border-m3-outline-variant pt-4">
-                  <h5 className="font-bold text-m3-on-surface-variant capitalize mb-2.5 flex items-center gap-1.5">
-                    <TrendingUp size={13} className="text-m3-primary" />
-                    Tài khoản The5ers
-                    <span className="text-[10px] bg-m3-primary-container text-m3-primary px-2 py-0.5 rounded-full font-bold ml-auto">{selectedT5AccountIds.length}/{t5Accounts.length}</span>
-                  </h5>
-                  {t5Loading ? (
-                    <p className="text-xs text-m3-on-surface-variant">Đang tải tài khoản...</p>
-                  ) : t5Accounts.length === 0 ? (
-                    <div>
-                      <p className="text-xs text-m3-on-surface-variant mb-2">Chưa có dữ liệu. GH Actions scraper chạy mỗi giờ.</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-1.5 max-h-48 overflow-y-auto">
-                      {t5Accounts.map((acc) => {
-                        const checked = selectedT5AccountIds.includes(acc.accountId);
-                        const isActive = acc.status === "active" || acc.status === "available";
-                        return (
-                          <label key={acc.accountId} className={`flex items-center gap-2.5 p-2 rounded-lg cursor-pointer ${isActive ? "hover:bg-m3-surface-container" : "opacity-50 hover:opacity-80"}`}>
-                            <input type="checkbox" checked={checked}
-                              onChange={() => {
-                                const next = checked
-                                  ? selectedT5AccountIds.filter((id) => id !== acc.accountId)
-                                  : [...selectedT5AccountIds, acc.accountId];
-                                setSelectedT5AccountIds(next);
-                                localStorage.setItem("t5_selected_accounts", JSON.stringify(next));
-                                if (!checked && !isActive) loadT5AccountTrades(acc.accountId);
-                              }}
-                              className="w-4 h-4 accent-m3-primary rounded" />
-                            <span className="text-xs font-semibold text-m3-on-surface flex-1 min-w-0 truncate">{acc.name}</span>
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase flex-shrink-0 ${acc.type === "funded" ? "bg-emerald-500/10 text-emerald-600" : acc.type === "evaluation" ? "bg-blue-500/10 text-blue-600" : "bg-m3-surface-container text-m3-on-surface-variant"}`}>
-                              {acc.type === "funded" ? "Funded" : acc.type === "evaluation" ? "Eval" : "Demo"}
-                            </span>
-                            {!isActive && <span className="text-[10px] font-bold text-rose-500 bg-rose-500/10 px-1.5 py-0.5 rounded uppercase">Disabled</span>}
-                          </label>
-                        );
-                      })}
-                    </div>
-                  )}
-                  <div className="flex gap-2 mt-3">
-                    <button onClick={() => {
-                      const activeIds = t5Accounts.filter(a => a.status === "active" || a.status === "available").map(a => a.accountId);
-                      setSelectedT5AccountIds(activeIds);
-                      localStorage.setItem("t5_selected_accounts", JSON.stringify(activeIds));
-                    }}
-                      className="flex-1 py-2 bg-m3-primary-container text-m3-primary font-bold rounded-xl text-xs transition-colors cursor-pointer">
-                      Chọn tất cả Active
-                    </button>
-                    <button onClick={loadT5Data} disabled={t5Loading}
-                      className="flex-1 py-2 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 font-bold rounded-xl text-xs border transition-colors cursor-pointer disabled:opacity-50">
-                      {t5Loading ? "Đang tải..." : "🔄 Tải lại"}
-                    </button>
+                <section className="settings-section">
+                  <div className="settings-section-title">Bảo mật</div>
+                  <div className="settings-group">
+                    <div className="settings-row compact"><span className="settings-row-icon"><ShieldCheck size={17} /></span><div className="settings-row-copy"><strong>Mật khẩu web</strong><span>Khóa truy cập app</span></div></div>
+                    <input type="password" value={sitePassword} onChange={(e) => setSitePassword(e.target.value)} placeholder="Mật khẩu mới" className="settings-input settings-input-mono" />
+                    <button type="button" onClick={async () => { const pass = sitePassword.trim(); if (!pass) return alert("Vui lòng nhập mật khẩu mới."); try { const res = await fetch("/api/save-site-password", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("trade_app_auth_token")}` }, body: JSON.stringify({ sitePassword: pass }) }); const json = await res.json(); alert(json.message || "Lưu thành công."); if (json.success) setSitePassword(""); } catch (err: any) { alert("Lỗi: " + err.message); } }} className="settings-button primary full">Cập nhật mật khẩu</button>
                   </div>
-                  {/* The5ers credentials (for GH Actions scraper) */}
-                  <div className="mt-2 space-y-2">
-                    <input
-                      type="email"
-                      value={t5Email}
-                      onChange={(e) => {
-                        setT5Email(e.target.value);
-                        localStorage.setItem("t5_email", e.target.value);
-                      }}
-                      placeholder="Email The5ers..."
-                      className="w-full px-2.5 py-1.5 bg-m3-surface-container-lowest border border-m3-outline rounded-lg text-[11px] font-mono focus:outline-none focus:border-m3-primary text-m3-on-surface"
-                    />
-                    <textarea
-                      value={t5DsrToken}
-                      onChange={(e) => {
-                        const val = e.target.value.trim();
-                        setT5DsrToken(val);
-                        localStorage.setItem("t5_dsr_token", val);
-                      }}
-                      placeholder="Dán mã Refresh Token (DSR) vào đây..."
-                      className="w-full px-2.5 py-2.5 bg-m3-surface-container-lowest border border-m3-outline rounded-lg text-[10px] font-mono focus:outline-none focus:border-m3-primary text-m3-on-surface h-20 resize-none break-all"
-                    />
-                    <div className="flex gap-2">
-                      <button onClick={saveT5Creds} disabled={t5Saving}
-                        className="flex-1 py-2 bg-m3-primary text-white font-bold rounded-xl text-xs transition-colors cursor-pointer disabled:opacity-50">
-                        {t5Saving ? "⏳ Đang lưu..." : "💾 Lưu DSR"}
-                      </button>
-                      <button onClick={syncT5Now} disabled={t5Syncing}
-                        className="flex-1 py-2 bg-emerald-500 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer disabled:opacity-50">
-                        {t5Syncing ? "⏳ Đang cào..." : "🚀 Cào Dữ Liệu Ngay"}
-                      </button>
-                    </div>
-                    {t5SaveResult && (
-                      <p className={`text-[11px] font-medium ${t5SaveResult.startsWith("✅") ? "text-emerald-500" : "text-rose-500"}`}>{t5SaveResult}</p>
-                    )}
-                    <p className="text-[10px] text-m3-on-surface-variant/60 italic">
-                      The5ers chặn đăng nhập Bot. Bố hãy login vào web The5ers, mở F12 &rarr; Application &rarr; Cookies &rarr; Copy giá trị của thẻ "DSR" dán vào ô trên.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Web App Password Protection */}
-                <div className="border-t border-m3-outline-variant dark:border-m3-outline-variant pt-4">
-                  <h5 className="font-bold text-m3-on-surface-variant capitalize mb-2.5 flex items-center gap-1.5">
-                    <ShieldCheck size={13} className="text-m3-primary" />
-                    Bảo Mật Truy Cập Web
-                  </h5>
-                  <div className="space-y-2">
-                    <input
-                      type="password"
-                      id="site_password_input"
-                      placeholder="Mật khẩu bảo vệ Web App..."
-                      className="w-full px-2.5 py-1.5 bg-m3-surface-container-lowest border border-m3-outline rounded-lg text-[11px] font-mono focus:outline-none focus:border-m3-primary text-m3-on-surface"
-                    />
-                    <button
-                      onClick={async () => {
-                        const pass = (document.getElementById("site_password_input") as HTMLInputElement)?.value;
-                        if (!pass) return alert("Vui lòng nhập mật khẩu muốn cài!");
-                        try {
-                          const res = await fetch("/api/save-site-password", {
-                            method: "POST",
-                            headers: { 
-                              "Content-Type": "application/json",
-                              "Authorization": `Bearer ${localStorage.getItem("trade_app_auth_token")}`
-                            },
-                            body: JSON.stringify({ sitePassword: pass }),
-                          });
-                          const json = await res.json();
-                          alert(json.message || "Lưu thành công!");
-                          if (json.success) (document.getElementById("site_password_input") as HTMLInputElement).value = "";
-                        } catch (err: any) {
-                          alert("Lỗi: " + err.message);
-                        }
-                      }}
-                      className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer"
-                    >
-                      🔒 Cập Nhật Mật Khẩu
-                    </button>
-                    <p className="text-[10px] text-m3-on-surface-variant/60 italic">
-                      Sau khi thiết lập, bất kỳ ai truy cập vào trang web đều phải nhập mật khẩu này.
-                    </p>
-                  </div>
-                </div>
+                </section>
 
                 {deferredPrompt && (
-                  <div className="border-t border-m3-outline-variant dark:border-m3-outline-variant pt-4">
-                    <button
-                      onClick={() => {
-                        setIsSettingsOpen(false);
-                        handleInstallAppPWA();
-                      }}
-                      className="w-full py-2.5 bg-m3-primary text-m3-on-primary font-bold rounded-[20px] m3-state-layer flex items-center justify-center gap-1.5 shadow"
-                    >
-                      <Download size={14} />
-                      Cài đặt Ứng dụng PWA
-                    </button>
-                  </div>
+                  <section className="settings-section"><button type="button" onClick={() => { setIsSettingsOpen(false); handleInstallAppPWA(); }} className="settings-button primary full"><Download size={16} /><span>Cài ứng dụng</span></button></section>
                 )}
 
-                <div className="border-t border-m3-outline-variant dark:border-m3-outline-variant pt-4">
-                  <button
-                    onClick={handleResetLocalStorage}
-                    className="w-full py-2.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-950/30 text-rose-600 dark:text-rose-400 font-bold rounded-[16px] border border-rose-100/50 dark:border-rose-950/30 transition-colors ease-[var(--ease-m3-enter)] cursor-pointer m3-body-small"
-                  >
-                    Xoá Toàn Bộ Nhật Ký Cũ (Local)
-                  </button>
-                </div>
+                <section className="settings-section danger-zone"><button type="button" onClick={handleResetLocalStorage} className="settings-button danger full">Xóa nhật ký local cũ</button></section>
               </div>
             </motion.div>
           </div>
@@ -3105,12 +3030,12 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-end">
           <button
             onClick={handleOpenAddTrade}
-            className="pointer-events-auto h-14 w-14 md:w-auto md:px-6 bg-m3-primary text-m3-on-primary rounded-[16px] flex items-center justify-center gap-2 shadow-level3 m3-state-layer transition-all ease-[var(--ease-m3-enter)] cursor-pointer"
+            className="pointer-events-auto h-14 w-14 md:w-auto md:px-6 bg-[var(--sys-blue)] text-white rounded-[16px] flex items-center justify-center gap-2 shadow-ios-lg active:scale-95 transition-transform transition-all ease-[ease-out] cursor-pointer"
             title="Thêm Giao Dịch"
-            id="m3-fab"
+            id="ios-fab"
           >
             <Plus size={26} className="flex-shrink-0" />
-            <span className="hidden md:block m3-label-large">
+            <span className="hidden md:block text-base font-semibold">
               Thêm giao dịch
             </span>
           </button>
@@ -3119,55 +3044,55 @@ export default function App() {
 
       {/* Material 3 Bottom Navigation bar for mobile / bottom control menu */}
       <footer
-        className={`md:hidden fixed bottom-0 left-0 right-0 pb-[env(safe-area-inset-bottom,0px)] h-[calc(4.5rem+env(safe-area-inset-bottom,0px))] border-t ${darkMode ? "bg-m3-surface-container/95 border-m3-outline-variant" : "bg-m3-surface/95 border-m3-outline-variant"} backdrop-blur-xl flex items-center justify-around px-2 z-40 transition-colors ease-[var(--ease-m3-enter)]`}
-        id="m3-bottom-nav"
+        className={`md:hidden fixed bottom-0 left-0 right-0 pb-[env(safe-area-inset-bottom,0px)] h-[calc(4.5rem+env(safe-area-inset-bottom,0px))] border-t ${darkMode ? "bg-[var(--sys-surface-2)]/95 border-[var(--sys-border)]" : "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm/95 border-[var(--sys-border)]"} backdrop-blur-xl flex items-center justify-around px-2 z-40 transition-colors ease-[ease-out]`}
+        id="ios-bottom-nav"
       >
         <button
           onClick={() => setCurrentTab("dashboard")}
-          className={`flex flex-col items-center gap-1.5 justify-center flex-1 py-1.5 ${currentTab === "dashboard" ? "text-m3-primary" : "text-m3-on-surface-variant"}`}
+          className={`flex flex-col items-center gap-1.5 justify-center flex-1 py-1.5 ${currentTab === "dashboard" ? "text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)]"}`}
         >
           <div
-            className={`px-5 py-1.5 rounded-full ${currentTab === "dashboard" ? "bg-m3-primary-container dark:bg-m3-primary-container/30 text-m3-primary dark:text-m3-primary" : ""}`}
+            className={`px-5 py-1.5 rounded-full ${currentTab === "dashboard" ? "bg-[var(--sys-blue)]/10 dark:transparent text-[var(--sys-blue)] dark:text-[var(--sys-blue)]" : ""}`}
           >
             <BarChart2 size={20} />
           </div>
-          <span className="m3-label-medium tracking-wide">Tổng quan</span>
+          <span className="text-sm font-medium tracking-wide">Tổng quan</span>
         </button>
 
         <button
           onClick={() => setCurrentTab("journal")}
-          className={`flex flex-col items-center gap-1.5 justify-center flex-1 py-1.5 ${currentTab === "journal" ? "text-m3-primary" : "text-m3-on-surface-variant"}`}
+          className={`flex flex-col items-center gap-1.5 justify-center flex-1 py-1.5 ${currentTab === "journal" ? "text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)]"}`}
         >
           <div
-            className={`px-5 py-1.5 rounded-full ${currentTab === "journal" ? "bg-m3-primary-container dark:bg-m3-primary-container/30 text-m3-primary dark:text-m3-primary" : ""}`}
+            className={`px-5 py-1.5 rounded-full ${currentTab === "journal" ? "bg-[var(--sys-blue)]/10 dark:transparent text-[var(--sys-blue)] dark:text-[var(--sys-blue)]" : ""}`}
           >
             <FileText size={20} />
           </div>
-          <span className="m3-label-medium tracking-wide">Nhật ký</span>
+          <span className="text-sm font-medium tracking-wide">Nhật ký</span>
         </button>
 
         <button
           onClick={() => setCurrentTab("calendar")}
-          className={`flex flex-col items-center gap-1.5 justify-center flex-1 py-1.5 ${currentTab === "calendar" ? "text-m3-primary" : "text-m3-on-surface-variant"}`}
+          className={`flex flex-col items-center gap-1.5 justify-center flex-1 py-1.5 ${currentTab === "calendar" ? "text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)]"}`}
         >
           <div
-            className={`px-5 py-1.5 rounded-full ${currentTab === "calendar" ? "bg-m3-primary-container dark:bg-m3-primary-container/30 text-m3-primary dark:text-m3-primary" : ""}`}
+            className={`px-5 py-1.5 rounded-full ${currentTab === "calendar" ? "bg-[var(--sys-blue)]/10 dark:transparent text-[var(--sys-blue)] dark:text-[var(--sys-blue)]" : ""}`}
           >
             <CalendarIcon size={20} />
           </div>
-          <span className="m3-label-medium tracking-wide">Kinh tế</span>
+          <span className="text-sm font-medium tracking-wide">Kinh tế</span>
         </button>
 
         <button
           onClick={() => setCurrentTab("news")}
-          className={`flex flex-col items-center gap-1.5 justify-center flex-1 py-1.5 ${currentTab === "news" ? "text-m3-primary" : "text-m3-on-surface-variant"}`}
+          className={`flex flex-col items-center gap-1.5 justify-center flex-1 py-1.5 ${currentTab === "news" ? "text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)]"}`}
         >
           <div
-            className={`px-5 py-1.5 rounded-full ${currentTab === "news" ? "bg-m3-primary-container dark:bg-m3-primary-container/30 text-m3-primary dark:text-m3-primary" : ""}`}
+            className={`px-5 py-1.5 rounded-full ${currentTab === "news" ? "bg-[var(--sys-blue)]/10 dark:transparent text-[var(--sys-blue)] dark:text-[var(--sys-blue)]" : ""}`}
           >
             <Newspaper size={20} />
           </div>
-          <span className="m3-label-medium tracking-wide">Tin tức</span>
+          <span className="text-sm font-medium tracking-wide">Tin tức</span>
         </button>
       </footer>
 

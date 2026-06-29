@@ -8,6 +8,7 @@ import {
   Award,
   Calendar,
   Layers,
+  ChevronRight,
 } from "lucide-react";
 import { motion } from "motion/react";
 import {
@@ -115,231 +116,201 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
   }, [trades]);
 
   return (
-    <div className="space-y-6" id="google-bento-container-stats">
-      {/* Material 3 Bento Cards Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4" id="m3-stats-grid">
-        {/* Net Profit card */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25, delay: 0.05 }}
-          className={`p-4 sm:p-6 rounded-[24px] ${darkMode ? "bg-m3-surface" : "bg-m3-surface"} flex flex-col justify-between min-h-[125px] sm:min-h-[155px] shadow-level1 hover:shadow-level2 transition-all ease-[var(--ease-m3-enter)] duration-250`}
-          id="m3-card-pnl"
-        >
-          <div className="flex justify-between items-start gap-1">
-            <span className="m3-body-small sm:m3-label-large text-m3-on-surface-variant font-display truncate">
-              Lợi nhuận ròng
-            </span>
-            <div
-              className={`p-1.5 sm:p-2 rounded-full flex-shrink-0 ${stats.netPnl >= 0 ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-rose-500/10 text-rose-600 dark:text-rose-400"}`}
-            >
+    <div className="space-y-6 max-w-2xl mx-auto pb-10" id="ios-dashboard-container">
+      {/* 1. Hero Card: Apple Card / Wallet Style for Net Profit */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        className="ios26-hero-card w-full rounded-[28px] overflow-hidden relative shadow-ios-md aspect-[1.8/1] sm:aspect-[2.2/1] flex flex-col justify-between p-6 sm:p-8"
+      >
+        <div className="flex justify-between items-start text-white">
+          <div className="flex items-center gap-2">
+            <div className="p-2 bg-white/20 rounded-full backdrop-blur-md">
               {stats.netPnl >= 0 ? (
-                <TrendingUp size={16} className="sm:w-4.5 sm:h-4.5" />
+                <TrendingUp size={20} />
               ) : (
-                <TrendingDown size={16} className="sm:w-4.5 sm:h-4.5" />
+                <TrendingDown size={20} />
               )}
             </div>
-          </div>
-          <div className="min-w-0 mt-2">
-            <h3
-              className={`text-lg xs:text-xl sm:text-2xl md:text-3xl font-black tracking-tight font-display truncate ${stats.netPnl >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}
-              id="net-pnl-val"
-              title={`${stats.netPnl >= 0 ? "+" : ""}${stats.netPnl.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-            >
-              {stats.netPnl >= 0 ? "+" : ""}$
-              {stats.netPnl.toLocaleString("en-US", {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-              })}
-            </h3>
-            <p className="m3-body-small sm:m3-body-medium text-m3-on-surface-variant mt-1 font-medium truncate">
-              Tổng kết toàn bộ tài sản
-            </p>
-          </div>
-        </motion.div>
-
-        {/* Win Rate card */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25, delay: 0.1 }}
-          className={`p-4 sm:p-6 rounded-[24px] ${darkMode ? "bg-m3-surface" : "bg-m3-surface"} flex flex-col justify-between min-h-[125px] sm:min-h-[155px] shadow-level1 hover:shadow-level2 transition-all ease-[var(--ease-m3-enter)] duration-250`}
-          id="m3-card-winrate"
-        >
-          <div className="flex justify-between items-start gap-1">
-            <span className="m3-body-small sm:m3-label-large text-m3-on-surface-variant font-display truncate">
-              Tỷ lệ thắng
+            <span className="text-white/90 font-medium text-lg tracking-wide truncate">
+              Tổng Tài Sản
             </span>
-            <div className="p-1.5 sm:p-2 rounded-full bg-blue-100 text-m3-primary dark:bg-google-blue-100/10 dark:text-google-blue-200 flex-shrink-0">
-              <Percent size={16} className="sm:w-4.5 sm:h-4.5" />
+          </div>
+          <div className="ios26-brand-wordmark text-white/80 text-base font-black truncate">Táo Tầu Journal</div>
+        </div>
+
+        <div className="text-white">
+          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-1">
+            {stats.netPnl >= 0 ? "+" : "-"}$
+            {Math.abs(stats.netPnl).toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </h2>
+          <p className="text-white/80 text-base sm:text-lg font-medium">
+            Lợi nhuận ròng hiện tại
+          </p>
+        </div>
+      </motion.div>
+
+      {/* 2. Settings-Style Inset Grouped List for Secondary Stats */}
+      <div className="mt-8">
+        <h3 className="text-[var(--sys-text-secondary)] uppercase text-sm font-semibold tracking-wider ml-4 mb-2">
+          Hiệu Suất Giao Dịch
+        </h3>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="ios26-list-group overflow-hidden"
+        >
+          {/* Row: Win Rate */}
+          <div className="flex items-center justify-between p-4 border-b border-[var(--sys-border)]">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-[var(--sys-blue)] flex items-center justify-center text-white">
+                <Percent size={18} />
+              </div>
+              <span className="text-[var(--sys-text)] font-medium text-lg truncate pr-2">Tỷ lệ thắng</span>
+            </div>
+            <div className="flex items-center gap-2 text-[var(--sys-text-secondary)]">
+              <span className="font-semibold text-[var(--sys-text)] text-lg">{stats.winRate.toFixed(1)}%</span>
+              <ChevronRight size={16} />
             </div>
           </div>
-          <div className="min-w-0 mt-2">
-            <h3
-              className="text-lg xs:text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-m3-on-surface font-display truncate"
-              id="win-rate-val"
-            >
-              {stats.winRate.toFixed(1)}%
-            </h3>
-            <p className="m3-body-small sm:m3-body-medium text-m3-on-surface-variant mt-1 font-medium truncate">
-              {stats.winningTrades} thắng / {stats.totalTrades} lệnh
-            </p>
-          </div>
-        </motion.div>
 
-        {/* Profit Factor card */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25, delay: 0.15 }}
-          className={`p-4 sm:p-6 rounded-[24px] ${darkMode ? "bg-m3-surface" : "bg-m3-surface"} flex flex-col justify-between min-h-[125px] sm:min-h-[155px] shadow-level1 hover:shadow-level2 transition-all ease-[var(--ease-m3-enter)] duration-250`}
-          id="m3-card-pf"
-        >
-          <div className="flex justify-between items-start gap-1">
-            <span className="m3-body-small sm:m3-label-large text-m3-on-surface-variant font-display truncate">
-              Hệ số lợi nhuận
-            </span>
-            <div className="p-1.5 sm:p-2 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-100/10 dark:text-amber-400 flex-shrink-0">
-              <Activity size={16} className="sm:w-4.5 sm:h-4.5" />
+          {/* Row: Profit Factor */}
+          <div className="flex items-center justify-between p-4 border-b border-[var(--sys-border)]">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-[var(--sys-blue)] flex items-center justify-center text-white">
+                <Activity size={18} />
+              </div>
+              <span className="text-[var(--sys-text)] font-medium text-lg truncate pr-2">Hệ số lợi nhuận</span>
+            </div>
+            <div className="flex items-center gap-2 text-[var(--sys-text-secondary)]">
+              <span className="font-semibold text-[var(--sys-text)] text-lg">{stats.profitFactor.toFixed(2)}</span>
+              <ChevronRight size={16} />
             </div>
           </div>
-          <div className="min-w-0 mt-2">
-            <h3
-              className="text-lg xs:text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-m3-on-surface font-display truncate"
-              id="pf-val"
-            >
-              {stats.profitFactor.toFixed(2)}
-            </h3>
-            <p className="m3-body-small sm:m3-body-medium text-m3-on-surface-variant mt-1 font-medium truncate">
-              Tổng lời / tổng lỗ
-            </p>
-          </div>
-        </motion.div>
 
-        {/* Average trade card */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25, delay: 0.2 }}
-          className={`p-4 sm:p-6 rounded-[24px] ${darkMode ? "bg-m3-surface" : "bg-m3-surface"} flex flex-col justify-between min-h-[125px] sm:min-h-[155px] shadow-level1 hover:shadow-level2 transition-all ease-[var(--ease-m3-enter)] duration-250`}
-          id="m3-card-avg"
-        >
-          <div className="flex justify-between items-start gap-1">
-            <span className="m3-body-small sm:m3-label-large text-m3-on-surface-variant font-display truncate">
-              Lợi nhuận trung bình
-            </span>
-            <div
-              className={`p-1.5 sm:p-2 rounded-full flex-shrink-0 ${stats.averagePnl >= 0 ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-rose-500/10 text-rose-600 dark:text-rose-400"}`}
-            >
-              <Award size={16} className="sm:w-4.5 sm:h-4.5" />
+          {/* Row: Average Pnl */}
+          <div className="flex items-center justify-between p-4 border-b border-[var(--sys-border)]">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-[var(--sys-blue)] flex items-center justify-center text-white">
+                <Award size={18} />
+              </div>
+              <span className="text-[var(--sys-text)] font-medium text-lg truncate pr-2">Lệnh trung bình</span>
+            </div>
+            <div className="flex items-center gap-2 text-[var(--sys-text-secondary)]">
+              <span className={`font-semibold text-lg ${stats.averagePnl >= 0 ? 'text-[var(--sys-green)]' : 'text-[var(--sys-red)]'}`}>
+                {stats.averagePnl >= 0 ? "+" : ""}${stats.averagePnl.toLocaleString("en-US", { maximumFractionDigits: 0 })}
+              </span>
+              <ChevronRight size={16} />
             </div>
           </div>
-          <div className="min-w-0 mt-2">
-            <h3
-              className={`text-lg xs:text-xl sm:text-2xl md:text-3xl font-black tracking-tight font-display truncate ${stats.averagePnl >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}
-              id="avg-pnl-val"
-            >
-              {stats.averagePnl >= 0 ? "+" : ""}$
-              {stats.averagePnl.toLocaleString("en-US", {
-                maximumFractionDigits: 0,
-              })}
-            </h3>
-            <p className="m3-body-small sm:m3-body-medium text-m3-on-surface-variant mt-1 font-medium truncate">
-              Hiệu suất trung bình mỗi lệnh
-            </p>
+          
+          {/* Row: Best Trade */}
+          <div className="flex items-center justify-between p-4 border-b border-[var(--sys-border)]">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-[var(--sys-green)] flex items-center justify-center text-white">
+                <TrendingUp size={18} />
+              </div>
+              <span className="text-[var(--sys-text)] font-medium text-lg truncate pr-2">Lệnh thắng lớn nhất</span>
+            </div>
+            <div className="flex items-center gap-2 text-[var(--sys-text-secondary)]">
+              <span className="font-semibold text-[var(--sys-green)] text-lg">+${stats.bestTrade.toLocaleString()}</span>
+              <ChevronRight size={16} />
+            </div>
+          </div>
+
+          {/* Row: Worst Trade */}
+          <div className="flex items-center justify-between p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-[var(--sys-red)] flex items-center justify-center text-white">
+                <TrendingDown size={18} />
+              </div>
+              <span className="text-[var(--sys-text)] font-medium text-lg truncate pr-2">Lệnh lỗ lớn nhất</span>
+            </div>
+            <div className="flex items-center gap-2 text-[var(--sys-text-secondary)]">
+              <span className="font-semibold text-[var(--sys-red)] text-lg">${stats.worstTrade.toLocaleString()}</span>
+              <ChevronRight size={16} />
+            </div>
           </div>
         </motion.div>
       </div>
 
-      {/* Main Charts Block - Material 3 Surface design */}
-      <div
-        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
-        id="m3-charts-block"
-      >
+      {/* 3. iOS Health / Stocks Style Chart Cards */}
+      <div className="mt-8 space-y-6">
+        <h3 className="text-[var(--sys-text-secondary)] uppercase text-sm font-semibold tracking-wider ml-4 mb-2">
+          Biểu Đồ Trực Quan
+        </h3>
+        
         {/* Cumulative Profit Chart */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.99 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.35, delay: 0.25 }}
-          className={`lg:col-span-2 p-5 sm:p-6 rounded-[24px] ${darkMode ? "bg-m3-surface" : "bg-m3-surface"} flex flex-col justify-between min-h-[280px] sm:min-h-[370px] shadow-level1`}
-          id="m3-chart-card-cumulative"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="ios26-chart-card p-6"
         >
-          <div className="flex justify-between items-center mb-4 gap-2">
+          <div className="flex justify-between items-start mb-6">
             <div>
-              <h4 className="m3-body-large sm:text-lg font-extrabold text-m3-on-surface font-display">
-                Lợi Nhuận Tích Luỹ (USD)
+              <h4 className="text-xl font-bold text-[var(--sys-text)] tracking-tight">
+                Lợi Nhuận Tích Luỹ
               </h4>
-              <p className="m3-body-small sm:m3-body-medium text-m3-on-surface-variant font-medium">
-                Sự tăng trưởng tài khoản theo thứ tự lệnh
+              <p className="text-base text-[var(--sys-text-secondary)] mt-1 font-medium">
+                Sự tăng trưởng tài khoản qua các lệnh
               </p>
             </div>
-            <div className="m3-body-small font-mono font-bold text-m3-primary dark:text-google-blue-300 bg-m3-primary-container dark:bg-m3-primary-container/30 px-2.5 sm:px-3 py-1 rounded-full flex-shrink-0">
-              Live Tracker
+            <div className="w-8 h-8 rounded-full bg-[var(--sys-blue)]/10 text-[var(--sys-blue)] flex items-center justify-center">
+              <Activity size={16} />
             </div>
           </div>
 
-          <div className="w-full h-44 sm:h-64 mt-2">
+          <div className="w-full h-56 mt-2">
             {chartData.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-m3-on-surface-variant space-y-2">
-                <Calendar
-                  size={36}
-                  className="text-m3-outline-variant dark:text-m3-on-surface-variant"
-                />
-                <p className="m3-body-medium">
-                  Chưa có dữ liệu biểu đồ. Hãy thêm giao dịch!
-                </p>
+              <div className="h-full flex flex-col items-center justify-center text-[var(--sys-text-secondary)]">
+                <Calendar size={32} className="mb-2 opacity-50" />
+                <p className="text-base font-medium">Chưa có dữ liệu giao dịch.</p>
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={chartData}
-                  margin={{ left: -10, right: 10, top: 10, bottom: 0 }}
+                  margin={{ left: -20, right: 0, top: 10, bottom: 0 }}
                 >
                   <defs>
-                    <linearGradient
-                      id="colorCumulative"
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
-                    >
-                      <stop
-                        offset="5%"
-                        stopColor="#1a73e8"
-                        stopOpacity={0.25}
-                      />
-                      <stop
-                        offset="95%"
-                        stopColor="#1a73e8"
-                        stopOpacity={0.0}
-                      />
+                    <linearGradient id="colorCumulative" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--sys-blue)" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="var(--sys-blue)" stopOpacity={0.0} />
                     </linearGradient>
                   </defs>
                   <XAxis
                     dataKey="tradeNum"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: "#9ca3af", fontSize: 10 }}
+                    tick={{ fill: "var(--sys-text-secondary)", fontSize: 11, fontWeight: 500 }}
+                    dy={10}
                   />
                   <YAxis
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: "#9ca3af", fontSize: 10 }}
+                    tick={{ fill: "var(--sys-text-secondary)", fontSize: 11, fontWeight: 500 }}
                     tickFormatter={(val) => `$${val}`}
+                    dx={-10}
                   />
                   <Tooltip
                     contentStyle={{
-                      borderRadius: "12px",
-                      background: "rgba(30, 31, 32, 0.95)",
-                      border: "none",
-                      color: "#fff",
-                      fontSize: "12px",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+                      borderRadius: "16px",
+                      background: "var(--sys-surface-2)",
+                      border: "1px solid var(--sys-border)",
+                      color: "var(--sys-text)",
+                      fontSize: "13px",
+                      fontWeight: 500,
+                      boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)",
+                      backdropFilter: "blur(20px)"
                     }}
-                    formatter={(value: any, name: string, props: any) => {
-                      if (name === "cumulative")
-                        return [`$${Number(value).toFixed(2)}`, "Cumulative"];
-                      return [`$${value}`, "Từng lệnh"];
+                    itemStyle={{ color: "var(--sys-blue)", fontWeight: 700 }}
+                    formatter={(value: any, name: string) => {
+                      if (name === "cumulative") return [`$${Number(value).toFixed(2)}`, "Lợi nhuận"];
+                      return [`$${value}`, "Lệnh"];
                     }}
                     labelFormatter={(label, items) => {
                       return items?.[0]?.payload?.pair || label;
@@ -348,7 +319,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
                   <Area
                     type="monotone"
                     dataKey="cumulative"
-                    stroke="#1a73e8"
+                    stroke="var(--sys-blue)"
                     strokeWidth={3}
                     fillOpacity={1}
                     fill="url(#colorCumulative)"
@@ -361,82 +332,74 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
 
         {/* Pair Performance Distribution */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.99 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.35, delay: 0.3 }}
-          className={`p-5 sm:p-6 rounded-[24px] ${darkMode ? "bg-m3-surface" : "bg-m3-surface"} flex flex-col justify-between shadow-level1`}
-          id="m3-chart-card-distribution"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="ios26-chart-card p-6"
         >
-          <div className="mb-4">
-            <h4 className="m3-body-large sm:text-lg font-extrabold text-m3-on-surface font-display">
-              Tần Suất Giao Dịch
-            </h4>
-            <p className="m3-body-small sm:m3-body-medium text-m3-on-surface-variant">
-              Các cặp tiền tệ thường dùng nhất
-            </p>
+          <div className="flex justify-between items-start mb-6">
+            <div>
+              <h4 className="text-xl font-bold text-[var(--sys-text)] tracking-tight">
+                Tần Suất Cặp Tiền
+              </h4>
+              <p className="text-base text-[var(--sys-text-secondary)] mt-1 font-medium">
+                Các tài sản giao dịch nhiều nhất
+              </p>
+            </div>
+            <div className="w-8 h-8 rounded-full bg-[var(--sys-blue)]/10 text-[var(--sys-blue)] flex items-center justify-center">
+              <Layers size={16} />
+            </div>
           </div>
 
-          <div className="w-full h-40 sm:h-48 flex items-center justify-center mt-2">
+          <div className="w-full h-48 mt-2">
             {pairData.length === 0 ? (
-              <div className="text-m3-on-surface-variant flex flex-col items-center">
-                <Layers
-                  className="text-m3-outline-variant dark:text-m3-on-surface-variant"
-                  size={32}
-                />
-                <p className="m3-body-small mt-2">Chưa đủ dữ liệu</p>
+              <div className="h-full flex flex-col items-center justify-center text-[var(--sys-text-secondary)]">
+                <Layers size={32} className="mb-2 opacity-50" />
+                <p className="text-base font-medium">Chưa đủ dữ liệu</p>
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={pairData}>
+                <BarChart data={pairData} margin={{ left: -20, right: 0, top: 10, bottom: 0 }}>
                   <XAxis
                     dataKey="name"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: "#9ca3af", fontSize: 10 }}
+                    tick={{ fill: "var(--sys-text-secondary)", fontSize: 11, fontWeight: 500 }}
+                    dy={10}
                   />
                   <YAxis
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: "#9ca3af", fontSize: 10 }}
+                    tick={{ fill: "var(--sys-text-secondary)", fontSize: 11, fontWeight: 500 }}
                     allowDecimals={false}
+                    dx={-10}
                   />
                   <Tooltip
+                    cursor={{ fill: 'var(--sys-border)', opacity: 0.5 }}
                     contentStyle={{
-                      borderRadius: "12px",
-                      background: "rgba(30, 31, 32, 0.95)",
-                      border: "none",
-                      color: "#fff",
-                      fontSize: "12px",
+                      borderRadius: "16px",
+                      background: "var(--sys-surface-2)",
+                      border: "1px solid var(--sys-border)",
+                      color: "var(--sys-text)",
+                      fontSize: "13px",
+                      fontWeight: 500,
+                      boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)",
                     }}
+                    itemStyle={{ color: "var(--sys-blue)", fontWeight: 700 }}
                     formatter={(value) => [`${value} lệnh`, "Tần suất"]}
                   />
-                  <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                  <Bar dataKey="value" radius={[8, 8, 8, 8]}>
                     {pairData.map((entry, index) => (
                       <Cell
                         key={`cell-${index}`}
-                        fill={index % 2 === 0 ? "#1a73e8" : "#8ab4f8"}
+                        fill="var(--sys-blue)"
+                        fillOpacity={index % 2 === 0 ? 1 : 0.6}
                       />
                     ))}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
             )}
-          </div>
-
-          {/* Quick Stats list */}
-          <div className="space-y-3.5 mt-4 pt-4 border-t border-m3-outline-variant dark:border-m3-outline-variant m3-body-medium text-m3-on-surface-variant dark:text-m3-on-surface-variant font-medium">
-            <div className="flex justify-between items-center">
-              <span>Giao dịch thắng lớn nhất:</span>
-              <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400 m3-body-large">
-                +${stats.bestTrade.toLocaleString()}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span>Giao dịch lỗ lớn nhất:</span>
-              <span className="font-mono font-bold text-rose-500 dark:text-rose-400 m3-body-large">
-                ${stats.worstTrade.toLocaleString()}
-              </span>
-            </div>
           </div>
         </motion.div>
       </div>

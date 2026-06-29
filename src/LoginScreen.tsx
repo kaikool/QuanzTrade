@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Lock, ArrowRight, Loader2, ShieldCheck } from "lucide-react";
-import { motion } from "motion/react";
+import { CloudLightning, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 
 interface LoginScreenProps {
   onLoginSuccess: (token: string) => void;
@@ -25,11 +25,9 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         body: JSON.stringify({ password }),
       });
 
-      // Safely check if response is JSON (Render or local proxy might return HTML 502/404)
       const contentType = res.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
         const text = await res.text();
-        console.error("Non-JSON Server Response:", text);
         setError(`Lỗi PWA: HTTP ${res.status} ${res.statusText} - ${text.substring(0, 100)}...`);
         return;
       }
@@ -48,71 +46,72 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black flex items-center justify-center p-4">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-500/10 blur-[120px] rounded-full"></div>
-        <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-indigo-500/10 blur-[120px] rounded-full"></div>
-      </div>
+    <div className="ios26-auth-screen flex items-center justify-center p-4">
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md relative z-10"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        className="w-full max-w-sm relative z-10"
       >
-        <div className="bg-slate-800/50 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-2xl">
-          <div className="flex flex-col items-center justify-center mb-8">
-            <div className="w-16 h-16 bg-blue-500/20 text-blue-400 flex items-center justify-center rounded-2xl mb-4 border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.5)]">
-              <ShieldCheck size={32} />
-            </div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Khu Vực Tuyệt Mật</h1>
-            <p className="text-slate-400 text-sm mt-2 text-center">
-              Nhập mật khẩu truy cập hệ thống QuanzTrade.
-            </p>
-          </div>
+        <div className="ios26-auth-card p-8 flex flex-col items-center">
+          <motion.div 
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 400, damping: 20 }}
+            className="ios26-auth-icon w-20 h-20 text-[var(--sys-blue)] flex items-center justify-center rounded-[24px] mb-6"
+          >
+            <CloudLightning size={42} strokeWidth={1.7} />
+          </motion.div>
+          
+          <h1 className="ios26-brand-wordmark text-3xl font-black text-[var(--sys-text)] mb-2">Táo Tầu Journal</h1>
+          <p className="text-[var(--sys-text-secondary)] text-base mb-8 text-center">
+            Sử dụng mật khẩu để truy cập không gian làm việc của bạn.
+          </p>
 
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleLogin} className="w-full space-y-4">
             <div>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock size={18} className="text-slate-500" />
-                </div>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full bg-slate-900/50 border border-white/10 text-white rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-slate-600"
+                  placeholder="Mật mã"
+                  className="w-full bg-[var(--sys-surface-2)] text-[var(--sys-text)] border border-[var(--sys-border)] rounded-2xl py-3.5 px-4 text-center text-lg focus:outline-none focus:border-[var(--sys-blue)] transition-colors placeholder:text-[var(--sys-text-secondary)]"
                   autoFocus
                 />
               </div>
-              {error && (
-                <motion.p
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  className="text-red-400 text-sm mt-2 font-medium"
-                >
-                  {error}
-                </motion.p>
-              )}
+              <AnimatePresence>
+                {error && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="text-[var(--sys-red)] text-base mt-3 text-center"
+                  >
+                    {error}
+                  </motion.p>
+                )}
+              </AnimatePresence>
             </div>
 
-            <button
+            <motion.button
+              whileTap={{ scale: 0.96 }}
               type="submit"
               disabled={!password || loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold py-3 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group"
+              className="ios26-primary-button w-full text-white font-semibold text-lg py-3.5 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
-                <Loader2 size={18} className="animate-spin" />
+                <Loader2 size={20} className="animate-spin" />
               ) : (
-                <>
-                  Mở Khóa Hệ Thống
-                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                </>
+                "Tiếp tục"
               )}
-            </button>
+            </motion.button>
           </form>
         </div>
       </motion.div>
     </div>
   );
 }
+
+
