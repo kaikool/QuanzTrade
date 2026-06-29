@@ -1939,22 +1939,22 @@ export default function App() {
                         {/* Hero: Chart Snapshot */}
                         {(t.tv_snapshot_url || t.tv_snapshot_url_close) && (
                           <div className="w-full relative">
-                            <div className={`grid ${t.tv_snapshot_url && t.tv_snapshot_url_close ? 'grid-cols-2 gap-1 bg-black/10' : 'grid-cols-1'} w-full`}>
+                            <div className={`grid ${t.tv_snapshot_url && t.tv_snapshot_url_close ? 'grid-cols-2 gap-0.5' : 'grid-cols-1'} w-full`}>
                               {t.tv_snapshot_url && (
-                                <button type="button" onClick={() => setLightboxUrl(t.tv_snapshot_url!)} className="w-full block relative">
-                                  <img src={t.tv_snapshot_url} alt="Chart Mở Lệnh" className="w-full h-auto block bg-m3-surface-container-lowest dark:bg-black/30" />
-                                  <div className="absolute bottom-2 left-2">
+                                <div onClick={() => setLightboxUrl(t.tv_snapshot_url!)} className="w-full block relative cursor-pointer overflow-hidden aspect-[16/10] bg-m3-surface-container-lowest dark:bg-black/30">
+                                  <img src={t.tv_snapshot_url} alt="Chart Mở Lệnh" className="w-full h-full object-cover block" />
+                                  <div className="absolute bottom-2 left-2 z-10">
                                     <span className="px-2 py-0.5 rounded bg-black/60 text-[9px] font-bold text-white uppercase backdrop-blur-sm">Mở Lệnh</span>
                                   </div>
-                                </button>
+                                </div>
                               )}
                               {t.tv_snapshot_url_close && (
-                                <button type="button" onClick={() => setLightboxUrl(t.tv_snapshot_url_close!)} className="w-full block relative">
-                                  <img src={t.tv_snapshot_url_close} alt="Chart Đóng Lệnh" className="w-full h-auto block bg-m3-surface-container-lowest dark:bg-black/30" />
-                                  <div className="absolute bottom-2 left-2">
+                                <div onClick={() => setLightboxUrl(t.tv_snapshot_url_close!)} className="w-full block relative cursor-pointer overflow-hidden aspect-[16/10] bg-m3-surface-container-lowest dark:bg-black/30">
+                                  <img src={t.tv_snapshot_url_close} alt="Chart Đóng Lệnh" className="w-full h-full object-cover block" />
+                                  <div className="absolute bottom-2 left-2 z-10">
                                     <span className="px-2 py-0.5 rounded bg-black/60 text-[9px] font-bold text-white uppercase backdrop-blur-sm">Đóng Lệnh</span>
                                   </div>
-                                </button>
+                                </div>
                               )}
                             </div>
                             {/* PnL overlay badge */}
