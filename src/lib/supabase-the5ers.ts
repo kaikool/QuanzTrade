@@ -86,12 +86,12 @@ export async function fetchT5AccountDetail(accountId: string): Promise<{
           : "sell",
       volume: parseFloat(t.quantity) || 0,
       openPrice: parseFloat(t.entry_price) || 0,
-      closePrice: t.exit_price ? parseFloat(t.exit_price) : 0,
+      closePrice: t.exit_price ? parseFloat(t.exit_price) : null,
       pnl: parseFloat(t.profit) || 0,
       pnlPoints: parseFloat(t.pips) || 0,
       fees: 0,
       openTime: t.open_date || new Date().toISOString(),
-      closeTime: t.close_date || new Date().toISOString(),
+      closeTime: t.close_date || null,
       duration: getDuration(t.open_date, t.close_date),
     }));
   }

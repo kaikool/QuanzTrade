@@ -118,12 +118,20 @@ async function run() {
 
     let existingAccounts = [];
     let existingTradeIds = new Set();
+    let openTradeIds = new Set();
     if (supabase) {
       const { data } = await supabase.from('t5_accounts').select('account_id, status');
       if (data) existingAccounts = data;
       
-      const { data: tData } = await supabase.from('t5_trades').select('trade_id');
-      if (tData) tData.forEach(t => existingTradeIds.add(t.trade_id));
+      const { data: tData } = await supabase.from('t5_trades').select('trade_id, close_date');
+      if (tData) {
+        tData.forEach(t => {
+          existingTradeIds.add(t.trade_id);
+          if (!t.close_date) {
+            openTradeIds.add(t.trade_id);
+          }
+        });
+      }
     }
 
     if (accounts && accounts.length > 0) {
@@ -151,11 +159,13 @@ async function run() {
             const posRes = await fetchApi('/position/all/' + accId + '?page=1&limit=50');
             positionsData = Array.isArray(posRes) ? posRes : (posRes.results || posRes.data || posRes.positions || []);
             
-            // Check for new trades to snapshot
+            // Check for new trades to snapshot, or trades that have just closed
             for (const t of positionsData) {
                 const tid = String(t.id || t._id);
+                const isClosedNow = !!(t.closeDate || t.exit || t.closeTime);
+
                 if (!existingTradeIds.has(tid)) {
-                    // NEW TRADE DETECTED! Take snapshot!
+                    // NEW TRADE DETECTED! Take open snapshot!
                     const symbol = t.symbol || '';
                     const pair = symbol.replace(/(.{3})/, "$1/");
                     await captureAndSaveSnapshot(
@@ -165,9 +175,42 @@ async function run() {
                         t.side || t.direction,
                         t.entry || t.openPrice,
                         t.quantity || t.volume,
-                        t.openDate || t.openTime
+                        t.openDate || t.openTime,
+                        false // isClose = false
                     );
-                    existingTradeIds.add(tid); // Mark as processed to avoid duplicates in same run if any
+                    existingTradeIds.add(tid); // Mark as processed
+                    
+                    // If it is also closed now (meaning it closed before we could run the scraper),
+                    // we should ALSO capture the close snapshot!
+                    if (isClosedNow) {
+                        await captureAndSaveSnapshot(
+                            tid,
+                            symbol,
+                            pair,
+                            t.side || t.direction,
+                            t.entry || t.openPrice,
+                            t.quantity || t.volume,
+                            t.openDate || t.openTime,
+                            true // isClose = true
+                        );
+                    }
+                } else if (openTradeIds.has(tid) && isClosedNow) {
+                    // This trade was previously OPEN in the database, but is now CLOSED!
+                    // Take the close snapshot!
+                    const symbol = t.symbol || '';
+                    const pair = symbol.replace(/(.{3})/, "$1/");
+                    await captureAndSaveSnapshot(
+                        tid,
+                        symbol,
+                        pair,
+                        t.side || t.direction,
+                        t.entry || t.openPrice,
+                        t.quantity || t.volume,
+                        t.openDate || t.openTime,
+                        true // isClose = true
+                    );
+                    // Remove from openTradeIds so we don't snapshot it again in this run
+                    openTradeIds.delete(tid);
                 }
             }
           } catch(e) { console.log('Khong lay duoc lenh ' + accId); }

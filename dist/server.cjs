@@ -1410,6 +1410,45 @@ async function startServer() {
         res.status(500).json({ success: false, message: e.message });
       }
     });
+    app.get("/api/get-tv-creds", async (req, res) => {
+      const supabase = getServerSupabaseClient();
+      if (!supabase) {
+        return res.status(500).json({ success: false, message: "Supabase not configured" });
+      }
+      try {
+        const [idData, signData, browserlessData] = await Promise.all([
+          supabase.from("t5_config").select("value").eq("key", "TV_SESSION_ID").single(),
+          supabase.from("t5_config").select("value").eq("key", "TV_SESSION_SIGN").single(),
+          supabase.from("t5_config").select("value").eq("key", "BROWSERLESS_TOKEN").single()
+        ]);
+        res.json({
+          success: true,
+          sessionId: idData.data?.value || "",
+          sessionSign: signData.data?.value || "",
+          browserlessToken: browserlessData.data?.value || ""
+        });
+      } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
+      }
+    });
+    app.post("/api/save-tv-creds", async (req, res) => {
+      const { sessionId, sessionSign, browserlessToken } = req.body || {};
+      if (!sessionId || !sessionSign || !browserlessToken) {
+        return res.status(400).json({ success: false, message: "Missing sessionId, sessionSign or browserlessToken" });
+      }
+      const supabase = getServerSupabaseClient();
+      if (!supabase) {
+        return res.status(500).json({ success: false, message: "Supabase not configured" });
+      }
+      try {
+        await supabase.from("t5_config").upsert({ key: "TV_SESSION_ID", value: sessionId, updated_at: (/* @__PURE__ */ new Date()).toISOString() });
+        await supabase.from("t5_config").upsert({ key: "TV_SESSION_SIGN", value: sessionSign, updated_at: (/* @__PURE__ */ new Date()).toISOString() });
+        await supabase.from("t5_config").upsert({ key: "BROWSERLESS_TOKEN", value: browserlessToken, updated_at: (/* @__PURE__ */ new Date()).toISOString() });
+        res.json({ success: true, message: "\u2705 \u0110\xE3 l\u01B0u c\u1EA5u h\xECnh l\xEAn Database." });
+      } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
+      }
+    });
     app.get("/api/tv-snapshot", async (req, res) => {
       const { symbol } = req.query;
       const layout = "fCLTltqk";
@@ -1420,17 +1459,38 @@ async function startServer() {
       try {
         const puppeteer = await import("puppeteer-core");
         const browser = await puppeteer.default.connect({
-          browserWSEndpoint: `wss://chrome.browserless.io?token=${token}`
+          browserWSEndpoint: `wss://chrome.browserless.io?token=${token}&stealth`
         });
         const page = await browser.newPage();
         await page.setViewport({ width: 1280, height: 800 });
-        const sessionId = process.env.TV_SESSION_ID;
-        const sessionSign = process.env.TV_SESSION_SIGN;
+        await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+        let sessionId = req.query.tv_session_id;
+        let sessionSign = req.query.tv_session_sign;
+        if (!sessionId || !sessionSign) {
+          const supabase = getServerSupabaseClient();
+          if (supabase) {
+            try {
+              const [idData, signData] = await Promise.all([
+                supabase.from("t5_config").select("value").eq("key", "TV_SESSION_ID").single(),
+                supabase.from("t5_config").select("value").eq("key", "TV_SESSION_SIGN").single()
+              ]);
+              sessionId = sessionId || idData.data?.value;
+              sessionSign = sessionSign || signData.data?.value;
+            } catch (e) {
+              console.error("[TV Snapshot] Failed to load session from Supabase:", e);
+            }
+          }
+        }
+        sessionId = sessionId || process.env.TV_SESSION_ID;
+        sessionSign = sessionSign || process.env.TV_SESSION_SIGN;
         if (sessionId && sessionSign) {
+          console.log(`[TV Snapshot] Injecting session cookies for layout ${layout}`);
           await page.setCookie(
-            { name: "sessionid", value: sessionId, domain: ".tradingview.com" },
-            { name: "sessionid_sign", value: sessionSign, domain: ".tradingview.com" }
+            { name: "sessionid", value: sessionId, url: "https://vn.tradingview.com", secure: true, httpOnly: true },
+            { name: "sessionid_sign", value: sessionSign, url: "https://vn.tradingview.com", secure: true, httpOnly: true }
           );
+        } else {
+          console.log("[TV Snapshot] WARNING: TV_SESSION_ID or TV_SESSION_SIGN is missing in environment variables!");
         }
         let chartUrl = `https://vn.tradingview.com/chart/${layout}/`;
         if (symbol) {
@@ -1439,13 +1499,56 @@ async function startServer() {
         await page.goto(chartUrl, { waitUntil: "networkidle2", timeout: 3e4 });
         await page.waitForSelector(".chart-gui-wrapper canvas", { timeout: 15e3 }).catch(() => {
         });
-        await new Promise((r) => setTimeout(r, 4e3));
         const chartElement = await page.$(".layout__area--center");
+        console.log("[TV Snapshot] Waiting for chart to load data...");
+        await new Promise((r) => setTimeout(r, 6e3));
+        await page.evaluate(() => {
+          try {
+            const selectors = [
+              ".tv-dialog",
+              '[class*="dialog-"]',
+              '[class*="overlap-"]',
+              '[class*="toast-"]',
+              '[class*="banner-"]',
+              '[class*="notification-"]',
+              '[id*="cookie"]',
+              '[class*="cookie"]',
+              ".toast"
+            ];
+            selectors.forEach((sel) => {
+              document.querySelectorAll(sel).forEach((el) => el.remove());
+            });
+          } catch (e) {
+          }
+        });
+        const canvasElement = await page.$(".chart-gui-wrapper canvas");
+        if (canvasElement) {
+          const box = await canvasElement.boundingBox();
+          if (box) {
+            await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+            await new Promise((r) => setTimeout(r, 300));
+            await page.keyboard.press("Escape");
+            await new Promise((r) => setTimeout(r, 200));
+            await page.keyboard.press("End");
+            await new Promise((r) => setTimeout(r, 1200));
+            for (let i = 0; i < 5; i++) {
+              await page.keyboard.down("Shift");
+              await page.keyboard.press("ArrowRight");
+              await page.keyboard.up("Shift");
+              await new Promise((r) => setTimeout(r, 150));
+            }
+            await new Promise((r) => setTimeout(r, 500));
+            await page.keyboard.down("Alt");
+            await page.keyboard.press("r");
+            await page.keyboard.up("Alt");
+          }
+        }
+        await new Promise((r) => setTimeout(r, 2500));
         let imageBuffer;
         if (chartElement) {
           imageBuffer = await chartElement.screenshot({ type: "png" });
         } else {
-          imageBuffer = await page.screenshot({ type: "png" });
+          imageBuffer = await page.screenshot({ type: "png", fullPage: false });
         }
         await browser.close();
         const blob = new Blob([imageBuffer], { type: "image/png" });
@@ -1480,12 +1583,42 @@ async function startServer() {
         res.status(500).json({ success: false, message: "L\u1ED7i ch\u1EE5p \u1EA3nh: " + err.message });
       }
     });
+    app.get("/env.js", (req, res) => {
+      res.type("application/javascript");
+      res.send(`window.ENV = { SUPABASE_URL: "${process.env.SUPABASE_URL || ""}", SUPABASE_ANON_KEY: "${process.env.SUPABASE_ANON_KEY || ""}" };`);
+    });
+    app.get("/test-db", async (req, res) => {
+      const supabase = getServerSupabaseClient();
+      if (!supabase) return res.status(500).json({ error: "No Supabase configured on Backend" });
+      const { data, error } = await supabase.from("trades").upsert({ id: "test-db-connection", status: "OPEN", pair: "TEST", type: "BUY", size: 1, entry_price: 1, pnl: 0, entry_date: (/* @__PURE__ */ new Date()).toISOString() });
+      if (error) return res.status(500).json({ error: error.message, hint: "Please check if your trades table has RLS enabled without policies, or if it is missing the tv_snapshot_url column." });
+      await supabase.from("trades").delete().eq("id", "test-db-connection");
+      res.json({ success: true, message: "Database is working perfectly! Upsert succeeded." });
+    });
+    app.get("/health", (req, res) => {
+      res.json({ status: "ok", uptime: process.uptime(), timestamp: (/* @__PURE__ */ new Date()).toISOString() });
+    });
     app.get("*", (req, res) => {
       res.type("html").send(SPA_HTML);
     });
   }
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);
+    const RENDER_URL = process.env.RENDER_EXTERNAL_URL || "https://quanztrade-app.onrender.com";
+    if (RENDER_URL) {
+      const PING_INTERVAL = 5 * 60 * 1e3;
+      setInterval(async () => {
+        try {
+          const res = await fetch(`${RENDER_URL}/health`);
+          console.log(`[Self-Ping] ${(/* @__PURE__ */ new Date()).toISOString()} \u2192 status ${res.status}`);
+        } catch (err) {
+          console.error(`[Self-Ping] Failed: ${err.message}`);
+        }
+      }, PING_INTERVAL);
+      console.log(`[Self-Ping] Enabled: will ping ${RENDER_URL}/health every 5 minutes`);
+    } else {
+      console.log("[Self-Ping] Skipped: RENDER_EXTERNAL_URL not set (not running on Render)");
+    }
   });
 }
 startServer();

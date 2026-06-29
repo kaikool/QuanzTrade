@@ -199,7 +199,9 @@ export default function App() {
   const [formEntryDate, setFormEntryDate] = useState("");
   const [formExitDate, setFormExitDate] = useState("");
   const [formTVSnapshotUrl, setFormTVSnapshotUrl] = useState("");
+  const [formTVSnapshotUrlClose, setFormTVSnapshotUrlClose] = useState("");
   const [isCapturingSnapshot, setIsCapturingSnapshot] = useState(false);
+  const [isCapturingSnapshotClose, setIsCapturingSnapshotClose] = useState(false);
   const [formPnl, setFormPnl] = useState("");
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
@@ -671,16 +673,18 @@ export default function App() {
         pair: t.instrument.replace(/(.{3})/, "$1/"),
         type: t.direction === "buy" ? "BUY" as const : "SELL" as const,
         entry_price: t.openPrice,
-        exit_price: t.closePrice || null,
+        exit_price: t.closePrice,
         size: t.volume,
         pnl: t.pnl,
-        status: (t.closePrice ? "CLOSED" : "OPEN") as "CLOSED" | "OPEN",
+        status: (t.closeTime ? "CLOSED" : "OPEN") as "CLOSED" | "OPEN",
         entry_date: t.openTime,
-        exit_date: t.closeTime || null,
+        exit_date: t.closeTime,
         notes: `The5ers - ${t.accountId}`,
         timeframe: "N/A",
         rating: 0,
         tag: "The5ers",
+        tv_snapshot_url: null,
+        tv_snapshot_url_close: null,
       }));
   }, [t5Trades, selectedT5AccountIds]);
 
@@ -818,6 +822,7 @@ export default function App() {
     setFormEntryDate(localISO);
     setFormExitDate(localISO);
     setFormTVSnapshotUrl("");
+    setFormTVSnapshotUrlClose("");
 
     setIsAddOpen(true);
   };
@@ -840,6 +845,7 @@ export default function App() {
     setFormStopLoss(trade.stop_loss ? trade.stop_loss.toString() : "");
     setFormTakeProfit(trade.take_profit ? trade.take_profit.toString() : "");
     setFormTVSnapshotUrl(trade.tv_snapshot_url || "");
+    setFormTVSnapshotUrlClose(trade.tv_snapshot_url_close || "");
 
     if (trade.entry_date) {
       const eDate = new Date(trade.entry_date);
@@ -998,6 +1004,29 @@ export default function App() {
     }
   };
 
+  const handleCaptureSnapshotClose = async () => {
+    setIsCapturingSnapshotClose(true);
+    try {
+      const encodedSymbol = encodeURIComponent("FX:" + formPair.replace("/", ""));
+      const token = localStorage.getItem("trade_app_auth_token") || "";
+      const tvId = encodeURIComponent(tvSessionId);
+      const tvSign = encodeURIComponent(tvSessionSign);
+      const url = `/api/tv-snapshot?symbol=${encodedSymbol}&auth_token=${token}&tv_session_id=${tvId}&tv_session_sign=${tvSign}`;
+      
+      const res = await fetch(url);
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.message || "Lỗi khi gọi API chụp ảnh");
+      }
+      
+      setFormTVSnapshotUrlClose(json.url);
+    } catch (e: any) {
+      alert("Chụp ảnh thất bại: " + e.message);
+    } finally {
+      setIsCapturingSnapshotClose(false);
+    }
+  };
+
   // Handle Trade Creation
   const handleCreateTrade = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1040,6 +1069,7 @@ export default function App() {
       stop_loss: slNum,
       take_profit: tpNum,
       tv_snapshot_url: formTVSnapshotUrl || null,
+      tv_snapshot_url_close: formTVSnapshotUrlClose || null,
     };
 
     try {
@@ -1056,6 +1086,7 @@ export default function App() {
       setFormTakeProfit("");
       setFormPnl("");
       setFormTVSnapshotUrl("");
+      setFormTVSnapshotUrlClose("");
     } catch (err: any) {
       console.error("Lỗi đồng bộ hoá:", err);
       alert("Đồng bộ hoá thất bại: " + err.message);
@@ -1075,8 +1106,8 @@ export default function App() {
     const selectedAccounts = t5Accounts.filter(a => selectedIds.has(a.accountId));
     const t5Balance = selectedAccounts.reduce((s, a) => s + a.balance, 0);
     const t5Pnl = selectedAccounts.reduce((s, a) => s + a.pnl, 0);
-    const t5OpenTrades = t5Trades.filter(t => selectedIds.has(t.accountId) && !t.closePrice).length;
-    const t5ClosedTrades = t5Trades.filter(t => selectedIds.has(t.accountId) && t.closePrice).length;
+    const t5OpenTrades = t5Trades.filter(t => selectedIds.has(t.accountId) && !t.closeTime).length;
+    const t5ClosedTrades = t5Trades.filter(t => selectedIds.has(t.accountId) && t.closeTime).length;
 
     const totalPnl = trades.filter(t => !t.id.startsWith("t5-")).reduce((sum, t) => sum + t.pnl, 0);
     const manualPnl = trades.filter(t => t.status === "CLOSED" && !t.id.startsWith("t5-")).reduce((sum, t) => sum + t.pnl, 0);
@@ -1761,18 +1792,35 @@ export default function App() {
                           >
                             <td className="py-3 px-4 whitespace-nowrap">
                               <div className="flex items-center gap-3">
-                                {t.tv_snapshot_url ? (
-                                  <button onClick={() => setLightboxUrl(t.tv_snapshot_url!)} className="w-28 aspect-[16/10] rounded-lg border border-m3-outline-variant overflow-hidden flex-shrink-0 block relative group shadow-sm animate-fade-in" title="Xem ảnh Chart">
-                                    <img src={t.tv_snapshot_url} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 flex items-end justify-center pb-1.5 transition-opacity duration-200">
-                                      <Maximize2 size={13} className="text-white drop-shadow-md" />
+                                <div className="flex gap-2">
+                                  {/* Open Snapshot */}
+                                  {t.tv_snapshot_url ? (
+                                    <button onClick={() => setLightboxUrl(t.tv_snapshot_url!)} className="w-20 aspect-[16/10] rounded-lg border border-m3-outline-variant overflow-hidden flex-shrink-0 block relative group shadow-sm animate-fade-in" title="Ảnh Mở Lệnh">
+                                      <img src={t.tv_snapshot_url} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 flex items-end justify-center pb-1 transition-opacity duration-200">
+                                        <span className="text-[9px] text-white font-bold">Mở Lệnh</span>
+                                      </div>
+                                    </button>
+                                  ) : (
+                                    <div className="w-20 aspect-[16/10] rounded-lg border border-dashed border-m3-outline-variant flex items-center justify-center bg-m3-surface-container flex-shrink-0" title="Chưa có ảnh Mở Lệnh">
+                                      <Camera size={14} className="text-m3-on-surface-variant/30" />
                                     </div>
-                                  </button>
-                                ) : (
-                                  <div className="w-28 aspect-[16/10] rounded-lg border border-dashed border-m3-outline-variant flex items-center justify-center bg-m3-surface-container flex-shrink-0" title="Chưa có ảnh Chart">
-                                    <Camera size={16} className="text-m3-on-surface-variant/30" />
-                                  </div>
-                                )}
+                                  )}
+
+                                  {/* Close Snapshot */}
+                                  {t.tv_snapshot_url_close ? (
+                                    <button onClick={() => setLightboxUrl(t.tv_snapshot_url_close!)} className="w-20 aspect-[16/10] rounded-lg border border-m3-outline-variant overflow-hidden flex-shrink-0 block relative group shadow-sm animate-fade-in" title="Ảnh Đóng Lệnh">
+                                      <img src={t.tv_snapshot_url_close} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 flex items-end justify-center pb-1 transition-opacity duration-200">
+                                        <span className="text-[9px] text-white font-bold">Đóng Lệnh</span>
+                                      </div>
+                                    </button>
+                                  ) : t.status === "CLOSED" ? (
+                                    <div className="w-20 aspect-[16/10] rounded-lg border border-dashed border-m3-outline-variant flex items-center justify-center bg-m3-surface-container flex-shrink-0" title="Chưa có ảnh Đóng Lệnh">
+                                      <Camera size={14} className="text-m3-on-surface-variant/30" />
+                                    </div>
+                                  ) : null}
+                                </div>
                                 <div className="flex items-center gap-2.5">
                                   <span
                                     className={`px-2 py-0.5 rounded text-[11px] font-black font-mono ${t.type === "BUY" ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"}`}
@@ -1782,8 +1830,10 @@ export default function App() {
                                   <div>
                                     <div className="font-bold text-m3-on-surface text-[13px] leading-tight flex items-center gap-1.5">
                                       {t.pair}
-                                      {t.status === "OPEN" && (
-                                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 font-extrabold uppercase">OPEN</span>
+                                      {t.status === "OPEN" ? (
+                                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 font-extrabold uppercase animate-pulse">OPEN</span>
+                                      ) : (
+                                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-m3-outline-variant/30 text-m3-on-surface-variant font-extrabold uppercase">CLOSED</span>
                                       )}
                                     </div>
                                     <div className="text-[11px] text-m3-on-surface-variant mt-0.5">
@@ -1887,40 +1937,55 @@ export default function App() {
                         className="bg-m3-surface-container-low dark:bg-m3-surface-container/50 rounded-[20px] border border-m3-outline-variant/15 dark:border-m3-outline-variant/40 overflow-hidden shadow-sm"
                       >
                         {/* Hero: Chart Snapshot */}
-                        {t.tv_snapshot_url && (
-                          <button type="button" onClick={() => setLightboxUrl(t.tv_snapshot_url!)} className="w-full block relative group">
-                            <img src={t.tv_snapshot_url} alt="Chart" className="w-full h-auto block bg-m3-surface-container-lowest dark:bg-black/30" />
+                        {(t.tv_snapshot_url || t.tv_snapshot_url_close) && (
+                          <div className="w-full relative">
+                            <div className={`grid ${t.tv_snapshot_url && t.tv_snapshot_url_close ? 'grid-cols-2 gap-1 bg-black/10' : 'grid-cols-1'} w-full`}>
+                              {t.tv_snapshot_url && (
+                                <button type="button" onClick={() => setLightboxUrl(t.tv_snapshot_url!)} className="w-full block relative">
+                                  <img src={t.tv_snapshot_url} alt="Chart Mở Lệnh" className="w-full h-auto block bg-m3-surface-container-lowest dark:bg-black/30" />
+                                  <div className="absolute bottom-2 left-2">
+                                    <span className="px-2 py-0.5 rounded bg-black/60 text-[9px] font-bold text-white uppercase backdrop-blur-sm">Mở Lệnh</span>
+                                  </div>
+                                </button>
+                              )}
+                              {t.tv_snapshot_url_close && (
+                                <button type="button" onClick={() => setLightboxUrl(t.tv_snapshot_url_close!)} className="w-full block relative">
+                                  <img src={t.tv_snapshot_url_close} alt="Chart Đóng Lệnh" className="w-full h-auto block bg-m3-surface-container-lowest dark:bg-black/30" />
+                                  <div className="absolute bottom-2 left-2">
+                                    <span className="px-2 py-0.5 rounded bg-black/60 text-[9px] font-bold text-white uppercase backdrop-blur-sm">Đóng Lệnh</span>
+                                  </div>
+                                </button>
+                              )}
+                            </div>
                             {/* PnL overlay badge */}
-                            <div className="absolute top-2.5 right-2.5">
-                              <span className={`px-2.5 py-1 rounded-full text-sm font-black font-mono shadow-lg backdrop-blur-sm ${t.pnl >= 0 ? "bg-emerald-500/90 text-white" : "bg-rose-500/90 text-white"}`}>
+                            <div className="absolute top-2.5 right-2.5 z-10">
+                              <span className={`px-2.5 py-1 rounded-full text-xs font-black font-mono shadow-lg backdrop-blur-sm ${t.pnl >= 0 ? "bg-emerald-500/90 text-white" : "bg-rose-500/90 text-white"}`}>
                                 {t.pnl >= 0 ? "+" : ""}${t.pnl.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                               </span>
                             </div>
                             {/* Direction overlay badge */}
-                            <div className="absolute top-2.5 left-2.5">
-                              <span className={`px-2.5 py-1 rounded-full text-xs font-black font-mono shadow-lg backdrop-blur-sm ${t.type === "BUY" ? "bg-emerald-500/90 text-white" : "bg-rose-500/90 text-white"}`}>
+                            <div className="absolute top-2.5 left-2.5 z-10">
+                              <span className={`px-2.5 py-1 rounded-full text-[10px] font-black font-mono shadow-lg backdrop-blur-sm ${t.type === "BUY" ? "bg-emerald-500/90 text-white" : "bg-rose-500/90 text-white"}`}>
                                 {t.type} {t.pair}
                               </span>
                             </div>
-                            {/* Zoom hint on hover/tap */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 active:opacity-100 transition-opacity duration-200 flex items-end justify-center pb-2.5">
-                              <span className="text-white text-xs font-bold flex items-center gap-1.5 drop-shadow-lg"><Maximize2 size={13} /> Phóng to</span>
-                            </div>
-                          </button>
+                          </div>
                         )}
 
                         {/* Card body */}
                         <div className="p-3.5 space-y-2.5">
                           {/* Header: Pair + Direction + PnL (only if no chart image) */}
-                          {!t.tv_snapshot_url && (
+                          {!(t.tv_snapshot_url || t.tv_snapshot_url_close) && (
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-1.5 min-w-0">
                                 <span className={`px-2.5 py-0.5 rounded-full text-xs font-black font-mono ${t.type === "BUY" ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"}`}>
                                   {t.type}
                                 </span>
                                 <span className="font-bold text-base text-m3-on-surface truncate">{t.pair}</span>
-                                {t.status === "OPEN" && (
+                                {t.status === "OPEN" ? (
                                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 font-extrabold uppercase animate-pulse">OPEN</span>
+                                ) : (
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-m3-outline-variant/30 text-m3-on-surface-variant font-extrabold uppercase">CLOSED</span>
                                 )}
                               </div>
                               <span className={`font-mono font-black text-lg ${t.pnl >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
@@ -1930,16 +1995,19 @@ export default function App() {
                           )}
 
                           {/* If has chart: show pair name + status below image */}
-                          {t.tv_snapshot_url && (
+                          {(t.tv_snapshot_url || t.tv_snapshot_url_close) && (
                             <div className="flex items-center gap-2">
                               <span className="font-bold text-base text-m3-on-surface">{t.pair}</span>
-                              {t.status === "OPEN" && (
+                              {t.status === "OPEN" ? (
                                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 font-extrabold uppercase animate-pulse">OPEN</span>
+                              ) : (
+                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-m3-outline-variant/30 text-m3-on-surface-variant font-extrabold uppercase">CLOSED</span>
                               )}
                               <span className="text-[11px] text-m3-on-surface-variant">•</span>
                               <span className="text-xs text-m3-on-surface-variant font-medium">{t.size} lots</span>
                             </div>
                           )}
+
 
                           {/* Price info grid */}
                           <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[13px]">
@@ -2544,11 +2612,11 @@ export default function App() {
                     ></textarea>
                   </div>
 
-                  {/* TradingView Snapshot Feature */}
+                  {/* TradingView Snapshot Open Feature */}
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
                       <label className="m3-label-medium text-m3-on-surface-variant block">
-                        Ảnh biểu đồ (TradingView)
+                        Ảnh biểu đồ Mở Lệnh (TradingView)
                       </label>
                       <button
                         type="button"
@@ -2595,10 +2663,68 @@ export default function App() {
                     ) : (
                       <div className="border border-dashed border-m3-outline rounded-lg p-4 flex flex-col items-center justify-center text-m3-on-surface-variant/60 gap-2 bg-m3-surface-container-lowest">
                         <Camera size={24} className="opacity-50" />
-                        <span className="text-xs">Chưa có ảnh chụp biểu đồ cho lệnh này</span>
+                        <span className="text-xs">Chưa có ảnh chụp biểu đồ mở lệnh</span>
                       </div>
                     )}
                   </div>
+
+                  {/* TradingView Snapshot Close Feature */}
+                  {formStatus === "CLOSED" && (
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="m3-label-medium text-m3-on-surface-variant block">
+                          Ảnh biểu đồ Đóng Lệnh (TradingView)
+                        </label>
+                        <button
+                          type="button"
+                          onClick={handleCaptureSnapshotClose}
+                          disabled={isCapturingSnapshotClose || !formPair}
+                          className="text-xs font-bold text-m3-primary flex items-center gap-1 hover:underline disabled:opacity-50"
+                        >
+                          {isCapturingSnapshotClose ? (
+                            <><RefreshCw size={12} className="animate-spin" /> Đang chụp...</>
+                          ) : (
+                            <><Camera size={12} /> Tự động chụp {formPair && `(${formPair})`}</>
+                          )}
+                        </button>
+                      </div>
+                      {formTVSnapshotUrlClose ? (
+                        <div className="relative border border-m3-outline rounded-lg overflow-hidden group max-h-[160px] flex items-center justify-center bg-black/10 w-full">
+                          <button
+                            type="button"
+                            onClick={() => setLightboxUrl(formTVSnapshotUrlClose)}
+                            className="block w-full cursor-zoom-in"
+                            title="Xem ảnh lớn"
+                          >
+                            <img src={formTVSnapshotUrlClose} alt="Chart" className="w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                          </button>
+                          <div className="absolute top-2 right-2 z-10 flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setLightboxUrl(formTVSnapshotUrlClose)}
+                              className="p-2.5 bg-black/60 text-white rounded-full shadow-lg hover:bg-black/80 transition-colors"
+                              title="Xem ảnh lớn"
+                            >
+                              <Maximize2 size={18} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setFormTVSnapshotUrlClose("")}
+                              className="p-2.5 bg-rose-500 text-white rounded-full shadow-lg hover:bg-rose-600 transition-colors"
+                              title="Xoá ảnh"
+                            >
+                              <X size={18} />
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="border border-dashed border-m3-outline rounded-lg p-4 flex flex-col items-center justify-center text-m3-on-surface-variant/60 gap-2 bg-m3-surface-container-lowest">
+                          <Camera size={24} className="opacity-50" />
+                          <span className="text-xs">Chưa có ảnh chụp biểu đồ đóng lệnh</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Rating selection (Stars) */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-m3-surface-container-low/50 dark:bg-m3-surface-container-lowest/30 rounded-[16px] border border-m3-outline-variant dark:border-m3-outline-variant">

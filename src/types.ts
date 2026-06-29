@@ -16,6 +16,7 @@ export interface Trade {
   take_profit?: number;
   tag?: string; // e.g., News-Trade, Trend-Follow, Breakout
   tv_snapshot_url?: string | null;
+  tv_snapshot_url_close?: string | null;
 }
 
 export interface CalendarEvent {
@@ -177,9 +178,9 @@ export interface T5Trade {
   direction: 'buy' | 'sell';
   volume: number;
   openTime: string;
-  closeTime: string;
+  closeTime: string | null;
   openPrice: number;
-  closePrice: number;
+  closePrice: number | null;
   pnl: number;
   pnlPoints: number;
   fees: number;

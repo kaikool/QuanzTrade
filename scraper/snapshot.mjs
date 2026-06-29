@@ -1,16 +1,24 @@
 import puppeteer from 'puppeteer-core';
 import { supabase, getConfig } from './supabase.mjs';
 
-export async function captureAndSaveSnapshot(tradeId, symbol, pair, type, entryPrice, size, openTime) {
+export async function captureAndSaveSnapshot(tradeId, symbol, pair, type, entryPrice, size, openTime, isClose = false) {
     if (!supabase) return;
 
     try {
-        console.log(`[Snapshot] Kiem tra xem trade ${tradeId} da co snapshot chua...`);
+        console.log(`[Snapshot] Kiem tra xem trade ${tradeId} da co snapshot (${isClose ? 'close' : 'open'}) chua...`);
         // Check if trade already exists in manual trades table
-        const { data: existing } = await supabase.from('trades').select('id, tv_snapshot_url').eq('id', `t5-${tradeId}`).single();
-        if (existing && existing.tv_snapshot_url) {
-            console.log(`[Snapshot] Trade ${tradeId} da co snapshot roi, bo qua.`);
-            return;
+        const { data: existing } = await supabase.from('trades').select('id, tv_snapshot_url, tv_snapshot_url_close').eq('id', `t5-${tradeId}`).single();
+        
+        if (isClose) {
+            if (existing && existing.tv_snapshot_url_close) {
+                console.log(`[Snapshot] Trade ${tradeId} da co close snapshot roi, bo qua.`);
+                return;
+            }
+        } else {
+            if (existing && existing.tv_snapshot_url) {
+                console.log(`[Snapshot] Trade ${tradeId} da co open snapshot roi, bo qua.`);
+                return;
+            }
         }
 
         console.log(`[Snapshot] Chuan bi chup anh cho trade ${tradeId} (${symbol})...`);
@@ -82,7 +90,7 @@ export async function captureAndSaveSnapshot(tradeId, symbol, pair, type, entryP
                     '.toast'
                 ];
                 selectors.forEach(sel => {
-                    document.querySelectorAll(sel).forEach(el => (el as HTMLElement).remove());
+                    document.querySelectorAll(sel).forEach(el => el.remove());
                 });
             } catch (e) {}
         });
@@ -122,20 +130,13 @@ export async function captureAndSaveSnapshot(tradeId, symbol, pair, type, entryP
 
         await new Promise(r => setTimeout(r, 2500));
 
-        let clip = null;
+        const chartEl = await page.$('.layout__area--center');
+        let buffer;
         if (chartEl) {
-            const box = await chartEl.boundingBox();
-            if (box) {
-                clip = {
-                    x: box.x,
-                    y: box.y,
-                    width: box.width,
-                    height: box.height
-                };
-            }
+            buffer = await chartEl.screenshot({ type: 'png' });
+        } else {
+            buffer = await page.screenshot({ type: 'png' });
         }
-
-        const buffer = await page.screenshot({ type: 'png', clip: clip || undefined });
         await browser.close();
 
         // Upload to Supabase Storage
@@ -161,10 +162,10 @@ export async function captureAndSaveSnapshot(tradeId, symbol, pair, type, entryP
         console.log(`[Snapshot] Chup thanh cong: ${imageUrl}`);
 
         // Insert into the manual 'trades' table so the UI merges it!
-        // We use the existing trade if it was already created, or create a new one.
         const tradeRecord = existing ? {
             ...existing,
-            tv_snapshot_url: imageUrl
+            [isClose ? 'tv_snapshot_url_close' : 'tv_snapshot_url']: imageUrl,
+            status: isClose ? "CLOSED" : existing.status
         } : {
             id: `t5-${tradeId}`,
             pair: pair,
@@ -173,14 +174,14 @@ export async function captureAndSaveSnapshot(tradeId, symbol, pair, type, entryP
             exit_price: null,
             size: parseFloat(size) || 0,
             pnl: 0,
-            status: "OPEN",
+            status: isClose ? "CLOSED" : "OPEN",
             entry_date: openTime || new Date().toISOString(),
             exit_date: null,
             notes: "Auto-Snapshot",
             timeframe: "N/A",
             rating: 0,
             tag: "The5ers",
-            tv_snapshot_url: imageUrl
+            [isClose ? 'tv_snapshot_url_close' : 'tv_snapshot_url']: imageUrl
         };
 
         const { error: dbError } = await supabase.from('trades').upsert(tradeRecord);
