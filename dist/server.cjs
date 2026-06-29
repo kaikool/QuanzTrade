@@ -31,6 +31,10 @@ import_dotenv.default.config({ path: ".env.local" });
 import_dotenv.default.config();
 var app = (0, import_express.default)();
 var PORT = process.env.PORT ? parseInt(process.env.PORT) : 3e3;
+app.use((req, res, next) => {
+  console.log(`[Request] ${req.method} ${req.url}`);
+  next();
+});
 app.use(import_express.default.json());
 function getStatelessToken() {
   const secret = process.env.SUPABASE_SERVICE_ROLE_KEY || "quanztrade-secret";
@@ -1598,8 +1602,11 @@ async function startServer() {
     app.get("/health", (req, res) => {
       res.json({ status: "ok", uptime: process.uptime(), timestamp: (/* @__PURE__ */ new Date()).toISOString() });
     });
-    app.get("*", (req, res) => {
+    app.get(/^(?!\/api).*$/, (req, res) => {
       res.type("html").send(SPA_HTML);
+    });
+    app.use("/api", (req, res) => {
+      res.status(404).json({ success: false, message: `Route ${req.method} ${req.originalUrl} not found` });
     });
   }
   app.listen(PORT, "0.0.0.0", () => {

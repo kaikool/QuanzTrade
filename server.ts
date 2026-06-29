@@ -10,6 +10,12 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
+// Request logger middleware
+app.use((req, res, next) => {
+  console.log(`[Request] ${req.method} ${req.url}`);
+  next();
+});
+
 // Middlewares to parse bodies
 app.use(express.json());
 
@@ -1995,8 +2001,14 @@ async function startServer() {
       res.json({ status: "ok", uptime: process.uptime(), timestamp: new Date().toISOString() });
     });
 
-    app.get("*", (req, res) => {
+    // Serve SPA index page for all non-API GET routes
+    app.get(/^(?!\/api).*$/, (req, res) => {
       res.type("html").send(SPA_HTML);
+    });
+
+    // Custom 404 for unhandled API requests
+    app.use("/api", (req, res) => {
+      res.status(404).json({ success: false, message: `Route ${req.method} ${req.originalUrl} not found` });
     });
   }
 
