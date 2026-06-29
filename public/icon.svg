@@ -1,36 +1,37 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" fill="none">
   <defs>
-    <!-- Background Gradient for beautiful Quantum feel -->
+    <!-- Background Blue Gradient matching Google M3 Light Primary -->
     <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1e1f20" />
-      <stop offset="100%" stop-color="#0e0f10" />
+      <stop offset="0%" stop-color="#1a73e8" />
+      <stop offset="100%" stop-color="#0b57d0" />
     </linearGradient>
-    <!-- Cloud Blue Gradient -->
+    <!-- Clean White/Light-gray Cloud Gradient -->
     <linearGradient id="cloud-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#2d8cff" />
-      <stop offset="100%" stop-color="#1557b0" />
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#e8eaed" />
     </linearGradient>
     <!-- Lightning Bolt Yellow Gradient -->
     <linearGradient id="lightning-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#fff176" />
-      <stop offset="100%" stop-color="#f57f17" />
+      <stop offset="0%" stop-color="#fff59d" />
+      <stop offset="100%" stop-color="#fbc02d" />
     </linearGradient>
-    <!-- Inner Glow effect -->
-    <filter id="glow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#1a73e8" flood-opacity="0.4" />
+    <!-- Drop Shadow for Premium Elevation -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="12" flood-color="#041e49" flood-opacity="0.25" />
     </filter>
   </defs>
   
-  <!-- Outer Rounded Squircle -->
-  <rect width="512" height="512" rx="112" fill="url(#bg-grad)" />
-  <rect x="12" y="12" width="488" height="488" rx="100" fill="none" stroke="#2e2f30" stroke-width="4" />
+  <!-- Outer Rounded Squircle with Blue Gradient -->
+  <rect width="512" height="512" rx="120" fill="url(#bg-grad)" />
+  <!-- Subtle inner border for premium lighting -->
+  <rect x="8" y="8" width="496" height="496" rx="112" fill="none" stroke="#ffffff" stroke-width="6" stroke-opacity="0.15" />
   
-  <!-- Cloud & Lightning Icon centered with high contrast -->
-  <g filter="url(#glow)">
-    <!-- Base Cloud background -->
-    <path d="M180 340c-44 0-80-36-80-80 0-38 27-71 65-78C175 110 225 70 285 70c65 0 120 48 130 110 35 6 60 36 60 70 0 44-36 80-80 80h-20" fill="url(#cloud-grad)" opacity="0.9" />
+  <!-- Centered Cloud & Lightning Group -->
+  <g filter="url(#shadow)">
+    <!-- Base Cloud in pure clean white gradient -->
+    <path d="M180 340c-44 0-80-36-80-80 0-38 27-71 65-78C175 110 225 70 285 70c65 0 120 48 130 110 35 6 60 36 60 70 0 44-36 80-80 80h-20" fill="url(#cloud-grad)" />
     
-    <!-- Lightning bolt sitting overlapping the cloud -->
-    <path d="M305 150 L195 305 L265 305 L215 425 L345 265 L275 265 Z" fill="url(#lightning-grad)" stroke="#0e0f10" stroke-width="6" stroke-linejoin="round" />
+    <!-- Lightning bolt sitting overlapping the cloud with high-contrast border -->
+    <path d="M305 150 L195 305 L265 305 L215 425 L345 265 L275 265 Z" fill="url(#lightning-grad)" stroke="#0b57d0" stroke-width="6" stroke-linejoin="round" />
   </g>
 </svg>
