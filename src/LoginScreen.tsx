@@ -25,6 +25,15 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         body: JSON.stringify({ password }),
       });
 
+      // Safely check if response is JSON (Render or local proxy might return HTML 502/404)
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Non-JSON Server Response:", text);
+        setError("Máy chủ đang khởi động hoặc gặp sự cố (502 Bad Gateway). Vui lòng đợi 30 giây rồi thử lại!");
+        return;
+      }
+
       const data = await res.json();
       if (data.success && data.token) {
         onLoginSuccess(data.token);
@@ -32,7 +41,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         setError(data.message || "Đăng nhập thất bại");
       }
     } catch (err: any) {
-      setError(err.message || "Lỗi kết nối đến server");
+      setError("Không thể kết nối đến máy chủ. Vui lòng kiểm tra mạng!");
     } finally {
       setLoading(false);
     }
