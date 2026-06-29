@@ -1,37 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" fill="none">
-  <defs>
-    <!-- Background Blue Gradient matching Google M3 Light Primary -->
-    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1a73e8" />
-      <stop offset="100%" stop-color="#0b57d0" />
-    </linearGradient>
-    <!-- Clean White/Light-gray Cloud Gradient -->
-    <linearGradient id="cloud-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff" />
-      <stop offset="100%" stop-color="#e8eaed" />
-    </linearGradient>
-    <!-- Lightning Bolt Yellow Gradient -->
-    <linearGradient id="lightning-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#fff59d" />
-      <stop offset="100%" stop-color="#fbc02d" />
-    </linearGradient>
-    <!-- Drop Shadow for Premium Elevation -->
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="12" stdDeviation="12" flood-color="#041e49" flood-opacity="0.25" />
-    </filter>
-  </defs>
+  <!-- Outer Rounded Squircle matching header logo background -->
+  <rect width="512" height="512" rx="120" fill="#0b57d0" />
   
-  <!-- Outer Rounded Squircle with Blue Gradient -->
-  <rect width="512" height="512" rx="120" fill="url(#bg-grad)" />
-  <!-- Subtle inner border for premium lighting -->
-  <rect x="8" y="8" width="496" height="496" rx="112" fill="none" stroke="#ffffff" stroke-width="6" stroke-opacity="0.15" />
-  
-  <!-- Centered Cloud & Lightning Group -->
-  <g filter="url(#shadow)">
-    <!-- Base Cloud in pure clean white gradient -->
-    <path d="M180 340c-44 0-80-36-80-80 0-38 27-71 65-78C175 110 225 70 285 70c65 0 120 48 130 110 35 6 60 36 60 70 0 44-36 80-80 80h-20" fill="url(#cloud-grad)" />
-    
-    <!-- Lightning bolt sitting overlapping the cloud with high-contrast border -->
-    <path d="M305 150 L195 305 L265 305 L215 425 L345 265 L275 265 Z" fill="url(#lightning-grad)" stroke="#0b57d0" stroke-width="6" stroke-linejoin="round" />
+  <!-- Centered White Outline CloudLightning Icon matching Lucide exactly -->
+  <g transform="translate(82, 82) scale(14.5)" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973" />
+    <path d="m13 12-3 5h4l-3 5" />
   </g>
 </svg>
