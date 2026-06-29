@@ -87,9 +87,13 @@ async function startServer() {
     return res.status(401).json({ success: false, message: "Sai mật khẩu truy cập" });
   });
 
-  // Protect /api/* routes (except auth)
+  // Protect /api/* routes (except auth and logs)
   app.use("/api", (req, res, next) => {
-    if (req.path === "/auth/login") return next();
+    if (req.path === "/auth/login" || req.path === "/logs") return next();
+
+    // Auth bypass for scraping cron jobs using static secret token
+    const cronSecret = process.env.CRON_SECRET || "cron-secret-123";
+    if (req.headers.authorization === `Bearer ${cronSecret}`) return next();
 
     // Allow token in query parameter for tv-snapshot so it can be used in <img> tags
     if (req.path === "/tv-snapshot" && req.query.auth_token) {

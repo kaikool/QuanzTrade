@@ -83,7 +83,9 @@ async function startServer() {
     return res.status(401).json({ success: false, message: "Sai m\u1EADt kh\u1EA9u truy c\u1EADp" });
   });
   app.use("/api", (req, res, next) => {
-    if (req.path === "/auth/login") return next();
+    if (req.path === "/auth/login" || req.path === "/logs") return next();
+    const cronSecret = process.env.CRON_SECRET || "cron-secret-123";
+    if (req.headers.authorization === `Bearer ${cronSecret}`) return next();
     if (req.path === "/tv-snapshot" && req.query.auth_token) {
       if (req.query.auth_token === getStatelessToken()) {
         return next();
