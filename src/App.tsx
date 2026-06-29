@@ -1136,10 +1136,15 @@ export default function App() {
     }
   };
 
+  const followedT5Accounts = useMemo(() => {
+    const selectedIds = new Set(selectedT5AccountIds);
+    return t5Accounts.filter((account) => selectedIds.has(account.accountId));
+  }, [t5Accounts, selectedT5AccountIds]);
+
   // Compute stats for header and badges
   const summary = useMemo(() => {
     const selectedIds = new Set(selectedT5AccountIds);
-    const selectedAccounts = t5Accounts.filter(a => a && selectedIds.has(a.accountId));
+    const selectedAccounts = followedT5Accounts;
     const t5Balance = selectedAccounts.reduce((s, a) => s + (a.balance || 0), 0);
     const t5Pnl = selectedAccounts.reduce((s, a) => s + (a.pnl || 0), 0);
     const t5OpenTrades = t5Trades.filter(t => t && t.accountId && selectedIds.has(t.accountId) && !t.closeTime).length;
@@ -1156,7 +1161,7 @@ export default function App() {
       openCount: openCount + t5OpenTrades,
       closedCount: closedCount + t5ClosedTrades,
     };
-  }, [trades, t5Accounts, t5Trades, selectedT5AccountIds]);
+  }, [trades, followedT5Accounts, t5Trades, selectedT5AccountIds]);
 
   // Filters candidates
   const uniquePairs = useMemo(() => {
@@ -1479,13 +1484,13 @@ export default function App() {
                 </div>
                 <button type="button" onClick={() => setCurrentTab("journal")} className="ios26-control px-4 py-2.5 rounded-full bg-[var(--sys-blue)] text-white font-bold text-sm">Mở journal</button>
               </div>
-              {t5Accounts.length === 0 ? (
+              {followedT5Accounts.length === 0 ? (
                 <div className="rounded-[24px] border border-[var(--sys-border)] bg-[var(--sys-surface-2)] p-4 text-[var(--sys-text-secondary)] text-sm">
-                  Chưa có tài khoản The5ers. Khi scraper đồng bộ xong, từng tài khoản sẽ có card riêng và journal riêng tại đây.
+                  Chưa chọn tài khoản theo dõi. Vào Cài đặt để chọn các tài khoản The5ers muốn hiển thị.
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-                  {t5Accounts.map((account) => {
+                  {followedT5Accounts.map((account) => {
                     const accountTrades = t5Trades.filter((trade) => trade.accountId === account.accountId);
                     const openTrades = accountTrades.filter((trade) => !trade.closeTime).length;
                     const dailyLimit = Math.abs(account.dailyLossLimit || 0);
@@ -1522,7 +1527,7 @@ export default function App() {
                 <div className="min-h-[260px] rounded-[24px] bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm shadow-ios-sm animate-pulse" />
               }
             >
-              <The5ersMetrics t5Accounts={t5Accounts} selectedIds={selectedT5AccountIds} />
+              <The5ersMetrics t5Accounts={followedT5Accounts} selectedIds={selectedT5AccountIds} />
               <BentoStats trades={mergedTrades} darkMode={darkMode} />
             </Suspense>
 
@@ -2855,7 +2860,7 @@ export default function App() {
                 </div>
 
                 {/* Save controls */}
-                <div className="px-5 sm:px-8 py-4 sm:py-5 border-t border-[var(--sys-border)] bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm flex flex-col-reverse sm:flex-row gap-3 justify-end items-center z-20 shrink-0 pb-[max(1rem,env(safe-area-inset-bottom,16px))] sm:pb-5">
+                <div className="trade-form-actions px-5 sm:px-8 py-4 sm:py-5 border-t border-[var(--sys-border)] flex flex-col-reverse sm:flex-row gap-3 justify-end items-center z-20 shrink-0 pb-[max(1rem,env(safe-area-inset-bottom,16px))] sm:pb-5">
                   <button
                     type="button"
                     onClick={() => setIsAddOpen(false)}
@@ -2865,7 +2870,7 @@ export default function App() {
                   </button>
                   <button
                     type="submit"
-                    className="w-full sm:w-auto px-8 py-2.5 bg-[var(--sys-blue)] text-white rounded-[20px] text-base font-semibold active:scale-95 transition-transform active:scale-[0.98] transition-all ease-[ease-out] cursor-pointer text-center"
+                    className="trade-form-submit w-full sm:w-auto px-8 py-2.5 text-white rounded-[20px] text-base font-semibold active:scale-95 transition-transform active:scale-[0.98] transition-all ease-[ease-out] cursor-pointer text-center"
                   >
                     {editingTradeId ? "Cập nhật dữ liệu" : "Ghi lại giao dịch"}
                   </button>
