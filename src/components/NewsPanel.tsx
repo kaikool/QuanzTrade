@@ -74,15 +74,14 @@ export function NewsPanel({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-1">
         <div className="min-w-0">
           <span className="text-[13px] font-bold tracking-widest uppercase text-[var(--ios-secondary-label)]">Tin tức thị trường</span>
-          <p className="text-[12px] text-[var(--ios-tertiary-label)] font-mono mt-1">{pageLabel} · {newsItems.length} tin</p>
           {lastUpdatedAt && (
-            <p className="text-[12px] text-[var(--ios-tertiary-label)] font-mono mt-0.5">
+            <p className="text-[12px] text-[var(--ios-tertiary-label)] font-mono mt-1">
               Cập nhật lúc {new Date(lastUpdatedAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
             </p>
           )}
         </div>
         <div className="flex flex-nowrap items-center gap-2 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
-          <div className="flex shrink-0 items-center gap-1 ios26-glass rounded-[10px] p-1">
+          <div className="flex shrink-0 items-center gap-1 rounded-[10px] p-1">
             <button type="button" onClick={() => onPageChange(page - 1)} disabled={!canGoPrevious}
               className="w-8 h-8 rounded-full text-[var(--ios-blue)] flex items-center justify-center active:scale-90 transition-transform disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:bg-[var(--ios-surface)]">
               <ChevronLeft size={18} />
