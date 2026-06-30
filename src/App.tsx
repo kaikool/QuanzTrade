@@ -1829,6 +1829,7 @@ export default function App() {
                     </p>
                   </div>
                 ) : (
+                  <>
                   <table className="w-full text-left border-collapse min-w-[650px]">
                     <thead>
                       <tr className="border-b border-[var(--sys-border)] text-sm font-medium uppercase text-[var(--sys-text-secondary)] tracking-wider">
@@ -1975,6 +1976,7 @@ export default function App() {
                       </button>
                     </div>
                   )}
+                </>
                 )}
               </div>
 
