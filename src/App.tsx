@@ -714,13 +714,13 @@ export default function App() {
   const journalAccountOptions = useMemo(() => {
     return [
       { accountId: "ALL", name: "Tất cả tài khoản" },
-      ...t5Accounts.map((account) => ({
+      ...followedT5Accounts.map((account) => ({
         accountId: account.accountId,
         name: account.name || account.accountId,
       })),
       { accountId: "MANUAL", name: "Lệnh thủ công" },
     ];
-  }, [t5Accounts]);
+  }, [followedT5Accounts]);
 
   const selectedJournalAccount = selectedJournalAccountId === "ALL"
     ? null
