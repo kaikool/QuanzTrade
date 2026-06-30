@@ -711,6 +711,11 @@ export default function App() {
     return match?.[1] || "UNKNOWN";
   };
 
+  const followedT5Accounts = useMemo(() => {
+    const selectedIds = new Set(selectedT5AccountIds);
+    return t5Accounts.filter((account) => selectedIds.has(account.accountId));
+  }, [t5Accounts, selectedT5AccountIds]);
+
   const journalAccountOptions = useMemo(() => {
     return [
       { accountId: "ALL", name: "Tất cả tài khoản" },
@@ -1120,10 +1125,7 @@ export default function App() {
     }
   };
 
-  const followedT5Accounts = useMemo(() => {
-    const selectedIds = new Set(selectedT5AccountIds);
-    return t5Accounts.filter((account) => selectedIds.has(account.accountId));
-  }, [t5Accounts, selectedT5AccountIds]);
+
 
   // Compute stats for header and badges
   const summary = useMemo(() => {
