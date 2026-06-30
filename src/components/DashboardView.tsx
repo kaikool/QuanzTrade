@@ -51,7 +51,7 @@ export function DashboardView({
           <button onClick={() => setIsQuickAddOpen(true)} className="h-10 px-6 bg-[var(--ios-blue)] text-white rounded-full text-[15px] font-semibold flex items-center gap-2.5 cursor-pointer active:scale-95 transition-transform shadow-ios-sm">
             <Plus size={17} /> Ghi lệnh mới
           </button>
-          <button onClick={() => setIsSettingsOpen(true)} className="h-10 px-5 bg-[var(--ios-surface)] text-[var(--ios-label)] rounded-full text-[15px] font-semibold flex items-center gap-2.5 cursor-pointer active:scale-95 transition-transform shadow-sm">
+          <button onClick={() => setIsSettingsOpen(true)} className="h-10 px-5 bg-[var(--ios-surface)]/80 text-[var(--ios-label)] rounded-full text-[15px] font-semibold flex items-center gap-2.5 cursor-pointer active:scale-95 transition-transform shadow-sm">
             <Settings size={17} className="text-[var(--ios-secondary-label)]" /> Cài đặt
           </button>
         </div>

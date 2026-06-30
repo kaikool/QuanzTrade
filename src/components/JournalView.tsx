@@ -142,19 +142,19 @@ export function JournalView({
 
         <div className="grid grid-cols-[minmax(92px,0.85fr)_minmax(104px,1fr)_minmax(92px,0.8fr)_40px] gap-2 min-w-0">
           {journalAccountOptions.length > 0 && (
-            <select value={selectedJournalAccountId} onChange={(e) => setSelectedJournalAccountId(e.target.value)} className="min-w-0 h-10 bg-[var(--ios-surface)] border-0 px-3 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 cursor-pointer text-[var(--ios-label)] font-bold text-[13px] shadow-sm appearance-none truncate">
+            <select value={selectedJournalAccountId} onChange={(e) => setSelectedJournalAccountId(e.target.value)} className="min-w-0 h-10 bg-[var(--ios-surface)]/90 border-0 px-3 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 cursor-pointer text-[var(--ios-label)] font-bold text-[13px] shadow-sm appearance-none truncate">
               {journalAccountOptions.map((account) => (
                 <option key={account.accountId} value={account.accountId}>{formatAccountLabel(account)}</option>
               ))}
             </select>
           )}
           
-          <select value={selectedPairFilter} onChange={(e) => setSelectedPairFilter(e.target.value)} className="min-w-0 h-10 bg-[var(--ios-surface)] border-0 px-3 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 cursor-pointer text-[var(--ios-label)] font-bold text-[13px] shadow-sm appearance-none truncate">
+          <select value={selectedPairFilter} onChange={(e) => setSelectedPairFilter(e.target.value)} className="min-w-0 h-10 bg-[var(--ios-surface)]/90 border-0 px-3 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 cursor-pointer text-[var(--ios-label)] font-bold text-[13px] shadow-sm appearance-none truncate">
             <option value="ALL">Cặp (Tất cả)</option>
             {uniquePairs.filter(p => p !== "ALL").map(p => <option key={p} value={p}>{p}</option>)}
           </select>
 
-          <select value={selectedStatusFilter} onChange={(e) => setSelectedStatusFilter(e.target.value)} className="min-w-0 h-10 bg-[var(--ios-surface)] border-0 px-3 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 cursor-pointer text-[var(--ios-label)] font-bold text-[13px] shadow-sm appearance-none truncate">
+          <select value={selectedStatusFilter} onChange={(e) => setSelectedStatusFilter(e.target.value)} className="min-w-0 h-10 bg-[var(--ios-surface)]/90 border-0 px-3 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 cursor-pointer text-[var(--ios-label)] font-bold text-[13px] shadow-sm appearance-none truncate">
             <option value="ALL">Tất cả</option>
             <option value="OPEN">Mở</option>
             <option value="CLOSED">Đóng</option>
@@ -199,7 +199,7 @@ export function JournalView({
             {/* Detail Header */}
             <div className="flex items-center justify-between p-4 border-b border-[var(--ios-separator)]/50 shrink-0">
               <div className="flex items-center gap-3 min-w-0">
-                <button onClick={() => setSelectedTrade(null)} className="md:hidden w-8 h-8 flex items-center justify-center bg-[var(--ios-surface)] text-[var(--ios-label)] rounded-full active:scale-90 transition-transform">
+                <button onClick={() => setSelectedTrade(null)} className="md:hidden w-8 h-8 flex items-center justify-center bg-[var(--ios-surface)]/80 text-[var(--ios-label)] rounded-full active:scale-90 transition-transform">
                   <ArrowLeft size={18} />
                 </button>
                 <div className="min-w-0">
