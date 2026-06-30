@@ -1137,7 +1137,7 @@ export default function App() {
     const closedCount = trades.filter(t => t && t.status === "CLOSED" && !t.id.startsWith("t5-")).length;
 
     return {
-      balance: t5Balance + totalPnl,
+      balance: t5Balance,
       pnl: totalPnl + t5Pnl,
       openCount: openCount + t5OpenTrades,
       closedCount: closedCount + t5ClosedTrades,
@@ -1367,7 +1367,7 @@ export default function App() {
 
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className="w-[42px] h-[42px] flex items-center justify-center bg-[var(--ios-surface)]/80 rounded-full transition-all active:scale-90 hover:bg-[var(--sys-tint-soft)] shadow-sm"
+              className="w-[42px] h-[42px] flex items-center justify-center ios26-glass rounded-full transition-all active:scale-90 hover:bg-[var(--sys-tint-soft)]"
               title="Giao diện sáng/tối"
               id="btn-darkmode"
             >

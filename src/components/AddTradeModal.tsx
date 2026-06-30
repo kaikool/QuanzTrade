@@ -67,7 +67,7 @@ function Segmented<T extends string>({
   const fs = size === "sm" ? "text-[13px]" : "text-[14px]";
   return (
     <div
-      className={`flex ${h} bg-[var(--ios-surface)]/80 rounded-[12px] p-[3px] gap-[3px] shadow-sm border border-[var(--ios-separator)]/40`}
+      className={`flex ${h} ios26-glass rounded-[12px] p-[3px] gap-[3px] border border-[var(--ios-separator)]/40`}
       style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}
     >
       {options.map((opt) => {
@@ -103,7 +103,7 @@ function GlassInput(props: React.InputHTMLAttributes<HTMLInputElement> & { label
       )}
       <input
         {...rest}
-        className={`w-full px-3.5 py-3 bg-[var(--ios-surface)]/85 border border-[var(--ios-separator)]/40 rounded-[14px] text-[15px] text-[var(--ios-label)] font-mono placeholder:text-[var(--ios-tertiary-label)] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/40 transition-shadow ${className || ""}`}
+        className={`w-full px-3.5 py-3 ios26-glass border border-[var(--ios-separator)]/40 rounded-[14px] text-[15px] text-[var(--ios-label)] font-mono placeholder:text-[var(--ios-tertiary-label)] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/40 transition-shadow ${className || ""}`}
         style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}
       />
     </div>
@@ -122,7 +122,7 @@ function GlassSelect(props: React.SelectHTMLAttributes<HTMLSelectElement> & { la
       )}
       <select
         {...rest}
-        className={`w-full px-3.5 py-3 bg-[var(--ios-surface)]/85 border border-[var(--ios-separator)]/40 rounded-[14px] text-[15px] text-[var(--ios-label)] font-semibold focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/40 cursor-pointer appearance-none ${className || ""}`}
+        className={`w-full px-3.5 py-3 ios26-glass border border-[var(--ios-separator)]/40 rounded-[14px] text-[15px] text-[var(--ios-label)] font-semibold focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/40 cursor-pointer appearance-none ${className || ""}`}
         style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}
       >
         {children}
@@ -143,7 +143,7 @@ function GlassTextarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement> 
       )}
       <textarea
         {...rest}
-        className={`w-full px-3.5 py-3 bg-[var(--ios-surface)]/85 border border-[var(--ios-separator)]/40 rounded-[14px] text-[15px] text-[var(--ios-label)] placeholder:text-[var(--ios-tertiary-label)] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/40 resize-none transition-shadow ${className || ""}`}
+        className={`w-full px-3.5 py-3 ios26-glass border border-[var(--ios-separator)]/40 rounded-[14px] text-[15px] text-[var(--ios-label)] placeholder:text-[var(--ios-tertiary-label)] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/40 resize-none transition-shadow ${className || ""}`}
         style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}
       />
     </div>
@@ -213,7 +213,7 @@ export function AddTradeModal(props: AddTradeModalProps) {
                   {editingTradeId ? "Cập nhật số liệu hoặc tất toán" : "Ghi nhận chi tiết giao dịch"}
                 </p>
               </div>
-              <button type="button" onClick={onClose} className="w-9 h-9 flex items-center justify-center bg-[var(--ios-surface)]/80 rounded-full text-[var(--ios-secondary-label)] cursor-pointer active:scale-90 transition-transform border border-[var(--ios-separator)]/40" title="Đóng">
+              <button type="button" onClick={onClose} className="w-9 h-9 flex items-center justify-center ios26-glass rounded-full text-[var(--ios-secondary-label)] cursor-pointer active:scale-90 transition-transform border border-[var(--ios-separator)]/40" title="Đóng">
                 <X size={18} />
               </button>
             </div>
@@ -291,7 +291,7 @@ export function AddTradeModal(props: AddTradeModalProps) {
 
                 {/* Closed: Exit fields */}
                 {formStatus === "CLOSED" && (
-                  <div className="p-5 rounded-[20px] bg-[var(--ios-surface)]/90 border border-[var(--ios-separator)]/40 shadow-sm space-y-4"
+                  <div className="p-5 rounded-[20px] ios26-glass border border-[var(--ios-separator)]/40 shadow-sm space-y-4"
                     style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}>
                     <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)]">Tất toán giao dịch</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -445,7 +445,7 @@ export function AddTradeModal(props: AddTradeModalProps) {
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-6 py-3 rounded-[14px] bg-[var(--ios-surface)]/80 text-[var(--ios-label)] text-[15px] font-semibold cursor-pointer active:scale-[0.97] transition-transform border border-[var(--ios-separator)]/40"
+                  className="px-6 py-3 rounded-[14px] ios26-glass text-[var(--ios-label)] text-[15px] font-semibold cursor-pointer active:scale-[0.97] transition-transform border border-[var(--ios-separator)]/40"
                   style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}
                 >
                   Hủy

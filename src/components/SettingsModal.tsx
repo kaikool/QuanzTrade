@@ -18,7 +18,7 @@ function SettingsSection({ title, children }: SectionProps) {
       <h2 className="text-[12px] font-bold tracking-[0.04em] text-[var(--ios-secondary-label)] uppercase px-[18px] mb-[6px]">
         {title}
       </h2>
-      <div className="bg-[var(--ios-surface)]/80 rounded-[16px] overflow-hidden border border-[var(--ios-separator)]/30"
+      <div className="ios26-glass rounded-[16px] overflow-hidden"
         style={{ backdropFilter: "saturate(180%) blur(24px)", WebkitBackdropFilter: "saturate(180%) blur(24px)" }}>
         {children}
       </div>
@@ -245,7 +245,7 @@ export function SettingsModal(props: SettingsModalProps) {
               </h1>
               <button
                 onClick={onClose}
-                className="w-[30px] h-[30px] flex items-center justify-center rounded-full bg-[var(--ios-separator)]/40 text-[var(--ios-secondary-label)] active:scale-90 transition-transform cursor-pointer"
+                className="w-[30px] h-[30px] flex items-center justify-center rounded-full ios26-glass text-[var(--ios-secondary-label)] active:scale-90 transition-transform cursor-pointer"
               >
                 <X size={16} />
               </button>
