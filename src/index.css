@@ -42,6 +42,13 @@
   --ios-fill-secondary: rgba(120,120,128,0.16);
   --ios-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
   --ios-shadow-lg: 0 20px 60px rgba(0,0,0,0.15), 0 4px 16px rgba(0,0,0,0.08);
+  --ios-glass: rgba(255, 255, 255, 0.58);
+  --ios-glass-strong: rgba(255, 255, 255, 0.78);
+  --ios-glass-edge: rgba(255, 255, 255, 0.82);
+  --ios-shadow-color: rgba(31, 41, 55, 0.14);
+  --ios-tint-soft: rgba(0, 122, 255, 0.12);
+  --ios-danger-soft: rgba(255, 59, 48, 0.12);
+  --ios-success-soft: rgba(52, 199, 89, 0.13);
 
   /* Keep --sys-* as aliases during transition */
   --sys-bg: var(--ios-bg);
@@ -52,8 +59,17 @@
   --sys-blue: var(--ios-blue);
   --sys-green: var(--ios-green);
   --sys-red: var(--ios-red);
+  --sys-pink: #ff2d55;
+  --sys-violet: var(--ios-indigo);
+  --sys-teal: var(--ios-teal);
   --sys-border: var(--ios-separator);
-  --sys-glass: var(--ios-fill);
+  --sys-glass: var(--ios-glass);
+  --sys-glass-strong: var(--ios-glass-strong);
+  --sys-glass-edge: var(--ios-glass-edge);
+  --sys-shadow-color: var(--ios-shadow-color);
+  --sys-tint-soft: var(--ios-tint-soft);
+  --sys-danger-soft: var(--ios-danger-soft);
+  --sys-success-soft: var(--ios-success-soft);
 }
 
 .dark {
@@ -76,6 +92,13 @@
   --ios-fill-secondary: rgba(120,120,128,0.32);
   --ios-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
   --ios-shadow-lg: 0 20px 60px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.25);
+  --ios-glass: rgba(21, 24, 31, 0.58);
+  --ios-glass-strong: rgba(31, 35, 44, 0.76);
+  --ios-glass-edge: rgba(255, 255, 255, 0.22);
+  --ios-shadow-color: rgba(0, 0, 0, 0.42);
+  --ios-tint-soft: rgba(10, 132, 255, 0.18);
+  --ios-danger-soft: rgba(255, 69, 58, 0.18);
+  --ios-success-soft: rgba(48, 209, 88, 0.18);
 
   /* Keep --sys-* as aliases during transition */
   --sys-bg: var(--ios-bg);
@@ -86,8 +109,17 @@
   --sys-blue: var(--ios-blue);
   --sys-green: var(--ios-green);
   --sys-red: var(--ios-red);
+  --sys-pink: #ff375f;
+  --sys-violet: var(--ios-indigo);
+  --sys-teal: var(--ios-teal);
   --sys-border: var(--ios-separator);
-  --sys-glass: var(--ios-fill);
+  --sys-glass: var(--ios-glass);
+  --sys-glass-strong: var(--ios-glass-strong);
+  --sys-glass-edge: var(--ios-glass-edge);
+  --sys-shadow-color: var(--ios-shadow-color);
+  --sys-tint-soft: var(--ios-tint-soft);
+  --sys-danger-soft: var(--ios-danger-soft);
+  --sys-success-soft: var(--ios-success-soft);
 }
 
 @variant dark (&:where(.dark, .dark *));
@@ -178,12 +210,13 @@ button {
 #news-panel > section,
 #bento-calendar-fastview,
 #ios-bottom-nav,
+[class*="bg-[var(--ios-surface)]"],
 [class*="bg-[var(--sys-surface)]"] {
   background: var(--sys-glass);
   border: 1px solid var(--sys-border);
   box-shadow: 0 18px 55px var(--sys-shadow-color), inset 0 1px 0 var(--sys-glass-edge);
-  backdrop-filter: saturate(175%) blur(28px);
-  -webkit-backdrop-filter: saturate(175%) blur(28px);
+  backdrop-filter: saturate(180%) blur(34px);
+  -webkit-backdrop-filter: saturate(180%) blur(34px);
 }
 
 .ios26-card,
@@ -225,8 +258,8 @@ a[class*="bg-[var(--sys-surface-2)]"]:active {
 }
 
 #google-ios-header {
-  border-radius: 34px;
-  padding: 22px;
+  border-radius: 28px;
+  padding: 18px;
 }
 
 #logo-icon {
@@ -345,8 +378,8 @@ a[class*="bg-[var(--sys-surface-2)]"]:active {
 
 /* iOS Glass utility — add to any card/container */
 .ios-glass {
-  backdrop-filter: saturate(150%) blur(12px);
-  -webkit-backdrop-filter: saturate(150%) blur(12px);
+  backdrop-filter: saturate(180%) blur(34px);
+  -webkit-backdrop-filter: saturate(180%) blur(34px);
 }
 
 .ios26-auth-screen {

@@ -87,14 +87,14 @@ export function DashboardView({
       )}
 
       {/* Quick Stats — iOS Widget Style */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {[
           { label: "Tổng giao dịch", value: mergedTrades.length.toString(), color: "text-[var(--ios-label)]" },
           { label: "Win Rate", value: `${winRate.toFixed(0)}%`, color: "text-[var(--ios-label)]" },
           { label: "P&L", value: `${summary.pnl >= 0 ? "+" : ""}$${summary.pnl.toFixed(0)}`, color: summary.pnl >= 0 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]" },
           { label: "Đang mở", value: (t5Metrics?.totalOpenTrades ?? openCount).toString(), color: "text-[var(--ios-blue)]" },
         ].map((stat, i) => (
-          <div key={i} className="p-4 ios-glass bg-[var(--ios-surface)] rounded-[14px] shadow-ios-sm">
+          <div key={i} className="p-4 sm:p-5 ios-glass bg-[var(--ios-surface)] rounded-[24px] shadow-ios-sm">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ios-secondary-label)]">{stat.label}</p>
             <p className={`text-[28px] font-bold mt-1 leading-none ${stat.color}`}>{stat.value}</p>
           </div>
@@ -105,7 +105,7 @@ export function DashboardView({
       {followedT5Accounts.length > 0 && (
         <div className="space-y-3">
           <h2 className="text-[13px] font-semibold text-[var(--ios-secondary-label)] uppercase tracking-wider px-0.5">Tài khoản The5ers</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {followedT5Accounts.map(account => {
               const accountTrades = t5Trades.filter(t => t.accountId === account.accountId);
               const openTrades = accountTrades.filter(t => !t.closeTime).length;
@@ -114,7 +114,7 @@ export function DashboardView({
               const dailyRisk = dailyLimit > 0 ? Math.min(100, (dailyUsed / dailyLimit) * 100) : 0;
               const riskLabel = dailyRisk >= 80 ? "Nguy hiểm" : dailyRisk >= 55 ? "Cần chú ý" : "Ổn";
               return (
-                <button key={account.accountId} type="button" onClick={() => { setSelectedJournalAccountId(account.accountId); setCurrentTab("journal"); }} className="p-4 ios-glass bg-[var(--ios-surface)] rounded-[14px] shadow-ios-sm text-left transition-all hover:border-[var(--ios-blue)]/40 cursor-pointer active:scale-[0.98] border border-[var(--ios-separator)]">
+                <button key={account.accountId} type="button" onClick={() => { setSelectedJournalAccountId(account.accountId); setCurrentTab("journal"); }} className="p-4 sm:p-5 ios-glass bg-[var(--ios-surface)] rounded-[24px] shadow-ios-sm text-left transition-all hover:border-[var(--ios-blue)]/40 cursor-pointer active:scale-[0.98] border border-[var(--ios-separator)]">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="font-semibold text-sm text-[var(--ios-label)] truncate">{account.name || account.accountId}</p>
@@ -140,12 +140,12 @@ export function DashboardView({
       )}
 
       {/* BentoStats Chart */}
-      <Suspense fallback={<div className="h-[240px] bg-[var(--ios-surface)] rounded-[14px] shadow-ios-sm animate-pulse" />}>
+      <Suspense fallback={<div className="h-[240px] bg-[var(--ios-surface)] rounded-[24px] shadow-ios-sm animate-pulse" />}>
         <BentoStats trades={mergedTrades} darkMode={darkMode} />
       </Suspense>
 
       {/* Recent Trades — iOS List Style */}
-      <div className="ios-glass bg-[var(--ios-surface)] rounded-[14px] shadow-ios-sm overflow-hidden">
+      <div className="ios-glass bg-[var(--ios-surface)] rounded-[24px] shadow-ios-sm overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--ios-separator)]">
           <h3 className="text-[13px] font-semibold text-[var(--ios-secondary-label)] uppercase tracking-wider">Giao dịch gần đây</h3>
           <button onClick={() => setCurrentTab("journal")} className="text-[13px] font-medium text-[var(--ios-blue)] cursor-pointer flex items-center gap-0.5">Xem tất cả <ChevronRight size={14} /></button>

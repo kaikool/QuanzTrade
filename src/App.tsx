@@ -1321,40 +1321,44 @@ export default function App() {
           </div>
         )}
 
-        {/* iOS Large Title Header */}
+        {/* iOS Workspace Header */}
         {(currentTab === "dashboard" || currentTab === "journal") && (
-        <header className="flex flex-col md:flex-row md:items-center justify-between pt-1 pb-2 gap-2 md:gap-0">
-          <div className="flex items-center gap-3">
+        <header
+          className="flex flex-col md:flex-row md:items-center justify-between ios-glass bg-[var(--ios-surface)] border border-[var(--ios-separator)] shadow-ios-sm gap-4 md:gap-0"
+          id="google-ios-header"
+        >
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
             <div
-              className="w-11 h-11 sm:w-12 sm:h-12 bg-[var(--ios-blue)] text-white rounded-[14px] flex items-center justify-center shadow-ios-md flex-shrink-0"
+              className="w-11 h-11 sm:w-12 sm:h-12 bg-[var(--ios-blue)] text-white rounded-[16px] flex items-center justify-center shadow-ios-md flex-shrink-0"
               id="logo-icon"
             >
               <CloudLightning size={22} className="sm:w-6 sm:h-6" />
             </div>
-            <div>
-              <h1 className="text-[34px] font-bold tracking-tight text-[var(--ios-label)] leading-none">
+            <div className="min-w-0">
+              <h1 className="text-[24px] sm:text-[28px] font-bold tracking-tight text-[var(--ios-label)] leading-none truncate">
                 {selectedT5AccountIds.length > 0 && t5Accounts.length > 0 ? "QuanzTrade" : "Táo Tầu Journal"}
               </h1>
-              <p className="text-[13px] text-[var(--ios-secondary-label)] mt-1.5">
+              <p className="text-[13px] sm:text-[15px] text-[var(--ios-secondary-label)] mt-1.5 truncate">
                 {summary.balance > 0 ? `Tổng tài sản: $${summary.balance.toLocaleString("en-US")}` : "Nhật ký giao dịch"}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center justify-between md:justify-end gap-3 sm:gap-4">
+          <div className="flex items-center justify-between md:justify-end gap-3 sm:gap-5 w-full md:w-auto">
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className="w-9 h-9 flex items-center justify-center bg-[var(--ios-surface-2)] rounded-full transition-colors cursor-pointer"
+              className="w-10 h-10 flex items-center justify-center bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-full transition-colors cursor-pointer"
               title="Giao diện sáng/tối"
+              id="btn-darkmode"
             >
               {darkMode ? <Sun size={16} className="text-amber-500" /> : <Moon size={16} className="text-[var(--ios-secondary-label)]" />}
             </button>
 
-            <div className="text-right">
+            <div className="text-right min-w-0">
               <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ios-secondary-label)] block">
                 Số dư
               </span>
-              <span className="text-[20px] font-bold text-[var(--ios-label)]" id="live-balance-text">
+              <span className="text-[22px] font-bold text-[var(--ios-label)]" id="live-balance-text">
                 ${summary.balance.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
               </span>
             </div>
