@@ -82,7 +82,7 @@ export function NewsPanel({
           )}
         </div>
         <div className="flex flex-nowrap items-center gap-2 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
-          <div className="flex shrink-0 items-center gap-1 bg-[var(--ios-fill)] rounded-[10px] p-1 shadow-sm">
+          <div className="flex shrink-0 items-center gap-1 bg-[var(--ios-surface)] rounded-[10px] p-1 shadow-sm">
             <button type="button" onClick={() => onPageChange(page - 1)} disabled={!canGoPrevious}
               className="w-8 h-8 rounded-full text-[var(--ios-blue)] flex items-center justify-center active:scale-90 transition-transform disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:bg-[var(--ios-surface)]">
               <ChevronLeft size={18} />
@@ -93,7 +93,7 @@ export function NewsPanel({
               <ChevronRight size={18} />
             </button>
           </div>
-          <button onClick={onRefresh} type="button" className="w-[38px] h-[38px] flex items-center justify-center rounded-full bg-[var(--ios-fill)] cursor-pointer active:scale-90 transition-transform shadow-sm" title="Cập nhật">
+          <button onClick={onRefresh} type="button" className="w-[38px] h-[38px] flex items-center justify-center rounded-full bg-[var(--ios-surface)] cursor-pointer active:scale-90 transition-transform shadow-sm" title="Cập nhật">
             <RefreshCw size={16} className={refreshing ? "animate-spin text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"} />
           </button>
         </div>

@@ -46,14 +46,14 @@ export function CalendarView({
         </div>
 
         <div className="flex flex-nowrap items-center gap-2 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
-          <div className="flex shrink-0 bg-[var(--ios-fill)] p-1 rounded-[10px] text-[13px] font-bold shadow-sm">
-            <button onClick={() => setCalendarPeriodFilter("DAY")}
+          <div className="flex shrink-0 bg-[var(--ios-surface)] p-1 rounded-[10px] text-[13px] font-bold shadow-sm">
+                      <button onClick={() => setCalendarPeriodFilter("DAY")}
               className={`h-8 px-3 rounded-[8px] transition-all cursor-pointer whitespace-nowrap ${calendarPeriodFilter === "DAY" ? "bg-[var(--ios-surface)] shadow-ios-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>Hôm nay</button>
             <button onClick={() => setCalendarPeriodFilter("WEEK")}
               className={`h-8 px-3 rounded-[8px] transition-all cursor-pointer whitespace-nowrap ${calendarPeriodFilter === "WEEK" ? "bg-[var(--ios-surface)] shadow-ios-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>Tuần này</button>
           </div>
 
-          <div className="flex shrink-0 bg-[var(--ios-fill)] p-1 rounded-[10px] shadow-sm">
+          <div className="flex shrink-0 bg-[var(--ios-surface)] p-1 rounded-[10px] shadow-sm">
             <button onClick={() => setCalendarImpactFilter("ALL")} className={`h-8 px-2 rounded-[8px] transition-all cursor-pointer flex items-center gap-1 ${calendarImpactFilter === "ALL" ? "bg-[var(--ios-surface)] shadow-ios-sm" : ""}`} title="Tất cả">
               <span className="w-2.5 h-2.5 rounded-full bg-[var(--sys-red)]" /><span className="w-2.5 h-2.5 rounded-full bg-amber-500" /><span className="w-2.5 h-2.5 rounded-full bg-[var(--sys-blue)]" />
             </button>
@@ -65,7 +65,7 @@ export function CalendarView({
             </button>
           </div>
 
-          <button onClick={syncCalendar} className="w-[38px] h-[38px] shrink-0 flex items-center justify-center rounded-full bg-[var(--ios-fill)] cursor-pointer active:scale-90 transition-transform shadow-sm" title="Cập nhật">
+          <button onClick={syncCalendar} className="w-[38px] h-[38px] shrink-0 flex items-center justify-center rounded-full bg-[var(--ios-surface)] cursor-pointer active:scale-90 transition-transform shadow-sm" title="Cập nhật">
             <RefreshCw size={16} className={refreshingCalendar ? "animate-spin text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"} />
           </button>
         </div>

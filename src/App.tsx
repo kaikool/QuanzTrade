@@ -1372,7 +1372,7 @@ export default function App() {
 
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className="w-[42px] h-[42px] flex items-center justify-center bg-[var(--ios-fill)] rounded-full transition-all active:scale-90 hover:bg-[var(--sys-tint-soft)] shadow-sm"
+              className="w-[42px] h-[42px] flex items-center justify-center bg-[var(--ios-surface)] rounded-full transition-all active:scale-90 hover:bg-[var(--sys-tint-soft)] shadow-sm"
               title="Giao diện sáng/tối"
               id="btn-darkmode"
             >
@@ -1593,7 +1593,7 @@ export default function App() {
                     <p className="text-[13px] font-medium text-[var(--ios-secondary-label)]">Hệ thống & Tài khoản</p>
                   </div>
                 </div>
-                <button onClick={() => setIsSettingsOpen(false)} className="w-9 h-9 flex items-center justify-center bg-[var(--ios-fill)] text-[var(--ios-label)] rounded-full hover:bg-[var(--sys-tint-soft)] hover:text-[var(--ios-blue)] transition-colors active:scale-90 cursor-pointer">
+                <button onClick={() => setIsSettingsOpen(false)} className="w-9 h-9 flex items-center justify-center bg-[var(--ios-surface)] text-[var(--ios-label)] rounded-full hover:bg-[var(--sys-tint-soft)] hover:text-[var(--ios-blue)] transition-colors active:scale-90 cursor-pointer">
                   <X size={18} />
                 </button>
               </header>

@@ -111,7 +111,7 @@ export function AddTradeModal({
                   {editingTradeId ? "Cập nhật số liệu hoặc tất toán" : "Ghi nhận chi tiết giao dịch"}
                 </p>
               </div>
-              <button type="button" onClick={onClose} className="w-9 h-9 flex items-center justify-center bg-[var(--ios-fill)] rounded-full text-[var(--ios-secondary-label)] cursor-pointer active:scale-90 transition-transform" title="Đóng">
+              <button type="button" onClick={onClose} className="w-9 h-9 flex items-center justify-center bg-[var(--ios-surface)] rounded-full text-[var(--ios-secondary-label)] cursor-pointer active:scale-90 transition-transform" title="Đóng">
                 <X size={18} />
               </button>
             </div>
