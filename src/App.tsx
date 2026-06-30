@@ -1369,7 +1369,7 @@ export default function App() {
 
         {/* Desktop Segmented Control */}
         <div
-          className="hidden md:flex justify-between items-center ios-glass bg-[var(--ios-surface)] rounded-full border border-[var(--ios-separator)] shadow-ios-sm p-1.5 overflow-x-auto no-scrollbar"
+          className="hidden md:flex justify-between items-center ios-glass bg-[var(--ios-surface)] rounded-full border border-[var(--ios-separator)] shadow-ios-sm p-1.5"
           id="segmented-controller"
         >
           <div className="flex gap-1 sm:gap-1.5 flex-shrink-0">
