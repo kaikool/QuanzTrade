@@ -55,7 +55,7 @@ export function JournalView({
         key={t.id} 
         onClick={() => setSelectedTrade(t)}
         className={`w-full text-left p-4 sm:p-5 transition-colors cursor-pointer border-b border-[var(--ios-separator)]/60 last:border-0
-          ${isSelected ? "bg-[var(--sys-tint-soft)] dark:bg-[var(--ios-blue)]/10" : "hover:bg-[var(--ios-surface-2)]/40"}`}
+          ${isSelected ? "bg-[var(--sys-tint-soft)] dark:bg-[var(--ios-blue)]/10" : "hover:bg-[var(--ios-fill)]/50"}`}
       >
         <div className="flex justify-between items-start mb-1">
           <div className="flex items-center gap-2 min-w-0 pr-2">
@@ -91,13 +91,13 @@ export function JournalView({
             placeholder="Tìm kiếm..." 
             value={searchQuery} 
             onChange={(e) => setSearchQuery(e.target.value)} 
-            className="w-full pl-10 pr-4 py-2 bg-[var(--ios-surface-2)] rounded-[12px] text-[15px] focus:outline-none text-[var(--ios-label)] placeholder:text-[var(--ios-secondary-label)] border border-[var(--ios-separator)]/30 focus:border-[var(--ios-blue)]/50 transition-colors shadow-sm" 
+            className="w-full pl-10 pr-4 py-2 bg-[var(--ios-fill)] rounded-[12px] text-[15px] focus:outline-none text-[var(--ios-label)] placeholder:text-[var(--ios-secondary-label)] border-0 focus:ring-2 focus:ring-[var(--ios-blue)]/50 transition-shadow shadow-sm" 
           />
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           {journalAccountOptions.length > 0 && (
-            <div className="flex bg-[var(--ios-surface-2)] p-0.5 rounded-[12px] text-[13px] font-bold border border-[var(--ios-separator)]">
+            <div className="flex bg-[var(--ios-fill)] p-0.5 rounded-[12px] text-[13px] font-bold">
               <button onClick={() => setSelectedJournalAccountId("ALL")} className={`px-3 py-1.5 rounded-[8px] transition-all cursor-pointer ${selectedJournalAccountId === "ALL" ? "bg-[var(--ios-surface)] shadow-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>Tất cả</button>
               {journalAccountOptions.map((a) => (
                 <button key={a.accountId} onClick={() => setSelectedJournalAccountId(a.accountId)} className={`px-3 py-1.5 rounded-[8px] transition-all cursor-pointer ${selectedJournalAccountId === a.accountId ? "bg-[var(--ios-surface)] shadow-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>{a.name}</button>
@@ -105,7 +105,7 @@ export function JournalView({
             </div>
           )}
           
-          <select value={selectedPairFilter} onChange={(e) => setSelectedPairFilter(e.target.value)} className="bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] px-3 py-2 rounded-[12px] focus:outline-none cursor-pointer text-[var(--ios-label)] font-bold text-[13px] shadow-sm appearance-none">
+          <select value={selectedPairFilter} onChange={(e) => setSelectedPairFilter(e.target.value)} className="bg-[var(--ios-fill)] border-0 px-3 py-2 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 cursor-pointer text-[var(--ios-label)] font-bold text-[13px] shadow-sm appearance-none">
             <option value="ALL">Cặp (Tất cả)</option>
             {uniquePairs.filter(p => p !== "ALL").map(p => <option key={p} value={p}>{p}</option>)}
           </select>

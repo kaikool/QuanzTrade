@@ -81,7 +81,7 @@ export function NewsPanel({
           )}
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-[12px] p-1">
+          <div className="flex items-center gap-1 bg-[var(--ios-fill)] border-0 rounded-[12px] p-1">
             <button type="button" onClick={() => onPageChange(page - 1)} disabled={!canGoPrevious}
               className="w-8 h-8 rounded-[8px] text-[var(--ios-blue)] flex items-center justify-center active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:bg-[var(--ios-surface)]">
               <ChevronLeft size={18} />
@@ -122,7 +122,7 @@ export function NewsPanel({
                   <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wide ${impactColors[item.impact]}`}>{item.impact}</span>
                   <span className={`text-[13px] tracking-tight ${effectColors[effect]}`}>{effect}</span>
                   <div className="w-1 h-1 rounded-full bg-[var(--ios-separator)]"></div>
-                  <span className={`px-2 py-0.5 rounded-md text-[11px] font-bold ${categoryColors[item.category] || "bg-[var(--ios-surface-2)] text-[var(--ios-secondary-label)]"}`}>{item.category}</span>
+                  <span className={`px-2 py-0.5 rounded-md text-[11px] font-bold ${categoryColors[item.category] || "bg-[var(--ios-fill)] text-[var(--ios-secondary-label)]"}`}>{item.category}</span>
                   <div className="w-1 h-1 rounded-full bg-[var(--ios-separator)]"></div>
                   <span className="text-[12px] font-medium text-[var(--ios-secondary-label)]">{item.source} · {formatRelativeTime(item.publishedAt)}</span>
                 </div>
@@ -130,7 +130,7 @@ export function NewsPanel({
                 {/* Title */}
                 <div className="flex items-start justify-between gap-4 mb-2">
                   <h4 className="text-[18px] sm:text-[20px] font-bold text-[var(--ios-label)] leading-tight flex-1">{item.titleVi || item.title}</h4>
-                  <a href={item.link} target="_blank" rel="noreferrer" className="w-9 h-9 rounded-full bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] text-[var(--ios-blue)] flex items-center justify-center flex-shrink-0 active:scale-90 transition-transform hover:bg-[var(--sys-tint-soft)] opacity-80 group-hover:opacity-100" title="Đọc chi tiết gốc">
+                  <a href={item.link} target="_blank" rel="noreferrer" className="w-9 h-9 rounded-full bg-[var(--ios-fill)] border-0 text-[var(--ios-blue)] flex items-center justify-center flex-shrink-0 active:scale-90 transition-transform hover:bg-[var(--sys-tint-soft)] opacity-80 group-hover:opacity-100" title="Đọc chi tiết gốc">
                     <ExternalLink size={16} />
                   </a>
                 </div>

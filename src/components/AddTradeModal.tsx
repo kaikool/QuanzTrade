@@ -111,7 +111,7 @@ export function AddTradeModal({
                   {editingTradeId ? "Cập nhật số liệu hoặc tất toán" : "Ghi nhận chi tiết giao dịch"}
                 </p>
               </div>
-              <button type="button" onClick={onClose} className="w-9 h-9 flex items-center justify-center bg-[var(--ios-surface-2)] rounded-full text-[var(--ios-secondary-label)] cursor-pointer active:scale-90 transition-transform" title="Đóng">
+              <button type="button" onClick={onClose} className="w-9 h-9 flex items-center justify-center bg-[var(--ios-fill)] rounded-full text-[var(--ios-secondary-label)] cursor-pointer active:scale-90 transition-transform" title="Đóng">
                 <X size={18} />
               </button>
             </div>
@@ -124,7 +124,7 @@ export function AddTradeModal({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                   <div>
                     <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Cặp ngoại tệ</label>
-                    <select value={formPair} onChange={e => setFormPair(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)] font-semibold cursor-pointer">
+                    <select value={formPair} onChange={e => setFormPair(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-fill)] border-0 rounded-[14px] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)] font-semibold cursor-pointer">
                       <option value="EUR/USD">EUR/USD</option>
                       <option value="GBP/USD">GBP/USD</option>
                       <option value="USD/JPY">USD/JPY</option>
@@ -147,11 +147,11 @@ export function AddTradeModal({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                   <div>
                     <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Giá vào lệnh *</label>
-                    <input type="number" step="any" required placeholder="VD: 1.0854" value={formEntryPrice} onChange={e => setFormEntryPrice(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)] font-mono" />
+                    <input type="number" step="any" required placeholder="VD: 1.0854" value={formEntryPrice} onChange={e => setFormEntryPrice(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-fill)] border-0 rounded-[14px] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)] font-mono" />
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Khối lượng (Lots) *</label>
-                    <input type="number" step="0.01" required min="0.01" value={formSize} onChange={e => setFormSize(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)] font-mono font-bold" />
+                    <input type="number" step="0.01" required min="0.01" value={formSize} onChange={e => setFormSize(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-fill)] border-0 rounded-[14px] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)] font-mono font-bold" />
                   </div>
                 </div>
 
@@ -159,11 +159,11 @@ export function AddTradeModal({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                   <div>
                     <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Chặn lỗ</label>
-                    <input type="number" step="any" placeholder="Tùy chọn - SL" value={formStopLoss} onChange={e => setFormStopLoss(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)] font-mono" />
+                    <input type="number" step="any" placeholder="Tùy chọn - SL" value={formStopLoss} onChange={e => setFormStopLoss(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-fill)] border-0 rounded-[14px] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)] font-mono" />
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Chốt lời</label>
-                    <input type="number" step="any" placeholder="Tùy chọn - TP" value={formTakeProfit} onChange={e => setFormTakeProfit(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)] font-mono" />
+                    <input type="number" step="any" placeholder="Tùy chọn - TP" value={formTakeProfit} onChange={e => setFormTakeProfit(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-fill)] border-0 rounded-[14px] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)] font-mono" />
                   </div>
                 </div>
 
@@ -178,7 +178,7 @@ export function AddTradeModal({
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Khung thời gian</label>
-                    <select value={formTimeframe} onChange={e => setFormTimeframe(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)] font-semibold cursor-pointer">
+                    <select value={formTimeframe} onChange={e => setFormTimeframe(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-fill)] border-0 rounded-[14px] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)] font-semibold cursor-pointer">
                       <option value="M5">M5 (5 phút)</option>
                       <option value="M15">M15 (15 phút)</option>
                       <option value="H1">H1 (1 giờ)</option>
@@ -191,12 +191,12 @@ export function AddTradeModal({
                 {/* P&L */}
                 <div>
                   <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">P&L ($)</label>
-                  <input type="number" step="any" placeholder="Kết quả lời/lỗ" value={formPnl} onChange={e => setFormPnl(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)] font-mono font-bold" />
+                  <input type="number" step="any" placeholder="Kết quả lời/lỗ" value={formPnl} onChange={e => setFormPnl(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-fill)] border-0 rounded-[14px] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)] font-mono font-bold" />
                 </div>
 
                 {/* Closed: Exit fields */}
                 {formStatus === "CLOSED" && (
-                  <div className="p-4 rounded-[16px] bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] space-y-4">
+                  <div className="p-4 rounded-[16px] bg-[var(--ios-surface)] border border-[var(--ios-separator)]/40 shadow-sm space-y-4">
                     <p className="text-xs font-semibold uppercase tracking-wider text-[var(--ios-secondary-label)]">Tất toán giao dịch</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
@@ -225,7 +225,7 @@ export function AddTradeModal({
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Chiến lược</label>
-                    <select value={formTag} onChange={e => setFormTag(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)] font-semibold cursor-pointer">
+                    <select value={formTag} onChange={e => setFormTag(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-fill)] border-0 rounded-[14px] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)] font-semibold cursor-pointer">
                       <option value="News-Trade">Giao dịch theo tin tức</option>
                       <option value="Trend-Follow">Đu theo xu hướng</option>
                       <option value="Breakout">Bứt phá</option>
@@ -247,7 +247,7 @@ export function AddTradeModal({
                 {/* Notes */}
                 <div>
                   <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Lý do vào lệnh</label>
-                  <textarea rows={3} placeholder="Tại sao bạn khớp lệnh này? Phân tích kỹ thuật hoặc nhận định tin tức..." value={formNotes} onChange={e => setFormNotes(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)] resize-none" />
+                  <textarea rows={3} placeholder="Tại sao bạn khớp lệnh này? Phân tích kỹ thuật hoặc nhận định tin tức..." value={formNotes} onChange={e => setFormNotes(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-fill)] border-0 rounded-[14px] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)] resize-none" />
                 </div>
 
                 {/* TradingView Snapshot Open */}
@@ -265,7 +265,7 @@ export function AddTradeModal({
                       </button>
                     </div>
                   ) : (
-                    <div className="h-20 rounded-lg border border-dashed border-[var(--ios-separator)] flex items-center justify-center bg-[var(--ios-surface-2)] text-[var(--ios-secondary-label)]/50 text-xs">Chưa có ảnh</div>
+                    <div className="h-20 rounded-[14px] border border-dashed border-[var(--ios-separator)] flex items-center justify-center bg-[var(--ios-fill)] text-[var(--ios-secondary-label)]/70 text-sm font-medium">Chưa có ảnh</div>
                   )}
                 </div>
 
@@ -284,7 +284,7 @@ export function AddTradeModal({
                       </button>
                     </div>
                   ) : (
-                    <div className="h-20 rounded-lg border border-dashed border-[var(--ios-separator)] flex items-center justify-center bg-[var(--ios-surface-2)] text-[var(--ios-secondary-label)]/50 text-xs">Chưa có ảnh</div>
+                    <div className="h-20 rounded-[14px] border border-dashed border-[var(--ios-separator)] flex items-center justify-center bg-[var(--ios-fill)] text-[var(--ios-secondary-label)]/70 text-sm font-medium">Chưa có ảnh</div>
                   )}
                 </div>
 
@@ -295,7 +295,7 @@ export function AddTradeModal({
                 <button type="submit" className="flex-1 py-3 rounded-[12px] bg-[var(--ios-blue)] text-white font-semibold text-sm cursor-pointer active:scale-[0.98] transition-transform">
                   {editingTradeId ? "Cập nhật giao dịch" : "Thêm lệnh"}
                 </button>
-                <button type="button" onClick={onClose} className="px-5 py-3 rounded-[12px] bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] text-[var(--ios-secondary-label)] text-sm font-semibold cursor-pointer active:scale-[0.98] transition-transform">
+                <button type="button" onClick={onClose} className="px-5 py-3 rounded-[14px] bg-[var(--ios-fill)] border-0 text-[var(--ios-label)] text-[15px] font-semibold cursor-pointer active:scale-[0.98] transition-transform">
                   Hủy
                 </button>
               </div>

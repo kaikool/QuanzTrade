@@ -114,7 +114,7 @@ export const IOSDatePicker: React.FC<IOSDatePickerProps> = ({
               ? "bg-[var(--ios-blue)] text-white font-bold"
               : isToday
                 ? "border border-[var(--ios-blue)] text-[var(--ios-blue)]"
-                : "hover:bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] text-[var(--ios-label)] dark:text-[var(--ios-label)]"
+                : "hover:bg-[var(--ios-fill)] border border-[var(--ios-separator)] text-[var(--ios-label)] dark:text-[var(--ios-label)]"
           }`}
         >
           {day}
@@ -152,14 +152,14 @@ export const IOSDatePicker: React.FC<IOSDatePickerProps> = ({
               <button
                 type="button"
                 onClick={handlePrevMonth}
-                className="p-1.5 hover:bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-full text-[var(--ios-label)] transition-colors cursor-pointer"
+                className="p-1.5 hover:bg-[var(--ios-fill)] border border-[var(--ios-separator)] rounded-full text-[var(--ios-label)] transition-colors cursor-pointer"
               >
                 <ChevronLeft size={16} />
               </button>
               <button
                 type="button"
                 onClick={handleNextMonth}
-                className="p-1.5 hover:bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-full text-[var(--ios-label)] transition-colors cursor-pointer"
+                className="p-1.5 hover:bg-[var(--ios-fill)] border border-[var(--ios-separator)] rounded-full text-[var(--ios-label)] transition-colors cursor-pointer"
               >
                 <ChevronRight size={16} />
               </button>
@@ -262,7 +262,7 @@ export const IOSTimePicker: React.FC<IOSTimePickerProps> = ({
                   className={`py-1 text-sm font-semibold rounded-[4px] cursor-pointer transition-colors ${
                     isSelected
                       ? "bg-[var(--ios-blue)] text-white"
-                      : "hover:bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] text-[var(--ios-label)] dark:text-[var(--ios-label)]"
+                      : "hover:bg-[var(--ios-fill)] border border-[var(--ios-separator)] text-[var(--ios-label)] dark:text-[var(--ios-label)]"
                   }`}
                 >
                   {hStr}
@@ -287,7 +287,7 @@ export const IOSTimePicker: React.FC<IOSTimePickerProps> = ({
                   className={`py-1 text-sm font-semibold rounded-[4px] cursor-pointer transition-colors ${
                     isSelected
                       ? "bg-[var(--ios-blue)] text-white"
-                      : "hover:bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] text-[var(--ios-label)] dark:text-[var(--ios-label)]"
+                      : "hover:bg-[var(--ios-fill)] border border-[var(--ios-separator)] text-[var(--ios-label)] dark:text-[var(--ios-label)]"
                   }`}
                 >
                   {mVal}

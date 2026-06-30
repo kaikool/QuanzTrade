@@ -51,7 +51,7 @@ export function DashboardView({
           <button onClick={() => setIsQuickAddOpen(true)} className="h-10 px-5 bg-[var(--ios-blue)] text-white rounded-full text-[15px] font-bold flex items-center gap-2 cursor-pointer active:scale-95 transition-transform shadow-ios-md">
             <Plus size={18} /> Ghi lệnh mới
           </button>
-          <button onClick={() => setIsSettingsOpen(true)} className="h-10 px-4 bg-[var(--ios-surface-2)] text-[var(--ios-label)] rounded-full text-[15px] font-bold flex items-center gap-2 cursor-pointer active:scale-95 transition-transform">
+          <button onClick={() => setIsSettingsOpen(true)} className="h-10 px-4 bg-[var(--ios-fill)] text-[var(--ios-label)] border-0 rounded-full text-[15px] font-bold flex items-center gap-2 cursor-pointer active:scale-95 transition-transform">
             <Settings size={18} className="text-[var(--ios-secondary-label)]" /> Cài đặt
           </button>
         </div>
@@ -100,7 +100,7 @@ export function DashboardView({
                       <p className="font-bold text-[18px] text-[var(--ios-label)] truncate">{account.name || account.accountId}</p>
                       <p className="text-[12px] font-mono text-[var(--ios-secondary-label)] mt-0.5">#{account.accountId}</p>
                     </div>
-                    <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${account.status === "active" || account.status === "available" ? "text-[var(--ios-green)] bg-[var(--sys-success-soft)]" : "text-[var(--ios-secondary-label)] bg-[var(--ios-surface-2)]"}`}>
+                    <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${account.status === "active" || account.status === "available" ? "text-[var(--ios-green)] bg-[var(--sys-success-soft)]" : "text-[var(--ios-secondary-label)] bg-[var(--ios-fill)]"}`}>
                       {account.status}
                     </span>
                   </div>
@@ -118,7 +118,7 @@ export function DashboardView({
                     </div>
                   </div>
                   
-                  <div className="bg-[var(--ios-surface-2)] p-3 rounded-[14px]">
+                  <div className="bg-[var(--ios-fill)]/50 p-3 rounded-[14px]">
                     <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)] mb-2">
                       <span className="flex items-center gap-1"><ShieldAlert size={12} /> Daily Drawdown</span>
                       <span className={isDanger ? "text-[var(--ios-red)]" : "text-[var(--ios-green)]"}>{dailyRisk.toFixed(1)}%</span>

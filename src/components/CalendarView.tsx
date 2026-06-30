@@ -36,14 +36,14 @@ export function CalendarView({
     <div className="space-y-4">
       {/* Filters row (Segmented Controls style) */}
       <div className="flex items-center gap-2 flex-wrap">
-        <div className="flex bg-[var(--ios-surface-2)] p-1 rounded-[12px] text-[13px] font-medium border border-[var(--ios-separator)]">
+        <div className="flex bg-[var(--ios-fill)] p-0.5 rounded-[12px] text-[13px] font-medium border-0">
           <button onClick={() => setCalendarPeriodFilter("DAY")}
             className={`px-3 py-1.5 rounded-[8px] transition-all cursor-pointer ${calendarPeriodFilter === "DAY" ? "bg-[var(--ios-surface)] shadow-ios-sm text-[var(--ios-label)] font-semibold" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>Hôm nay</button>
           <button onClick={() => setCalendarPeriodFilter("WEEK")}
             className={`px-3 py-1.5 rounded-[8px] transition-all cursor-pointer ${calendarPeriodFilter === "WEEK" ? "bg-[var(--ios-surface)] shadow-ios-sm text-[var(--ios-label)] font-semibold" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>Tuần này</button>
         </div>
 
-        <div className="flex bg-[var(--ios-surface-2)] p-1 rounded-[12px] border border-[var(--ios-separator)]">
+        <div className="flex bg-[var(--ios-fill)] p-0.5 rounded-[12px] border-0">
           <button onClick={() => setCalendarImpactFilter("ALL")} className={`px-2 py-1.5 rounded-[8px] transition-all cursor-pointer flex items-center gap-1 ${calendarImpactFilter === "ALL" ? "bg-[var(--ios-surface)] shadow-ios-sm" : ""}`} title="Tất cả">
             <span className="w-2.5 h-2.5 rounded-full bg-[var(--sys-red)]" /><span className="w-2.5 h-2.5 rounded-full bg-amber-500" /><span className="w-2.5 h-2.5 rounded-full bg-[var(--sys-blue)]" />
           </button>
@@ -55,7 +55,7 @@ export function CalendarView({
           </button>
         </div>
         
-        <button onClick={syncCalendar} className="h-[36px] w-[36px] flex items-center justify-center rounded-[12px] bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] cursor-pointer active:scale-90 transition-transform ml-auto shadow-ios-sm" title="Cập nhật">
+        <button onClick={syncCalendar} className="h-[36px] w-[36px] flex items-center justify-center rounded-[12px] bg-[var(--ios-fill)] border-0 cursor-pointer active:scale-90 transition-transform ml-auto shadow-sm" title="Cập nhật">
           <RefreshCw size={16} className={refreshingCalendar ? "animate-spin text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"} />
         </button>
       </div>
@@ -100,7 +100,7 @@ export function CalendarView({
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-[17px] text-[var(--ios-label)] leading-snug">{ev.title}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-[11px] bg-[var(--ios-surface-2)] border border-[var(--ios-separator)]/50 px-2 py-0.5 rounded-md text-[var(--ios-secondary-label)] uppercase font-mono font-bold tracking-widest">{ev.country}</span>
+                          <span className="text-[11px] bg-[var(--ios-fill)] border-0 px-2 py-0.5 rounded-md text-[var(--ios-secondary-label)] uppercase font-mono font-bold tracking-widest">{ev.country}</span>
                           <span className="text-[12px] text-[var(--ios-tertiary-label)] font-mono">{timezoneOffsetStr}</span>
                         </div>
                       </div>

@@ -1587,11 +1587,11 @@ export default function App() {
                 <section>
                   <h3 className="text-[13px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-wider ml-4 mb-2">Giao diện</h3>
                   <div className="ios-glass ios26-card bg-[var(--ios-surface)] rounded-[24px] p-2 flex gap-2">
-                    <button type="button" onClick={() => setDarkMode(false)} className={`flex-1 flex flex-col items-center justify-center p-4 rounded-[18px] transition-all cursor-pointer ${!darkMode ? "bg-[var(--ios-blue)] text-white shadow-ios-sm" : "text-[var(--ios-secondary-label)] hover:bg-[var(--ios-surface-2)]"}`}>
+                    <button type="button" onClick={() => setDarkMode(false)} className={`flex-1 flex flex-col items-center justify-center p-4 rounded-[18px] transition-all cursor-pointer ${!darkMode ? "bg-[var(--ios-blue)] text-white shadow-ios-sm" : "text-[var(--ios-secondary-label)] hover:bg-[var(--ios-fill)]"}`}>
                       <Sun size={24} className="mb-2" />
                       <span className="text-[15px] font-bold">Sáng</span>
                     </button>
-                    <button type="button" onClick={() => setDarkMode(true)} className={`flex-1 flex flex-col items-center justify-center p-4 rounded-[18px] transition-all cursor-pointer ${darkMode ? "bg-[var(--ios-blue)] text-white shadow-ios-sm" : "text-[var(--ios-secondary-label)] hover:bg-[var(--ios-surface-2)]"}`}>
+                    <button type="button" onClick={() => setDarkMode(true)} className={`flex-1 flex flex-col items-center justify-center p-4 rounded-[18px] transition-all cursor-pointer ${darkMode ? "bg-[var(--ios-blue)] text-white shadow-ios-sm" : "text-[var(--ios-secondary-label)] hover:bg-[var(--ios-fill)]"}`}>
                       <Moon size={24} className="mb-2" />
                       <span className="text-[15px] font-bold">Tối</span>
                     </button>
@@ -1604,19 +1604,19 @@ export default function App() {
                   <div className="ios-glass ios26-card bg-[var(--ios-surface)] rounded-[24px] divide-y divide-[var(--ios-separator)]/50 overflow-hidden">
                     <div className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <span className="text-[16px] font-bold text-[var(--ios-label)]">Supabase URL</span>
-                      <input type="text" value={dbUrl} onChange={(e) => setDbUrl(e.target.value)} placeholder="https://...supabase.co" className="w-full sm:w-2/3 px-4 py-2 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[15px] font-mono focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)]" />
+                      <input type="text" value={dbUrl} onChange={(e) => setDbUrl(e.target.value)} placeholder="https://...supabase.co" className="w-full sm:w-2/3 px-4 py-2 bg-[var(--ios-fill)] rounded-[12px] border-0 text-[15px] font-mono focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)]" />
                     </div>
                     <div className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <span className="text-[16px] font-bold text-[var(--ios-label)]">Anon Key</span>
-                      <input type="password" value={dbAnon} onChange={(e) => setDbAnon(e.target.value)} placeholder="Khóa bảo mật..." className="w-full sm:w-2/3 px-4 py-2 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[15px] font-mono focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)]" />
+                      <input type="password" value={dbAnon} onChange={(e) => setDbAnon(e.target.value)} placeholder="Khóa bảo mật..." className="w-full sm:w-2/3 px-4 py-2 bg-[var(--ios-fill)] rounded-[12px] border-0 text-[15px] font-mono focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)]" />
                     </div>
-                    <div className="p-4 sm:p-5 bg-[var(--ios-surface-2)]/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="p-4 sm:p-5 bg-[var(--ios-fill)]/20 flex flex-col sm:flex-row items-center justify-between gap-4">
                       <p className={`text-[14px] font-bold flex items-center gap-2 ${supabaseConnected ? "text-[var(--ios-green)]" : "text-[var(--ios-secondary-label)]"}`}>
                         <span className={`w-2.5 h-2.5 rounded-full ${supabaseConnected ? "bg-[var(--ios-green)]" : "bg-[var(--ios-separator)]"}`} />
                         {supabaseConnected ? "Đã kết nối" : "Chưa kết nối"}
                       </p>
                       <div className="flex gap-2 w-full sm:w-auto">
-                        <button type="button" onClick={handleSaveSupabaseConfig} className="flex-1 sm:flex-none px-5 py-2 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] text-[var(--ios-label)] font-bold rounded-[12px] active:scale-95 transition-transform cursor-pointer">Lưu</button>
+                        <button type="button" onClick={handleSaveSupabaseConfig} className="flex-1 sm:flex-none px-5 py-2 bg-[var(--ios-fill)] border-0 text-[var(--ios-label)] font-bold rounded-[12px] active:scale-95 transition-transform cursor-pointer">Lưu</button>
                         <button type="button" onClick={testSupabaseConnection} className="flex-1 sm:flex-none px-5 py-2 bg-[var(--ios-blue)] text-white font-bold rounded-[12px] active:scale-95 transition-transform cursor-pointer shadow-ios-sm">Kiểm tra</button>
                       </div>
                     </div>
@@ -1649,18 +1649,18 @@ export default function App() {
                     <div className="p-4 sm:p-5 space-y-3">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <span className="text-[16px] font-bold text-[var(--ios-label)]">Session ID</span>
-                        <input type="text" value={tvSessionId} onChange={(e) => { setTvSessionId(e.target.value); localStorage.setItem("tv_session_id", e.target.value); }} placeholder="sessionid" className="w-full sm:w-2/3 px-4 py-2 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[15px] font-mono focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)]" />
+                        <input type="text" value={tvSessionId} onChange={(e) => { setTvSessionId(e.target.value); localStorage.setItem("tv_session_id", e.target.value); }} placeholder="sessionid" className="w-full sm:w-2/3 px-4 py-2 bg-[var(--ios-fill)] rounded-[12px] border-0 text-[15px] font-mono focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)]" />
                       </div>
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <span className="text-[16px] font-bold text-[var(--ios-label)]">Session Sign</span>
-                        <input type="text" value={tvSessionSign} onChange={(e) => { setTvSessionSign(e.target.value); localStorage.setItem("tv_session_sign", e.target.value); }} placeholder="sessionid_sign" className="w-full sm:w-2/3 px-4 py-2 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[15px] font-mono focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)]" />
+                        <input type="text" value={tvSessionSign} onChange={(e) => { setTvSessionSign(e.target.value); localStorage.setItem("tv_session_sign", e.target.value); }} placeholder="sessionid_sign" className="w-full sm:w-2/3 px-4 py-2 bg-[var(--ios-fill)] rounded-[12px] border-0 text-[15px] font-mono focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)]" />
                       </div>
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <span className="text-[16px] font-bold text-[var(--ios-label)] shrink-0">Browserless Token</span>
-                        <input type="password" value={browserlessToken} onChange={(e) => setBrowserlessToken(e.target.value)} placeholder="API Token" className="w-full sm:w-2/3 px-4 py-2 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[15px] font-mono focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)]" />
+                        <input type="password" value={browserlessToken} onChange={(e) => setBrowserlessToken(e.target.value)} placeholder="API Token" className="w-full sm:w-2/3 px-4 py-2 bg-[var(--ios-fill)] rounded-[12px] border-0 text-[15px] font-mono focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)]" />
                       </div>
                     </div>
-                    <div className="p-4 sm:p-5 bg-[var(--ios-surface-2)]/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="p-4 sm:p-5 bg-[var(--ios-fill)]/20 flex flex-col sm:flex-row items-center justify-between gap-4">
                       <p className={`text-[13px] font-bold flex-1 ${tvSaveResult?.includes("✅") ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`}>{tvSaveResult}</p>
                       <button type="button" onClick={saveTVCreds} disabled={tvSaving} className="w-full sm:w-auto px-6 py-2.5 bg-[var(--ios-blue)] text-white font-bold rounded-[12px] active:scale-95 transition-transform cursor-pointer shadow-ios-sm disabled:opacity-50">
                         {tvSaving ? "Đang lưu..." : "Lưu TradingView"}
@@ -1710,7 +1710,7 @@ export default function App() {
                           })}
                         </div>
                       )}
-                      <button type="button" onClick={() => { const activeIds = t5Accounts.filter((a) => a.status === "active" || a.status === "available").map((a) => a.accountId); setSelectedT5AccountIds(activeIds); localStorage.setItem("t5_selected_accounts", JSON.stringify(activeIds)); }} className="w-full py-2 bg-[var(--ios-surface-2)] text-[var(--ios-blue)] font-bold text-[14px] rounded-[12px] hover:bg-[var(--sys-tint-soft)] transition-colors cursor-pointer">
+                      <button type="button" onClick={() => { const activeIds = t5Accounts.filter((a) => a.status === "active" || a.status === "available").map((a) => a.accountId); setSelectedT5AccountIds(activeIds); localStorage.setItem("t5_selected_accounts", JSON.stringify(activeIds)); }} className="w-full py-2 bg-[var(--ios-fill)] text-[var(--ios-blue)] font-bold text-[14px] rounded-[12px] hover:bg-[var(--sys-tint-soft)] transition-colors cursor-pointer">
                         Chọn tất cả Active
                       </button>
                     </div>
@@ -1718,15 +1718,15 @@ export default function App() {
                     <div className="p-4 sm:p-5 space-y-4">
                       <div className="flex flex-col gap-1.5">
                         <span className="text-[14px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-wider">Email The5ers</span>
-                        <input type="email" value={t5Email} onChange={(e) => { setT5Email(e.target.value); localStorage.setItem("t5_email", e.target.value); }} placeholder="email@domain.com" className="w-full px-4 py-3 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[15px] font-mono focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)]" />
+                        <input type="email" value={t5Email} onChange={(e) => { setT5Email(e.target.value); localStorage.setItem("t5_email", e.target.value); }} placeholder="email@domain.com" className="w-full px-4 py-3 bg-[var(--ios-fill)] rounded-[12px] border-0 text-[15px] font-mono focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)]" />
                       </div>
                       <div className="flex flex-col gap-1.5">
                         <span className="text-[14px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-wider">DSR Token</span>
-                        <textarea value={t5DsrToken} onChange={(e) => { const val = e.target.value.trim(); setT5DsrToken(val); localStorage.setItem("t5_dsr_token", val); }} placeholder="Dán token DSR" className="w-full px-4 py-3 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[13px] font-mono focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)] h-[80px] resize-none" />
+                        <textarea value={t5DsrToken} onChange={(e) => { const val = e.target.value.trim(); setT5DsrToken(val); localStorage.setItem("t5_dsr_token", val); }} placeholder="Dán token DSR" className="w-full px-4 py-3 bg-[var(--ios-fill)] rounded-[12px] border-0 text-[13px] font-mono focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)] h-[80px] resize-none" />
                       </div>
                       
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                        <button type="button" onClick={saveT5Creds} disabled={t5Saving} className="w-full py-3 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] text-[var(--ios-label)] font-bold rounded-[14px] active:scale-95 transition-transform cursor-pointer">
+                        <button type="button" onClick={saveT5Creds} disabled={t5Saving} className="w-full py-3 bg-[var(--ios-fill)] border-0 text-[var(--ios-label)] font-bold rounded-[14px] active:scale-95 transition-transform cursor-pointer hover:bg-[var(--sys-tint-soft)] hover:text-[var(--ios-blue)]">
                           {t5Saving ? "Đang lưu..." : "Lưu DSR"}
                         </button>
                         <button type="button" onClick={syncT5Now} disabled={t5Syncing} className="w-full py-3 bg-[var(--ios-green)] text-white font-bold rounded-[14px] active:scale-95 transition-transform cursor-pointer shadow-sm">
@@ -1761,7 +1761,7 @@ export default function App() {
                       </div>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-3">
-                      <input type="password" value={sitePassword} onChange={(e) => setSitePassword(e.target.value)} placeholder="Mật khẩu mới" className="flex-1 px-4 py-3 bg-[var(--ios-surface-2)] rounded-[14px] border border-[var(--ios-separator)] text-[15px] font-mono focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)]" />
+                      <input type="password" value={sitePassword} onChange={(e) => setSitePassword(e.target.value)} placeholder="Mật khẩu mới" className="flex-1 px-4 py-3 bg-[var(--ios-fill)] rounded-[14px] border-0 text-[15px] font-mono focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)]" />
                       <button type="button" onClick={async () => { const pass = sitePassword.trim(); if (!pass) return showToast("Vui lòng nhập mật khẩu mới.", "error"); try { const res = await fetch("/api/save-site-password", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("trade_app_auth_token") }, body: JSON.stringify({ sitePassword: pass }) }); const json = await res.json(); showToast(json.message || "Lưu thành công.", json.success ? "success" : "error"); if (json.success) setSitePassword(""); } catch (err: any) { showToast("Lỗi: " + err.message, "error"); } }} className="w-full sm:w-auto px-6 py-3 bg-[var(--ios-blue)] text-white font-bold rounded-[14px] active:scale-95 transition-transform cursor-pointer shadow-ios-sm">
                         Cập nhật
                       </button>
@@ -1861,20 +1861,20 @@ export default function App() {
                 }
               }} className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
-                  <select name="pair" defaultValue="EUR/USD" className="px-3 py-3 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[var(--ios-label)] text-base focus:outline-none focus:border-[var(--ios-blue)]">
+                  <select name="pair" defaultValue="EUR/USD" className="px-3 py-3 bg-[var(--ios-fill)] rounded-[14px] border-0 text-[var(--ios-label)] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50">
                     {["EUR/USD","GBP/USD","USD/JPY","AUD/USD","USD/CAD","NZD/USD","USD/CHF","XAU/USD","BTC/USD"].map(p => (
                       <option key={p} value={p}>{p}</option>
                     ))}
                   </select>
-                  <select name="type" defaultValue="BUY" className="px-3 py-3 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[var(--ios-label)] text-base focus:outline-none focus:border-[var(--ios-blue)]">
+                  <select name="type" defaultValue="BUY" className="px-3 py-3 bg-[var(--ios-fill)] rounded-[14px] border-0 text-[var(--ios-label)] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50">
                     <option value="BUY">MUA (BUY)</option>
                     <option value="SELL">BÁN (SELL)</option>
                   </select>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
-                  <input name="entry_price" type="number" step="any" placeholder="Giá vào" required className="px-3 py-3 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[var(--ios-label)] text-base focus:outline-none focus:border-[var(--ios-blue)] font-mono" />
-                  <input name="exit_price" type="number" step="any" placeholder="Giá ra (tuỳ)" className="px-3 py-3 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[var(--ios-label)] text-base focus:outline-none focus:border-[var(--ios-blue)] font-mono" />
-                  <input name="size" type="number" step="0.01" placeholder="Lots" required className="px-3 py-3 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[var(--ios-label)] text-base focus:outline-none focus:border-[var(--ios-blue)] font-mono" />
+                  <input name="entry_price" type="number" step="any" placeholder="Giá vào" required className="px-3 py-3 bg-[var(--ios-fill)] rounded-[14px] border-0 text-[var(--ios-label)] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 font-mono" />
+                  <input name="exit_price" type="number" step="any" placeholder="Giá ra (tuỳ)" className="px-3 py-3 bg-[var(--ios-fill)] rounded-[14px] border-0 text-[var(--ios-label)] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 font-mono" />
+                  <input name="size" type="number" step="0.01" placeholder="Lots" required className="px-3 py-3 bg-[var(--ios-fill)] rounded-[14px] border-0 text-[var(--ios-label)] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 font-mono" />
                 </div>
                 <div className="flex gap-3 pt-2">
                   <button type="button" onClick={() => setIsQuickAddOpen(false)} className="flex-1 py-3 rounded-[12px] border border-[var(--ios-separator)] text-[var(--ios-label)] font-semibold cursor-pointer">Huỷ</button>

@@ -77,7 +77,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Mật mã"
-                  className="w-full bg-[var(--ios-surface-2)] text-[var(--ios-label)] border border-[var(--ios-separator)] rounded-2xl py-3.5 px-4 text-center text-lg focus:outline-none focus:border-[var(--ios-blue)] transition-colors placeholder:text-[var(--ios-secondary-label)]"
+                  className="w-full bg-[var(--ios-fill)] text-[var(--ios-label)] border-0 rounded-2xl py-3.5 px-4 text-center text-lg focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 transition-shadow placeholder:text-[var(--ios-secondary-label)]"
                   autoFocus
                 />
               </div>
