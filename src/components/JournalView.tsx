@@ -85,7 +85,7 @@ export function JournalView({
       </div>
 
       {/* Desktop Table — iOS List Style */}
-      <div className="hidden md:block bg-[var(--ios-surface)] rounded-[14px] shadow-ios-sm overflow-hidden" id="trades-table-scroller">
+      <div className="hidden md:block ios-glass bg-[var(--ios-surface)] rounded-[14px] shadow-ios-sm overflow-hidden" id="trades-table-scroller">
         {filteredTrades.length === 0 ? (
           <div className="text-center py-12 text-[var(--ios-secondary-label)]">
             <BookOpen size={36} className="mx-auto mb-2 opacity-40" />
@@ -173,7 +173,7 @@ export function JournalView({
           </div>
         ) : (
           filteredTrades.slice(0, visibleCount).map((t) => (
-            <div key={t.id} className="bg-[var(--ios-surface)] rounded-[14px] shadow-ios-sm overflow-hidden border border-[var(--ios-separator)]">
+            <div key={t.id} className="ios-glass bg-[var(--ios-surface)] rounded-[14px] shadow-ios-sm overflow-hidden border border-[var(--ios-separator)]">
               {/* Chart snaps */}
               {(t.tv_snapshot_url || t.tv_snapshot_url_close) && (
                 <div className={`grid ${t.tv_snapshot_url && t.tv_snapshot_url_close ? "grid-cols-2 gap-0.5" : "grid-cols-1"}`}>

@@ -113,7 +113,7 @@ export function NewsPanel({
           <p className="text-xs mt-1">Bấm làm mới hoặc quay lại trang trước.</p>
         </div>
       ) : (
-        <div className="divide-y divide-[var(--ios-separator)] bg-[var(--ios-surface)] rounded-[14px] shadow-ios-sm overflow-hidden">
+        <div className="divide-y divide-[var(--ios-separator)] ios-glass bg-[var(--ios-surface)] rounded-[14px] shadow-ios-sm overflow-hidden">
           {newsItems.map((item) => {
             const effect = deriveEffectLabel(item.sentiment);
             return (

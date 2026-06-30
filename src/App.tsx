@@ -1364,7 +1364,7 @@ export default function App() {
 
         {/* Desktop Segmented Control */}
         <div
-          className="hidden md:flex justify-between items-center bg-[var(--ios-surface)] rounded-full border border-[var(--ios-separator)] shadow-ios-sm p-1.5 overflow-x-auto no-scrollbar"
+          className="hidden md:flex justify-between items-center ios-glass bg-[var(--ios-surface)] rounded-full border border-[var(--ios-separator)] shadow-ios-sm p-1.5 overflow-x-auto no-scrollbar"
           id="segmented-controller"
         >
           <div className="flex gap-1 sm:gap-1.5 flex-shrink-0">
@@ -1713,7 +1713,7 @@ export default function App() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 120 }}
               transition={{ type: "spring", damping: 28, stiffness: 240 }}
-              className="relative w-full sm:max-w-md bg-[var(--ios-surface)] rounded-t-[28px] sm:rounded-[28px] shadow-ios-xl z-10"
+              className="relative w-full sm:max-w-md ios-glass bg-[var(--ios-surface)] rounded-t-[28px] sm:rounded-[28px] shadow-ios-xl z-10"
               id="quick-add-modal-window"
             >
               {/* Grabber */}

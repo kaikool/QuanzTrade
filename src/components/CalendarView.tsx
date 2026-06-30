@@ -55,7 +55,7 @@ export function CalendarView({
       </div>
 
       {/* Events */}
-      <div className="bg-[var(--ios-surface)] rounded-[14px] shadow-ios-sm overflow-hidden">
+      <div className="ios-glass bg-[var(--ios-surface)] rounded-[14px] shadow-ios-sm overflow-hidden">
         {loadingCalendar ? (
           <div className="py-16 text-center space-y-3">
             <RefreshCw className="animate-spin text-[var(--ios-blue)] mx-auto" size={24} />

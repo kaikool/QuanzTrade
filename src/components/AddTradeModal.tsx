@@ -93,7 +93,7 @@ export function AddTradeModal({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 120 }}
             transition={{ type: "spring", damping: 28, stiffness: 240 }}
-            className="relative w-full max-w-[100vw] sm:max-w-2xl bg-[var(--ios-surface)] sm:rounded-[28px] rounded-t-[28px] shadow-ios-xl z-10 flex flex-col h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-hidden"
+            className="relative w-full max-w-[100vw] sm:max-w-2xl ios-glass bg-[var(--ios-surface)] sm:rounded-[28px] rounded-t-[28px] shadow-ios-xl z-10 flex flex-col h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-hidden"
             id="new-trade-modal-window"
           >
             {/* Grabber */}
