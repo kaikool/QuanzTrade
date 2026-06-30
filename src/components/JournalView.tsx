@@ -55,7 +55,7 @@ export function JournalView({
         key={t.id} 
         onClick={() => setSelectedTrade(t)}
         className={`w-full text-left p-4 sm:p-5 transition-colors cursor-pointer border-b border-[var(--ios-separator)]/60 last:border-0
-          ${isSelected ? "bg-[var(--sys-tint-soft)] dark:bg-[var(--ios-blue)]/10" : "hover:bg-[var(--ios-fill)]/50"}`}
+          ${isSelected ? "bg-[var(--ios-fill)]" : "hover:bg-[var(--ios-fill)]/50"}`}
       >
         <div className="flex justify-between items-start mb-1">
           <div className="flex items-center gap-2 min-w-0 pr-2">
@@ -145,7 +145,7 @@ export function JournalView({
 
         {/* Right Pane (Detail View) */}
         {selectedTrade ? (
-          <div className="flex-1 flex flex-col ios-glass ios26-card bg-[var(--ios-surface)] border border-[var(--ios-separator)] shadow-ios-sm overflow-hidden absolute md:relative inset-0 z-20 h-full min-h-0">
+          <div className="flex-1 flex flex-col ios-glass ios26-card bg-[var(--ios-surface)] border border-[var(--ios-separator)] shadow-ios-sm overflow-hidden relative z-20 min-h-0 w-full md:w-auto">
             {/* Header Detail */}
             <div className="flex items-center justify-between p-4 border-b border-[var(--ios-separator)] shrink-0 bg-[var(--ios-surface)]">
               <div className="flex items-center gap-2 md:gap-3 shrink-0">

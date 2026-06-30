@@ -1702,7 +1702,7 @@ export default function App() {
                             const checked = selectedT5AccountIds.includes(acc.accountId);
                             const isActive = acc.status === "active" || acc.status === "available";
                             return (
-                              <label key={acc.accountId} className={`flex items-center justify-between p-3 rounded-[16px] border transition-colors cursor-pointer ${checked ? "bg-[var(--sys-tint-soft)] border-[var(--ios-blue)]/30" : "bg-[var(--ios-fill)] border-transparent hover:bg-[var(--sys-tint-soft)]/50"} ${!isActive ? "opacity-50" : ""}`}>
+                              <label key={acc.accountId} className={`flex items-center justify-between p-3 rounded-[16px] border transition-colors cursor-pointer ${checked ? "bg-[var(--ios-fill)] border-[var(--ios-blue)]/50" : "bg-[var(--ios-fill)] border-transparent hover:bg-[var(--ios-fill)]/50"} ${!isActive ? "opacity-50" : ""}`}>
                                 <div className="flex items-center gap-3">
                                   <input type="checkbox" checked={checked} onChange={() => { const next = checked ? selectedT5AccountIds.filter((id) => id !== acc.accountId) : [...selectedT5AccountIds, acc.accountId]; setSelectedT5AccountIds(next); localStorage.setItem("t5_selected_accounts", JSON.stringify(next)); if (!checked && !isActive) loadT5AccountTrades(acc.accountId); }} className="w-5 h-5 accent-[var(--ios-blue)] cursor-pointer" />
                                   <span className="text-[15px] font-bold text-[var(--ios-label)]">{acc.name}</span>
