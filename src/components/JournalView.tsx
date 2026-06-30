@@ -64,12 +64,14 @@ export function JournalView({
             </span>
             <span className="font-bold text-[16px] text-[var(--ios-label)] truncate">{t.pair}</span>
           </div>
-          <span className={`text-[16px] font-bold font-mono tracking-tight ${(t.pnl || 0) >= 0 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`}>
-            {(t.pnl || 0) >= 0 ? "+" : ""}${(t.pnl || 0).toFixed(0)}
+          <span className={`text-[16px] font-bold font-mono tracking-tight ${Number(t.pnl || 0) >= 0 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`}>
+            {Number(t.pnl || 0) >= 0 ? "+" : ""}${Number(t.pnl || 0).toFixed(0)}
           </span>
         </div>
         <div className="flex justify-between items-center text-[12px]">
-          <span className="text-[var(--ios-secondary-label)] font-mono">{new Date(t.entry_date).toLocaleDateString("vi-VN")}</span>
+          <span className="text-[var(--ios-secondary-label)] font-mono">
+            {t.entry_date && !isNaN(new Date(t.entry_date).getTime()) ? new Date(t.entry_date).toLocaleDateString("vi-VN") : "-"}
+          </span>
           <div className="flex gap-1 items-center">
             {t.status === "OPEN" && <span className="bg-[var(--sys-tint-soft)] text-[var(--ios-blue)] text-[9px] px-1.5 py-0.5 rounded-full font-bold">OPEN</span>}
             {t.tag && <span className="text-[var(--ios-tertiary-label)] uppercase font-semibold">#{t.tag}</span>}
@@ -172,8 +174,8 @@ export function JournalView({
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <p className="text-[13px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)] mb-1">Lợi nhuận ròng</p>
-                  <p className={`text-[48px] font-bold font-mono tracking-tighter leading-none ${(selectedTrade.pnl || 0) >= 0 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`}>
-                    {(selectedTrade.pnl || 0) >= 0 ? "+" : ""}${(selectedTrade.pnl || 0).toFixed(2)}
+                  <p className={`text-[48px] font-bold font-mono tracking-tighter leading-none ${Number(selectedTrade.pnl || 0) >= 0 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`}>
+                    {Number(selectedTrade.pnl || 0) >= 0 ? "+" : ""}{Number(selectedTrade.pnl || 0).toFixed(2)}
                   </p>
                 </div>
                 {selectedTrade.status === "OPEN" && (
@@ -196,8 +198,16 @@ export function JournalView({
                 <div className="bg-[var(--ios-surface)] border border-[var(--ios-separator)]/30 shadow-sm p-4 rounded-[20px]">
                   <Calendar size={16} className="text-[var(--ios-secondary-label)] mb-2" />
                   <p className="text-[12px] font-bold uppercase text-[var(--ios-secondary-label)]">Thời gian mở</p>
-                  <p className="text-[15px] font-bold text-[var(--ios-label)]">{new Date(selectedTrade.entry_date).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}</p>
-                  <p className="text-[12px] text-[var(--ios-secondary-label)]">{new Date(selectedTrade.entry_date).toLocaleDateString("vi-VN")}</p>
+                  <p className="text-[15px] font-bold text-[var(--ios-label)]">
+                    {selectedTrade.entry_date && !isNaN(new Date(selectedTrade.entry_date).getTime()) 
+                      ? new Date(selectedTrade.entry_date).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) 
+                      : "-"}
+                  </p>
+                  <p className="text-[12px] text-[var(--ios-secondary-label)]">
+                    {selectedTrade.entry_date && !isNaN(new Date(selectedTrade.entry_date).getTime()) 
+                      ? new Date(selectedTrade.entry_date).toLocaleDateString("vi-VN") 
+                      : "-"}
+                  </p>
                 </div>
                 <div className="bg-[var(--ios-surface)] border border-[var(--ios-separator)]/30 shadow-sm p-4 rounded-[20px]">
                   <Tag size={16} className="text-[var(--ios-secondary-label)] mb-2" />
