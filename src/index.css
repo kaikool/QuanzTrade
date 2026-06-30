@@ -208,10 +208,20 @@ button {
 #segmented-controller,
 #news-panel > section,
 #bento-calendar-fastview,
-#ios-bottom-nav,
+#ios-bottom-nav {
+  background: var(--sys-glass);
+  border: 1px solid var(--sys-border);
+  box-shadow: 0 18px 55px var(--sys-shadow-color), inset 0 1px 0 var(--sys-glass-edge);
+  backdrop-filter: saturate(180%) blur(34px);
+  -webkit-backdrop-filter: saturate(180%) blur(34px);
+}
+
+/* Attribute selectors only apply border/shadow/glass — NOT background.
+   Active buttons (segmented, selected items) use bg-[var(--ios-surface)] for
+   a white fill. The old background: var(--sys-glass) here made them gray
+   instead of white, causing the "gray flash → white" button bug. */
 [class*="bg-[var(--ios-surface)]"],
 [class*="bg-[var(--sys-surface)]"] {
-  background: var(--sys-glass);
   border: 1px solid var(--sys-border);
   box-shadow: 0 18px 55px var(--sys-shadow-color), inset 0 1px 0 var(--sys-glass-edge);
   backdrop-filter: saturate(180%) blur(34px);
