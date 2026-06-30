@@ -17,9 +17,10 @@ const tabs: { id: TabId; label: string; Icon: React.FC<{ size?: number }> }[] = 
 
 export function IOSTabBar({ currentTab, setCurrentTab }: IOSTabBarProps) {
   return (
-    <footer
+    <nav
       id="ios-bottom-nav"
-      className="fixed bottom-0 left-0 right-0 z-30 flex items-start justify-around px-3 pt-1.5 pb-[max(0.25rem,env(safe-area-inset-bottom,0px))] bg-[var(--ios-surface)]/80 backdrop-blur-xl border-t border-[var(--ios-separator)]"
+      className="md:hidden fixed bottom-0 left-3 right-3 z-30 flex items-start justify-around px-2 pt-1.5 pb-[max(0.25rem,env(safe-area-inset-bottom,4px))] bg-[var(--ios-surface)]/85 backdrop-blur-2xl border border-[var(--ios-separator)] rounded-[28px] shadow-ios-glass"
+      style={{ bottom: 'max(16px, env(safe-area-inset-bottom, 16px))' }}
     >
       {tabs.map(({ id, label, Icon }) => {
         const isActive = currentTab === id;
@@ -42,6 +43,6 @@ export function IOSTabBar({ currentTab, setCurrentTab }: IOSTabBarProps) {
           </button>
         );
       })}
-    </footer>
+    </nav>
   );
 }
