@@ -19,12 +19,11 @@ export function IOSTabBar({ currentTab, setCurrentTab }: IOSTabBarProps) {
   return (
     <nav
       id="ios-bottom-nav"
-      className="md:hidden fixed z-40 bottom-0 left-0 right-0 flex items-center justify-around bg-[var(--ios-surface)]/80 border-t border-[var(--ios-separator)]/60"
+      className="md:hidden fixed z-40 left-4 right-4 flex items-center justify-around px-2 py-2 ios-glass bg-[var(--ios-surface)]/70 border border-[var(--ios-separator)]/50 rounded-full shadow-ios-xl"
       style={{
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-        backdropFilter: 'saturate(180%) blur(20px)',
-        WebkitBackdropFilter: 'saturate(180%) blur(20px)',
-        height: 'calc(50px + env(safe-area-inset-bottom, 0px))'
+        bottom: 'max(20px, env(safe-area-inset-bottom, 20px))',
+        backdropFilter: 'saturate(200%) blur(40px)',
+        WebkitBackdropFilter: 'saturate(200%) blur(40px)',
       }}
     >
       {tabs.map(({ id, label, Icon }) => {
@@ -33,19 +32,26 @@ export function IOSTabBar({ currentTab, setCurrentTab }: IOSTabBarProps) {
           <button
             key={id}
             onClick={() => setCurrentTab(id)}
-            className={`flex flex-col items-center justify-center w-full h-[50px] ${
-              isActive ? "text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)]"
-            } cursor-pointer`}
+            className={`relative flex flex-col items-center justify-center flex-1 h-[48px] rounded-full transition-all duration-300 ease-out cursor-pointer ${
+              isActive ? "text-[var(--ios-blue)] scale-105" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"
+            }`}
           >
-            <div className="mb-0.5 mt-1 transition-transform active:scale-90">
+            {/* Active Pill Background */}
+            {isActive && (
+              <div className="absolute inset-0 bg-[var(--ios-blue)]/10 rounded-full shadow-sm" />
+            )}
+            
+            <div className={`relative z-10 transition-transform ${isActive ? "translate-y-[-2px]" : "translate-y-0.5"}`}>
               <Icon 
                 size={24} 
                 strokeWidth={isActive ? 2.5 : 2}
               />
             </div>
-            <span className={`text-[10px] ${isActive ? "font-semibold" : "font-medium"}`}>
-              {label}
-            </span>
+            {isActive && (
+              <span className="relative z-10 text-[10px] font-bold mt-0.5 tracking-wide">
+                {label}
+              </span>
+            )}
           </button>
         );
       })}
