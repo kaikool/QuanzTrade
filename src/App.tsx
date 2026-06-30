@@ -1775,39 +1775,6 @@ export default function App() {
               </div>
             </motion.div>
           </div>
-        )}ios-blue)] text-white font-bold rounded-[14px] active:scale-95 transition-transform cursor-pointer shadow-ios-sm">
-                        Cập nhật
-                      </button>
-                    </div>
-                  </div>
-                </section>
-
-                {/* Danger Zone */}
-                <section className="pt-4">
-                  {deferredPrompt && (
-                    <button type="button" onClick={() => { setIsSettingsOpen(false); handleInstallAppPWA(); }} className="w-full py-4 bg-[var(--ios-blue)] text-white font-bold text-[16px] rounded-[20px] shadow-ios-md active:scale-95 transition-transform cursor-pointer flex items-center justify-center gap-2 mb-4">
-                      <Download size={20} /> Cài ứng dụng (PWA)
-                    </button>
-                  )}
-                  <button type="button" onClick={handleResetLocalStorage} className="w-full py-4 bg-[var(--sys-danger-soft)] text-[var(--ios-red)] font-bold text-[16px] rounded-[20px] active:scale-95 transition-transform cursor-pointer flex items-center justify-center border border-[var(--ios-red)]/30">
-                    Xóa nhật ký Local Storage
-                  </button>
-                </section>
-
-              </div>
-            </motion.div>
-          </div> => { const pass = sitePassword.trim(); if (!pass) return showToast("Vui lòng nhập mật khẩu mới.", "error"); try { const res = await fetch("/api/save-site-password", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("trade_app_auth_token") }, body: JSON.stringify({ sitePassword: pass }) }); const json = await res.json(); showToast(json.message || "Lưu thành công.", json.success ? "success" : "error"); if (json.success) setSitePassword(""); } catch (err: any) { showToast("Lỗi: " + err.message, "error"); } }} className="settings-button primary full">Cập nhật mật khẩu</button>
-                  </div>
-                </section>
-
-                {deferredPrompt && (
-                  <section className="settings-section"><button type="button" onClick={() => { setIsSettingsOpen(false); handleInstallAppPWA(); }} className="settings-button primary full"><Download size={16} /><span>Cài ứng dụng</span></button></section>
-                )}
-
-                <section className="settings-section danger-zone"><button type="button" onClick={handleResetLocalStorage} className="settings-button danger full">Xóa nhật ký local cũ</button></section>
-              </div>
-            </motion.div>
-          </div>
         )}
       </AnimatePresence>
 
