@@ -38,8 +38,8 @@ export function DashboardView({
   summary, mergedTrades,
   upcomingRedEvents, followedT5Accounts, t5Trades,
   setSelectedJournalAccountId, loadT5AccountTrades,
-  setIsQuickAddOpen, setIsSettingsOpen,
-}: DashboardViewProps) {
+  setIsQuickAddOpen, setIsSettingsOpen, t5Loading,
+}: DashboardViewProps & { t5Loading?: boolean; setDarkMode?: (v: boolean) => void }) {
 
   return (
     <div className="space-y-6" id="dashboard-view">
@@ -73,12 +73,31 @@ export function DashboardView({
       </div>
 
       {/* 2. Apple Health / Stocks Style Analytics (BentoStats) */}
-      <Suspense fallback={<div className="h-[240px] bg-[var(--ios-surface)] ios26-card shadow-ios-sm animate-pulse" />}>
-        <BentoStats trades={mergedTrades} darkMode={darkMode} />
-      </Suspense>
+      {t5Loading ? (
+        <div className="space-y-4 md:space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+            <div className="h-[180px] bg-[var(--ios-surface)] ios26-card shadow-ios-sm animate-pulse" />
+            <div className="h-[180px] bg-[var(--ios-surface)] ios26-card shadow-ios-sm animate-pulse" />
+          </div>
+          <div className="h-[320px] bg-[var(--ios-surface)] ios26-card shadow-ios-sm animate-pulse" />
+        </div>
+      ) : (
+        <Suspense fallback={<div className="h-[240px] bg-[var(--ios-surface)] ios26-card shadow-ios-sm animate-pulse" />}>
+          <BentoStats trades={mergedTrades} darkMode={darkMode} />
+        </Suspense>
+      )}
 
       {/* 3. The5ers Funding Accounts */}
-      {followedT5Accounts.length > 0 && (
+      {t5Loading ? (
+        <div className="space-y-4 pt-2">
+          <h2 className="text-[15px] font-bold text-[var(--ios-label)] uppercase tracking-wider px-1">Tài khoản Quỹ (The5ers)</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+             <div className="h-[160px] bg-[var(--ios-surface)] ios26-card shadow-ios-sm animate-pulse border border-[var(--ios-separator)]" />
+             <div className="h-[160px] bg-[var(--ios-surface)] ios26-card shadow-ios-sm animate-pulse border border-[var(--ios-separator)] hidden sm:block" />
+             <div className="h-[160px] bg-[var(--ios-surface)] ios26-card shadow-ios-sm animate-pulse border border-[var(--ios-separator)] hidden lg:block" />
+          </div>
+        </div>
+      ) : followedT5Accounts.length > 0 && (
         <div className="space-y-4 pt-2">
           <h2 className="text-[15px] font-bold text-[var(--ios-label)] uppercase tracking-wider px-1">Tài khoản Quỹ (The5ers)</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
