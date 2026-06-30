@@ -421,7 +421,7 @@ export function SettingsModal(props: SettingsModalProps) {
                         <button onClick={syncT5Now} disabled={t5Syncing} className="py-[9px] bg-[var(--ios-green)] text-white rounded-[10px] text-[13px] font-semibold active:scale-95 transition-transform cursor-pointer shadow-sm">
                           {t5Syncing ? "Đang đồng bộ…" : "Đồng bộ"}
                         </button>
-                        <button onClick={async () => { try { const r = await fetch("/api/trigger-scrape", { method: "POST" }); const j = await r.json(); showToast(j.message || "Đã trigger!", j.success ? "success" : "error"); } catch(e: any) { showToast("Lỗi: " + e.message, "error"); } }} className="col-span-2 py-[9px] bg-[var(--ios-surface)]/80 border border-dashed border-[var(--ios-blue)]/40 text-[var(--ios-blue)] rounded-[10px] text-[13px] font-semibold active:scale-95 transition-transform cursor-pointer">
+                        <button onClick={async () => { try { const token = localStorage.getItem("trade_app_auth_token"); const r = await fetch("/api/trigger-scrape", { method: "POST", headers: { "Authorization": `Bearer ${token}` } }); const j = await r.json(); showToast(j.message || "Đã trigger!", j.success ? "success" : "error"); } catch(e: any) { showToast("Lỗi: " + e.message, "error"); } }} className="col-span-2 py-[9px] bg-[var(--ios-surface)]/80 border border-dashed border-[var(--ios-blue)]/40 text-[var(--ios-blue)] rounded-[10px] text-[13px] font-semibold active:scale-95 transition-transform cursor-pointer">
                           🚀 GitHub Actions
                         </button>
                       </div>

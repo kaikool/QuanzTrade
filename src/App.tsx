@@ -217,8 +217,8 @@ export default function App() {
   }
 
   async function saveT5Creds() {
-    const email = localStorage.getItem("t5_email");
-    const dsrToken = localStorage.getItem("t5_dsr_token") || localStorage.getItem("t5_password");
+    const email = t5Email;
+    const dsrToken = t5DsrToken;
     if (!email || !dsrToken) { setT5SaveResult("Nhập email + DSR token"); return; }
     setT5Saving(true);
     setT5SaveResult(null);
@@ -241,8 +241,8 @@ export default function App() {
   }
 
   async function syncT5Now() {
-    const email = localStorage.getItem("t5_email");
-    const dsrToken = localStorage.getItem("t5_dsr_token") || localStorage.getItem("t5_password");
+    const email = t5Email;
+    const dsrToken = t5DsrToken;
     if (!email || !dsrToken) { setT5SaveResult("Nhập email + DSR token trước!"); return; }
     setT5Syncing(true);
     setT5SaveResult("Đang cào dữ liệu The5ers (mất 5-10 giây)...");
@@ -542,7 +542,7 @@ export default function App() {
       if (json.success) {
         if (json.email && !t5Email) {
           setT5Email(json.email);
-          localStorage.setItem("trade_app_t5_email", json.email);
+          localStorage.setItem("t5_email", json.email);
         }
         if (json.dsrToken && !t5DsrToken) {
           setT5DsrToken(json.dsrToken);
