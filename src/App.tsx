@@ -1249,8 +1249,8 @@ export default function App() {
     switch (impact) {
       case "High":
         return {
-          bg: "bg-[var(--sys-red)]/100 text-white shadow-xs",
-          text: "text-[var(--sys-red)] dark:text-[var(--sys-red)] border-2 border-rose-500 dark:border-rose-400 bg-[var(--sys-red)]/10 dark:bg-[var(--sys-red)]/20",
+          bg: "bg-[var(--ios-red)]/100 text-white shadow-xs",
+          text: "text-[var(--ios-red)] dark:text-[var(--ios-red)] border-2 border-rose-500 dark:border-rose-400 bg-[var(--ios-red)]/10 dark:bg-[var(--ios-red)]/20",
           indicator: "bg-rose-600",
           label: "Tin Đỏ",
         };
@@ -1283,7 +1283,7 @@ export default function App() {
 
   return (
     <div
-      className={`min-h-screen ${darkMode ? "dark bg-[var(--sys-bg)] text-[var(--sys-text)]" : "bg-[var(--sys-bg)] text-[var(--sys-text)]"} transition-all ease-[ease-out] duration-300 font-display pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-6`}
+      className={`min-h-screen ${darkMode ? "dark bg-[var(--ios-bg)] text-[var(--ios-label)]" : "bg-[var(--ios-bg)] text-[var(--ios-label)]"} transition-all ease-[ease-out] duration-300 font-display pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-6`}
       id="app-root-theme"
     >
       {/* Main Container */}
@@ -1300,7 +1300,7 @@ export default function App() {
             <div className="min-w-0 flex-1">
               <h4 className="font-bold text-lg font-semibold uppercase tracking-wider flex items-center flex-wrap gap-2">
                 Cảnh báo tin đỏ sắp ra mắt
-                <span className="text-sm font-medium bg-white text-[var(--sys-red)] px-2 py-0.5 rounded-full font-black">
+                <span className="text-sm font-medium bg-white text-[var(--ios-red)] px-2 py-0.5 rounded-full font-black">
                   CAO
                 </span>
               </h4>
@@ -1319,23 +1319,23 @@ export default function App() {
         {/* Google Workspace Style Tonal Top Header */}
         {(currentTab === "dashboard" || currentTab === "journal") && (
         <header
-          className="flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-6 bg-[var(--sys-surface)] rounded-[24px] border border-[var(--sys-border)] shadow-ios-sm space-y-4 md:space-y-0"
+          className="flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-6 bg-[var(--ios-surface)] rounded-[24px] border border-[var(--ios-separator)] shadow-ios-sm space-y-4 md:space-y-0"
           id="google-ios-header"
         >
           <div className="flex items-center gap-3 sm:gap-4">
             <div
-              className="w-11 h-11 sm:w-12 sm:h-12 bg-[var(--sys-blue)] text-white rounded-[16px] flex items-center justify-center shadow-ios-md font-extrabold flex-shrink-0"
+              className="w-11 h-11 sm:w-12 sm:h-12 bg-[var(--ios-blue)] text-white rounded-[16px] flex items-center justify-center shadow-ios-md font-extrabold flex-shrink-0"
               id="logo-icon"
             >
               <CloudLightning size={22} className="sm:w-6 sm:h-6" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-[var(--sys-text)] font-display truncate">
+                <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-[var(--ios-label)] font-display truncate">
                   {selectedT5AccountIds.length > 0 && t5Accounts.length > 0 ? "QuanzTrade" : "Táo Tầu Journal"}
                 </h1>
               </div>
-              <p className="text-base sm:text-lg text-[var(--sys-text-secondary)] mt-1 leading-snug truncate">
+              <p className="text-base sm:text-lg text-[var(--ios-secondary-label)] mt-1 leading-snug truncate">
                 {summary.balance > 0 ? `Tổng tài sản: $${summary.balance.toLocaleString("en-US")}` : "Nhật ký giao dịch"}
               </p>
             </div>
@@ -1348,25 +1348,25 @@ export default function App() {
             {/* Dynamic Light/Dark Switch under Material 3 */}
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className="p-2.5 sm:p-3 bg-[var(--sys-surface-2)] border border-[var(--sys-border)] rounded-full transition-colors ease-[ease-out] cursor-pointer"
+              className="p-2.5 sm:p-3 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-full transition-colors ease-[ease-out] cursor-pointer"
               title="Giao diện sáng/tối"
               id="btn-darkmode"
             >
               {darkMode ? (
                 <Sun size={16} className="text-amber-500" />
               ) : (
-                <Moon size={16} className="text-[var(--sys-text-secondary)]" />
+                <Moon size={16} className="text-[var(--ios-secondary-label)]" />
               )}
             </button>
 
             {/* Account size indicator in dynamic style */}
             <div className="text-right min-w-0">
-              <span className="text-base sm:text-sm font-medium tracking-wider text-[var(--sys-text-secondary)] uppercase block truncate">
+              <span className="text-base sm:text-sm font-medium tracking-wider text-[var(--ios-secondary-label)] uppercase block truncate">
                 Số Dư Tài Khoản
               </span>
               <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5 justify-end">
                 <span
-                  className="text-xl sm:text-2xl font-black text-[var(--sys-text)] font-display truncate"
+                  className="text-xl sm:text-2xl font-black text-[var(--ios-label)] font-display truncate"
                   id="live-balance-text"
                 >
                   $
@@ -1376,7 +1376,7 @@ export default function App() {
                   })}
                 </span>
                 <span
-                  className={`text-base sm:text-base px-2 py-1 rounded-full font-bold flex items-center gap-0.5 flex-shrink-0 ${summary.pnl >= 0 ? "bg-[var(--sys-green)]/100/10 text-[var(--sys-green)] dark:text-[var(--sys-green)]" : "bg-[var(--sys-red)]/100/10 text-[var(--sys-red)] dark:text-[var(--sys-red)]"}`}
+                  className={`text-base sm:text-base px-2 py-1 rounded-full font-bold flex items-center gap-0.5 flex-shrink-0 ${summary.pnl >= 0 ? "bg-[var(--ios-green)]/100/10 text-[var(--ios-green)] dark:text-[var(--ios-green)]" : "bg-[var(--ios-red)]/100/10 text-[var(--ios-red)] dark:text-[var(--ios-red)]"}`}
                   id="summary-badge-pnl"
                 >
                   {summary.pnl >= 0 ? "+" : ""}${summary.pnl.toFixed(0)}
@@ -1387,11 +1387,11 @@ export default function App() {
             {/* Profile Settings Click */}
             <button
               onClick={() => setIsSettingsOpen(true)}
-              className="w-10 h-10 sm:w-11 sm:h-11 bg-[var(--sys-surface-2)] border border-[var(--sys-border)] active:scale-95 transition-transform dark:bg-[var(--sys-surface-2)] rounded-full flex items-center justify-center text-[var(--sys-text)] font-bold font-mono cursor-pointer relative shadow-ios-sm flex-shrink-0 text-lg"
+              className="w-10 h-10 sm:w-11 sm:h-11 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] active:scale-95 transition-transform dark:bg-[var(--ios-surface-2)] rounded-full flex items-center justify-center text-[var(--ios-label)] font-bold font-mono cursor-pointer relative shadow-ios-sm flex-shrink-0 text-lg"
               id="avatar-button"
             >
               JD
-              <span className="absolute -bottom-0.5 -right-0.5 bg-[var(--sys-blue)] text-white rounded-[28px] active:scale-95 transition-transform p-1 border border-white dark:border-ios-surface shadow-xs text-base animate-pulse-once">
+              <span className="absolute -bottom-0.5 -right-0.5 bg-[var(--ios-blue)] text-white rounded-[28px] active:scale-95 transition-transform p-1 border border-white dark:border-ios-surface shadow-xs text-base animate-pulse-once">
                 <Settings size={12} />
               </span>
             </button>
@@ -1401,39 +1401,39 @@ export default function App() {
 
         {/* Google-style Pill Navigation Tab Segment Manager */}
         <div
-          className="hidden md:flex justify-between items-center bg-[var(--sys-surface)] rounded-full border border-[var(--sys-border)] shadow-ios-sm p-1.5 overflow-x-auto no-scrollbar"
+          className="hidden md:flex justify-between items-center bg-[var(--ios-surface)] rounded-full border border-[var(--ios-separator)] shadow-ios-sm p-1.5 overflow-x-auto no-scrollbar"
           id="segmented-controller"
         >
           <div className="flex gap-1 sm:gap-1.5 flex-shrink-0">
             <button
               onClick={() => setCurrentTab("dashboard")}
-              className={`px-4 sm:px-6 py-2.5 rounded-[100px] text-base font-semibold transition-all ease-[ease-out] duration-200 active:scale-95 transition-transform flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "dashboard" ? "bg-[var(--sys-blue)]/10 text-[var(--sys-blue)] dark:transparent dark:text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)] hover:text-[var(--sys-text)] dark:hover:text-[var(--sys-text)] dark:text-[var(--sys-text-secondary)]"}`}
+              className={`px-4 sm:px-6 py-2.5 rounded-[100px] text-base font-semibold transition-all ease-[ease-out] duration-200 active:scale-95 transition-transform flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "dashboard" ? "bg-[var(--ios-blue)]/10 text-[var(--ios-blue)] dark:transparent dark:text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)] dark:hover:text-[var(--ios-label)] dark:text-[var(--ios-secondary-label)]"}`}
             >
               <BarChart2 size={16} className="flex-shrink-0" />
               <span>Tổng quan</span>
             </button>
             <button
               onClick={() => setCurrentTab("journal")}
-              className={`px-4 sm:px-6 py-2.5 rounded-[100px] text-base font-semibold transition-all ease-[ease-out] duration-200 active:scale-95 transition-transform flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "journal" ? "bg-[var(--sys-blue)]/10 text-[var(--sys-blue)] dark:transparent dark:text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)] hover:text-[var(--sys-text)] dark:hover:text-[var(--sys-text)] dark:text-[var(--sys-text-secondary)]"}`}
+              className={`px-4 sm:px-6 py-2.5 rounded-[100px] text-base font-semibold transition-all ease-[ease-out] duration-200 active:scale-95 transition-transform flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "journal" ? "bg-[var(--ios-blue)]/10 text-[var(--ios-blue)] dark:transparent dark:text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)] dark:hover:text-[var(--ios-label)] dark:text-[var(--ios-secondary-label)]"}`}
             >
               <FileText size={16} className="flex-shrink-0" />
               <span>
                 Nhật ký{" "}
-                <span className="text-base font-mono text-[var(--sys-text-secondary)]">
+                <span className="text-base font-mono text-[var(--ios-secondary-label)]">
                   ({mergedTrades.length})
                 </span>
               </span>
             </button>
             <button
               onClick={() => setCurrentTab("calendar")}
-              className={`px-4 sm:px-6 py-2.5 rounded-[100px] text-base font-semibold transition-all ease-[ease-out] duration-200 active:scale-95 transition-transform flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "calendar" ? "bg-[var(--sys-blue)]/10 text-[var(--sys-blue)] dark:transparent dark:text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)] hover:text-[var(--sys-text)] dark:hover:text-[var(--sys-text)] dark:text-[var(--sys-text-secondary)]"}`}
+              className={`px-4 sm:px-6 py-2.5 rounded-[100px] text-base font-semibold transition-all ease-[ease-out] duration-200 active:scale-95 transition-transform flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "calendar" ? "bg-[var(--ios-blue)]/10 text-[var(--ios-blue)] dark:transparent dark:text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)] dark:hover:text-[var(--ios-label)] dark:text-[var(--ios-secondary-label)]"}`}
             >
               <CalendarIcon size={16} className="flex-shrink-0" />
               <span>Lịch kinh tế</span>
             </button>
             <button
               onClick={() => setCurrentTab("news")}
-              className={`px-4 sm:px-6 py-2.5 rounded-[100px] text-base font-semibold transition-all ease-[ease-out] duration-200 active:scale-95 transition-transform flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "news" ? "bg-[var(--sys-blue)]/10 text-[var(--sys-blue)] dark:transparent dark:text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)] hover:text-[var(--sys-text)] dark:hover:text-[var(--sys-text)] dark:text-[var(--sys-text-secondary)]"}`}
+              className={`px-4 sm:px-6 py-2.5 rounded-[100px] text-base font-semibold transition-all ease-[ease-out] duration-200 active:scale-95 transition-transform flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "news" ? "bg-[var(--ios-blue)]/10 text-[var(--ios-blue)] dark:transparent dark:text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)] dark:hover:text-[var(--ios-label)] dark:text-[var(--ios-secondary-label)]"}`}
             >
               <Newspaper size={16} className="flex-shrink-0" />
               <span>Tin tức thị trường</span>
@@ -1733,7 +1733,7 @@ export default function App() {
       <div className="fixed bottom-[calc(49px+env(safe-area-inset-bottom,0px)+12px)] md:bottom-8 right-4 z-40">
         <button
           onClick={() => setIsQuickAddOpen(true)}
-          className="w-14 h-14 bg-[var(--sys-blue)] text-white rounded-full flex items-center justify-center shadow-ios-xl active:scale-95 transition-transform cursor-pointer"
+          className="w-14 h-14 bg-[var(--ios-blue)] text-white rounded-full flex items-center justify-center shadow-ios-xl active:scale-95 transition-transform cursor-pointer"
           aria-label="Thêm lệnh nhanh"
         >
           <Plus size={28} />
@@ -1750,12 +1750,12 @@ export default function App() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 120 }}
               transition={{ type: "spring", damping: 26, stiffness: 220 }}
-              className="relative w-full sm:max-w-md bg-[var(--sys-surface)] rounded-t-[28px] sm:rounded-[28px] border border-[var(--sys-border)] shadow-ios-xl z-10 p-5 pb-8"
+              className="relative w-full sm:max-w-md bg-[var(--ios-surface)] rounded-t-[28px] sm:rounded-[28px] border border-[var(--ios-separator)] shadow-ios-xl z-10 p-5 pb-8"
               id="quick-add-modal-window"
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-[var(--sys-text)]">Lệnh nhanh</h3>
-                <button onClick={() => setIsQuickAddOpen(false)} className="p-2 rounded-full hover:bg-[var(--sys-surface-2)] cursor-pointer">
+                <h3 className="text-lg font-semibold text-[var(--ios-label)]">Lệnh nhanh</h3>
+                <button onClick={() => setIsQuickAddOpen(false)} className="p-2 rounded-full hover:bg-[var(--ios-surface-2)] cursor-pointer">
                   <X size={20} />
                 </button>
               </div>
@@ -1797,24 +1797,24 @@ export default function App() {
                 }
               }} className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
-                  <select name="pair" defaultValue="EUR/USD" className="px-3 py-3 bg-[var(--sys-surface-2)] rounded-[12px] border border-[var(--sys-border)] text-[var(--sys-text)] text-base focus:outline-none focus:border-[var(--sys-blue)]">
+                  <select name="pair" defaultValue="EUR/USD" className="px-3 py-3 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[var(--ios-label)] text-base focus:outline-none focus:border-[var(--ios-blue)]">
                     {["EUR/USD","GBP/USD","USD/JPY","AUD/USD","USD/CAD","NZD/USD","USD/CHF","XAU/USD","BTC/USD"].map(p => (
                       <option key={p} value={p}>{p}</option>
                     ))}
                   </select>
-                  <select name="type" defaultValue="BUY" className="px-3 py-3 bg-[var(--sys-surface-2)] rounded-[12px] border border-[var(--sys-border)] text-[var(--sys-text)] text-base focus:outline-none focus:border-[var(--sys-blue)]">
+                  <select name="type" defaultValue="BUY" className="px-3 py-3 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[var(--ios-label)] text-base focus:outline-none focus:border-[var(--ios-blue)]">
                     <option value="BUY">MUA (BUY)</option>
                     <option value="SELL">BÁN (SELL)</option>
                   </select>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
-                  <input name="entry_price" type="number" step="any" placeholder="Giá vào" required className="px-3 py-3 bg-[var(--sys-surface-2)] rounded-[12px] border border-[var(--sys-border)] text-[var(--sys-text)] text-base focus:outline-none focus:border-[var(--sys-blue)] font-mono" />
-                  <input name="exit_price" type="number" step="any" placeholder="Giá ra (tuỳ)" className="px-3 py-3 bg-[var(--sys-surface-2)] rounded-[12px] border border-[var(--sys-border)] text-[var(--sys-text)] text-base focus:outline-none focus:border-[var(--sys-blue)] font-mono" />
-                  <input name="size" type="number" step="0.01" placeholder="Lots" required className="px-3 py-3 bg-[var(--sys-surface-2)] rounded-[12px] border border-[var(--sys-border)] text-[var(--sys-text)] text-base focus:outline-none focus:border-[var(--sys-blue)] font-mono" />
+                  <input name="entry_price" type="number" step="any" placeholder="Giá vào" required className="px-3 py-3 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[var(--ios-label)] text-base focus:outline-none focus:border-[var(--ios-blue)] font-mono" />
+                  <input name="exit_price" type="number" step="any" placeholder="Giá ra (tuỳ)" className="px-3 py-3 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[var(--ios-label)] text-base focus:outline-none focus:border-[var(--ios-blue)] font-mono" />
+                  <input name="size" type="number" step="0.01" placeholder="Lots" required className="px-3 py-3 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[var(--ios-label)] text-base focus:outline-none focus:border-[var(--ios-blue)] font-mono" />
                 </div>
                 <div className="flex gap-3 pt-2">
-                  <button type="button" onClick={() => setIsQuickAddOpen(false)} className="flex-1 py-3 rounded-[12px] border border-[var(--sys-border)] text-[var(--sys-text)] font-semibold cursor-pointer">Huỷ</button>
-                  <button type="submit" className="flex-1 py-3 rounded-[12px] bg-[var(--sys-blue)] text-white font-semibold cursor-pointer">Thêm lệnh</button>
+                  <button type="button" onClick={() => setIsQuickAddOpen(false)} className="flex-1 py-3 rounded-[12px] border border-[var(--ios-separator)] text-[var(--ios-label)] font-semibold cursor-pointer">Huỷ</button>
+                  <button type="submit" className="flex-1 py-3 rounded-[12px] bg-[var(--ios-blue)] text-white font-semibold cursor-pointer">Thêm lệnh</button>
                 </div>
               </form>
             </motion.div>
@@ -1826,24 +1826,24 @@ export default function App() {
       <div className="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none" id="toast-container">
         {toasts.map(t => (
           <div key={t.id} className={`pointer-events-auto px-4 py-3 rounded-[16px] shadow-ios-lg backdrop-blur-xl text-sm font-medium animate-in slide-in-from-right-2
-            ${t.type === 'success' ? 'bg-[var(--sys-green)] text-white' : 
-              t.type === 'error' ? 'bg-[var(--sys-red)] text-white' : 
-              'bg-[var(--sys-surface)] border border-[var(--sys-border)] text-[var(--sys-text)]'}`}>
+            ${t.type === 'success' ? 'bg-[var(--ios-green)] text-white' : 
+              t.type === 'error' ? 'bg-[var(--ios-red)] text-white' : 
+              'bg-[var(--ios-surface)] border border-[var(--ios-separator)] text-[var(--ios-label)]'}`}>
             {t.message}
           </div>
         ))}
       </div>
 
       <footer
-        className={`md:hidden fixed bottom-0 left-0 right-0 z-30 transition-colors ease-[ease-out] backdrop-blur-xl ${darkMode ? "bg-[var(--sys-surface-2)]/95 border-t border-[var(--sys-border)]" : "bg-[var(--sys-surface)] border-t border-[var(--sys-border)]"}`}
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-30 transition-colors ease-[ease-out] backdrop-blur-xl ${darkMode ? "bg-[var(--ios-surface-2)]/95 border-t border-[var(--ios-separator)]" : "bg-[var(--ios-surface)] border-t border-[var(--ios-separator)]"}`}
         id="ios-bottom-nav"
       >
         <button
           onClick={() => setCurrentTab("dashboard")}
-          className={`flex flex-col items-center gap-0.5 justify-center flex-1 ${currentTab === "dashboard" ? "text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)]"}`}
+          className={`flex flex-col items-center gap-0.5 justify-center flex-1 ${currentTab === "dashboard" ? "text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)]"}`}
         >
           <div
-            className={`p-1.5 rounded-full ${currentTab === "dashboard" ? "bg-[var(--sys-blue)]/10 dark:transparent" : ""}`}
+            className={`p-1.5 rounded-full ${currentTab === "dashboard" ? "bg-[var(--ios-blue)]/10 dark:transparent" : ""}`}
           >
             <BarChart2 size={28} />
           </div>
@@ -1852,10 +1852,10 @@ export default function App() {
 
         <button
           onClick={() => setCurrentTab("journal")}
-          className={`flex flex-col items-center gap-0.5 justify-center flex-1 ${currentTab === "journal" ? "text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)]"}`}
+          className={`flex flex-col items-center gap-0.5 justify-center flex-1 ${currentTab === "journal" ? "text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)]"}`}
         >
           <div
-            className={`p-1.5 rounded-full ${currentTab === "journal" ? "bg-[var(--sys-blue)]/10 dark:transparent" : ""}`}
+            className={`p-1.5 rounded-full ${currentTab === "journal" ? "bg-[var(--ios-blue)]/10 dark:transparent" : ""}`}
           >
             <FileText size={28} />
           </div>
@@ -1864,10 +1864,10 @@ export default function App() {
 
         <button
           onClick={() => setCurrentTab("calendar")}
-          className={`flex flex-col items-center gap-0.5 justify-center flex-1 ${currentTab === "calendar" ? "text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)]"}`}
+          className={`flex flex-col items-center gap-0.5 justify-center flex-1 ${currentTab === "calendar" ? "text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)]"}`}
         >
           <div
-            className={`p-1.5 rounded-full ${currentTab === "calendar" ? "bg-[var(--sys-blue)]/10 dark:transparent" : ""}`}
+            className={`p-1.5 rounded-full ${currentTab === "calendar" ? "bg-[var(--ios-blue)]/10 dark:transparent" : ""}`}
           >
             <CalendarIcon size={28} />
           </div>
@@ -1876,10 +1876,10 @@ export default function App() {
 
         <button
           onClick={() => setCurrentTab("news")}
-          className={`flex flex-col items-center gap-0.5 justify-center flex-1 ${currentTab === "news" ? "text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)]"}`}
+          className={`flex flex-col items-center gap-0.5 justify-center flex-1 ${currentTab === "news" ? "text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)]"}`}
         >
           <div
-            className={`p-1.5 rounded-full ${currentTab === "news" ? "bg-[var(--sys-blue)]/10 dark:transparent" : ""}`}
+            className={`p-1.5 rounded-full ${currentTab === "news" ? "bg-[var(--ios-blue)]/10 dark:transparent" : ""}`}
           >
             <Newspaper size={28} />
           </div>

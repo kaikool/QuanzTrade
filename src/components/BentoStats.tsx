@@ -156,7 +156,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
 
       {/* 2. Settings-Style Inset Grouped List for Secondary Stats */}
       <div className="mt-8">
-        <h3 className="text-[var(--sys-text-secondary)] uppercase text-sm font-semibold tracking-wider ml-4 mb-2">
+        <h3 className="text-[var(--ios-secondary-label)] uppercase text-sm font-semibold tracking-wider ml-4 mb-2">
           Hiệu Suất Giao Dịch
         </h3>
         <motion.div
@@ -165,43 +165,43 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
           className="ios26-list-group overflow-hidden"
         >
           {/* Row: Win Rate */}
-          <div className="flex items-center justify-between p-4 border-b border-[var(--sys-border)]">
+          <div className="flex items-center justify-between p-4 border-b border-[var(--ios-separator)]">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[var(--sys-blue)] flex items-center justify-center text-white">
+              <div className="w-8 h-8 rounded-lg bg-[var(--ios-blue)] flex items-center justify-center text-white">
                 <Percent size={18} />
               </div>
-              <span className="text-[var(--sys-text)] font-medium text-lg truncate pr-2">Tỷ lệ thắng</span>
+              <span className="text-[var(--ios-label)] font-medium text-lg truncate pr-2">Tỷ lệ thắng</span>
             </div>
-            <div className="flex items-center gap-2 text-[var(--sys-text-secondary)]">
-              <span className="font-semibold text-[var(--sys-text)] text-lg">{stats.winRate.toFixed(1)}%</span>
+            <div className="flex items-center gap-2 text-[var(--ios-secondary-label)]">
+              <span className="font-semibold text-[var(--ios-label)] text-lg">{stats.winRate.toFixed(1)}%</span>
               <ChevronRight size={16} />
             </div>
           </div>
 
           {/* Row: Profit Factor */}
-          <div className="flex items-center justify-between p-4 border-b border-[var(--sys-border)]">
+          <div className="flex items-center justify-between p-4 border-b border-[var(--ios-separator)]">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[var(--sys-blue)] flex items-center justify-center text-white">
+              <div className="w-8 h-8 rounded-lg bg-[var(--ios-blue)] flex items-center justify-center text-white">
                 <Activity size={18} />
               </div>
-              <span className="text-[var(--sys-text)] font-medium text-lg truncate pr-2">Hệ số lợi nhuận</span>
+              <span className="text-[var(--ios-label)] font-medium text-lg truncate pr-2">Hệ số lợi nhuận</span>
             </div>
-            <div className="flex items-center gap-2 text-[var(--sys-text-secondary)]">
-              <span className="font-semibold text-[var(--sys-text)] text-lg">{stats.profitFactor.toFixed(2)}</span>
+            <div className="flex items-center gap-2 text-[var(--ios-secondary-label)]">
+              <span className="font-semibold text-[var(--ios-label)] text-lg">{stats.profitFactor.toFixed(2)}</span>
               <ChevronRight size={16} />
             </div>
           </div>
 
           {/* Row: Average Pnl */}
-          <div className="flex items-center justify-between p-4 border-b border-[var(--sys-border)]">
+          <div className="flex items-center justify-between p-4 border-b border-[var(--ios-separator)]">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[var(--sys-blue)] flex items-center justify-center text-white">
+              <div className="w-8 h-8 rounded-lg bg-[var(--ios-blue)] flex items-center justify-center text-white">
                 <Award size={18} />
               </div>
-              <span className="text-[var(--sys-text)] font-medium text-lg truncate pr-2">Lệnh trung bình</span>
+              <span className="text-[var(--ios-label)] font-medium text-lg truncate pr-2">Lệnh trung bình</span>
             </div>
-            <div className="flex items-center gap-2 text-[var(--sys-text-secondary)]">
-              <span className={`font-semibold text-lg ${stats.averagePnl >= 0 ? 'text-[var(--sys-green)]' : 'text-[var(--sys-red)]'}`}>
+            <div className="flex items-center gap-2 text-[var(--ios-secondary-label)]">
+              <span className={`font-semibold text-lg ${stats.averagePnl >= 0 ? 'text-[var(--ios-green)]' : 'text-[var(--ios-red)]'}`}>
                 {stats.averagePnl >= 0 ? "+" : ""}${stats.averagePnl.toLocaleString("en-US", { maximumFractionDigits: 0 })}
               </span>
               <ChevronRight size={16} />
@@ -209,15 +209,15 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
           </div>
           
           {/* Row: Best Trade */}
-          <div className="flex items-center justify-between p-4 border-b border-[var(--sys-border)]">
+          <div className="flex items-center justify-between p-4 border-b border-[var(--ios-separator)]">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[var(--sys-green)] flex items-center justify-center text-white">
+              <div className="w-8 h-8 rounded-lg bg-[var(--ios-green)] flex items-center justify-center text-white">
                 <TrendingUp size={18} />
               </div>
-              <span className="text-[var(--sys-text)] font-medium text-lg truncate pr-2">Lệnh thắng lớn nhất</span>
+              <span className="text-[var(--ios-label)] font-medium text-lg truncate pr-2">Lệnh thắng lớn nhất</span>
             </div>
-            <div className="flex items-center gap-2 text-[var(--sys-text-secondary)]">
-              <span className="font-semibold text-[var(--sys-green)] text-lg">+${stats.bestTrade.toLocaleString()}</span>
+            <div className="flex items-center gap-2 text-[var(--ios-secondary-label)]">
+              <span className="font-semibold text-[var(--ios-green)] text-lg">+${stats.bestTrade.toLocaleString()}</span>
               <ChevronRight size={16} />
             </div>
           </div>
@@ -225,13 +225,13 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
           {/* Row: Worst Trade */}
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[var(--sys-red)] flex items-center justify-center text-white">
+              <div className="w-8 h-8 rounded-lg bg-[var(--ios-red)] flex items-center justify-center text-white">
                 <TrendingDown size={18} />
               </div>
-              <span className="text-[var(--sys-text)] font-medium text-lg truncate pr-2">Lệnh lỗ lớn nhất</span>
+              <span className="text-[var(--ios-label)] font-medium text-lg truncate pr-2">Lệnh lỗ lớn nhất</span>
             </div>
-            <div className="flex items-center gap-2 text-[var(--sys-text-secondary)]">
-              <span className="font-semibold text-[var(--sys-red)] text-lg">${stats.worstTrade.toLocaleString()}</span>
+            <div className="flex items-center gap-2 text-[var(--ios-secondary-label)]">
+              <span className="font-semibold text-[var(--ios-red)] text-lg">${stats.worstTrade.toLocaleString()}</span>
               <ChevronRight size={16} />
             </div>
           </div>
@@ -240,7 +240,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
 
       {/* 3. iOS Health / Stocks Style Chart Cards */}
       <div className="mt-8 space-y-6">
-        <h3 className="text-[var(--sys-text-secondary)] uppercase text-sm font-semibold tracking-wider ml-4 mb-2">
+        <h3 className="text-[var(--ios-secondary-label)] uppercase text-sm font-semibold tracking-wider ml-4 mb-2">
           Biểu Đồ Trực Quan
         </h3>
         
@@ -252,21 +252,21 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
         >
           <div className="flex justify-between items-start mb-6">
             <div>
-              <h4 className="text-xl font-bold text-[var(--sys-text)] tracking-tight">
+              <h4 className="text-xl font-bold text-[var(--ios-label)] tracking-tight">
                 Lợi Nhuận Tích Luỹ
               </h4>
-              <p className="text-base text-[var(--sys-text-secondary)] mt-1 font-medium">
+              <p className="text-base text-[var(--ios-secondary-label)] mt-1 font-medium">
                 Sự tăng trưởng tài khoản qua các lệnh
               </p>
             </div>
-            <div className="w-8 h-8 rounded-full bg-[var(--sys-blue)]/10 text-[var(--sys-blue)] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-[var(--ios-blue)]/10 text-[var(--ios-blue)] flex items-center justify-center">
               <Activity size={16} />
             </div>
           </div>
 
           <div className="w-full h-56 mt-2">
             {chartData.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-[var(--sys-text-secondary)]">
+              <div className="h-full flex flex-col items-center justify-center text-[var(--ios-secondary-label)]">
                 <Calendar size={32} className="mb-2 opacity-50" />
                 <p className="text-base font-medium">Chưa có dữ liệu giao dịch.</p>
               </div>
@@ -278,36 +278,36 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
                 >
                   <defs>
                     <linearGradient id="colorCumulative" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--sys-blue)" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="var(--sys-blue)" stopOpacity={0.0} />
+                      <stop offset="5%" stopColor="var(--ios-blue)" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="var(--ios-blue)" stopOpacity={0.0} />
                     </linearGradient>
                   </defs>
                   <XAxis
                     dataKey="tradeNum"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: "var(--sys-text-secondary)", fontSize: 11, fontWeight: 500 }}
+                    tick={{ fill: "var(--ios-secondary-label)", fontSize: 11, fontWeight: 500 }}
                     dy={10}
                   />
                   <YAxis
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: "var(--sys-text-secondary)", fontSize: 11, fontWeight: 500 }}
+                    tick={{ fill: "var(--ios-secondary-label)", fontSize: 11, fontWeight: 500 }}
                     tickFormatter={(val) => `$${val}`}
                     dx={-10}
                   />
                   <Tooltip
                     contentStyle={{
                       borderRadius: "16px",
-                      background: "var(--sys-surface-2)",
-                      border: "1px solid var(--sys-border)",
-                      color: "var(--sys-text)",
+                      background: "var(--ios-surface-2)",
+                      border: "1px solid var(--ios-separator)",
+                      color: "var(--ios-label)",
                       fontSize: "13px",
                       fontWeight: 500,
                       boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)",
                       backdropFilter: "blur(20px)"
                     }}
-                    itemStyle={{ color: "var(--sys-blue)", fontWeight: 700 }}
+                    itemStyle={{ color: "var(--ios-blue)", fontWeight: 700 }}
                     formatter={(value: any, name: string) => {
                       if (name === "cumulative") return [`$${Number(value).toFixed(2)}`, "Lợi nhuận"];
                       return [`$${value}`, "Lệnh"];
@@ -319,7 +319,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
                   <Area
                     type="monotone"
                     dataKey="cumulative"
-                    stroke="var(--sys-blue)"
+                    stroke="var(--ios-blue)"
                     strokeWidth={3}
                     fillOpacity={1}
                     fill="url(#colorCumulative)"
@@ -339,21 +339,21 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
         >
           <div className="flex justify-between items-start mb-6">
             <div>
-              <h4 className="text-xl font-bold text-[var(--sys-text)] tracking-tight">
+              <h4 className="text-xl font-bold text-[var(--ios-label)] tracking-tight">
                 Tần Suất Cặp Tiền
               </h4>
-              <p className="text-base text-[var(--sys-text-secondary)] mt-1 font-medium">
+              <p className="text-base text-[var(--ios-secondary-label)] mt-1 font-medium">
                 Các tài sản giao dịch nhiều nhất
               </p>
             </div>
-            <div className="w-8 h-8 rounded-full bg-[var(--sys-blue)]/10 text-[var(--sys-blue)] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-[var(--ios-blue)]/10 text-[var(--ios-blue)] flex items-center justify-center">
               <Layers size={16} />
             </div>
           </div>
 
           <div className="w-full h-48 mt-2">
             {pairData.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-[var(--sys-text-secondary)]">
+              <div className="h-full flex flex-col items-center justify-center text-[var(--ios-secondary-label)]">
                 <Layers size={32} className="mb-2 opacity-50" />
                 <p className="text-base font-medium">Chưa đủ dữ liệu</p>
               </div>
@@ -364,35 +364,35 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
                     dataKey="name"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: "var(--sys-text-secondary)", fontSize: 11, fontWeight: 500 }}
+                    tick={{ fill: "var(--ios-secondary-label)", fontSize: 11, fontWeight: 500 }}
                     dy={10}
                   />
                   <YAxis
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: "var(--sys-text-secondary)", fontSize: 11, fontWeight: 500 }}
+                    tick={{ fill: "var(--ios-secondary-label)", fontSize: 11, fontWeight: 500 }}
                     allowDecimals={false}
                     dx={-10}
                   />
                   <Tooltip
-                    cursor={{ fill: 'var(--sys-border)', opacity: 0.5 }}
+                    cursor={{ fill: 'var(--ios-separator)', opacity: 0.5 }}
                     contentStyle={{
                       borderRadius: "16px",
-                      background: "var(--sys-surface-2)",
-                      border: "1px solid var(--sys-border)",
-                      color: "var(--sys-text)",
+                      background: "var(--ios-surface-2)",
+                      border: "1px solid var(--ios-separator)",
+                      color: "var(--ios-label)",
                       fontSize: "13px",
                       fontWeight: 500,
                       boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)",
                     }}
-                    itemStyle={{ color: "var(--sys-blue)", fontWeight: 700 }}
+                    itemStyle={{ color: "var(--ios-blue)", fontWeight: 700 }}
                     formatter={(value) => [`${value} lệnh`, "Tần suất"]}
                   />
                   <Bar dataKey="value" radius={[8, 8, 8, 8]}>
                     {pairData.map((entry, index) => (
                       <Cell
                         key={`cell-${index}`}
-                        fill="var(--sys-blue)"
+                        fill="var(--ios-blue)"
                         fillOpacity={index % 2 === 0 ? 1 : 0.6}
                       />
                     ))}

@@ -93,25 +93,25 @@ export function AddTradeModal({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 120 }}
             transition={{ type: "spring", damping: 26, stiffness: 220 }}
-            className="relative w-full max-w-[100vw] sm:max-w-2xl bg-[var(--sys-surface)] border border-[var(--sys-border)] shadow-ios-sm sm:rounded-[28px] rounded-t-[28px] shadow-ios-xl z-10 flex flex-col h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-hidden"
+            className="relative w-full max-w-[100vw] sm:max-w-2xl bg-[var(--ios-surface)] border border-[var(--ios-separator)] shadow-ios-sm sm:rounded-[28px] rounded-t-[28px] shadow-ios-xl z-10 flex flex-col h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-hidden"
             id="new-trade-modal-window"
           >
             {/* Header */}
-            <div className="flex justify-between items-center px-5 sm:px-8 py-4 sm:py-6 border-b border-[var(--sys-border)] bg-[var(--sys-surface)] shadow-ios-sm z-20 shrink-0">
+            <div className="flex justify-between items-center px-5 sm:px-8 py-4 sm:py-6 border-b border-[var(--ios-separator)] bg-[var(--ios-surface)] shadow-ios-sm z-20 shrink-0">
               <div className="flex items-center gap-3">
-                <div className="hidden sm:flex p-3 bg-[var(--sys-blue)]/10 text-[var(--sys-blue)] rounded-[16px]">
+                <div className="hidden sm:flex p-3 bg-[var(--ios-blue)]/10 text-[var(--ios-blue)] rounded-[16px]">
                   <Plus size={18} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-[var(--sys-text)]">
+                  <h3 className="text-lg font-semibold text-[var(--ios-label)]">
                     {editingTradeId ? "Cập Nhật Giao Dịch" : "Ghi Chép Giao Dịch Mới"}
                   </h3>
-                  <p className="text-sm text-[var(--sys-text-secondary)] mt-0.5">
+                  <p className="text-sm text-[var(--ios-secondary-label)] mt-0.5">
                     {editingTradeId ? "Cập nhật các số liệu, ghi chú hoặc tất toán giao dịch" : "Ghi nhận chi tiết để theo dõi biểu đồ tăng trưởng"}
                   </p>
                 </div>
               </div>
-              <button type="button" onClick={onClose} className="p-2 hover:bg-[var(--sys-surface-2)] rounded-full transition-colors text-[var(--sys-text-secondary)] hover:text-[var(--sys-text)] cursor-pointer" title="Đóng">
+              <button type="button" onClick={onClose} className="p-2 hover:bg-[var(--ios-surface-2)] rounded-full transition-colors text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)] cursor-pointer" title="Đóng">
                 <X size={20} />
               </button>
             </div>
@@ -123,8 +123,8 @@ export function AddTradeModal({
                 {/* BUY/SELL & Pair */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                   <div>
-                    <label className="text-xs font-semibold text-[var(--sys-text-secondary)] mb-1.5 block uppercase tracking-wider">Cặp ngoại tệ</label>
-                    <select value={formPair} onChange={e => setFormPair(e.target.value)} className="w-full px-3 py-3 bg-[var(--sys-surface-2)] border border-[var(--sys-border)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--sys-blue)] text-[var(--sys-text)] font-semibold cursor-pointer">
+                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Cặp ngoại tệ</label>
+                    <select value={formPair} onChange={e => setFormPair(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)] font-semibold cursor-pointer">
                       <option value="EUR/USD">EUR/USD</option>
                       <option value="GBP/USD">GBP/USD</option>
                       <option value="USD/JPY">USD/JPY</option>
@@ -135,10 +135,10 @@ export function AddTradeModal({
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-[var(--sys-text-secondary)] mb-1.5 block uppercase tracking-wider">Hướng lệnh</label>
-                    <div className="flex border border-[var(--sys-border)] rounded-[12px] overflow-hidden h-11 text-sm font-semibold">
-                      <button type="button" onClick={() => setFormType("BUY")} className={`flex-1 flex items-center justify-center transition-colors cursor-pointer border-r border-[var(--sys-border)] ${formType === "BUY" ? "bg-emerald-600 text-white" : "bg-transparent text-[var(--sys-text)]"}`}>MUA</button>
-                      <button type="button" onClick={() => setFormType("SELL")} className={`flex-1 flex items-center justify-center transition-colors cursor-pointer ${formType === "SELL" ? "bg-rose-600 text-white" : "bg-transparent text-[var(--sys-text)]"}`}>BÁN</button>
+                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Hướng lệnh</label>
+                    <div className="flex border border-[var(--ios-separator)] rounded-[12px] overflow-hidden h-11 text-sm font-semibold">
+                      <button type="button" onClick={() => setFormType("BUY")} className={`flex-1 flex items-center justify-center transition-colors cursor-pointer border-r border-[var(--ios-separator)] ${formType === "BUY" ? "bg-emerald-600 text-white" : "bg-transparent text-[var(--ios-label)]"}`}>MUA</button>
+                      <button type="button" onClick={() => setFormType("SELL")} className={`flex-1 flex items-center justify-center transition-colors cursor-pointer ${formType === "SELL" ? "bg-rose-600 text-white" : "bg-transparent text-[var(--ios-label)]"}`}>BÁN</button>
                     </div>
                   </div>
                 </div>
@@ -146,39 +146,39 @@ export function AddTradeModal({
                 {/* Entry Price & Lots */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                   <div>
-                    <label className="text-xs font-semibold text-[var(--sys-text-secondary)] mb-1.5 block uppercase tracking-wider">Giá vào lệnh *</label>
-                    <input type="number" step="any" required placeholder="VD: 1.0854" value={formEntryPrice} onChange={e => setFormEntryPrice(e.target.value)} className="w-full px-3 py-3 bg-[var(--sys-surface-2)] border border-[var(--sys-border)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--sys-blue)] text-[var(--sys-text)] font-mono" />
+                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Giá vào lệnh *</label>
+                    <input type="number" step="any" required placeholder="VD: 1.0854" value={formEntryPrice} onChange={e => setFormEntryPrice(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)] font-mono" />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-[var(--sys-text-secondary)] mb-1.5 block uppercase tracking-wider">Khối lượng (Lots) *</label>
-                    <input type="number" step="0.01" required min="0.01" value={formSize} onChange={e => setFormSize(e.target.value)} className="w-full px-3 py-3 bg-[var(--sys-surface-2)] border border-[var(--sys-border)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--sys-blue)] text-[var(--sys-text)] font-mono font-bold" />
+                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Khối lượng (Lots) *</label>
+                    <input type="number" step="0.01" required min="0.01" value={formSize} onChange={e => setFormSize(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)] font-mono font-bold" />
                   </div>
                 </div>
 
                 {/* SL, TP */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                   <div>
-                    <label className="text-xs font-semibold text-[var(--sys-text-secondary)] mb-1.5 block uppercase tracking-wider">Chặn lỗ</label>
-                    <input type="number" step="any" placeholder="Tùy chọn - SL" value={formStopLoss} onChange={e => setFormStopLoss(e.target.value)} className="w-full px-3 py-3 bg-[var(--sys-surface-2)] border border-[var(--sys-border)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--sys-blue)] text-[var(--sys-text)] font-mono" />
+                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Chặn lỗ</label>
+                    <input type="number" step="any" placeholder="Tùy chọn - SL" value={formStopLoss} onChange={e => setFormStopLoss(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)] font-mono" />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-[var(--sys-text-secondary)] mb-1.5 block uppercase tracking-wider">Chốt lời</label>
-                    <input type="number" step="any" placeholder="Tùy chọn - TP" value={formTakeProfit} onChange={e => setFormTakeProfit(e.target.value)} className="w-full px-3 py-3 bg-[var(--sys-surface-2)] border border-[var(--sys-border)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--sys-blue)] text-[var(--sys-text)] font-mono" />
+                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Chốt lời</label>
+                    <input type="number" step="any" placeholder="Tùy chọn - TP" value={formTakeProfit} onChange={e => setFormTakeProfit(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)] font-mono" />
                   </div>
                 </div>
 
                 {/* Status & Timeframe */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                   <div>
-                    <label className="text-xs font-semibold text-[var(--sys-text-secondary)] mb-1.5 block uppercase tracking-wider">Trạng thái</label>
-                    <div className="flex border border-[var(--sys-border)] rounded-[12px] overflow-hidden h-11 text-sm font-semibold">
-                      <button type="button" onClick={() => setFormStatus("CLOSED")} className={`flex-1 flex items-center justify-center transition-colors cursor-pointer border-r border-[var(--sys-border)] ${formStatus === "CLOSED" ? "bg-indigo-600 text-white" : "bg-transparent text-[var(--sys-text)]"}`}>ĐÃ ĐÓNG</button>
-                      <button type="button" onClick={() => setFormStatus("OPEN")} className={`flex-1 flex items-center justify-center transition-colors cursor-pointer ${formStatus === "OPEN" ? "bg-cyan-600 text-white" : "bg-transparent text-[var(--sys-text)]"}`}>ĐANG MỞ</button>
+                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Trạng thái</label>
+                    <div className="flex border border-[var(--ios-separator)] rounded-[12px] overflow-hidden h-11 text-sm font-semibold">
+                      <button type="button" onClick={() => setFormStatus("CLOSED")} className={`flex-1 flex items-center justify-center transition-colors cursor-pointer border-r border-[var(--ios-separator)] ${formStatus === "CLOSED" ? "bg-indigo-600 text-white" : "bg-transparent text-[var(--ios-label)]"}`}>ĐÃ ĐÓNG</button>
+                      <button type="button" onClick={() => setFormStatus("OPEN")} className={`flex-1 flex items-center justify-center transition-colors cursor-pointer ${formStatus === "OPEN" ? "bg-cyan-600 text-white" : "bg-transparent text-[var(--ios-label)]"}`}>ĐANG MỞ</button>
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-[var(--sys-text-secondary)] mb-1.5 block uppercase tracking-wider">Khung thời gian</label>
-                    <select value={formTimeframe} onChange={e => setFormTimeframe(e.target.value)} className="w-full px-3 py-3 bg-[var(--sys-surface-2)] border border-[var(--sys-border)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--sys-blue)] text-[var(--sys-text)] font-semibold cursor-pointer">
+                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Khung thời gian</label>
+                    <select value={formTimeframe} onChange={e => setFormTimeframe(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)] font-semibold cursor-pointer">
                       <option value="M5">M5 (5 phút)</option>
                       <option value="M15">M15 (15 phút)</option>
                       <option value="H1">H1 (1 giờ)</option>
@@ -190,21 +190,21 @@ export function AddTradeModal({
 
                 {/* P&L */}
                 <div>
-                  <label className="text-xs font-semibold text-[var(--sys-text-secondary)] mb-1.5 block uppercase tracking-wider">P&L ($)</label>
-                  <input type="number" step="any" placeholder="Kết quả lời/lỗ" value={formPnl} onChange={e => setFormPnl(e.target.value)} className="w-full px-3 py-3 bg-[var(--sys-surface-2)] border border-[var(--sys-border)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--sys-blue)] text-[var(--sys-text)] font-mono font-bold" />
+                  <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">P&L ($)</label>
+                  <input type="number" step="any" placeholder="Kết quả lời/lỗ" value={formPnl} onChange={e => setFormPnl(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)] font-mono font-bold" />
                 </div>
 
                 {/* Closed: Exit fields */}
                 {formStatus === "CLOSED" && (
-                  <div className="p-4 rounded-[16px] bg-[var(--sys-surface-2)] border border-[var(--sys-border)] space-y-4">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-[var(--sys-text-secondary)]">Tất toán giao dịch</p>
+                  <div className="p-4 rounded-[16px] bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] space-y-4">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-[var(--ios-secondary-label)]">Tất toán giao dịch</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-xs font-semibold text-[var(--sys-text-secondary)] mb-1.5 block uppercase tracking-wider">Giá đóng lệnh</label>
-                        <input type="number" step="any" placeholder="VD: 1.0920" value={formExitPrice} onChange={e => setFormExitPrice(e.target.value)} className="w-full px-3 py-3 bg-[var(--sys-surface)] border border-[var(--sys-border)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--sys-blue)] text-[var(--sys-text)] font-mono" />
+                        <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Giá đóng lệnh</label>
+                        <input type="number" step="any" placeholder="VD: 1.0920" value={formExitPrice} onChange={e => setFormExitPrice(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-surface)] border border-[var(--ios-separator)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)] font-mono" />
                       </div>
                       <div>
-                        <label className="text-xs font-semibold text-[var(--sys-text-secondary)] mb-1.5 block uppercase tracking-wider">Ngày đóng lệnh</label>
+                        <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Ngày đóng lệnh</label>
                         <div className="grid grid-cols-2 gap-2">
                           <M3DatePicker value={getExitDatePart()} onChange={handleExitDateChange} placeholder="Ngày" />
                           <M3TimePicker value={getExitDatePart()} onChange={handleExitDateChange} placeholder="Giờ" />
@@ -217,15 +217,15 @@ export function AddTradeModal({
                 {/* Entry Date & Tag */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                   <div>
-                    <label className="text-xs font-semibold text-[var(--sys-text-secondary)] mb-1.5 block uppercase tracking-wider">Ngày vào lệnh</label>
+                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Ngày vào lệnh</label>
                     <div className="grid grid-cols-2 gap-2">
                       <M3DatePicker value={getEntryDatePart()} onChange={handleEntryDateChange} placeholder="Ngày" />
                       <M3TimePicker value={getEntryDatePart()} onChange={handleEntryDateChange} placeholder="Giờ" />
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-[var(--sys-text-secondary)] mb-1.5 block uppercase tracking-wider">Chiến lược</label>
-                    <select value={formTag} onChange={e => setFormTag(e.target.value)} className="w-full px-3 py-3 bg-[var(--sys-surface-2)] border border-[var(--sys-border)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--sys-blue)] text-[var(--sys-text)] font-semibold cursor-pointer">
+                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Chiến lược</label>
+                    <select value={formTag} onChange={e => setFormTag(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)] font-semibold cursor-pointer">
                       <option value="News-Trade">Giao dịch theo tin tức</option>
                       <option value="Trend-Follow">Đu theo xu hướng</option>
                       <option value="Breakout">Bứt phá</option>
@@ -236,66 +236,66 @@ export function AddTradeModal({
 
                 {/* Rating */}
                 <div>
-                  <label className="text-xs font-semibold text-[var(--sys-text-secondary)] mb-1.5 block uppercase tracking-wider">Đánh giá</label>
+                  <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Đánh giá</label>
                   <div className="flex gap-1">
                     {Array.from({ length: 5 }).map((_, i) => (
-                      <button key={i} type="button" onClick={() => setFormRating(i + 1)} className={`text-lg p-1 ${i < formRating ? "text-amber-500" : "text-[var(--sys-text-secondary)]/40"} cursor-pointer`}>★</button>
+                      <button key={i} type="button" onClick={() => setFormRating(i + 1)} className={`text-lg p-1 ${i < formRating ? "text-amber-500" : "text-[var(--ios-secondary-label)]/40"} cursor-pointer`}>★</button>
                     ))}
                   </div>
                 </div>
 
                 {/* Notes */}
                 <div>
-                  <label className="text-xs font-semibold text-[var(--sys-text-secondary)] mb-1.5 block uppercase tracking-wider">Lý do vào lệnh</label>
-                  <textarea rows={3} placeholder="Tại sao bạn khớp lệnh này? Phân tích kỹ thuật hoặc nhận định tin tức..." value={formNotes} onChange={e => setFormNotes(e.target.value)} className="w-full px-3 py-3 bg-[var(--sys-surface-2)] border border-[var(--sys-border)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--sys-blue)] text-[var(--sys-text)] resize-none" />
+                  <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Lý do vào lệnh</label>
+                  <textarea rows={3} placeholder="Tại sao bạn khớp lệnh này? Phân tích kỹ thuật hoặc nhận định tin tức..." value={formNotes} onChange={e => setFormNotes(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)] resize-none" />
                 </div>
 
                 {/* TradingView Snapshot Open */}
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-semibold text-[var(--sys-text-secondary)] uppercase tracking-wider">Ảnh biểu đồ Mở Lệnh</label>
-                    <button type="button" onClick={onCaptureSnapshot} disabled={isCapturingSnapshot || !formPair} className="text-xs font-semibold text-[var(--sys-blue)] flex items-center gap-1 hover:underline disabled:opacity-50 cursor-pointer">
+                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] uppercase tracking-wider">Ảnh biểu đồ Mở Lệnh</label>
+                    <button type="button" onClick={onCaptureSnapshot} disabled={isCapturingSnapshot || !formPair} className="text-xs font-semibold text-[var(--ios-blue)] flex items-center gap-1 hover:underline disabled:opacity-50 cursor-pointer">
                       {isCapturingSnapshot ? <><RefreshCw size={12} className="animate-spin" /> Đang chụp...</> : <><Camera size={12} /> Chụp {formPair}</>}
                     </button>
                   </div>
                   {formTVSnapshotUrl ? (
-                    <div className="relative border border-[var(--sys-border)] rounded-lg overflow-hidden group max-h-[140px] bg-black/10">
+                    <div className="relative border border-[var(--ios-separator)] rounded-lg overflow-hidden group max-h-[140px] bg-black/10">
                       <button type="button" onClick={() => setLightboxUrl(formTVSnapshotUrl)} className="block w-full cursor-zoom-in">
                         <img src={formTVSnapshotUrl} alt="Chart Mở" className="w-full object-cover transition-transform group-hover:scale-105" />
                       </button>
                     </div>
                   ) : (
-                    <div className="h-20 rounded-lg border border-dashed border-[var(--sys-border)] flex items-center justify-center bg-[var(--sys-surface-2)] text-[var(--sys-text-secondary)]/50 text-xs">Chưa có ảnh</div>
+                    <div className="h-20 rounded-lg border border-dashed border-[var(--ios-separator)] flex items-center justify-center bg-[var(--ios-surface-2)] text-[var(--ios-secondary-label)]/50 text-xs">Chưa có ảnh</div>
                   )}
                 </div>
 
                 {/* TradingView Snapshot Close */}
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-semibold text-[var(--sys-text-secondary)] uppercase tracking-wider">Ảnh biểu đồ Đóng Lệnh</label>
-                    <button type="button" onClick={onCaptureSnapshotClose} disabled={isCapturingSnapshotClose || !formPair} className="text-xs font-semibold text-[var(--sys-blue)] flex items-center gap-1 hover:underline disabled:opacity-50 cursor-pointer">
+                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] uppercase tracking-wider">Ảnh biểu đồ Đóng Lệnh</label>
+                    <button type="button" onClick={onCaptureSnapshotClose} disabled={isCapturingSnapshotClose || !formPair} className="text-xs font-semibold text-[var(--ios-blue)] flex items-center gap-1 hover:underline disabled:opacity-50 cursor-pointer">
                       {isCapturingSnapshotClose ? <><RefreshCw size={12} className="animate-spin" /> Đang chụp...</> : <><Camera size={12} /> Chụp {formPair}</>}
                     </button>
                   </div>
                   {formTVSnapshotUrlClose ? (
-                    <div className="relative border border-[var(--sys-border)] rounded-lg overflow-hidden group max-h-[140px] bg-black/10">
+                    <div className="relative border border-[var(--ios-separator)] rounded-lg overflow-hidden group max-h-[140px] bg-black/10">
                       <button type="button" onClick={() => setLightboxUrl(formTVSnapshotUrlClose)} className="block w-full cursor-zoom-in">
                         <img src={formTVSnapshotUrlClose} alt="Chart Đóng" className="w-full object-cover transition-transform group-hover:scale-105" />
                       </button>
                     </div>
                   ) : (
-                    <div className="h-20 rounded-lg border border-dashed border-[var(--sys-border)] flex items-center justify-center bg-[var(--sys-surface-2)] text-[var(--sys-text-secondary)]/50 text-xs">Chưa có ảnh</div>
+                    <div className="h-20 rounded-lg border border-dashed border-[var(--ios-separator)] flex items-center justify-center bg-[var(--ios-surface-2)] text-[var(--ios-secondary-label)]/50 text-xs">Chưa có ảnh</div>
                   )}
                 </div>
 
               </div>
 
               {/* Footer */}
-              <div className="px-4 sm:px-8 py-4 border-t border-[var(--sys-border)] bg-[var(--sys-surface)] shrink-0 flex items-center gap-3">
-                <button type="submit" className="flex-1 py-3 rounded-[12px] bg-[var(--sys-blue)] text-white font-semibold text-sm cursor-pointer active:scale-[0.98] transition-transform">
+              <div className="px-4 sm:px-8 py-4 border-t border-[var(--ios-separator)] bg-[var(--ios-surface)] shrink-0 flex items-center gap-3">
+                <button type="submit" className="flex-1 py-3 rounded-[12px] bg-[var(--ios-blue)] text-white font-semibold text-sm cursor-pointer active:scale-[0.98] transition-transform">
                   {editingTradeId ? "Cập nhật giao dịch" : "Thêm lệnh"}
                 </button>
-                <button type="button" onClick={onClose} className="px-5 py-3 rounded-[12px] bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-text-secondary)] text-sm font-semibold cursor-pointer active:scale-[0.98] transition-transform">
+                <button type="button" onClick={onClose} className="px-5 py-3 rounded-[12px] bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] text-[var(--ios-secondary-label)] text-sm font-semibold cursor-pointer active:scale-[0.98] transition-transform">
                   Hủy
                 </button>
               </div>

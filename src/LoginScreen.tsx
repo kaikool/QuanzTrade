@@ -59,13 +59,13 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, type: "spring", stiffness: 400, damping: 20 }}
-            className="ios26-auth-icon w-20 h-20 text-[var(--sys-blue)] flex items-center justify-center rounded-[24px] mb-6"
+            className="ios26-auth-icon w-20 h-20 text-[var(--ios-blue)] flex items-center justify-center rounded-[24px] mb-6"
           >
             <CloudLightning size={42} strokeWidth={1.7} />
           </motion.div>
           
-          <h1 className="ios26-brand-wordmark text-3xl font-black text-[var(--sys-text)] mb-2">Táo Tầu Journal</h1>
-          <p className="text-[var(--sys-text-secondary)] text-base mb-8 text-center">
+          <h1 className="ios26-brand-wordmark text-3xl font-black text-[var(--ios-label)] mb-2">Táo Tầu Journal</h1>
+          <p className="text-[var(--ios-secondary-label)] text-base mb-8 text-center">
             Sử dụng mật khẩu để truy cập không gian làm việc của bạn.
           </p>
 
@@ -77,7 +77,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Mật mã"
-                  className="w-full bg-[var(--sys-surface-2)] text-[var(--sys-text)] border border-[var(--sys-border)] rounded-2xl py-3.5 px-4 text-center text-lg focus:outline-none focus:border-[var(--sys-blue)] transition-colors placeholder:text-[var(--sys-text-secondary)]"
+                  className="w-full bg-[var(--ios-surface-2)] text-[var(--ios-label)] border border-[var(--ios-separator)] rounded-2xl py-3.5 px-4 text-center text-lg focus:outline-none focus:border-[var(--ios-blue)] transition-colors placeholder:text-[var(--ios-secondary-label)]"
                   autoFocus
                 />
               </div>
@@ -87,7 +87,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="text-[var(--sys-red)] text-base mt-3 text-center"
+                    className="text-[var(--ios-red)] text-base mt-3 text-center"
                   >
                     {error}
                   </motion.p>

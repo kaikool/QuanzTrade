@@ -111,10 +111,10 @@ export const M3DatePicker: React.FC<M3DatePickerProps> = ({
           onClick={() => handleSelectDay(day)}
           className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium cursor-pointer transition-colors relative ${
             isSelected
-              ? "bg-[var(--sys-blue)] text-white font-bold"
+              ? "bg-[var(--ios-blue)] text-white font-bold"
               : isToday
-                ? "border border-[var(--sys-blue)] text-[var(--sys-blue)]"
-                : "hover:bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-text)] dark:text-[var(--sys-text)]"
+                ? "border border-[var(--ios-blue)] text-[var(--ios-blue)]"
+                : "hover:bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] text-[var(--ios-label)] dark:text-[var(--ios-label)]"
           }`}
         >
           {day}
@@ -133,33 +133,33 @@ export const M3DatePicker: React.FC<M3DatePickerProps> = ({
           onClick={() => setIsOpen(!isOpen)}
           placeholder={placeholder}
           value={getDisplayValue()}
-          className="w-full min-w-0 pl-3 pr-10 py-3 bg-[var(--sys-surface)] ios-glass border border-[var(--sys-border)] rounded-[4px] text-lg focus:outline-none focus:border-[var(--sys-blue)] focus:border-2 text-[var(--sys-text)] transition-colors ease-[ease-out] cursor-pointer select-none"
+          className="w-full min-w-0 pl-3 pr-10 py-3 bg-[var(--ios-surface)] ios-glass border border-[var(--ios-separator)] rounded-[4px] text-lg focus:outline-none focus:border-[var(--ios-blue)] focus:border-2 text-[var(--ios-label)] transition-colors ease-[ease-out] cursor-pointer select-none"
         />
         <Calendar
           size={16}
-          className="absolute right-3.5 text-[var(--sys-text-secondary)] pointer-events-none"
+          className="absolute right-3.5 text-[var(--ios-secondary-label)] pointer-events-none"
         />
       </div>
 
       {isOpen && (
-        <div className="absolute left-0 mt-1.5 z-40 bg-[var(--sys-surface)] ios-glass border border-[var(--sys-border)] rounded-[16px] p-4 shadow-ios-lg w-72 flex flex-col gap-3 select-none">
+        <div className="absolute left-0 mt-1.5 z-40 bg-[var(--ios-surface)] ios-glass border border-[var(--ios-separator)] rounded-[16px] p-4 shadow-ios-lg w-72 flex flex-col gap-3 select-none">
           {/* Header */}
           <div className="flex justify-between items-center px-1">
-            <span className="font-bold text-base text-[var(--sys-text)] font-display">
+            <span className="font-bold text-base text-[var(--ios-label)] font-display">
               {monthNames[month]} {year}
             </span>
             <div className="flex gap-1">
               <button
                 type="button"
                 onClick={handlePrevMonth}
-                className="p-1.5 hover:bg-[var(--sys-surface-2)] border border-[var(--sys-border)] rounded-full text-[var(--sys-text)] transition-colors cursor-pointer"
+                className="p-1.5 hover:bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-full text-[var(--ios-label)] transition-colors cursor-pointer"
               >
                 <ChevronLeft size={16} />
               </button>
               <button
                 type="button"
                 onClick={handleNextMonth}
-                className="p-1.5 hover:bg-[var(--sys-surface-2)] border border-[var(--sys-border)] rounded-full text-[var(--sys-text)] transition-colors cursor-pointer"
+                className="p-1.5 hover:bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-full text-[var(--ios-label)] transition-colors cursor-pointer"
               >
                 <ChevronRight size={16} />
               </button>
@@ -167,7 +167,7 @@ export const M3DatePicker: React.FC<M3DatePickerProps> = ({
           </div>
 
           {/* Weekdays */}
-          <div className="grid grid-cols-7 gap-1 text-center font-bold text-[10px] text-[var(--sys-text-secondary)]">
+          <div className="grid grid-cols-7 gap-1 text-center font-bold text-[10px] text-[var(--ios-secondary-label)]">
             <div>CN</div>
             <div>T2</div>
             <div>T3</div>
@@ -236,19 +236,19 @@ export const M3TimePicker: React.FC<M3TimePickerProps> = ({
           onClick={() => setIsOpen(!isOpen)}
           placeholder={placeholder}
           value={value || ""}
-          className="w-full min-w-0 pl-3 pr-10 py-3 bg-[var(--sys-surface)] ios-glass border border-[var(--sys-border)] rounded-[4px] text-lg focus:outline-none focus:border-[var(--sys-blue)] focus:border-2 text-[var(--sys-text)] transition-colors ease-[ease-out] cursor-pointer select-none"
+          className="w-full min-w-0 pl-3 pr-10 py-3 bg-[var(--ios-surface)] ios-glass border border-[var(--ios-separator)] rounded-[4px] text-lg focus:outline-none focus:border-[var(--ios-blue)] focus:border-2 text-[var(--ios-label)] transition-colors ease-[ease-out] cursor-pointer select-none"
         />
         <Clock
           size={16}
-          className="absolute right-3.5 text-[var(--sys-text-secondary)] pointer-events-none"
+          className="absolute right-3.5 text-[var(--ios-secondary-label)] pointer-events-none"
         />
       </div>
 
       {isOpen && (
-        <div className="absolute left-0 mt-1.5 z-40 bg-[var(--sys-surface)] ios-glass border border-[var(--sys-border)] rounded-[16px] p-4 shadow-ios-lg w-48 flex gap-4 select-none justify-center h-48">
+        <div className="absolute left-0 mt-1.5 z-40 bg-[var(--ios-surface)] ios-glass border border-[var(--ios-separator)] rounded-[16px] p-4 shadow-ios-lg w-48 flex gap-4 select-none justify-center h-48">
           {/* Hours column */}
-          <div className="flex flex-col overflow-y-auto w-16 no-scrollbar gap-1 border-r border-[var(--sys-border)] pr-2 text-center">
-            <span className="text-[10px] font-bold text-[var(--sys-text-secondary)] sticky top-0 bg-[var(--sys-surface)] ios-glass pb-1">
+          <div className="flex flex-col overflow-y-auto w-16 no-scrollbar gap-1 border-r border-[var(--ios-separator)] pr-2 text-center">
+            <span className="text-[10px] font-bold text-[var(--ios-secondary-label)] sticky top-0 bg-[var(--ios-surface)] ios-glass pb-1">
               Giờ
             </span>
             {Array.from({ length: 24 }).map((_, i) => {
@@ -261,8 +261,8 @@ export const M3TimePicker: React.FC<M3TimePickerProps> = ({
                   onClick={() => handleSelectHour(hStr)}
                   className={`py-1 text-sm font-semibold rounded-[4px] cursor-pointer transition-colors ${
                     isSelected
-                      ? "bg-[var(--sys-blue)] text-white"
-                      : "hover:bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-text)] dark:text-[var(--sys-text)]"
+                      ? "bg-[var(--ios-blue)] text-white"
+                      : "hover:bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] text-[var(--ios-label)] dark:text-[var(--ios-label)]"
                   }`}
                 >
                   {hStr}
@@ -273,7 +273,7 @@ export const M3TimePicker: React.FC<M3TimePickerProps> = ({
 
           {/* Minutes column */}
           <div className="flex flex-col overflow-y-auto w-16 no-scrollbar gap-1 text-center">
-            <span className="text-[10px] font-bold text-[var(--sys-text-secondary)] sticky top-0 bg-[var(--sys-surface)] ios-glass pb-1">
+            <span className="text-[10px] font-bold text-[var(--ios-secondary-label)] sticky top-0 bg-[var(--ios-surface)] ios-glass pb-1">
               Phút
             </span>
             {Array.from({ length: 12 }).map((_, i) => {
@@ -286,8 +286,8 @@ export const M3TimePicker: React.FC<M3TimePickerProps> = ({
                   onClick={() => handleSelectMinute(mVal)}
                   className={`py-1 text-sm font-semibold rounded-[4px] cursor-pointer transition-colors ${
                     isSelected
-                      ? "bg-[var(--sys-blue)] text-white"
-                      : "hover:bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-text)] dark:text-[var(--sys-text)]"
+                      ? "bg-[var(--ios-blue)] text-white"
+                      : "hover:bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] text-[var(--ios-label)] dark:text-[var(--ios-label)]"
                   }`}
                 >
                   {mVal}

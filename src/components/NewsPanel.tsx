@@ -18,29 +18,29 @@ interface NewsPanelProps {
 
 const categoryClasses: Record<NewsItem["category"], string> = {
   Forex:
-    "bg-[var(--sys-green)]/100/10 text-[var(--sys-green)] dark:text-emerald-300 border-emerald-500/20",
+    "bg-[var(--ios-green)]/100/10 text-[var(--ios-green)] dark:text-emerald-300 border-emerald-500/20",
   Macro:
-    "bg-[var(--sys-blue)]/100/10 text-[var(--sys-blue)] dark:text-[var(--sys-blue)] border-blue-500/20",
+    "bg-[var(--ios-blue)]/100/10 text-[var(--ios-blue)] dark:text-[var(--ios-blue)] border-blue-500/20",
   "Central Bank":
-    "bg-[var(--sys-blue)]/100/10 text-indigo-700 dark:text-[var(--sys-blue)] border-indigo-500/20",
+    "bg-[var(--ios-blue)]/100/10 text-indigo-700 dark:text-[var(--ios-blue)] border-indigo-500/20",
   Energy:
     "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20",
 };
 
 const impactClasses: Record<NewsItem["impact"], string> = {
-  High: "bg-[var(--sys-red)]/100 text-white",
+  High: "bg-[var(--ios-red)]/100 text-white",
   Medium: "bg-orange-500 text-white",
   Low: "bg-yellow-400 text-yellow-950",
 };
 
 const effectClasses: Record<string, string> = {
-  Tốt: "bg-[var(--sys-green)]/100/10 text-[var(--sys-green)] dark:text-emerald-300",
-  Xấu: "bg-[var(--sys-red)]/100/10 text-[var(--sys-red)] dark:text-rose-300",
-  "Trung lập": "bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-text-secondary)]",
+  Tốt: "bg-[var(--ios-green)]/100/10 text-[var(--ios-green)] dark:text-emerald-300",
+  Xấu: "bg-[var(--ios-red)]/100/10 text-[var(--ios-red)] dark:text-rose-300",
+  "Trung lập": "bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] text-[var(--ios-secondary-label)]",
 };
 
 const defaultEffectClass =
-  "bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-text-secondary)]";
+  "bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] text-[var(--ios-secondary-label)]";
 
 function deriveEffectLabel(sentiment: NewsItem["sentiment"]) {
   if (sentiment === "Bullish") return "Tốt";
@@ -99,21 +99,21 @@ export function NewsPanel({
   return (
     <div className="space-y-5" id="news-panel">
       <section
-        className={`p-4 sm:p-6 rounded-[24px] shadow-ios-sm ${darkMode ? "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm" : "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm"}`}
+        className={`p-4 sm:p-6 rounded-[24px] shadow-ios-sm ${darkMode ? "bg-[var(--ios-surface)] rounded-2xl border border-[var(--ios-separator)] shadow-ios-sm" : "bg-[var(--ios-surface)] rounded-2xl border border-[var(--ios-separator)] shadow-ios-sm"}`}
       >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--sys-border)] pb-4 mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--ios-separator)] pb-4 mb-4">
           <div>
-            <h3 className="text-lg font-semibold text-[var(--sys-text)] font-display">
+            <h3 className="text-lg font-semibold text-[var(--ios-label)] font-display">
               Tin tức thị trường
             </h3>
-            <p className="text-base text-[var(--sys-text-secondary)] mt-1">
+            <p className="text-base text-[var(--ios-secondary-label)] mt-1">
               Mới nhất lên trước, mỗi trang hiển thị {pageSize} tin.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {lastUpdatedAt && (
-              <span className="text-base text-[var(--sys-text-secondary)] font-mono">
+              <span className="text-base text-[var(--ios-secondary-label)] font-mono">
                 {new Date(lastUpdatedAt).toLocaleTimeString("vi-VN", {
                   hour: "2-digit",
                   minute: "2-digit",
@@ -121,24 +121,24 @@ export function NewsPanel({
                 })}
               </span>
             )}
-            <div className="flex items-center gap-1 rounded-full border border-[var(--sys-border)] bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm p-1">
+            <div className="flex items-center gap-1 rounded-full border border-[var(--ios-separator)] bg-[var(--ios-surface)] rounded-2xl border border-[var(--ios-separator)] shadow-ios-sm p-1">
               <button
                 type="button"
                 onClick={() => onPageChange(page - 1)}
                 disabled={!canGoPrevious}
-                className="h-9 w-9 rounded-full text-[var(--sys-blue)] grid place-items-center active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed"
+                className="h-9 w-9 rounded-full text-[var(--ios-blue)] grid place-items-center active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed"
                 title="Trang mới hơn"
               >
                 <ChevronLeft size={17} />
               </button>
-              <span className="min-w-20 px-2 text-center text-sm font-medium text-[var(--sys-text)]">
+              <span className="min-w-20 px-2 text-center text-sm font-medium text-[var(--ios-label)]">
                 {pageLabel}
               </span>
               <button
                 type="button"
                 onClick={() => onPageChange(page + 1)}
                 disabled={!canGoNext}
-                className="h-9 w-9 rounded-full text-[var(--sys-blue)] grid place-items-center active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed"
+                className="h-9 w-9 rounded-full text-[var(--ios-blue)] grid place-items-center active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed"
                 title="Trang cũ hơn"
               >
                 <ChevronRight size={17} />
@@ -146,7 +146,7 @@ export function NewsPanel({
             </div>
             <button
               onClick={onRefresh}
-              className="px-3 py-2 rounded-full bg-[var(--sys-blue)] text-white text-sm font-medium flex items-center gap-1.5 active:scale-95 transition-transform"
+              className="px-3 py-2 rounded-full bg-[var(--ios-blue)] text-white text-sm font-medium flex items-center gap-1.5 active:scale-95 transition-transform"
               type="button"
             >
               <RefreshCw
@@ -163,12 +163,12 @@ export function NewsPanel({
             {Array.from({ length: 6 }).map((_, index) => (
               <div
                 key={index}
-                className="h-24 rounded-[16px] bg-[var(--sys-surface-2)] animate-pulse"
+                className="h-24 rounded-[16px] bg-[var(--ios-surface-2)] animate-pulse"
               />
             ))}
           </div>
         ) : newsItems.length === 0 ? (
-          <div className="py-16 text-center text-[var(--sys-text-secondary)]">
+          <div className="py-16 text-center text-[var(--ios-secondary-label)]">
             <p className="text-lg font-semibold">
               Chưa có tin trong trang này.
             </p>
@@ -184,7 +184,7 @@ export function NewsPanel({
               return (
                 <article
                   key={item.id}
-                  className="p-4 rounded-[16px] bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm border border-[var(--sys-border)] hover:border-[var(--sys-blue)]/60 transition-colors"
+                  className="p-4 rounded-[16px] bg-[var(--ios-surface)] rounded-2xl border border-[var(--ios-separator)] shadow-ios-sm border border-[var(--ios-separator)] hover:border-[var(--ios-blue)]/60 transition-colors"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
@@ -204,7 +204,7 @@ export function NewsPanel({
                         {item.affectedAssets.map((asset) => (
                           <span
                             key={asset}
-                            className="px-2 py-0.5 rounded-full bg-[var(--sys-surface-2)] text-sm font-medium text-[var(--sys-text-secondary)] font-mono"
+                            className="px-2 py-0.5 rounded-full bg-[var(--ios-surface-2)] text-sm font-medium text-[var(--ios-secondary-label)] font-mono"
                           >
                             {asset}
                           </span>
@@ -214,14 +214,14 @@ export function NewsPanel({
                         >
                           {item.category}
                         </span>
-                        <span className="text-base text-[var(--sys-text-secondary)] font-mono">
+                        <span className="text-base text-[var(--ios-secondary-label)] font-mono">
                           {item.source}
                         </span>
-                        <span className="text-base text-[var(--sys-text-secondary)]">
+                        <span className="text-base text-[var(--ios-secondary-label)]">
                           {formatRelativeTime(item.publishedAt)}
                         </span>
                       </div>
-                      <h4 className="text-lg sm:text-lg font-extrabold text-[var(--sys-text)] leading-snug">
+                      <h4 className="text-lg sm:text-lg font-extrabold text-[var(--ios-label)] leading-snug">
                         {item.titleVi || item.title}
                       </h4>
                     </div>
@@ -229,14 +229,14 @@ export function NewsPanel({
                       href={item.link}
                       target="_blank"
                       rel="noreferrer"
-                      className="p-2 rounded-full bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-blue)] flex-shrink-0 active:scale-95 transition-transform"
+                      className="p-2 rounded-full bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] text-[var(--ios-blue)] flex-shrink-0 active:scale-95 transition-transform"
                       title="Mở tin gốc"
                     >
                       <ExternalLink size={15} />
                     </a>
                   </div>
 
-                  <p className="text-base text-[var(--sys-text-secondary)] mt-3 line-clamp-3">
+                  <p className="text-base text-[var(--ios-secondary-label)] mt-3 line-clamp-3">
                     {compactSummary(item)}
                   </p>
 
@@ -245,7 +245,7 @@ export function NewsPanel({
                       {item.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="px-2 py-0.5 rounded-full bg-[var(--sys-surface-2)] text-sm font-medium text-[var(--sys-text-secondary)] font-mono"
+                          className="px-2 py-0.5 rounded-full bg-[var(--ios-surface-2)] text-sm font-medium text-[var(--ios-secondary-label)] font-mono"
                         >
                           {tag}
                         </span>
@@ -260,7 +260,7 @@ export function NewsPanel({
 
         {newsItems.length > 0 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-5">
-            <span className="text-base text-[var(--sys-text-secondary)]">
+            <span className="text-base text-[var(--ios-secondary-label)]">
               Đang xem tin {pageStart}-{pageEnd}
             </span>
             <div className="grid grid-cols-2 gap-2 w-full sm:w-auto">
@@ -268,7 +268,7 @@ export function NewsPanel({
                 type="button"
                 onClick={() => onPageChange(page - 1)}
                 disabled={!canGoPrevious}
-                className="px-4 py-2.5 rounded-full border border-[var(--sys-border)] bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-blue)] text-sm font-medium flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2.5 rounded-full border border-[var(--ios-separator)] bg-[var(--ios-surface)] rounded-2xl border border-[var(--ios-separator)] shadow-ios-sm text-[var(--ios-blue)] text-sm font-medium flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronLeft size={16} />
                 Mới hơn
@@ -277,7 +277,7 @@ export function NewsPanel({
                 type="button"
                 onClick={() => onPageChange(page + 1)}
                 disabled={!canGoNext}
-                className="px-4 py-2.5 rounded-full border border-[var(--sys-border)] bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-blue)] text-sm font-medium flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2.5 rounded-full border border-[var(--ios-separator)] bg-[var(--ios-surface)] rounded-2xl border border-[var(--ios-separator)] shadow-ios-sm text-[var(--ios-blue)] text-sm font-medium flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cũ hơn
                 <ChevronRight size={16} />
