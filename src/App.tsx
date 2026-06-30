@@ -62,6 +62,11 @@ const BentoStats = lazy(() =>
     default: module.BentoStats,
   })),
 );
+const DashboardView = lazy(() =>
+  import("./components/DashboardView").then((module) => ({
+    default: module.DashboardView,
+  })),
+);
 
 const originalFetch = window.fetch;
 window.fetch = async (...args) => {
@@ -1440,279 +1445,28 @@ export default function App() {
 
         {/* 1. OVERVIEW BENTO TAB SCREEN */}
         {currentTab === "dashboard" && (
-          <div className="space-y-6" id="dashboard-bento-section">
-            {/* Numeric and graphs bento core statistics wrapper */}
-            <Suspense
-              fallback={
-                <div className="min-h-[260px] bg-[var(--sys-surface)] rounded-[24px] border border-[var(--sys-border)] shadow-ios-sm animate-pulse" />
-              }
-            >
-              <BentoStats trades={mergedTrades} darkMode={darkMode} />
-            </Suspense>
-
-            <section className="ios26-card p-4 sm:p-5" id="t5-account-command-center">
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-4">
-                <div className="min-w-0">
-                  <p className="text-sm font-bold uppercase text-[var(--sys-text-secondary)] tracking-wider truncate">The5ers Accounts</p>
-                  <h2 className="text-2xl sm:text-3xl font-black text-[var(--sys-text)] truncate">Nhật ký theo từng tài khoản</h2>
-                </div>
-                <button type="button" onClick={() => setCurrentTab("journal")} className="ios26-control px-4 py-2.5 rounded-full bg-[var(--sys-blue)] text-white font-bold text-sm">Mở journal</button>
-              </div>
-              {followedT5Accounts.length === 0 ? (
-                <div className="rounded-[24px] border border-[var(--sys-border)] bg-[var(--sys-surface-2)] p-4 text-[var(--sys-text-secondary)] text-sm">
-                  Chưa chọn tài khoản theo dõi. Vào Cài đặt để chọn các tài khoản The5ers muốn hiển thị.
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-                  {followedT5Accounts.map((account) => {
-                    const accountTrades = t5Trades.filter((trade) => trade.accountId === account.accountId);
-                    const openTrades = accountTrades.filter((trade) => !trade.closeTime).length;
-                    const dailyLimit = Math.abs(account.dailyLossLimit || 0);
-                    const dailyUsed = Math.max(0, -(account.dailyLoss || 0));
-                    const dailyRisk = dailyLimit > 0 ? Math.min(100, (dailyUsed / dailyLimit) * 100) : 0;
-                    const riskLabel = dailyRisk >= 80 ? "Nguy hiểm" : dailyRisk >= 55 ? "Cần chú ý" : "Ổn";
-                    return (
-                      <button key={account.accountId} type="button" onClick={() => { setSelectedJournalAccountId(account.accountId); if (!selectedT5AccountIds.includes(account.accountId)) { const next = [...selectedT5AccountIds, account.accountId]; setSelectedT5AccountIds(next); localStorage.setItem("t5_selected_accounts", JSON.stringify(next)); } loadT5AccountTrades(account.accountId); setCurrentTab("journal"); }} className="ios26-metric-card p-4 text-left transition-all">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <h3 className="text-lg font-black text-[var(--sys-text)] truncate">{account.name || account.accountId}</h3>
-                            <p className="text-sm text-[var(--sys-text-secondary)] truncate">#{account.accountId} · {account.type}</p>
-                          </div>
-                          <span className={`ios26-chip px-2 py-1 rounded-full text-xs font-black uppercase ${account.status === "active" || account.status === "available" ? "text-[var(--sys-green)]" : "text-[var(--sys-text-secondary)]"}`}>{account.status}</span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3 mt-4">
-                          <div><p className="text-xs font-bold uppercase text-[var(--sys-text-secondary)] truncate">Balance</p><p className="text-lg font-black text-[var(--sys-text)] truncate">${account.balance.toLocaleString("en-US", { maximumFractionDigits: 0 })}</p></div>
-                          <div><p className="text-xs font-bold uppercase text-[var(--sys-text-secondary)] truncate">P&L</p><p className={`text-lg font-black truncate ${(account.pnl || 0) >= 0 ? "text-[var(--sys-green)]" : "text-[var(--sys-red)]"}`}>{(account.pnl || 0) >= 0 ? "+" : ""}${(account.pnl || 0).toFixed(0)}</p></div>
-                        </div>
-                        <div className="mt-4">
-                          <div className="flex items-center justify-between gap-2 text-xs font-bold text-[var(--sys-text-secondary)] mb-1"><span className="truncate">Daily risk</span><span className="truncate">{riskLabel} · {openTrades} open</span></div>
-                          <progress className={`ios26-progress ${dailyRisk >= 80 ? "is-warning" : ""}`} value={dailyRisk} max={100} aria-label="Daily risk" />
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </section>
-
-            {/* Mixed Bento Row: Calendar Fast-View (Large 2/3) + Recent Trade Activities (Medium 1/3) */}
-            <div
-              className="grid grid-cols-1 lg:grid-cols-3 gap-6"
-              id="bento-two-columns-mixed"
-            >
-              {/* Calendar Feed Fast-View Card */}
-              <div
-                className="lg:col-span-2 p-5 sm:p-6 bg-[var(--sys-surface)] rounded-[24px] border border-[var(--sys-border)] shadow-ios-sm flex flex-col justify-between"
-                id="bento-calendar-fastview"
-              >
-                <div>
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[var(--sys-border)] pb-4 mb-4 gap-3 sm:gap-0">
-                    <div className="flex items-center gap-2.5">
-                      <div className="p-2 bg-[var(--sys-blue)]/10 dark:transparent text-[var(--sys-blue)] rounded-[16px] flex-shrink-0">
-                        <CalendarIcon size={18} />
-                      </div>
-                      <div className="min-w-0">
-                        <h4 className="text-lg sm:text-lg font-semibold text-[var(--sys-text)] leading-tight">
-                          Điểm Tin Kinh Tế Nổi Bật
-                        </h4>
-                        <p className="text-base sm:text-lg text-[var(--sys-text-secondary)] mt-0.5 truncate">
-                          Các sự kiện vĩ mô tác động mạnh tới USD
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Quick filter inside header - M3 Segmented Button */}
-                    <div className="flex border border-[var(--sys-border)] rounded-full w-full sm:w-auto mt-2 sm:mt-0 flex-shrink-0 h-10">
-                      <button
-                        onClick={() => setCalendarPeriodFilter("DAY")}
-                        className={`flex-1 sm:flex-initial text-center px-5 flex items-center justify-center text-base font-semibold rounded-l-full border-r border-[var(--sys-border)] transition-colors ease-[ease-out] cursor-pointer active:scale-95 transition-transform ${
-                          calendarPeriodFilter === "DAY"
-                            ? "bg-[var(--sys-blue)]/10 text-white-container"
-                            : "bg-transparent text-[var(--sys-text)]"
-                        }`}
-                      >
-                        Hôm nay
-                      </button>
-                      <button
-                        onClick={() => setCalendarPeriodFilter("WEEK")}
-                        className={`flex-1 sm:flex-initial text-center px-5 flex items-center justify-center text-base font-semibold rounded-r-full transition-colors ease-[ease-out] cursor-pointer active:scale-95 transition-transform ${
-                          calendarPeriodFilter === "WEEK"
-                            ? "bg-[var(--sys-blue)]/10 text-white-container"
-                            : "bg-transparent text-[var(--sys-text)]"
-                        }`}
-                      >
-                        Tuần này
-                      </button>
-                    </div>
-                  </div>
-
-                  <div
-                    className="space-y-4 max-h-[350px] overflow-y-auto pr-1"
-                    id="fastview-events-scroller"
-                  >
-                    {loadingCalendar ? (
-                      <div className="py-12 text-center text-[var(--sys-text-secondary)] space-y-2">
-                        <RefreshCw
-                          className="animate-spin text-[var(--sys-blue)] mx-auto"
-                          size={24}
-                        />
-                        <p className="text-lg">
-                          Đang nạp cập nhật lịch kinh tế thực tế...
-                        </p>
-                      </div>
-                    ) : filteredEventsByFilters.length === 0 ? (
-                      <div className="py-12 text-center text-[var(--sys-text-secondary)]">
-                        <p className="text-lg">
-                          Không có sự kiện kinh tế USD nào tương thích bộ lọc đã chọn.
-                        </p>
-                        <p className="text-base text-[var(--sys-text-secondary)] mt-1.5">
-                          Lưu ý: Bạn có thể chọn sự kiện có tác động thấp hơn ở tab
-                          Lịch Kinh Tế
-                        </p>
-                      </div>
-                    ) : (
-                      filteredEventsByFilters.slice(0, 5).map((ev, idx) => {
-                        const styleInfo = getImpactColorClasses(ev.impact);
-                        const eventDate = new Date(ev.date);
-                        return (
-                          <div
-                            key={`fast-ev-${idx}`}
-                            className="flex items-center justify-between p-3.5 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm rounded-[16px] border border-transparent hover:border-[var(--sys-border)] transition-colors ease-[ease-out] gap-2"
-                          >
-                            <div className="flex items-center gap-3.5 min-w-0">
-                              <div
-                                className={`w-1 h-9 rounded-full flex-shrink-0 ${styleInfo.indicator}`}
-                              ></div>
-                              <div className="min-w-0">
-                                <h5
-                                  className="text-lg sm:text-lg font-semibold text-[var(--sys-text)] tracking-tight truncate"
-                                  title={ev.title}
-                                >
-                                  {ev.title}
-                                </h5>
-                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1 text-base text-[var(--sys-text-secondary)]">
-                                  <span className="font-mono bg-[var(--sys-surface-2)] border border-[var(--sys-border)] px-1.5 py-0.5 rounded text-[var(--sys-text-secondary)] font-bold">
-                                    {ev.country}
-                                  </span>
-                                  <span>•</span>
-                                  <span>DF: {ev.forecast || "N/A"}</span>
-                                  <span>•</span>
-                                  <span>KT: {ev.previous || "N/A"}</span>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="text-right flex-shrink-0">
-                              <span className="text-base font-semibold text-[var(--sys-text)] block font-mono">
-                                {eventDate.toLocaleTimeString("vi-VN", {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
-                              </span>
-                              <div className="mt-1">
-                                <span
-                                  className={`text-sm sm:text-base px-2 py-0.5 rounded font-extrabold uppercase tracking-wider ${styleInfo.text} ${styleInfo.bg}`}
-                                >
-                                  {styleInfo.label}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })
-                    )}
-                  </div>
-                </div>
-
-                <div className="mt-4 pt-4 border-t border-[var(--sys-border)] dark:border-[var(--sys-border)] flex justify-end items-center text-lg">
-                  <button
-                    onClick={() => setCurrentTab("calendar")}
-                    className="text-[var(--sys-blue)] hover:underline flex items-center gap-1 font-extrabold"
-                  >
-                    Xem lịch toàn bộ chi tiết <ChevronRight size={16} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Recent Trade History Widget Panel */}
-              <div
-                className="p-5 sm:p-6 bg-[var(--sys-surface)] rounded-[24px] border border-[var(--sys-border)] shadow-ios-sm flex flex-col justify-between"
-                id="bento-recent-history"
-              >
-                <div>
-                  <div className="flex justify-between items-center mb-4 gap-2">
-                    <h4 className="text-lg sm:text-lg font-extrabold text-[var(--sys-text)] truncate">
-                      Lệnh Gần Đây
-                    </h4>
-                    <span className="text-base bg-[var(--sys-blue)]/10 dark:bg-[var(--sys-blue)]/20 text-[var(--sys-blue)] dark:text-[var(--sys-blue)] px-2.5 py-1 rounded-full font-bold flex-shrink-0">
-                      Lịch Sử
-                    </span>
-                  </div>
-
-                  <div
-                    className="space-y-3 max-h-[300px] overflow-y-auto"
-                    id="recent-trades-list"
-                  >
-                    {mergedTrades.length === 0 ? (
-                      <div className="text-center py-12 text-[var(--sys-text-secondary)] text-lg">
-                        <BookOpen
-                          size={24}
-                          className="mx-auto text-[var(--sys-text-secondary)] dark:text-[var(--sys-text-secondary)] animate-pulse mb-2"
-                        />{mergedTrades.length === 0 ? "Chưa có giao dịch. Bấm nút + để thêm lệnh đầu tiên." : "Chưa có lịch sử giao dịch."}
-                      </div>
-                    ) : (
-                      mergedTrades.slice(0, 4).map((t) => (
-                        <div
-                          key={t.id}
-                          className="flex items-center gap-3 p-2.5 hover:bg-[var(--sys-surface-2)] rounded-[16px] transition-all ease-[ease-out]"
-                        >
-                          <div
-                            className={`w-10 h-10 rounded-[16px] flex items-center justify-center font-bold text-base ${t.type === "BUY" ? "bg-[var(--sys-green)]/100/10 text-[var(--sys-green)]" : "bg-[var(--sys-red)]/100/10 text-[var(--sys-red)]"}`}
-                          >
-                            {t.type}
-                          </div>
-
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <span className="font-extrabold text-lg text-[var(--sys-text)]">
-                                {t.pair}
-                              </span>
-                              <span
-                                className={`text-lg font-black font-mono ${t.pnl >= 0 ? "text-[var(--sys-green)]" : "text-[var(--sys-red)]"}`}
-                              >
-                                {t.pnl >= 0 ? "+" : ""}${t.pnl.toLocaleString()}
-                              </span>
-                            </div>
-                            <div className="flex justify-between items-center text-base text-[var(--sys-text-secondary)] mt-1">
-                              <span>
-                                {t.size} Lots • {t.timeframe}
-                              </span>
-                              <span className="italic">
-                                {t.status === "OPEN" ? "Đang Chạy" : "Đã Khớp"}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                <div className="mt-4 pt-4 border-t border-[var(--sys-border)] dark:border-[var(--sys-border)]">
-                  <button
-                    onClick={() => setCurrentTab("journal")}
-                    className="w-full py-2.5 bg-[var(--sys-surface-2)] dark:bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-text)] rounded-full text-base sm:text-base font-semibold transition-all ease-[ease-out]"
-                    id="bento-view-journal-btn"
-                  >
-                    Quản lý toàn bộ {mergedTrades.length} giao dịch
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <DashboardView
+            darkMode={darkMode}
+            setDarkMode={setDarkMode}
+            currentTab={currentTab}
+            setCurrentTab={setCurrentTab}
+            summary={summary}
+            mergedTrades={mergedTrades}
+            filteredTrades={filteredTrades}
+            upcomingRedEvents={upcomingRedEvents}
+            selectedT5AccountIds={selectedT5AccountIds}
+            t5Accounts={t5Accounts}
+            followedT5Accounts={followedT5Accounts}
+            t5Trades={t5Trades}
+            setSelectedJournalAccountId={setSelectedJournalAccountId}
+            loadT5AccountTrades={loadT5AccountTrades}
+            setIsQuickAddOpen={setIsQuickAddOpen}
+            setIsSettingsOpen={setIsSettingsOpen}
+          />
         )}
 
-        {/* 2. JOURNAL MANAGEMENT TAB SCREEN */}
-        {currentTab === "journal" && (
+          {/* 2. JOURNAL MANAGEMENT TAB SCREEN */}
+          {currentTab === "journal" && (
           <div
             className="grid grid-cols-1 gap-6"
             id="journal-standalone-section"
