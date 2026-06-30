@@ -98,6 +98,7 @@ export default function App() {
 
   // UI Panels
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPairFilter, setSelectedPairFilter] = useState("ALL");
@@ -180,6 +181,15 @@ export default function App() {
   const [browserlessToken, setBrowserlessToken] = useState(() => localStorage.getItem("browserless_token") || "");
   const [tvSaving, setTvSaving] = useState(false);
   const [tvSaveResult, setTvSaveResult] = useState<string | null>(null);
+
+  // ─── Toast System ──────────────────────────────────────────────────────────
+  const [toasts, setToasts] = useState<{id: number; message: string; type: 'success' | 'error' | 'info'}[]>([]);
+  let toastId = 0;
+  function showToast(message: string, type: 'success' | 'error' | 'info' = 'info') {
+    const id = ++toastId;
+    setToasts(prev => [...prev, {id, message, type}]);
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 4000);
+  }
 
   async function saveTVCreds() {
     if (!tvSessionId || !tvSessionSign || !browserlessToken) { setTvSaveResult("Vui lòng nhập đủ các trường"); return; }
@@ -357,7 +367,7 @@ export default function App() {
   // Request notifications permission helper
   const requestNotificationPermission = async () => {
     if (!("Notification" in window)) {
-      alert("Trình duyệt này không hỗ trợ hiển thị thông báo.");
+      showToast("Trình duyệt này không hỗ trợ hiển thị thông báo.", "error");
       return false;
     }
     try {
@@ -499,8 +509,9 @@ export default function App() {
         setDeferredPrompt(null);
       });
     } else {
-      alert(
-        "Tính năng cài đặt đang khả dụng trực tiếp từ trình duyệt của bạn (Tapto 'Thêm vào MH chính' hoặc nút tải xuống trên thanh URL).",
+      showToast(
+        "Tính năng cài đặt khả dụng từ trình duyệt. Thêm vào màn hình chính để dùng offline.",
+        "info"
       );
     }
   };
@@ -850,7 +861,7 @@ export default function App() {
 
   const testSupabaseConnection = async () => {
     if (!dbUrl || !dbAnon) {
-      alert("Vui lòng điền đầy đủ Supabase URL và Anon Key!");
+      showToast("Vui lòng điền đầy đủ Supabase URL và Anon Key!", "error");
       return;
     }
     try {
@@ -859,12 +870,10 @@ export default function App() {
       const list = await fetchTradesFromDB();
       setTrades(list);
       setSupabaseConnected(true);
-      alert(
-        "Kết nối Supabase thành công! Dữ liệu đã được đồng bộ hóa và tải về.",
-      );
+      showToast("Kết nối Supabase thành công!", "success");
     } catch (err: any) {
       setSupabaseConnected(false);
-      alert("Kết nối thất bại. Lỗi: " + err.message);
+      showToast("Kết nối thất bại. Lỗi: " + err.message, "error");
     }
   };
 
@@ -872,7 +881,7 @@ export default function App() {
     localStorage.setItem("trade_app_supabase_url", dbUrl.trim());
     localStorage.setItem("trade_app_supabase_anon", dbAnon.trim());
     loadTradesData();
-    alert("Đã lưu cấu hình kết nối Supabase thành công!");
+    showToast("Đã lưu cấu hình Supabase thành công!", "success");
   };
 
   const loadCalendarData = async () => {
@@ -971,7 +980,7 @@ export default function App() {
       
       setFormTVSnapshotUrl(json.url);
     } catch (e: any) {
-      alert("Chụp ảnh thất bại: " + e.message);
+      if (e?.message !== "error") showToast("Chụp ảnh thất bại: " + e.message, "error");
     } finally {
       setIsCapturingSnapshot(false);
     }
@@ -994,7 +1003,7 @@ export default function App() {
       
       setFormTVSnapshotUrlClose(json.url);
     } catch (e: any) {
-      alert("Chụp ảnh thất bại: " + e.message);
+      if (e?.message !== "error") showToast("Chụp ảnh thất bại: " + e.message, "error");
     } finally {
       setIsCapturingSnapshotClose(false);
     }
@@ -1004,9 +1013,7 @@ export default function App() {
   const handleCreateTrade = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formPair || !formEntryPrice || !formSize) {
-      alert(
-        "Vui lòng nhập đủ thông tin: Cặp tiền, Giá vào lệnh & Khối lượng (Lots)!",
-      );
+      showToast("Vui lòng nhập: Cặp tiền, Giá vào lệnh & Khối lượng!", "error");
       return;
     }
 
@@ -1062,7 +1069,7 @@ export default function App() {
       setFormTVSnapshotUrlClose("");
     } catch (err: any) {
       console.error("Lỗi đồng bộ hoá:", err);
-      alert("Đồng bộ hoá thất bại: " + err.message);
+      showToast("Đồng bộ hoá thất bại: " + err.message, "error");
     }
   };
 
@@ -1298,14 +1305,11 @@ export default function App() {
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-[var(--sys-text)] font-display truncate">
-                  Táo Tầu Journal
+                  {selectedT5AccountIds.length > 0 && t5Accounts.length > 0 ? "QuanzTrade" : "Táo Tầu Journal"}
                 </h1>
-                <span className="px-2 py-0.5 text-sm font-medium uppercase tracking-wider bg-[var(--sys-blue)]/10 text-[var(--sys-blue)] dark:transparent dark:text-white-container rounded-md flex-shrink-0">
-                  PRO
-                </span>
               </div>
               <p className="text-base sm:text-lg text-[var(--sys-text-secondary)] mt-1 leading-snug truncate">
-                Tin USD & nhật ký giao dịch
+                {summary.balance > 0 ? `Tổng tài sản: $${summary.balance.toLocaleString("en-US")}` : "Nhật ký giao dịch"}
               </p>
             </div>
           </div>
@@ -1629,8 +1633,7 @@ export default function App() {
                         <BookOpen
                           size={24}
                           className="mx-auto text-[var(--sys-text-secondary)] dark:text-[var(--sys-text-secondary)] animate-pulse mb-2"
-                        />
-                        Chưa có lịch sử giao dịch.
+                        />{mergedTrades.length === 0 ? "Chưa có giao dịch. Bấm nút + để thêm lệnh đầu tiên." : "Chưa có lịch sử giao dịch."}
                       </div>
                     ) : (
                       mergedTrades.slice(0, 4).map((t) => (
@@ -2946,8 +2949,8 @@ export default function App() {
                       try {
                         const res = await fetch("/api/trigger-scrape", { method: "POST" });
                         const json = await res.json();
-                        alert(json.message || "Đã trigger GitHub Actions!");
-                      } catch(e: any) { alert("Lỗi: " + e.message); }
+                        showToast(json.message || "Đã trigger GitHub Actions!", json.success ? "success" : "error");
+                      } catch(e: any) { showToast("Lỗi: " + e.message, "error"); }
                     }} className="settings-button secondary full">🚀 Chạy GitHub Actions</button>
                     {t5SaveResult && <p className={`settings-result ${t5SaveResult.startsWith("✅") ? "is-ok" : "is-error"}`}>{t5SaveResult}</p>}
                   </div>
@@ -2958,7 +2961,7 @@ export default function App() {
                   <div className="settings-group">
                     <div className="settings-row compact"><span className="settings-row-icon"><ShieldCheck size={17} /></span><div className="settings-row-copy"><strong>Mật khẩu web</strong><span>Khóa truy cập app</span></div></div>
                     <input type="password" value={sitePassword} onChange={(e) => setSitePassword(e.target.value)} placeholder="Mật khẩu mới" className="settings-input settings-input-mono" />
-                    <button type="button" onClick={async () => { const pass = sitePassword.trim(); if (!pass) return alert("Vui lòng nhập mật khẩu mới."); try { const res = await fetch("/api/save-site-password", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("trade_app_auth_token")}` }, body: JSON.stringify({ sitePassword: pass }) }); const json = await res.json(); alert(json.message || "Lưu thành công."); if (json.success) setSitePassword(""); } catch (err: any) { alert("Lỗi: " + err.message); } }} className="settings-button primary full">Cập nhật mật khẩu</button>
+                    <button type="button" onClick={async () => { const pass = sitePassword.trim(); if (!pass) return showToast("Vui lòng nhập mật khẩu mới.", "error"); try { const res = await fetch("/api/save-site-password", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("trade_app_auth_token") }, body: JSON.stringify({ sitePassword: pass }) }); const json = await res.json(); showToast(json.message || "Lưu thành công.", json.success ? "success" : "error"); if (json.success) setSitePassword(""); } catch (err: any) { showToast("Lỗi: " + err.message, "error"); } }} className="settings-button primary full">Cập nhật mật khẩu</button>
                   </div>
                 </section>
 
@@ -2990,7 +2993,113 @@ export default function App() {
         </div>
       </div>
 
-      {/* iOS Tab Bar (Apple HIG 49pt) */}
+      {/* FAB Quick Add */}
+      {currentTab === "dashboard" && (
+        <div className="fixed bottom-20 md:bottom-8 right-4 z-40">
+          <button
+            onClick={() => setIsQuickAddOpen(true)}
+            className="w-14 h-14 bg-[var(--sys-blue)] text-white rounded-full flex items-center justify-center shadow-ios-xl active:scale-95 transition-transform cursor-pointer"
+            aria-label="Thêm lệnh nhanh"
+          >
+            <Plus size={28} />
+          </button>
+        </div>
+      )}
+
+      {/* Quick Add Mini Modal */}
+      <AnimatePresence>
+        {isQuickAddOpen && (
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" id="quick-add-modal-root">
+            <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setIsQuickAddOpen(false)} />
+            <motion.div
+              initial={{ opacity: 0, y: 120 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 120 }}
+              transition={{ type: "spring", damping: 26, stiffness: 220 }}
+              className="relative w-full sm:max-w-md bg-[var(--sys-surface)] rounded-t-[28px] sm:rounded-[28px] border border-[var(--sys-border)] shadow-ios-xl z-10 p-5 pb-8"
+              id="quick-add-modal-window"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-[var(--sys-text)]">Lệnh nhanh</h3>
+                <button onClick={() => setIsQuickAddOpen(false)} className="p-2 rounded-full hover:bg-[var(--sys-surface-2)] cursor-pointer">
+                  <X size={20} />
+                </button>
+              </div>
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                const fd = new FormData(e.currentTarget);
+                const pair = fd.get('pair') as string;
+                const type = fd.get('type') as 'BUY' | 'SELL';
+                const entry_price = parseFloat(fd.get('entry_price') as string);
+                const exit_price = fd.get('exit_price') ? parseFloat(fd.get('exit_price') as string) : null;
+                const size = parseFloat(fd.get('size') as string);
+                if (!pair || !entry_price || !size) {
+                  showToast("Nhập cặp tiền, giá vào & khối lượng", "error");
+                  return;
+                }
+                const trade: Trade = {
+                  id: "t" + Date.now(),
+                  pair,
+                  type,
+                  entry_price,
+                  exit_price,
+                  size,
+                  pnl: exit_price ? (type === 'BUY' ? (exit_price - entry_price) : (entry_price - exit_price)) * size * 100000 : 0,
+                  status: exit_price ? 'CLOSED' : 'OPEN',
+                  entry_date: new Date().toISOString(),
+                  exit_date: exit_price ? new Date().toISOString() : null,
+                  notes: '',
+                  timeframe: 'H1',
+                  rating: 3,
+                  tag: 'Quick',
+                };
+                try {
+                  await saveTradeToDB(trade);
+                  await loadTradesData();
+                  setIsQuickAddOpen(false);
+                  showToast("Đã thêm lệnh!", "success");
+                } catch (err: any) {
+                  showToast("Lỗi: " + err.message, "error");
+                }
+              }} className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <select name="pair" defaultValue="EUR/USD" className="px-3 py-3 bg-[var(--sys-surface-2)] rounded-[12px] border border-[var(--sys-border)] text-[var(--sys-text)] text-base focus:outline-none focus:border-[var(--sys-blue)]">
+                    {["EUR/USD","GBP/USD","USD/JPY","AUD/USD","USD/CAD","NZD/USD","USD/CHF","XAU/USD","BTC/USD"].map(p => (
+                      <option key={p} value={p}>{p}</option>
+                    ))}
+                  </select>
+                  <select name="type" defaultValue="BUY" className="px-3 py-3 bg-[var(--sys-surface-2)] rounded-[12px] border border-[var(--sys-border)] text-[var(--sys-text)] text-base focus:outline-none focus:border-[var(--sys-blue)]">
+                    <option value="BUY">MUA (BUY)</option>
+                    <option value="SELL">BÁN (SELL)</option>
+                  </select>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <input name="entry_price" type="number" step="any" placeholder="Giá vào" required className="px-3 py-3 bg-[var(--sys-surface-2)] rounded-[12px] border border-[var(--sys-border)] text-[var(--sys-text)] text-base focus:outline-none focus:border-[var(--sys-blue)] font-mono" />
+                  <input name="exit_price" type="number" step="any" placeholder="Giá ra (tuỳ)" className="px-3 py-3 bg-[var(--sys-surface-2)] rounded-[12px] border border-[var(--sys-border)] text-[var(--sys-text)] text-base focus:outline-none focus:border-[var(--sys-blue)] font-mono" />
+                  <input name="size" type="number" step="0.01" placeholder="Lots" required className="px-3 py-3 bg-[var(--sys-surface-2)] rounded-[12px] border border-[var(--sys-border)] text-[var(--sys-text)] text-base focus:outline-none focus:border-[var(--sys-blue)] font-mono" />
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <button type="button" onClick={() => setIsQuickAddOpen(false)} className="flex-1 py-3 rounded-[12px] border border-[var(--sys-border)] text-[var(--sys-text)] font-semibold cursor-pointer">Huỷ</button>
+                  <button type="submit" className="flex-1 py-3 rounded-[12px] bg-[var(--sys-blue)] text-white font-semibold cursor-pointer">Thêm lệnh</button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      
+      {/* Toast Notifications */}
+      <div className="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none" id="toast-container">
+        {toasts.map(t => (
+          <div key={t.id} className={`pointer-events-auto px-4 py-3 rounded-[16px] shadow-ios-lg backdrop-blur-xl text-sm font-medium animate-in slide-in-from-right-2
+            ${t.type === 'success' ? 'bg-[var(--sys-green)] text-white' : 
+              t.type === 'error' ? 'bg-[var(--sys-red)] text-white' : 
+              'bg-[var(--sys-surface)] border border-[var(--sys-border)] text-[var(--sys-text)]'}`}>
+            {t.message}
+          </div>
+        ))}
+      </div>
+
       <footer
         className={`md:hidden fixed bottom-0 left-0 right-0 z-40 transition-colors ease-[ease-out] backdrop-blur-xl ${darkMode ? "bg-[var(--sys-surface-2)]/95 border-t border-[var(--sys-border)]" : "bg-[var(--sys-surface)] border-t border-[var(--sys-border)]"}`}
         id="ios-bottom-nav"
