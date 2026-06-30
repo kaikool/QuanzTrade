@@ -116,7 +116,7 @@ export function NewsPanel({
           {newsItems.map((item) => {
             const effect = deriveEffectLabel(item.sentiment);
             return (
-              <article key={item.id} className="ios-glass ios26-card bg-[var(--ios-surface)] p-5 transition-colors hover:border-[var(--ios-blue)]/30 group">
+              <article key={item.id} className="ios-glass ios26-card bg-[var(--ios-surface)] p-5 transition-colors group">
                 {/* Meta row */}
                 <div className="flex flex-wrap items-center gap-2 mb-3">
                   <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wide ${impactColors[item.impact]}`}>{item.impact}</span>

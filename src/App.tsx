@@ -335,7 +335,7 @@ export default function App() {
     setFormExitDate(`${datePart}T${timePart}`);
   };
 
-  // Darkmode (Google Material Design 3 dynamic light/dark mode state)
+  // Dark mode state
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     return localStorage.getItem("trade_app_dark_mode") === "true";
   });
