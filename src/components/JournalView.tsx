@@ -76,8 +76,8 @@ export function JournalView({
       <button
         key={t.id} 
         onClick={() => setSelectedTrade(t)}
-        className={`w-full text-left p-4 transition-colors cursor-pointer border-b border-[var(--ios-separator)]/50 last:border-0
-          ${isSelected ? "bg-[var(--sys-tint-soft)]" : "hover:bg-[var(--ios-fill)]/45"}`}
+        className={`w-full text-left p-4 transition-colors cursor-pointer last:border-0
+          ${isSelected ? "bg-[var(--sys-tint-soft)]" : "hover:bg-[var(--sys-tint-soft)]/50"}`}
       >
         <div className="flex justify-between items-start gap-3 mb-2">
           <div className="flex items-center gap-2 min-w-0 pr-2">
@@ -171,7 +171,7 @@ export function JournalView({
       <div className="flex flex-1 overflow-hidden gap-4 pb-16 md:pb-0 relative">
         
         {/* Left Pane (Master List) */}
-        <div className={`w-full md:w-[320px] lg:w-[360px] shrink-0 flex flex-col ios-glass ios26-card border border-[var(--ios-separator)] shadow-ios-sm overflow-hidden
+        <div className={`w-full md:w-[320px] lg:w-[360px] shrink-0 flex flex-col ios26-glass rounded-[30px] border border-[var(--ios-separator)] shadow-ios-sm overflow-hidden
           ${selectedTrade ? "hidden md:flex" : "flex"}`}>
           <div className="overflow-y-auto flex-1 no-scrollbar p-0 m-0">
             {filteredTrades.length === 0 ? (
@@ -220,10 +220,10 @@ export function JournalView({
                 </div>
               </div>
               <div className="flex gap-2 shrink-0">
-                <button onClick={() => { handleBeginEditTrade(selectedTrade); setSelectedTrade(null); }} className="w-9 h-9 flex items-center justify-center bg-[var(--ios-surface)] text-[var(--ios-label)] rounded-full hover:bg-[var(--sys-tint-soft)] hover:text-[var(--ios-blue)] active:scale-90 transition-all" title="Sửa lệnh">
+                <button onClick={() => { handleBeginEditTrade(selectedTrade); setSelectedTrade(null); }} className="w-9 h-9 flex items-center justify-center ios26-glass text-[var(--ios-label)] rounded-full hover:bg-[var(--sys-tint-soft)] hover:text-[var(--ios-blue)] active:scale-90 transition-all" title="Sửa lệnh">
                   <Edit2 size={16} />
                 </button>
-                <button onClick={() => { handleDeleteTrade(selectedTrade.id); setSelectedTrade(null); }} className="w-9 h-9 flex items-center justify-center bg-[var(--ios-surface)] text-[var(--ios-label)] rounded-full hover:bg-[var(--sys-danger-soft)] hover:text-[var(--ios-red)] active:scale-90 transition-all" title="Xóa lệnh">
+                <button onClick={() => { handleDeleteTrade(selectedTrade.id); setSelectedTrade(null); }} className="w-9 h-9 flex items-center justify-center ios26-glass text-[var(--ios-label)] rounded-full hover:bg-[var(--sys-danger-soft)] hover:text-[var(--ios-red)] active:scale-90 transition-all" title="Xóa lệnh">
                   <Trash2 size={16} />
                 </button>
               </div>
@@ -233,7 +233,7 @@ export function JournalView({
            <div className="flex-1 overflow-y-auto p-5 md:p-6 no-scrollbar min-h-0">
 
              {/* P&L Hero — visible white card */}
-             <div className="mb-6 p-5 bg-[var(--ios-surface)] rounded-[20px] shadow-ios-sm border border-[var(--ios-separator)]/40">
+             <div className="mb-6 p-5 ios26-glass rounded-[20px] border border-[var(--ios-separator)]/40">
                <div className="flex items-center justify-between gap-4">
                  <div className="min-w-0">
                    <p className="text-[11px] font-bold uppercase tracking-widest text-[var(--ios-secondary-label)] mb-1">Lợi nhuận ròng</p>
@@ -275,11 +275,11 @@ export function JournalView({
              <div className="mb-6">
                <p className="text-[12px] font-bold uppercase tracking-widest text-[var(--ios-secondary-label)] mb-3">Bài học / ghi chú</p>
                {selectedTrade.notes ? (
-                 <div className="p-5 bg-[var(--ios-surface)] rounded-[20px] text-[15px] text-[var(--ios-label)] leading-relaxed whitespace-pre-wrap shadow-sm">
+                 <div className="p-5 ios26-glass rounded-[20px] text-[15px] text-[var(--ios-label)] leading-relaxed whitespace-pre-wrap">
                    {selectedTrade.notes}
                  </div>
                ) : (
-                 <div className="p-5 bg-[var(--ios-surface)] rounded-[20px] flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[var(--sys-tint-soft)] transition-colors border border-dashed border-[var(--ios-separator)]/30 shadow-sm" onClick={() => handleBeginEditTrade(selectedTrade)}>
+                 <div className="p-5 ios26-glass rounded-[20px] flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[var(--sys-tint-soft)] transition-colors border border-dashed border-[var(--ios-separator)]/30" onClick={() => handleBeginEditTrade(selectedTrade)}>
                    <p className="text-[15px] font-bold text-[var(--ios-label)]">+ Thêm bài học</p>
                    <p className="text-[13px] text-[var(--ios-secondary-label)] mt-1">Bấm để ghi lại bài học hoặc nhận xét cho lệnh này.</p>
                  </div>
@@ -305,7 +305,7 @@ export function JournalView({
                    )}
                  </div>
                ) : (
-                 <div className="p-5 bg-[var(--ios-surface)] rounded-[20px] flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[var(--sys-tint-soft)] transition-colors border border-dashed border-[var(--ios-separator)]/30 shadow-sm" onClick={() => handleBeginEditTrade(selectedTrade)}>
+                 <div className="p-5 ios26-glass rounded-[20px] flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[var(--sys-tint-soft)] transition-colors border border-dashed border-[var(--ios-separator)]/30" onClick={() => handleBeginEditTrade(selectedTrade)}>
                    <p className="text-[15px] font-bold text-[var(--ios-label)]">+ Thêm ảnh</p>
                    <p className="text-[13px] text-[var(--ios-secondary-label)] mt-1">Cập nhật link TradingView để lưu ảnh vào/ra lệnh.</p>
                  </div>
