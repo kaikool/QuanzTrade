@@ -1137,7 +1137,7 @@ export default function App() {
     const closedCount = trades.filter(t => t && t.status === "CLOSED" && !t.id.startsWith("t5-")).length;
 
     return {
-      balance: t5Balance,
+      balance: t5Balance + totalPnl,
       pnl: totalPnl + t5Pnl,
       openCount: openCount + t5OpenTrades,
       closedCount: closedCount + t5ClosedTrades,
