@@ -1468,41 +1468,7 @@ export default function App() {
             loading={loadingNews}
             refreshing={refreshingNews}
             onRefresh={syncNews}
-            page={newsPage}
-            pageSize={NEWS_PAGE_SIZE}
-            onPageChange={loadNewsPage}
-            loadingOlder={loadingOlderNews}
-            hasMore={newsHasMore}
-            darkMode={darkMode}
-            lastUpdatedAt={newsLastUpdatedAt}
-            debug={newsDebug}
-          />
-        )}
-      </div>
-
-      {/* Add Trade Modal */}
-      <AddTradeModalComponent
-        isOpen={isAddOpen}
-        onClose={() => setIsAddOpen(false)}
-        editingTradeId={editingTradeId}
-        formPair={formPair}
-        setFormPair={setFormPair}
-        formType={formType}
-        setFormType={setFormType}
-        formEntryPrice={formEntryPrice}
-        setFormEntryPrice={setFormEntryPrice}
-        formExitPrice={formExitPrice}
-        setFormExitPrice={setFormExitPrice}
-        formSize={formSize}
-        setFormSize={setFormSize}
-        formStopLoss={formStopLoss}
-        setFormStopLoss={setFormStopLoss}
-        formTakeProfit={formTakeProfit}
-        setFormTakeProfit={setFormTakeProfit}
-        formStatus={formStatus}
-        setFormStatus={setFormStatus}
-        formTimeframe={formTimeframe}
-        setFormTimeframe={setFormTimeframe}
+                 setFormTimeframe={setFormTimeframe}
         formTag={formTag}
         setFormTag={setFormTag}
         formNotes={formNotes}
@@ -1532,145 +1498,270 @@ export default function App() {
       {/* Settings Modal */}
       <AnimatePresence>
         {isSettingsOpen && (
-          <div className="settings-modal-root" id="settings-modal-root">
+          <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4" id="settings-modal-root">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsSettingsOpen(false)}
-              className="settings-backdrop"
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             />
 
             <motion.div
-              initial={{ opacity: 0, y: 80, scale: 0.98 }}
+              initial={{ opacity: 0, y: 120, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 90, scale: 0.98 }}
+              exit={{ opacity: 0, y: 120, scale: 0.98 }}
               transition={{ type: "spring", damping: 28, stiffness: 240 }}
-              className="settings-sheet"
+              className="relative w-full sm:max-w-2xl h-[92vh] sm:h-[85vh] ios-glass bg-[var(--ios-bg)] rounded-t-[32px] sm:rounded-[32px] shadow-ios-xl flex flex-col overflow-hidden"
               id="settings-modal-window"
             >
-              <div className="settings-handle" />
+              {/* Grabber for Mobile */}
+              <div className="flex justify-center pt-3 sm:hidden shrink-0">
+                <div className="w-12 h-1.5 rounded-full bg-[var(--ios-separator)]" />
+              </div>
 
-              <header className="settings-header">
-                <div className="settings-title-wrap">
-                  <span className="settings-icon-badge"><Settings size={18} /></span>
-                  <div className="min-w-0">
-                    <h4>Cài đặt</h4>
-                    <p>Hệ thống, tài khoản và bảo mật</p>
+              {/* Header */}
+              <header className="flex items-center justify-between px-6 py-4 border-b border-[var(--ios-separator)]/40 shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[var(--sys-tint-soft)] text-[var(--ios-blue)] flex items-center justify-center">
+                    <Settings size={20} />
+                  </div>
+                  <div>
+                    <h4 className="text-[20px] font-bold text-[var(--ios-label)] leading-tight">Cài đặt</h4>
+                    <p className="text-[13px] font-medium text-[var(--ios-secondary-label)]">Hệ thống & Tài khoản</p>
                   </div>
                 </div>
-                <button onClick={() => setIsSettingsOpen(false)} className="settings-close" aria-label="Đóng cài đặt">
-                  <X size={16} />
+                <button onClick={() => setIsSettingsOpen(false)} className="w-9 h-9 flex items-center justify-center bg-[var(--ios-surface-2)] text-[var(--ios-label)] rounded-full hover:bg-[var(--sys-tint-soft)] hover:text-[var(--ios-blue)] transition-colors active:scale-90 cursor-pointer">
+                  <X size={18} />
                 </button>
               </header>
 
-              <div className="settings-content">
-                <section className="settings-section">
-                  <div className="settings-section-title">Giao diện</div>
-                  <div className="settings-choice-grid">
-                    <button type="button" onClick={() => setDarkMode(false)} className={`settings-choice ${!darkMode ? "is-active" : ""}`}>
-                      <Sun size={16} />
-                      <span>Sáng</span>
+              {/* Scrollable Content */}
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 no-scrollbar">
+                
+                {/* 1. Appearance */}
+                <section>
+                  <h3 className="text-[13px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-wider ml-4 mb-2">Giao diện</h3>
+                  <div className="ios-glass ios26-card bg-[var(--ios-surface)] rounded-[24px] p-2 flex gap-2">
+                    <button type="button" onClick={() => setDarkMode(false)} className={`flex-1 flex flex-col items-center justify-center p-4 rounded-[18px] transition-all cursor-pointer ${!darkMode ? "bg-[var(--ios-blue)] text-white shadow-ios-sm" : "text-[var(--ios-secondary-label)] hover:bg-[var(--ios-surface-2)]"}`}>
+                      <Sun size={24} className="mb-2" />
+                      <span className="text-[15px] font-bold">Sáng</span>
                     </button>
-                    <button type="button" onClick={() => setDarkMode(true)} className={`settings-choice ${darkMode ? "is-active" : ""}`}>
-                      <Moon size={16} />
-                      <span>Tối</span>
+                    <button type="button" onClick={() => setDarkMode(true)} className={`flex-1 flex flex-col items-center justify-center p-4 rounded-[18px] transition-all cursor-pointer ${darkMode ? "bg-[var(--ios-blue)] text-white shadow-ios-sm" : "text-[var(--ios-secondary-label)] hover:bg-[var(--ios-surface-2)]"}`}>
+                      <Moon size={24} className="mb-2" />
+                      <span className="text-[15px] font-bold">Tối</span>
                     </button>
                   </div>
                 </section>
 
-                <section className="settings-section">
-                  <div className="settings-section-title">Đồng bộ dữ liệu</div>
-                  <div className="settings-group">
-                    <label className="settings-field">
-                      <span>Supabase URL</span>
-                      <input type="text" value={dbUrl} onChange={(e) => setDbUrl(e.target.value)} placeholder="https://...supabase.co" className="settings-input" />
-                    </label>
-                    <label className="settings-field">
-                      <span>Anon key</span>
-                      <input type="password" value={dbAnon} onChange={(e) => setDbAnon(e.target.value)} placeholder="Khóa Supabase" className="settings-input settings-input-mono" />
-                    </label>
-                    <div className="settings-actions two">
-                      <button type="button" onClick={handleSaveSupabaseConfig} className="settings-button secondary">Lưu</button>
-                      <button type="button" onClick={testSupabaseConnection} className="settings-button primary">Kiểm tra</button>
+                {/* 2. Supabase */}
+                <section>
+                  <h3 className="text-[13px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-wider ml-4 mb-2">Đồng bộ đám mây (Supabase)</h3>
+                  <div className="ios-glass ios26-card bg-[var(--ios-surface)] rounded-[24px] divide-y divide-[var(--ios-separator)]/50 overflow-hidden">
+                    <div className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <span className="text-[16px] font-bold text-[var(--ios-label)]">Supabase URL</span>
+                      <input type="text" value={dbUrl} onChange={(e) => setDbUrl(e.target.value)} placeholder="https://...supabase.co" className="w-full sm:w-2/3 px-4 py-2 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[15px] font-mono focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)]" />
                     </div>
-                    <p className={`settings-hint ${supabaseConnected ? "is-ok" : ""}`}>{supabaseConnected ? "Đã kết nối Supabase." : "Dùng để đồng bộ nhật ký giao dịch."}</p>
-                  </div>
-                </section>
-
-                <section className="settings-section">
-                  <div className="settings-section-title">Thông báo</div>
-                  <div className="settings-row-group">
-                    <div className="settings-row">
-                      <span className="settings-row-icon"><BellRing size={17} /></span>
-                      <div className="settings-row-copy"><strong>Tin đỏ USD</strong><span>Báo trước 1 giờ</span></div>
-                      <button type="button" onClick={toggleNotifications} className={`ios-toggle ${notificationsEnabled ? "is-on" : ""}`} aria-pressed={notificationsEnabled}><span /></button>
+                    <div className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <span className="text-[16px] font-bold text-[var(--ios-label)]">Anon Key</span>
+                      <input type="password" value={dbAnon} onChange={(e) => setDbAnon(e.target.value)} placeholder="Khóa bảo mật..." className="w-full sm:w-2/3 px-4 py-2 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[15px] font-mono focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)]" />
                     </div>
-                  </div>
-                </section>
-
-                <section className="settings-section">
-                  <div className="settings-section-title">TradingView</div>
-                  <div className="settings-group">
-                    <label className="settings-field"><span>Session ID</span><input type="text" value={tvSessionId} onChange={(e) => { setTvSessionId(e.target.value); localStorage.setItem("tv_session_id", e.target.value); }} placeholder="sessionid" className="settings-input settings-input-mono" /></label>
-                    <label className="settings-field"><span>Session sign</span><input type="text" value={tvSessionSign} onChange={(e) => { setTvSessionSign(e.target.value); localStorage.setItem("tv_session_sign", e.target.value); }} placeholder="sessionid_sign" className="settings-input settings-input-mono" /></label>
-                    <label className="settings-field"><span>Browserless token</span><input type="password" value={browserlessToken} onChange={(e) => setBrowserlessToken(e.target.value)} placeholder="Token chụp ảnh biểu đồ" className="settings-input settings-input-mono" /></label>
-                    <button type="button" onClick={saveTVCreds} disabled={tvSaving} className="settings-button primary full">{tvSaving ? "Đang lưu..." : "Lưu TradingView"}</button>
-                    {tvSaveResult && <p className={`settings-result ${tvSaveResult.startsWith("✅") ? "is-ok" : "is-error"}`}>{tvSaveResult}</p>}
-                  </div>
-                </section>
-
-                <section className="settings-section">
-                  <div className="settings-section-title">The5ers</div>
-                  <div className="settings-group">
-                    <div className="settings-row compact">
-                      <span className="settings-row-icon"><TrendingUp size={17} /></span>
-                      <div className="settings-row-copy"><strong>Tài khoản theo dõi</strong><span>{selectedT5AccountIds.length}/{t5Accounts.length} đang chọn</span></div>
-                      <button type="button" onClick={loadT5Data} disabled={t5Loading} className="settings-mini-button"><RefreshCw size={14} className={t5Loading ? "animate-spin" : ""} /><span>{t5Loading ? "Tải" : "Làm mới"}</span></button>
-                    </div>
-                    {t5Loading ? (
-                      <p className="settings-hint">Đang tải tài khoản...</p>
-                    ) : t5Accounts.length === 0 ? (
-                      <p className="settings-hint">Chưa có dữ liệu The5ers.</p>
-                    ) : (
-                      <div className="settings-account-list">
-                        {t5Accounts.map((acc) => {
-                          const checked = selectedT5AccountIds.includes(acc.accountId);
-                          const isActive = acc.status === "active" || acc.status === "available";
-                          return (
-                            <label key={acc.accountId} className={`settings-account ${!isActive ? "is-muted" : ""}`}>
-                              <input type="checkbox" checked={checked} onChange={() => { const next = checked ? selectedT5AccountIds.filter((id) => id !== acc.accountId) : [...selectedT5AccountIds, acc.accountId]; setSelectedT5AccountIds(next); localStorage.setItem("t5_selected_accounts", JSON.stringify(next)); if (!checked && !isActive) loadT5AccountTrades(acc.accountId); }} />
-                              <span className="settings-account-name">{acc.name}</span>
-                              <span className={`settings-pill ${acc.type === "funded" ? "green" : acc.type === "evaluation" ? "blue" : "neutral"}`}>{acc.type === "funded" ? "Funded" : acc.type === "evaluation" ? "Eval" : "Demo"}</span>
-                            </label>
-                          );
-                        })}
+                    <div className="p-4 sm:p-5 bg-[var(--ios-surface-2)]/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+                      <p className={`text-[14px] font-bold flex items-center gap-2 ${supabaseConnected ? "text-[var(--ios-green)]" : "text-[var(--ios-secondary-label)]"}`}>
+                        <span className={`w-2.5 h-2.5 rounded-full ${supabaseConnected ? "bg-[var(--ios-green)]" : "bg-[var(--ios-separator)]"}`} />
+                        {supabaseConnected ? "Đã kết nối" : "Chưa kết nối"}
+                      </p>
+                      <div className="flex gap-2 w-full sm:w-auto">
+                        <button type="button" onClick={handleSaveSupabaseConfig} className="flex-1 sm:flex-none px-5 py-2 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] text-[var(--ios-label)] font-bold rounded-[12px] active:scale-95 transition-transform cursor-pointer">Lưu</button>
+                        <button type="button" onClick={testSupabaseConnection} className="flex-1 sm:flex-none px-5 py-2 bg-[var(--ios-blue)] text-white font-bold rounded-[12px] active:scale-95 transition-transform cursor-pointer shadow-ios-sm">Kiểm tra</button>
                       </div>
-                    )}
-                    <button type="button" onClick={() => { const activeIds = t5Accounts.filter((a) => a.status === "active" || a.status === "available").map((a) => a.accountId); setSelectedT5AccountIds(activeIds); localStorage.setItem("t5_selected_accounts", JSON.stringify(activeIds)); }} className="settings-button secondary full">Chọn tất cả active</button>
-                    <label className="settings-field"><span>Email The5ers</span><input type="email" value={t5Email} onChange={(e) => { setT5Email(e.target.value); localStorage.setItem("t5_email", e.target.value); }} placeholder="email@domain.com" className="settings-input settings-input-mono" /></label>
-                    <label className="settings-field"><span>DSR token</span><textarea value={t5DsrToken} onChange={(e) => { const val = e.target.value.trim(); setT5DsrToken(val); localStorage.setItem("t5_dsr_token", val); }} placeholder="Dán token DSR" className="settings-input settings-textarea settings-input-mono" /></label>
-                    <div className="settings-actions two">
-                      <button type="button" onClick={saveT5Creds} disabled={t5Saving} className="settings-button primary">{t5Saving ? "Đang lưu..." : "Lưu DSR"}</button>
-                      <button type="button" onClick={syncT5Now} disabled={t5Syncing} className="settings-button success">{t5Syncing ? "Đang đồng bộ..." : "Đồng bộ server"}</button>
                     </div>
-                    <button type="button" onClick={async () => {
-                      try {
-                        const res = await fetch("/api/trigger-scrape", { method: "POST" });
-                        const json = await res.json();
-                        showToast(json.message || "Đã trigger GitHub Actions!", json.success ? "success" : "error");
-                      } catch(e: any) { showToast("Lỗi: " + e.message, "error"); }
-                    }} className="settings-button secondary full">🚀 Chạy GitHub Actions</button>
-                    {t5SaveResult && <p className={`settings-result ${t5SaveResult.startsWith("✅") ? "is-ok" : "is-error"}`}>{t5SaveResult}</p>}
                   </div>
                 </section>
 
-                <section className="settings-section">
-                  <div className="settings-section-title">Bảo mật</div>
-                  <div className="settings-group">
-                    <div className="settings-row compact"><span className="settings-row-icon"><ShieldCheck size={17} /></span><div className="settings-row-copy"><strong>Mật khẩu web</strong><span>Khóa truy cập app</span></div></div>
-                    <input type="password" value={sitePassword} onChange={(e) => setSitePassword(e.target.value)} placeholder="Mật khẩu mới" className="settings-input settings-input-mono" />
-                    <button type="button" onClick={async () => { const pass = sitePassword.trim(); if (!pass) return showToast("Vui lòng nhập mật khẩu mới.", "error"); try { const res = await fetch("/api/save-site-password", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("trade_app_auth_token") }, body: JSON.stringify({ sitePassword: pass }) }); const json = await res.json(); showToast(json.message || "Lưu thành công.", json.success ? "success" : "error"); if (json.success) setSitePassword(""); } catch (err: any) { showToast("Lỗi: " + err.message, "error"); } }} className="settings-button primary full">Cập nhật mật khẩu</button>
+                {/* 3. Notifications */}
+                <section>
+                  <h3 className="text-[13px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-wider ml-4 mb-2">Thông báo</h3>
+                  <div className="ios-glass ios26-card bg-[var(--ios-surface)] rounded-[24px] p-4 sm:p-5 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-[12px] bg-rose-500 text-white flex items-center justify-center">
+                        <BellRing size={20} />
+                      </div>
+                      <div>
+                        <p className="text-[16px] font-bold text-[var(--ios-label)]">Tin Đỏ USD</p>
+                        <p className="text-[13px] text-[var(--ios-secondary-label)] font-medium mt-0.5">Báo trước 1 giờ</p>
+                      </div>
+                    </div>
+                    <button type="button" onClick={toggleNotifications} className={`w-[50px] h-[30px] rounded-full p-0.5 transition-colors cursor-pointer ${notificationsEnabled ? "bg-[var(--ios-green)]" : "bg-[var(--ios-separator)]"}`}>
+                      <div className={`w-6 h-6 bg-white rounded-full shadow-md transition-transform ${notificationsEnabled ? "translate-x-[20px]" : "translate-x-0"}`} />
+                    </button>
+                  </div>
+                </section>
+
+                {/* 4. TradingView */}
+                <section>
+                  <h3 className="text-[13px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-wider ml-4 mb-2">TradingView Automation</h3>
+                  <div className="ios-glass ios26-card bg-[var(--ios-surface)] rounded-[24px] divide-y divide-[var(--ios-separator)]/50 overflow-hidden">
+                    <div className="p-4 sm:p-5 space-y-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <span className="text-[16px] font-bold text-[var(--ios-label)]">Session ID</span>
+                        <input type="text" value={tvSessionId} onChange={(e) => { setTvSessionId(e.target.value); localStorage.setItem("tv_session_id", e.target.value); }} placeholder="sessionid" className="w-full sm:w-2/3 px-4 py-2 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[15px] font-mono focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)]" />
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <span className="text-[16px] font-bold text-[var(--ios-label)]">Session Sign</span>
+                        <input type="text" value={tvSessionSign} onChange={(e) => { setTvSessionSign(e.target.value); localStorage.setItem("tv_session_sign", e.target.value); }} placeholder="sessionid_sign" className="w-full sm:w-2/3 px-4 py-2 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[15px] font-mono focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)]" />
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <span className="text-[16px] font-bold text-[var(--ios-label)] shrink-0">Browserless Token</span>
+                        <input type="password" value={browserlessToken} onChange={(e) => setBrowserlessToken(e.target.value)} placeholder="API Token" className="w-full sm:w-2/3 px-4 py-2 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[15px] font-mono focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)]" />
+                      </div>
+                    </div>
+                    <div className="p-4 sm:p-5 bg-[var(--ios-surface-2)]/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+                      <p className={`text-[13px] font-bold flex-1 ${tvSaveResult?.includes("✅") ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`}>{tvSaveResult}</p>
+                      <button type="button" onClick={saveTVCreds} disabled={tvSaving} className="w-full sm:w-auto px-6 py-2.5 bg-[var(--ios-blue)] text-white font-bold rounded-[12px] active:scale-95 transition-transform cursor-pointer shadow-ios-sm disabled:opacity-50">
+                        {tvSaving ? "Đang lưu..." : "Lưu TradingView"}
+                      </button>
+                    </div>
+                  </div>
+                </section>
+
+                {/* 5. The5ers */}
+                <section>
+                  <h3 className="text-[13px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-wider ml-4 mb-2">Đồng bộ quỹ The5ers</h3>
+                  <div className="ios-glass ios26-card bg-[var(--ios-surface)] rounded-[24px] overflow-hidden border border-[var(--ios-separator)]/30">
+                    <div className="p-4 sm:p-5 flex items-center justify-between border-b border-[var(--ios-separator)]/50 bg-[var(--ios-surface-2)]/50">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-[12px] bg-[var(--sys-success-soft)] text-[var(--ios-green)] flex items-center justify-center">
+                          <TrendingUp size={20} />
+                        </div>
+                        <div>
+                          <p className="text-[16px] font-bold text-[var(--ios-label)]">Tài khoản theo dõi</p>
+                          <p className="text-[13px] text-[var(--ios-secondary-label)] font-medium mt-0.5">{selectedT5AccountIds.length}/{t5Accounts.length} đang chọn</p>
+                        </div>
+                      </div>
+                      <button type="button" onClick={loadT5Data} disabled={t5Loading} className="px-4 py-2 bg-[var(--ios-surface)] border border-[var(--ios-separator)] text-[var(--ios-label)] font-bold rounded-[12px] active:scale-95 transition-transform cursor-pointer flex items-center gap-2 text-[13px] shadow-sm">
+                        <RefreshCw size={14} className={t5Loading ? "animate-spin" : ""} /> {t5Loading ? "Tải..." : "Làm mới"}
+                      </button>
+                    </div>
+                    
+                    <div className="p-4 sm:p-5 border-b border-[var(--ios-separator)]/50">
+                      {t5Loading ? (
+                        <p className="text-[14px] font-medium text-[var(--ios-secondary-label)] text-center py-4">Đang lấy dữ liệu quỹ...</p>
+                      ) : t5Accounts.length === 0 ? (
+                        <p className="text-[14px] font-medium text-[var(--ios-secondary-label)] text-center py-4">Chưa có dữ liệu The5ers.</p>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 max-h-[200px] overflow-y-auto no-scrollbar pr-1">
+                          {t5Accounts.map((acc) => {
+                            const checked = selectedT5AccountIds.includes(acc.accountId);
+                            const isActive = acc.status === "active" || acc.status === "available";
+                            return (
+                              <label key={acc.accountId} className={`flex items-center justify-between p-3 rounded-[16px] border transition-colors cursor-pointer ${checked ? "bg-[var(--sys-tint-soft)] border-[var(--ios-blue)]/30" : "bg-[var(--ios-surface-2)] border-transparent hover:bg-[var(--ios-surface-2)]/80"} ${!isActive ? "opacity-50" : ""}`}>
+                                <div className="flex items-center gap-3">
+                                  <input type="checkbox" checked={checked} onChange={() => { const next = checked ? selectedT5AccountIds.filter((id) => id !== acc.accountId) : [...selectedT5AccountIds, acc.accountId]; setSelectedT5AccountIds(next); localStorage.setItem("t5_selected_accounts", JSON.stringify(next)); if (!checked && !isActive) loadT5AccountTrades(acc.accountId); }} className="w-5 h-5 accent-[var(--ios-blue)] cursor-pointer" />
+                                  <span className="text-[15px] font-bold text-[var(--ios-label)]">{acc.name}</span>
+                                </div>
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${acc.type === "funded" ? "bg-[var(--ios-green)] text-white" : acc.type === "evaluation" ? "bg-[var(--ios-blue)] text-white" : "bg-[var(--ios-secondary-label)] text-white"}`}>{acc.type === "funded" ? "Funded" : acc.type === "evaluation" ? "Eval" : "Demo"}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      )}
+                      <button type="button" onClick={() => { const activeIds = t5Accounts.filter((a) => a.status === "active" || a.status === "available").map((a) => a.accountId); setSelectedT5AccountIds(activeIds); localStorage.setItem("t5_selected_accounts", JSON.stringify(activeIds)); }} className="w-full py-2 bg-[var(--ios-surface-2)] text-[var(--ios-blue)] font-bold text-[14px] rounded-[12px] hover:bg-[var(--sys-tint-soft)] transition-colors cursor-pointer">
+                        Chọn tất cả Active
+                      </button>
+                    </div>
+
+                    <div className="p-4 sm:p-5 space-y-4">
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-[14px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-wider">Email The5ers</span>
+                        <input type="email" value={t5Email} onChange={(e) => { setT5Email(e.target.value); localStorage.setItem("t5_email", e.target.value); }} placeholder="email@domain.com" className="w-full px-4 py-3 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[15px] font-mono focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)]" />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-[14px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-wider">DSR Token</span>
+                        <textarea value={t5DsrToken} onChange={(e) => { const val = e.target.value.trim(); setT5DsrToken(val); localStorage.setItem("t5_dsr_token", val); }} placeholder="Dán token DSR" className="w-full px-4 py-3 bg-[var(--ios-surface-2)] rounded-[12px] border border-[var(--ios-separator)] text-[13px] font-mono focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)] h-[80px] resize-none" />
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                        <button type="button" onClick={saveT5Creds} disabled={t5Saving} className="w-full py-3 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] text-[var(--ios-label)] font-bold rounded-[14px] active:scale-95 transition-transform cursor-pointer">
+                          {t5Saving ? "Đang lưu..." : "Lưu DSR"}
+                        </button>
+                        <button type="button" onClick={syncT5Now} disabled={t5Syncing} className="w-full py-3 bg-[var(--ios-green)] text-white font-bold rounded-[14px] active:scale-95 transition-transform cursor-pointer shadow-sm">
+                          {t5Syncing ? "Đang đồng bộ..." : "Đồng bộ Server"}
+                        </button>
+                        <button type="button" onClick={async () => {
+                          try {
+                            const res = await fetch("/api/trigger-scrape", { method: "POST" });
+                            const json = await res.json();
+                            showToast(json.message || "Đã trigger GitHub Actions!", json.success ? "success" : "error");
+                          } catch(e: any) { showToast("Lỗi: " + e.message, "error"); }
+                        }} className="w-full sm:col-span-2 py-3 bg-[var(--ios-surface)] border border-[var(--ios-separator)] border-dashed text-[var(--ios-blue)] font-bold rounded-[14px] active:scale-95 transition-transform cursor-pointer">
+                          🚀 Chạy GitHub Actions
+                        </button>
+                      </div>
+                      {t5SaveResult && <p className={`text-[13px] font-bold text-center ${t5SaveResult.startsWith("✅") ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`}>{t5SaveResult}</p>}
+                    </div>
+                  </div>
+                </section>
+
+                {/* 6. Security */}
+                <section>
+                  <h3 className="text-[13px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-wider ml-4 mb-2">Bảo mật</h3>
+                  <div className="ios-glass ios26-card bg-[var(--ios-surface)] rounded-[24px] p-4 sm:p-5 border border-[var(--ios-separator)]/30">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-[12px] bg-slate-500 text-white flex items-center justify-center">
+                        <ShieldCheck size={20} />
+                      </div>
+                      <div>
+                        <p className="text-[16px] font-bold text-[var(--ios-label)]">Mật khẩu Web</p>
+                        <p className="text-[13px] text-[var(--ios-secondary-label)] font-medium mt-0.5">Khóa truy cập ứng dụng</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <input type="password" value={sitePassword} onChange={(e) => setSitePassword(e.target.value)} placeholder="Mật khẩu mới" className="flex-1 px-4 py-3 bg-[var(--ios-surface-2)] rounded-[14px] border border-[var(--ios-separator)] text-[15px] font-mono focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)]" />
+                      <button type="button" onClick={async () => { const pass = sitePassword.trim(); if (!pass) return showToast("Vui lòng nhập mật khẩu mới.", "error"); try { const res = await fetch("/api/save-site-password", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("trade_app_auth_token") }, body: JSON.stringify({ sitePassword: pass }) }); const json = await res.json(); showToast(json.message || "Lưu thành công.", json.success ? "success" : "error"); if (json.success) setSitePassword(""); } catch (err: any) { showToast("Lỗi: " + err.message, "error"); } }} className="w-full sm:w-auto px-6 py-3 bg-[var(--ios-blue)] text-white font-bold rounded-[14px] active:scale-95 transition-transform cursor-pointer shadow-ios-sm">
+                        Cập nhật
+                      </button>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Danger Zone */}
+                <section className="pt-4">
+                  {deferredPrompt && (
+                    <button type="button" onClick={() => { setIsSettingsOpen(false); handleInstallAppPWA(); }} className="w-full py-4 bg-[var(--ios-blue)] text-white font-bold text-[16px] rounded-[20px] shadow-ios-md active:scale-95 transition-transform cursor-pointer flex items-center justify-center gap-2 mb-4">
+                      <Download size={20} /> Cài ứng dụng (PWA)
+                    </button>
+                  )}
+                  <button type="button" onClick={handleResetLocalStorage} className="w-full py-4 bg-[var(--sys-danger-soft)] text-[var(--ios-red)] font-bold text-[16px] rounded-[20px] active:scale-95 transition-transform cursor-pointer flex items-center justify-center border border-[var(--ios-red)]/30">
+                    Xóa nhật ký Local Storage
+                  </button>
+                </section>
+
+              </div>
+            </motion.div>
+          </div>
+        )}ios-blue)] text-white font-bold rounded-[14px] active:scale-95 transition-transform cursor-pointer shadow-ios-sm">
+                        Cập nhật
+                      </button>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Danger Zone */}
+                <section className="pt-4">
+                  {deferredPrompt && (
+                    <button type="button" onClick={() => { setIsSettingsOpen(false); handleInstallAppPWA(); }} className="w-full py-4 bg-[var(--ios-blue)] text-white font-bold text-[16px] rounded-[20px] shadow-ios-md active:scale-95 transition-transform cursor-pointer flex items-center justify-center gap-2 mb-4">
+                      <Download size={20} /> Cài ứng dụng (PWA)
+                    </button>
+                  )}
+                  <button type="button" onClick={handleResetLocalStorage} className="w-full py-4 bg-[var(--sys-danger-soft)] text-[var(--ios-red)] font-bold text-[16px] rounded-[20px] active:scale-95 transition-transform cursor-pointer flex items-center justify-center border border-[var(--ios-red)]/30">
+                    Xóa nhật ký Local Storage
+                  </button>
+                </section>
+
+              </div>
+            </motion.div>
+          </div> => { const pass = sitePassword.trim(); if (!pass) return showToast("Vui lòng nhập mật khẩu mới.", "error"); try { const res = await fetch("/api/save-site-password", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("trade_app_auth_token") }, body: JSON.stringify({ sitePassword: pass }) }); const json = await res.json(); showToast(json.message || "Lưu thành công.", json.success ? "success" : "error"); if (json.success) setSitePassword(""); } catch (err: any) { showToast("Lỗi: " + err.message, "error"); } }} className="settings-button primary full">Cập nhật mật khẩu</button>
                   </div>
                 </section>
 
