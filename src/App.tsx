@@ -1339,12 +1339,12 @@ export default function App() {
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 min-w-0">
-                <h1 className="ios26-brand-wordmark text-[30px] md:text-[38px] font-black tracking-[-0.045em] leading-none bg-gradient-to-r from-[var(--ios-label)] via-[var(--ios-label)] to-[var(--ios-blue)] bg-clip-text text-transparent truncate">
+                <h1 className="text-[32px] md:text-[42px] font-black tracking-[-0.05em] leading-none bg-gradient-to-r from-[var(--ios-teal)] via-[var(--ios-blue)] to-[var(--ios-indigo)] bg-clip-text text-transparent truncate">
                   Táo Tầu Journal
                 </h1>
               </div>
-              <p className="text-[12px] sm:text-[13px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-[0.22em] mt-1.5 truncate">
-                iOS Trading Workspace
+              <p className="text-[11px] sm:text-[12px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-[0.28em] mt-1.5 truncate">
+                Trading Workspace
               </p>
             </div>
           </div>
