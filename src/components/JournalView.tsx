@@ -76,8 +76,9 @@ export function JournalView({
       <button
         key={t.id} 
         onClick={() => setSelectedTrade(t)}
-        className={`w-full text-left p-4 transition-colors cursor-pointer last:border-0
-          ${isSelected ? "bg-[var(--sys-tint-soft)]" : "hover:bg-[var(--sys-tint-soft)]/50"}`}
+        className={`w-full text-left p-4 transition-all cursor-pointer ios26-glass rounded-[20px] border border-[var(--ios-separator)]/40 shadow-sm ${
+          isSelected ? "bg-[var(--sys-tint-soft)]" : "hover:bg-[var(--sys-tint-soft)]/50"
+        }`}
       >
         <div className="flex justify-between items-start gap-3 mb-2">
           <div className="flex items-center gap-2 min-w-0 pr-2">
@@ -116,7 +117,7 @@ export function JournalView({
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-[13px] font-bold tracking-widest uppercase text-[var(--ios-secondary-label)]">Nhật ký giao dịch</span>
               <span className={`text-[13px] font-mono font-bold ${filteredPnl > 0 ? "text-[var(--ios-green)]" : filteredPnl < 0 ? "text-[var(--ios-red)]" : "text-[var(--ios-secondary-label)]"}`}>
-                {filteredPnl > 0 ? "+" : ""}${filteredPnl.toFixed(0)}
+                {filteredPnl > 0 ? "+$" : "$"}{filteredPnl.toFixed(0)}
               </span>
             </div>
             <p className="text-[13px] text-[var(--ios-secondary-label)] mt-1">
@@ -171,9 +172,8 @@ export function JournalView({
       <div className="flex flex-1 overflow-hidden gap-4 pb-16 md:pb-0 relative">
         
         {/* Left Pane (Master List) */}
-        <div className={`w-full md:w-[320px] lg:w-[360px] shrink-0 flex flex-col ios26-glass rounded-[30px] border border-[var(--ios-separator)] shadow-ios-sm overflow-hidden
+        <div className={`w-full md:w-[320px] lg:w-[360px] shrink-0 flex flex-col overflow-y-auto no-scrollbar
           ${selectedTrade ? "hidden md:flex" : "flex"}`}>
-          <div className="overflow-y-auto flex-1 no-scrollbar p-0 m-0">
             {filteredTrades.length === 0 ? (
               <div className="p-8 text-center text-[var(--ios-secondary-label)]">
                 <BookOpen size={40} className="mx-auto mb-3 opacity-30" />
@@ -181,7 +181,7 @@ export function JournalView({
                 <p className="text-[13px] mt-1">Đổi bộ lọc hoặc bấm + để ghi lệnh mới.</p>
               </div>
             ) : (
-              <div className="flex flex-col">
+              <div className="flex flex-col gap-3 py-3 px-3">
                 {filteredTrades.slice(0, visibleCount).map(renderMasterItem)}
               </div>
             )}
@@ -190,7 +190,6 @@ export function JournalView({
                 Tải thêm
               </button>
             )}
-          </div>
         </div>
 
         {/* Right Pane (Detail View) */}
@@ -238,7 +237,7 @@ export function JournalView({
                  <div className="min-w-0">
                    <p className="text-[11px] font-bold uppercase tracking-widest text-[var(--ios-secondary-label)] mb-1">Lợi nhuận ròng</p>
                    <p className={`text-[30px] sm:text-[34px] font-bold font-mono tracking-tighter leading-none ${Number(selectedTrade.pnl || 0) > 0 ? "text-[var(--ios-green)]" : Number(selectedTrade.pnl || 0) < 0 ? "text-[var(--ios-red)]" : "text-[var(--ios-label)]"}`}>
-                     {Number(selectedTrade.pnl || 0) > 0 ? "+" : ""}${Number(selectedTrade.pnl || 0).toFixed(2)}
+                     {Number(selectedTrade.pnl || 0) > 0 ? "+$" : "$"}{Number(selectedTrade.pnl || 0).toFixed(2)}
                    </p>
                  </div>
                  <div className="text-right shrink-0">
