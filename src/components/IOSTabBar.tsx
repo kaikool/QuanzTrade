@@ -19,10 +19,10 @@ export function IOSTabBar({ currentTab, setCurrentTab }: IOSTabBarProps) {
   return (
     <nav
       id="ios-bottom-nav"
-      className="md:hidden fixed z-40 left-3 right-3 flex items-center justify-around px-2 py-1.5 ios-glass bg-[var(--ios-surface)]/70 border border-[var(--ios-separator)] rounded-[28px] shadow-ios-glass"
+      className="md:hidden fixed z-40 left-3 right-3 flex items-center justify-around px-2 py-2 ios-glass bg-[var(--ios-surface)]/70 border border-[var(--ios-separator)] rounded-[28px] shadow-ios-glass"
       style={{
         bottom: "max(16px, env(safe-area-inset-bottom, 16px))",
-        minHeight: "61px",
+        minHeight: "75px",
         backdropFilter: "saturate(180%) blur(34px)",
         WebkitBackdropFilter: "saturate(180%) blur(34px)",
       }}
@@ -33,13 +33,13 @@ export function IOSTabBar({ currentTab, setCurrentTab }: IOSTabBarProps) {
           <button
             key={id}
             onClick={() => setCurrentTab(id)}
-            className={`relative flex flex-col items-center justify-center flex-1 min-w-0 h-[49px] gap-0.5 transition-colors duration-150 cursor-pointer ${
+            className={`relative flex flex-col items-center justify-center flex-1 min-w-0 h-full gap-0.5 transition-colors duration-150 cursor-pointer ${
               isActive ? "text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"
             }`}
           >
             <div className={`transition-transform duration-150 ${isActive ? "scale-105" : ""}`}>
               <Icon
-                size={28}
+                size={26}
                 strokeWidth={isActive ? 2.5 : 2}
               />
             </div>
