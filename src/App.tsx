@@ -1332,34 +1332,35 @@ export default function App() {
 
         {/* iOS Large Title Header */}
         {(currentTab === "dashboard" || currentTab === "journal") && (
-        <header className="mb-2 px-1 flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-0" id="google-ios-header">
-          <div className="min-w-0">
-            <h1 className="text-[34px] font-bold tracking-tight text-[var(--ios-label)] leading-none truncate">
+        <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 mt-2 sm:mt-4 px-1">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-[32px] md:text-[40px] font-black tracking-tight text-[var(--ios-label)] leading-none">
               Táo Tầu Journal
             </h1>
-            <p className="text-[15px] font-medium text-[var(--ios-secondary-label)] mt-2 truncate">
-              {summary.balance > 0 ? `Tổng tài sản: $${summary.balance.toLocaleString("en-US")}` : "Nhật ký giao dịch"}
+            <p className="text-[15px] font-semibold text-[var(--ios-blue)] uppercase tracking-widest mt-1">
+              Nhật ký giao dịch
             </p>
           </div>
 
-          <div className="flex items-center gap-3 w-full md:w-auto">
+          <div className="flex items-end gap-5 w-full md:w-auto">
+            <div className="flex-1 md:flex-none text-right">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--ios-secondary-label)] block mb-1">
+                Tổng tài sản
+              </span>
+              <span className="text-[28px] md:text-[34px] font-black font-mono tracking-tighter text-[var(--ios-label)] leading-none flex items-baseline justify-end gap-1" id="live-balance-text">
+                <span className="text-[20px] text-[var(--ios-secondary-label)]">$</span>
+                {summary.balance.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              </span>
+            </div>
+
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className="w-11 h-11 flex items-center justify-center bg-[var(--sys-tint-soft)] text-[var(--ios-blue)] rounded-full transition-transform active:scale-90"
+              className="w-12 h-12 flex items-center justify-center bg-[var(--ios-fill)] border-0 rounded-full transition-transform active:scale-90 hover:bg-[var(--sys-tint-soft)]"
               title="Giao diện sáng/tối"
               id="btn-darkmode"
             >
-              {darkMode ? <Sun size={18} className="text-amber-500" /> : <Moon size={18} className="text-[var(--ios-secondary-label)]" />}
+              {darkMode ? <Sun size={20} className="text-amber-500" /> : <Moon size={20} className="text-[var(--ios-blue)]" />}
             </button>
-
-            <div className="text-right min-w-0 bg-[var(--ios-surface-2)] shadow-ios-sm px-4 py-1.5 rounded-[16px]">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)] block leading-tight">
-                Số dư
-              </span>
-              <span className="text-[18px] font-bold font-mono tracking-tight text-[var(--ios-label)] leading-tight" id="live-balance-text">
-                ${summary.balance.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-              </span>
-            </div>
           </div>
         </header>
         )}

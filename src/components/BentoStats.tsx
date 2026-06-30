@@ -102,26 +102,6 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
   return (
     <div className="space-y-4 md:space-y-6">
       
-      {/* 1. Smart Insight Widget */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-        className="ios-glass ios26-card bg-[var(--ios-surface)] p-5 shadow-ios-md relative overflow-hidden"
-      >
-        <div className="absolute top-0 right-0 p-4 opacity-10">
-          <Sparkles size={64} className="text-[var(--ios-blue)]" />
-        </div>
-        <div className="relative z-10 flex items-start gap-4">
-          <div className="w-10 h-10 rounded-full bg-[var(--sys-tint-soft)] text-[var(--ios-blue)] flex items-center justify-center flex-shrink-0 shadow-sm">
-            <Sparkles size={20} />
-          </div>
-          <div>
-            <h4 className="text-[13px] font-bold uppercase tracking-widest text-[var(--ios-blue)] mb-1">Gợi ý thông minh</h4>
-            <p className="text-[16px] md:text-[18px] font-medium text-[var(--ios-label)] leading-snug">
-              {insightMessage}
-            </p>
-          </div>
-        </div>
-      </motion.div>
 
       {/* 2. Apple Fitness Style Activity Rings & Hero Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">

@@ -1182,51 +1182,7 @@ table th span,
 }
 
 
-/* iOS Tab Bar - Apple HIG 49pt */
-#ios-bottom-nav {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  align-items: start;
-  justify-items: stretch;
-  padding: 4px 4px;
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 4px);
-  height: auto;
-  min-height: calc(49px + env(safe-area-inset-bottom, 0px));
-  bottom: 0;
-}
-
-#ios-bottom-nav button {
-  min-height: 48px;
-  min-width: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-}
-
-#ios-bottom-nav button > div {
-  width: 48px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border-radius: 999px;
-}
-
-#ios-bottom-nav button > span {
-  display: block;
-  max-width: 100%;
-  height: auto;
-  overflow: hidden;
-  text-align: center;
-  font-size: 11px;
-  font-weight: 650;
-  line-height: 1.2;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+/* iOS Tab Bar removed here to let Tailwind handle it */
 
 #journal-master-card > div:first-child {
   align-items: flex-start;
