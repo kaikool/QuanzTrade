@@ -1332,25 +1332,40 @@ export default function App() {
           </div>
         )}
 
-        {/* iOS Large Title Header */}
+        {/* iOS Brand Header */}
         {(currentTab === "dashboard" || currentTab === "journal") && (
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 mt-2 sm:mt-4 px-1">
-          <div className="flex flex-col gap-1">
-            <h1 className="text-[32px] md:text-[40px] font-black tracking-tight text-[var(--ios-label)] leading-none">
-              Táo Tầu Journal
-            </h1>
-            <p className="text-[15px] font-semibold text-[var(--ios-blue)] uppercase tracking-widest mt-1">
-              Nhật ký giao dịch
-            </p>
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2 sm:mt-4 px-1">
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+            <div
+              className="w-12 h-12 sm:w-14 sm:h-14 flex shrink-0 items-center justify-center rounded-[20px] text-white shadow-ios-md"
+              id="logo-icon"
+            >
+              <CloudLightning size={28} strokeWidth={1.9} />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 min-w-0">
+                <h1 className="ios26-brand-wordmark text-[30px] md:text-[38px] font-black tracking-[-0.045em] leading-none bg-gradient-to-r from-[var(--ios-label)] via-[var(--ios-label)] to-[var(--ios-blue)] bg-clip-text text-transparent truncate">
+                  Táo Tầu Journal
+                </h1>
+              </div>
+              <p className="text-[12px] sm:text-[13px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-[0.22em] mt-1.5 truncate">
+                iOS Trading Workspace
+              </p>
+            </div>
           </div>
 
-          <div className="flex items-end gap-5 w-full md:w-auto">
+          <div className="flex items-center justify-between md:justify-end gap-5 w-full md:w-auto">
             <div className="flex-1 md:flex-none text-right">
               <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--ios-secondary-label)] block mb-1">
                 Tổng tài sản
               </span>
-              <span className="text-[28px] md:text-[34px] font-black font-mono tracking-tighter text-[var(--ios-label)] leading-none flex items-baseline justify-end gap-1" id="live-balance-text">
-                <span className="text-[20px] text-[var(--ios-secondary-label)]">$</span>
+              <span
+                className={`text-[28px] md:text-[34px] font-black font-mono tracking-tighter leading-none flex items-baseline justify-end gap-1 ${
+                  summary.pnl > 0 ? "text-[var(--ios-green)]" : summary.pnl < 0 ? "text-[var(--ios-red)]" : "text-[var(--ios-label)]"
+                }`}
+                id="live-balance-text"
+              >
+                <span className={`text-[20px] ${summary.pnl > 0 ? "text-[var(--ios-green)]" : summary.pnl < 0 ? "text-[var(--ios-red)]" : "text-[var(--ios-secondary-label)]"}`}>$</span>
                 {summary.balance.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
               </span>
             </div>

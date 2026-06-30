@@ -85,8 +85,8 @@ export function JournalView({
     <div className="h-full flex flex-col md:h-[calc(100vh-140px)]" id="journal-standalone-section">
       
       {/* Top Toolbar */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-4 shrink-0">
-        <div className="relative flex-1">
+      <div className="flex flex-col lg:flex-row gap-3 mb-4 shrink-0">
+        <div className="relative flex-1 min-w-0">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--ios-secondary-label)]" />
           <input 
             type="text" 
@@ -97,17 +97,17 @@ export function JournalView({
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-nowrap items-center gap-2 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1 lg:mx-0 lg:px-0 lg:pb-0 lg:overflow-visible">
           {journalAccountOptions.length > 0 && (
-            <div className="flex bg-[var(--ios-fill)] p-0.5 rounded-[12px] text-[13px] font-bold">
-              <button onClick={() => setSelectedJournalAccountId("ALL")} className={`px-3 py-1.5 rounded-[8px] transition-all cursor-pointer ${selectedJournalAccountId === "ALL" ? "bg-[var(--ios-surface)] shadow-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>Tất cả</button>
-              {journalAccountOptions.map((a) => (
-                <button key={a.accountId} onClick={() => setSelectedJournalAccountId(a.accountId)} className={`px-3 py-1.5 rounded-[8px] transition-all cursor-pointer ${selectedJournalAccountId === a.accountId ? "bg-[var(--ios-surface)] shadow-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>{a.name}</button>
+            <div className="flex shrink-0 max-w-[78vw] sm:max-w-[360px] lg:max-w-[420px] overflow-x-auto no-scrollbar bg-[var(--ios-fill)] p-0.5 rounded-[12px] text-[13px] font-bold">
+              <button onClick={() => setSelectedJournalAccountId("ALL")} className={`shrink-0 h-8 px-3 rounded-[8px] transition-all cursor-pointer whitespace-nowrap ${selectedJournalAccountId === "ALL" ? "bg-[var(--ios-surface)] shadow-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>Tất cả</button>
+              {journalAccountOptions.filter((a) => a.accountId !== "ALL").map((a) => (
+                <button key={a.accountId} onClick={() => setSelectedJournalAccountId(a.accountId)} className={`shrink-0 h-8 max-w-[148px] px-3 rounded-[8px] transition-all cursor-pointer whitespace-nowrap truncate ${selectedJournalAccountId === a.accountId ? "bg-[var(--ios-surface)] shadow-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>{a.name}</button>
               ))}
             </div>
           )}
           
-          <select value={selectedPairFilter} onChange={(e) => setSelectedPairFilter(e.target.value)} className="bg-[var(--ios-fill)] border-0 px-3 py-2 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 cursor-pointer text-[var(--ios-label)] font-bold text-[13px] shadow-sm appearance-none">
+          <select value={selectedPairFilter} onChange={(e) => setSelectedPairFilter(e.target.value)} className="shrink-0 w-[132px] h-9 bg-[var(--ios-fill)] border-0 px-3 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 cursor-pointer text-[var(--ios-label)] font-bold text-[13px] shadow-sm appearance-none truncate">
             <option value="ALL">Cặp (Tất cả)</option>
             {uniquePairs.filter(p => p !== "ALL").map(p => <option key={p} value={p}>{p}</option>)}
           </select>

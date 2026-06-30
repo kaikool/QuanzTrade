@@ -1188,46 +1188,6 @@ table th span,
 
 /* iOS Tab Bar removed here to let Tailwind handle it */
 
-#journal-master-card > div:first-child {
-  align-items: flex-start;
-}
-
-#journal-master-card > div:first-child > div:last-child {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.9fr) minmax(0, 0.9fr);
-  gap: 8px;
-  width: 100%;
-  padding: 0;
-}
-
-#journal-master-card > div:first-child > div:last-child > div {
-  min-width: 0;
-  min-height: 38px;
-  padding: 0 9px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--sys-surface-2) 88%, transparent);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42);
-}
-
-#journal-master-card > div:first-child select {
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  height: 36px;
-  border: 0;
-  background: transparent;
-  color: var(--sys-text);
-  font-size: 12px;
-  font-weight: 760;
-  line-height: 1;
-  outline: none;
-  text-overflow: ellipsis;
-}
-
-#journal-master-card > div:first-child svg {
-  flex: 0 0 auto;
-}
-
 #trade-search-input {
   min-height: 42px;
   border-radius: 999px !important;
@@ -1235,63 +1195,25 @@ table th span,
 
 .trade-side-badge,
 .trade-pnl-badge,
-#journal-master-card span[class*="font-mono"][class*="rounded"] {
+#journal-standalone-section span[class*="font-mono"][class*="rounded"] {
   border: 1px solid transparent;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
-#journal-master-card span[class*="text-[var(--sys-green)]"][class*="rounded"],
-#journal-master-card div[class*="text-[var(--sys-green)]"][class*="rounded"] {
+#journal-standalone-section span[class*="text-[var(--sys-green)]"][class*="rounded"],
+#journal-standalone-section div[class*="text-[var(--sys-green)]"][class*="rounded"] {
   background-color: color-mix(in srgb, var(--sys-green) 18%, var(--sys-surface)) !important;
   border-color: color-mix(in srgb, var(--sys-green) 24%, transparent) !important;
 }
 
-#journal-master-card span[class*="text-[var(--sys-red)]"][class*="rounded"],
-#journal-master-card div[class*="text-[var(--sys-red)]"][class*="rounded"] {
+#journal-standalone-section span[class*="text-[var(--sys-red)]"][class*="rounded"],
+#journal-standalone-section div[class*="text-[var(--sys-red)]"][class*="rounded"] {
   background-color: color-mix(in srgb, var(--sys-red) 18%, var(--sys-surface)) !important;
   border-color: color-mix(in srgb, var(--sys-red) 24%, transparent) !important;
 }
 
-#journal-master-card span[class*="text-white"][class*="rounded-full"] {
+#journal-standalone-section span[class*="text-white"][class*="rounded-full"] {
   border-color: rgba(255, 255, 255, 0.34) !important;
-}
-
-@media (min-width: 640px) {
-  #journal-master-card > div:first-child {
-    align-items: center;
-  }
-
-  #journal-master-card > div:first-child > div:last-child {
-    width: min(100%, 520px);
-  }
-}
-
-@media (max-width: 640px) {
-  #journal-master-card > div:first-child > div:last-child {
-    display: flex;
-    width: 100%;
-    overflow-x: auto;
-    padding-bottom: 2px;
-    scrollbar-width: none;
-  }
-
-  #journal-master-card > div:first-child > div:last-child::-webkit-scrollbar {
-    display: none;
-  }
-
-  #journal-master-card > div:first-child > div:last-child > div {
-    flex: 0 0 auto;
-    width: auto;
-    max-width: none;
-  }
-
-  #journal-master-card > div:first-child > div:last-child > div:first-child {
-    min-width: 150px;
-  }
-
-  #journal-master-card > div:first-child > div:last-child > div:not(:first-child) {
-    min-width: 112px;
-  }
 }
 
 
