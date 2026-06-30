@@ -25,8 +25,8 @@
 :root {
   color-scheme: light;
   --ios-bg: #f5f7fb;
-  --ios-surface: rgba(255,255,255,0.92);
-  --ios-surface-2: #f2f4f8;
+  --ios-surface: rgba(255,255,255,0.78);
+  --ios-surface-2: rgba(242,244,248,0.7);
   --ios-label: #111827;
   --ios-secondary-label: #6b7280;
   --ios-tertiary-label: #9ca3af;
@@ -59,8 +59,8 @@
 .dark {
   color-scheme: dark;
   --ios-bg: #05060a;
-  --ios-surface: rgba(28,31,39,0.82);
-  --ios-surface-2: #1e2128;
+  --ios-surface: rgba(28,31,39,0.75);
+  --ios-surface-2: rgba(30,33,40,0.7);
   --ios-label: #f8fafc;
   --ios-secondary-label: #a2a8b3;
   --ios-tertiary-label: #6b7280;
@@ -341,6 +341,12 @@ a[class*="bg-[var(--sys-surface-2)]"]:active {
 /* iOS Tab Bar glass morph */
 #ios-bottom-nav {
   box-shadow: 0 22px 70px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+/* iOS Glass Card: apply to any card-like surface */
+[class*="bg-[var(--ios-surface)]"]:not(button):not(#ios-bottom-nav) {
+  backdrop-filter: saturate(150%) blur(12px);
+  -webkit-backdrop-filter: saturate(150%) blur(12px);
 }
 
 .ios26-auth-screen {
