@@ -65,6 +65,7 @@ const AddTradeModalComponent = lazy(() =>
     default: module.AddTradeModal,
   })),
 );
+import { SettingsModal } from "./components/SettingsModal";
 const IOSTabBar = lazy(() =>
   import("./components/IOSTabBar").then((module) => ({
     default: module.IOSTabBar,
@@ -1572,468 +1573,51 @@ export default function App() {
         IOSTimePicker={IOSTimePicker}
       />
 
-      {/* Settings Modal — iOS 26 style */}
-      <AnimatePresence>
-        {isSettingsOpen && (
-          <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4" id="settings-modal-root">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsSettingsOpen(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-md"
-            />
-
-            <motion.div
-              initial={{ opacity: 0, y: 120, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 120, scale: 0.98 }}
-              transition={{ type: "spring", damping: 28, stiffness: 240 }}
-              className="relative w-full sm:max-w-2xl ios-glass ios26-card sm:rounded-[30px] rounded-t-[30px] shadow-ios-xl z-10 flex flex-col h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-hidden"
-              id="settings-modal-window"
-            >
-              {/* Grabber for Mobile */}
-              <div className="flex justify-center pt-2 sm:hidden shrink-0">
-                <div className="w-9 h-1 rounded-full bg-[var(--ios-separator)]" />
-              </div>
-
-              {/* Header */}
-              <div className="flex justify-between items-center px-5 sm:px-8 py-3 sm:py-5 shrink-0">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[var(--sys-tint-soft)] text-[var(--ios-blue)] flex items-center justify-center">
-                    <Settings size={20} />
-                  </div>
-                  <div>
-                    <h4 className="text-[20px] font-bold text-[var(--ios-label)] leading-tight">Cài đặt</h4>
-                    <p className="text-[12px] font-medium text-[var(--ios-secondary-label)]">Hệ thống & Tài khoản</p>
-                  </div>
-                </div>
-                <button onClick={() => setIsSettingsOpen(false)} className="w-9 h-9 flex items-center justify-center bg-[var(--ios-surface)]/80 rounded-full text-[var(--ios-secondary-label)] cursor-pointer active:scale-90 transition-transform border border-[var(--ios-separator)]/40" title="Đóng">
-                  <X size={18} />
-                </button>
-              </div>
-
-              {/* Scrollable Content */}
-              <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 space-y-5 sm:space-y-6 no-scrollbar">
-
-                {/* ─── iOS-style collapsible section ─── */}
-                {/*
-                  Collapsible<T>:
-                  - master row: icon + label + iOS switch
-                  - when switch ON → content animates in
-                  persistKey for localStorage
-                */}
-                {(() => {
-                  const CollapsibleRow = ({
-                    icon, label, desc, expanded, onToggle, children, persistKey,
-                  }: {
-                    icon: React.ReactNode; label: string; desc?: string;
-                    expanded: boolean; onToggle: (v: boolean) => void;
-                    children: React.ReactNode; persistKey?: string;
-                  }) => (
-                    <section>
-                      {/* Master toggle row */}
-                      <div
-                        onClick={() => { const next = !expanded; onToggle(next); if (persistKey) localStorage.setItem(persistKey, next ? "true" : "false"); }}
-                        className="flex items-center justify-between px-4 sm:px-5 py-3.5 sm:py-4 bg-[var(--ios-surface)]/80 rounded-[16px] border border-[var(--ios-separator)]/40 cursor-pointer active:scale-[0.99] transition-all select-none"
-                        style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}
-                      >
-                        <div className="flex items-center gap-3.5 min-w-0">
-                          <div className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0">
-                            {icon}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-[15px] font-bold text-[var(--ios-label)] truncate">{label}</p>
-                            {desc && <p className="text-[12px] text-[var(--ios-secondary-label)] mt-0.5 truncate">{desc}</p>}
-                          </div>
-                        </div>
-                        <div
-                          onClick={(e) => { e.stopPropagation(); const next = !expanded; onToggle(next); if (persistKey) localStorage.setItem(persistKey, next ? "true" : "false"); }}
-                          className={`relative w-[48px] h-[30px] rounded-full p-[3px] transition-colors shrink-0 cursor-pointer ${expanded ? "bg-[var(--ios-green)]" : "bg-[var(--ios-separator)]"}`}
-                        >
-                          <div className={`w-6 h-6 bg-white rounded-full shadow-md transition-transform ${expanded ? "translate-x-[18px]" : "translate-x-0"}`} />
-                        </div>
-                      </div>
-                      {/* Collapsible content */}
-                      {expanded && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2, ease: "easeOut" }}
-                          className="overflow-hidden"
-                        >
-                          <div className="pt-2 pl-4 sm:pl-5" style={{ borderLeft: "3px solid var(--ios-separator)", marginLeft: "20px", paddingLeft: "16px" }}>
-                            {children}
-                          </div>
-                        </motion.div>
-                      )}
-                    </section>
-                  );
-                  return null;
-                })()}
-
-                {/* ================================================================ */}
-                {/* 1. Giao diện — always visible */}
-                {/* ================================================================ */}
-                <section>
-                  <h3 className="text-[11px] font-bold tracking-wider text-[var(--ios-secondary-label)] uppercase px-1 mb-2">Giao diện</h3>
-                  <div className="flex gap-2 bg-[var(--ios-surface)]/80 rounded-[16px] p-1.5 border border-[var(--ios-separator)]/40 shadow-sm"
-                    style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}>
-                    <button
-                      type="button"
-                      onClick={() => setDarkMode(false)}
-                      className={`flex-1 flex flex-col items-center justify-center py-3 rounded-[12px] transition-all cursor-pointer ${!darkMode ? "bg-[var(--ios-surface)] text-[var(--ios-label)] shadow-ios-sm" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}
-                    >
-                      <Sun size={22} className="mb-1.5" />
-                      <span className="text-[13px] font-bold">Sáng</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setDarkMode(true)}
-                      className={`flex-1 flex flex-col items-center justify-center py-3 rounded-[12px] transition-all cursor-pointer ${darkMode ? "bg-[var(--ios-surface)] text-[var(--ios-label)] shadow-ios-sm" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}
-                    >
-                      <Moon size={22} className="mb-1.5" />
-                      <span className="text-[13px] font-bold">Tối</span>
-                    </button>
-                  </div>
-                </section>
-
-                {/* ================================================================ */}
-                {/* 2. Thông báo — always visible */}
-                {/* ================================================================ */}
-                <section>
-                  <h3 className="text-[11px] font-bold tracking-wider text-[var(--ios-secondary-label)] uppercase px-1 mb-2">Thông báo</h3>
-                  <div className="flex items-center justify-between px-4 sm:px-5 py-3.5 sm:py-4 bg-[var(--ios-surface)]/80 rounded-[16px] border border-[var(--ios-separator)]/40"
-                    style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}>
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-9 h-9 rounded-[10px] bg-rose-500/15 text-rose-500 flex items-center justify-center">
-                        <BellRing size={18} />
-                      </div>
-                      <div>
-                        <p className="text-[15px] font-bold text-[var(--ios-label)]">Tin Đỏ USD</p>
-                        <p className="text-[12px] text-[var(--ios-secondary-label)] mt-0.5">Báo trước 1 giờ</p>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={toggleNotifications}
-                      className={`relative w-[48px] h-[30px] rounded-full p-[3px] transition-colors shrink-0 cursor-pointer ${notificationsEnabled ? "bg-[var(--ios-green)]" : "bg-[var(--ios-separator)]"}`}
-                    >
-                      <div className={`w-6 h-6 bg-white rounded-full shadow-md transition-transform ${notificationsEnabled ? "translate-x-[18px]" : "translate-x-0"}`} />
-                    </button>
-                  </div>
-                </section>
-
-                {/* ================================================================ */}
-                {/* 3. Supabase — toggle to reveal */}
-                {/* ================================================================ */}
-                {(() => {
-                  const onToggle = (v: boolean) => setSupabaseExpanded(v);
-                  return (
-                    <section>
-                      <h3 className="text-[11px] font-bold tracking-wider text-[var(--ios-secondary-label)] uppercase px-1 mb-2">Đám mây</h3>
-                      <div
-                        onClick={() => { const next = !supabaseExpanded; onToggle(next); localStorage.setItem("settings_supabase_expanded", next ? "true" : "false"); }}
-                        className="flex items-center justify-between px-4 sm:px-5 py-3.5 sm:py-4 bg-[var(--ios-surface)]/80 rounded-[16px] border border-[var(--ios-separator)]/40 cursor-pointer active:scale-[0.99] transition-all select-none"
-                        style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}
-                      >
-                        <div className="flex items-center gap-3.5 min-w-0">
-                          <div className="w-9 h-9 rounded-[10px] bg-[var(--ios-blue)]/15 text-[var(--ios-blue)] flex items-center justify-center">
-                            <CloudLightning size={18} />
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-[15px] font-bold text-[var(--ios-label)] truncate">Supabase</p>
-                            <p className="text-[12px] text-[var(--ios-secondary-label)] mt-0.5 truncate">{supabaseConnected ? "Đã kết nối" : "Đồng bộ đám mây"}</p>
-                          </div>
-                        </div>
-                        <div
-                          onClick={(e) => { e.stopPropagation(); const next = !supabaseExpanded; onToggle(next); localStorage.setItem("settings_supabase_expanded", next ? "true" : "false"); }}
-                          className={`relative w-[48px] h-[30px] rounded-full p-[3px] transition-colors shrink-0 cursor-pointer ${supabaseExpanded ? "bg-[var(--ios-green)]" : "bg-[var(--ios-separator)]"}`}
-                        >
-                          <div className={`w-6 h-6 bg-white rounded-full shadow-md transition-transform ${supabaseExpanded ? "translate-x-[18px]" : "translate-x-0"}`} />
-                        </div>
-                      </div>
-                      {supabaseExpanded && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2, ease: "easeOut" }}
-                          className="overflow-hidden"
-                        >
-                          <div className="pt-3 space-y-3 ml-5 pl-4" style={{ borderLeft: "2px solid var(--ios-separator)" }}>
-                            <div>
-                              <label className="text-[11px] font-semibold text-[var(--ios-secondary-label)] block mb-1">Supabase URL</label>
-                              <input type="text" value={dbUrl} onChange={(e) => setDbUrl(e.target.value)} placeholder="https://...supabase.co"
-                                className="w-full px-3.5 py-2.5 bg-[var(--ios-surface)]/85 border border-[var(--ios-separator)]/40 rounded-[12px] text-[14px] font-mono text-[var(--ios-label)] placeholder:text-[var(--ios-tertiary-label)] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/40 transition-shadow"
-                                style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }} />
-                            </div>
-                            <div>
-                              <label className="text-[11px] font-semibold text-[var(--ios-secondary-label)] block mb-1">Anon Key</label>
-                              <input type="password" value={dbAnon} onChange={(e) => setDbAnon(e.target.value)} placeholder="Khóa bảo mật..."
-                                className="w-full px-3.5 py-2.5 bg-[var(--ios-surface)]/85 border border-[var(--ios-separator)]/40 rounded-[12px] text-[14px] font-mono text-[var(--ios-label)] placeholder:text-[var(--ios-tertiary-label)] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/40 transition-shadow"
-                                style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }} />
-                            </div>
-                            <div className="flex items-center justify-between gap-3 pt-1">
-                              <p className={`text-[13px] font-semibold flex items-center gap-1.5 ${supabaseConnected ? "text-[var(--ios-green)]" : "text-[var(--ios-secondary-label)]"}`}>
-                                <span className={`w-2 h-2 rounded-full ${supabaseConnected ? "bg-[var(--ios-green)]" : "bg-[var(--ios-separator)]"}`} />
-                                {supabaseConnected ? "Đã kết nối" : "Chưa kết nối"}
-                              </p>
-                              <div className="flex gap-2">
-                                <button type="button" onClick={handleSaveSupabaseConfig} className="px-4 py-2 bg-[var(--ios-surface)]/85 border border-[var(--ios-separator)]/40 text-[var(--ios-label)] font-semibold text-[13px] rounded-[10px] active:scale-95 transition-transform cursor-pointer">Lưu</button>
-                                <button type="button" onClick={testSupabaseConnection} className="px-4 py-2 bg-[var(--ios-blue)] text-white font-semibold text-[13px] rounded-[10px] active:scale-95 transition-transform cursor-pointer shadow-sm">Kiểm tra</button>
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </section>
-                  );
-                })()}
-
-                {/* ================================================================ */}
-                {/* 4. TradingView — toggle to reveal */}
-                {/* ================================================================ */}
-                {(() => {
-                  return (
-                    <section>
-                      <h3 className="text-[11px] font-bold tracking-wider text-[var(--ios-secondary-label)] uppercase px-1 mb-2">Biểu đồ</h3>
-                      <div
-                        onClick={() => { const next = !tvExpanded; setTvExpanded(next); localStorage.setItem("settings_tv_expanded", next ? "true" : "false"); }}
-                        className="flex items-center justify-between px-4 sm:px-5 py-3.5 sm:py-4 bg-[var(--ios-surface)]/80 rounded-[16px] border border-[var(--ios-separator)]/40 cursor-pointer active:scale-[0.99] transition-all select-none"
-                        style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}
-                      >
-                        <div className="flex items-center gap-3.5 min-w-0">
-                          <div className="w-9 h-9 rounded-[10px] bg-[var(--ios-indigo)]/15 text-[var(--ios-indigo)] flex items-center justify-center">
-                            <TrendingUp size={18} />
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-[15px] font-bold text-[var(--ios-label)] truncate">TradingView</p>
-                            <p className="text-[12px] text-[var(--ios-secondary-label)] mt-0.5 truncate">Chụp biểu đồ tự động</p>
-                          </div>
-                        </div>
-                        <div
-                          onClick={(e) => { e.stopPropagation(); const next = !tvExpanded; setTvExpanded(next); localStorage.setItem("settings_tv_expanded", next ? "true" : "false"); }}
-                          className={`relative w-[48px] h-[30px] rounded-full p-[3px] transition-colors shrink-0 cursor-pointer ${tvExpanded ? "bg-[var(--ios-green)]" : "bg-[var(--ios-separator)]"}`}
-                        >
-                          <div className={`w-6 h-6 bg-white rounded-full shadow-md transition-transform ${tvExpanded ? "translate-x-[18px]" : "translate-x-0"}`} />
-                        </div>
-                      </div>
-                      {tvExpanded && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2, ease: "easeOut" }}
-                          className="overflow-hidden"
-                        >
-                          <div className="pt-3 space-y-3 ml-5 pl-4" style={{ borderLeft: "2px solid var(--ios-separator)" }}>
-                            <div>
-                              <label className="text-[11px] font-semibold text-[var(--ios-secondary-label)] block mb-1">Session ID</label>
-                              <input type="text" value={tvSessionId} onChange={(e) => { setTvSessionId(e.target.value); localStorage.setItem("tv_session_id", e.target.value); }} placeholder="sessionid"
-                                className="w-full px-3.5 py-2.5 bg-[var(--ios-surface)]/85 border border-[var(--ios-separator)]/40 rounded-[12px] text-[14px] font-mono text-[var(--ios-label)] placeholder:text-[var(--ios-tertiary-label)] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/40 transition-shadow"
-                                style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }} />
-                            </div>
-                            <div>
-                              <label className="text-[11px] font-semibold text-[var(--ios-secondary-label)] block mb-1">Session Sign</label>
-                              <input type="text" value={tvSessionSign} onChange={(e) => { setTvSessionSign(e.target.value); localStorage.setItem("tv_session_sign", e.target.value); }} placeholder="sessionid_sign"
-                                className="w-full px-3.5 py-2.5 bg-[var(--ios-surface)]/85 border border-[var(--ios-separator)]/40 rounded-[12px] text-[14px] font-mono text-[var(--ios-label)] placeholder:text-[var(--ios-tertiary-label)] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/40 transition-shadow"
-                                style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }} />
-                            </div>
-                            <div>
-                              <label className="text-[11px] font-semibold text-[var(--ios-secondary-label)] block mb-1">Browserless Token</label>
-                              <input type="password" value={browserlessToken} onChange={(e) => setBrowserlessToken(e.target.value)} placeholder="API Token"
-                                className="w-full px-3.5 py-2.5 bg-[var(--ios-surface)]/85 border border-[var(--ios-separator)]/40 rounded-[12px] text-[14px] font-mono text-[var(--ios-label)] placeholder:text-[var(--ios-tertiary-label)] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/40 transition-shadow"
-                                style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }} />
-                            </div>
-                            <div className="flex items-center justify-between gap-3 pt-1">
-                              <p className={`text-[13px] font-semibold ${tvSaveResult?.includes("✅") ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`}>{tvSaveResult || ""}</p>
-                              <button type="button" onClick={saveTVCreds} disabled={tvSaving} className="px-5 py-2 bg-[var(--ios-blue)] text-white font-semibold text-[13px] rounded-[10px] active:scale-95 transition-transform cursor-pointer shadow-sm disabled:opacity-50">
-                                {tvSaving ? "Đang lưu..." : "Lưu"}
-                              </button>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </section>
-                  );
-                })()}
-
-                {/* ================================================================ */}
-                {/* 5. The5ers — toggle to reveal */}
-                {/* ================================================================ */}
-                {(() => {
-                  return (
-                    <section>
-                      <h3 className="text-[11px] font-bold tracking-wider text-[var(--ios-secondary-label)] uppercase px-1 mb-2">Quỹ</h3>
-                      <div
-                        onClick={() => { const next = !t5Expanded; setT5Expanded(next); localStorage.setItem("settings_t5_expanded", next ? "true" : "false"); }}
-                        className="flex items-center justify-between px-4 sm:px-5 py-3.5 sm:py-4 bg-[var(--ios-surface)]/80 rounded-[16px] border border-[var(--ios-separator)]/40 cursor-pointer active:scale-[0.99] transition-all select-none"
-                        style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}
-                      >
-                        <div className="flex items-center gap-3.5 min-w-0">
-                          <div className="w-9 h-9 rounded-[10px] bg-[var(--sys-success-soft)] text-[var(--ios-green)] flex items-center justify-center">
-                            <BarChart2 size={18} />
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-[15px] font-bold text-[var(--ios-label)] truncate">The5ers</p>
-                            <p className="text-[12px] text-[var(--ios-secondary-label)] mt-0.5 truncate">{selectedT5AccountIds.length}/{t5Accounts.length} tài khoản</p>
-                          </div>
-                        </div>
-                        <div
-                          onClick={(e) => { e.stopPropagation(); const next = !t5Expanded; setT5Expanded(next); localStorage.setItem("settings_t5_expanded", next ? "true" : "false"); }}
-                          className={`relative w-[48px] h-[30px] rounded-full p-[3px] transition-colors shrink-0 cursor-pointer ${t5Expanded ? "bg-[var(--ios-green)]" : "bg-[var(--ios-separator)]"}`}
-                        >
-                          <div className={`w-6 h-6 bg-white rounded-full shadow-md transition-transform ${t5Expanded ? "translate-x-[18px]" : "translate-x-0"}`} />
-                        </div>
-                      </div>
-                      {t5Expanded && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2, ease: "easeOut" }}
-                          className="overflow-hidden"
-                        >
-                          <div className="pt-3 space-y-3 ml-5 pl-4" style={{ borderLeft: "2px solid var(--ios-separator)" }}>
-                            {/* Account selector */}
-                            <div>
-                              <div className="flex items-center justify-between mb-1">
-                                <p className="text-[13px] font-bold text-[var(--ios-label)]">Tài khoản theo dõi</p>
-                                <button type="button" onClick={loadT5Data} disabled={t5Loading} className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--ios-surface)]/85 border border-[var(--ios-separator)]/40 text-[var(--ios-label)] font-semibold text-[12px] rounded-[8px] active:scale-95 transition-transform cursor-pointer">
-                                  <RefreshCw size={12} className={t5Loading ? "animate-spin" : ""} /> Làm mới
-                                </button>
-                              </div>
-                              {t5Loading ? (
-                                <p className="text-[13px] text-[var(--ios-secondary-label)] py-3 text-center">Đang lấy dữ liệu...</p>
-                              ) : t5Accounts.length === 0 ? (
-                                <p className="text-[13px] text-[var(--ios-secondary-label)] py-3 text-center">Chưa có dữ liệu</p>
-                              ) : (
-                                <div className="space-y-2 max-h-[180px] overflow-y-auto no-scrollbar">
-                                  {t5Accounts.map((acc) => {
-                                    const checked = selectedT5AccountIds.includes(acc.accountId);
-                                    const isActive = acc.status === "active" || acc.status === "available";
-                                    return (
-                                      <label key={acc.accountId} className={`flex items-center justify-between px-3 py-2.5 rounded-[12px] border transition-colors cursor-pointer ${checked ? "bg-[var(--ios-blue)]/10 border-[var(--ios-blue)]/30" : "bg-[var(--ios-surface)]/70 border-transparent hover:bg-[var(--ios-surface)]/90"} ${!isActive ? "opacity-50" : ""}`}>
-                                        <div className="flex items-center gap-2.5 min-w-0">
-                                          <input type="checkbox" checked={checked} onChange={() => { const next = checked ? selectedT5AccountIds.filter((id) => id !== acc.accountId) : [...selectedT5AccountIds, acc.accountId]; setSelectedT5AccountIds(next); localStorage.setItem("t5_selected_accounts", JSON.stringify(next)); if (!checked && !isActive) loadT5AccountTrades(acc.accountId); }} className="w-4 h-4 accent-[var(--ios-blue)] cursor-pointer shrink-0" />
-                                          <span className="text-[14px] font-bold text-[var(--ios-label)] truncate">{acc.name}</span>
-                                        </div>
-                                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase shrink-0 ${acc.type === "funded" ? "bg-[var(--ios-green)] text-white" : acc.type === "evaluation" ? "bg-[var(--ios-blue)] text-white" : "bg-[var(--ios-secondary-label)] text-white"}`}>{acc.type === "funded" ? "Funded" : acc.type === "evaluation" ? "Eval" : "Demo"}</span>
-                                      </label>
-                                    );
-                                  })}
-                                </div>
-                              )}
-                              <button type="button" onClick={() => { const activeIds = t5Accounts.filter((a) => a.status === "active" || a.status === "available").map((a) => a.accountId); setSelectedT5AccountIds(activeIds); localStorage.setItem("t5_selected_accounts", JSON.stringify(activeIds)); }} className="w-full py-2 bg-[var(--ios-surface)]/85 border border-[var(--ios-separator)]/30 text-[var(--ios-blue)] font-semibold text-[13px] rounded-[10px] active:scale-95 transition-transform cursor-pointer">Chọn Active</button>
-                            </div>
-
-                            {/* Credentials */}
-                            <div>
-                              <label className="text-[11px] font-semibold text-[var(--ios-secondary-label)] block mb-1">Email</label>
-                              <input type="email" value={t5Email} onChange={(e) => { setT5Email(e.target.value); localStorage.setItem("t5_email", e.target.value); }} placeholder="email@domain.com"
-                                className="w-full px-3.5 py-2.5 bg-[var(--ios-surface)]/85 border border-[var(--ios-separator)]/40 rounded-[12px] text-[14px] font-mono text-[var(--ios-label)] placeholder:text-[var(--ios-tertiary-label)] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/40 transition-shadow"
-                                style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }} />
-                            </div>
-                            <div>
-                              <label className="text-[11px] font-semibold text-[var(--ios-secondary-label)] block mb-1">DSR Token</label>
-                              <textarea value={t5DsrToken} onChange={(e) => { const val = e.target.value.trim(); setT5DsrToken(val); localStorage.setItem("t5_dsr_token", val); }} placeholder="Dán token DSR"
-                                className="w-full px-3.5 py-2.5 bg-[var(--ios-surface)]/85 border border-[var(--ios-separator)]/40 rounded-[12px] text-[13px] font-mono text-[var(--ios-label)] placeholder:text-[var(--ios-tertiary-label)] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/40 transition-shadow h-[68px] resize-none"
-                                style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }} />
-                            </div>
-                            {/* Action buttons */}
-                            <div className="grid grid-cols-2 gap-2 pt-1">
-                              <button type="button" onClick={saveT5Creds} disabled={t5Saving} className="py-2.5 bg-[var(--ios-surface)]/85 border border-[var(--ios-separator)]/40 text-[var(--ios-label)] font-semibold text-[13px] rounded-[10px] active:scale-95 transition-transform cursor-pointer">
-                                {t5Saving ? "Đang lưu..." : "Lưu DSR"}
-                              </button>
-                              <button type="button" onClick={syncT5Now} disabled={t5Syncing} className="py-2.5 bg-[var(--ios-green)] text-white font-semibold text-[13px] rounded-[10px] active:scale-95 transition-transform cursor-pointer shadow-sm">
-                                {t5Syncing ? "Đang đồng bộ..." : "Đồng bộ"}
-                              </button>
-                              <button type="button" onClick={async () => { try { const res = await fetch("/api/trigger-scrape", { method: "POST" }); const json = await res.json(); showToast(json.message || "Đã trigger!", json.success ? "success" : "error"); } catch(e: any) { showToast("Lỗi: " + e.message, "error"); } }} className="col-span-2 py-2.5 bg-[var(--ios-surface)]/85 border border-dashed border-[var(--ios-blue)]/40 text-[var(--ios-blue)] font-semibold text-[13px] rounded-[10px] active:scale-95 transition-transform cursor-pointer">
-                                🚀 GitHub Actions
-                              </button>
-                            </div>
-                            {t5SaveResult && <p className={`text-[12px] font-semibold text-center ${t5SaveResult.startsWith("✅") ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`}>{t5SaveResult}</p>}
-                          </div>
-                        </motion.div>
-                      )}
-                    </section>
-                  );
-                })()}
-
-                {/* ================================================================ */}
-                {/* 6. Bảo mật — toggle to reveal */}
-                {/* ================================================================ */}
-                {(() => {
-                  return (
-                    <section>
-                      <h3 className="text-[11px] font-bold tracking-wider text-[var(--ios-secondary-label)] uppercase px-1 mb-2">Bảo mật</h3>
-                      <div
-                        onClick={() => setSecurityExpanded(!securityExpanded)}
-                        className="flex items-center justify-between px-4 sm:px-5 py-3.5 sm:py-4 bg-[var(--ios-surface)]/80 rounded-[16px] border border-[var(--ios-separator)]/40 cursor-pointer active:scale-[0.99] transition-all select-none"
-                        style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}
-                      >
-                        <div className="flex items-center gap-3.5 min-w-0">
-                          <div className="w-9 h-9 rounded-[10px] bg-slate-500/15 text-slate-500 flex items-center justify-center">
-                            <ShieldCheck size={18} />
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-[15px] font-bold text-[var(--ios-label)] truncate">Mật khẩu Web</p>
-                            <p className="text-[12px] text-[var(--ios-secondary-label)] mt-0.5 truncate">Khóa truy cập ứng dụng</p>
-                          </div>
-                        </div>
-                        <div
-                          onClick={(e) => { e.stopPropagation(); setSecurityExpanded(!securityExpanded); }}
-                          className={`relative w-[48px] h-[30px] rounded-full p-[3px] transition-colors shrink-0 cursor-pointer ${securityExpanded ? "bg-[var(--ios-green)]" : "bg-[var(--ios-separator)]"}`}
-                        >
-                          <div className={`w-6 h-6 bg-white rounded-full shadow-md transition-transform ${securityExpanded ? "translate-x-[18px]" : "translate-x-0"}`} />
-                        </div>
-                      </div>
-                      {securityExpanded && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2, ease: "easeOut" }}
-                          className="overflow-hidden"
-                        >
-                          <div className="pt-3 space-y-2 ml-5 pl-4" style={{ borderLeft: "2px solid var(--ios-separator)" }}>
-                            <div className="flex flex-col sm:flex-row gap-2">
-                              <input type="password" value={sitePassword} onChange={(e) => setSitePassword(e.target.value)} placeholder="Mật khẩu mới"
-                                className="flex-1 px-3.5 py-2.5 bg-[var(--ios-surface)]/85 border border-[var(--ios-separator)]/40 rounded-[12px] text-[14px] font-mono text-[var(--ios-label)] placeholder:text-[var(--ios-tertiary-label)] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/40 transition-shadow"
-                                style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }} />
-                              <button type="button" onClick={async () => { const pass = sitePassword.trim(); if (!pass) return showToast("Nhập mật khẩu.", "error"); try { const res = await fetch("/api/save-site-password", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("trade_app_auth_token") }, body: JSON.stringify({ sitePassword: pass }) }); const json = await res.json(); showToast(json.message || "Lưu thành công.", json.success ? "success" : "error"); if (json.success) setSitePassword(""); } catch (err: any) { showToast("Lỗi: " + err.message, "error"); } }} className="px-5 py-2.5 bg-[var(--ios-blue)] text-white font-semibold text-[13px] rounded-[12px] active:scale-95 transition-transform cursor-pointer shadow-sm shrink-0">
-                                Cập nhật
-                              </button>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </section>
-                  );
-                })()}
-
-                {/* ================================================================ */}
-                {/* Danger Zone — always visible */}
-                {/* ================================================================ */}
-                <section className="pt-3 space-y-3">
-                  {deferredPrompt && (
-                    <button type="button" onClick={() => { setIsSettingsOpen(false); handleInstallAppPWA(); }} className="w-full py-3.5 bg-[var(--ios-surface)]/80 border border-[var(--ios-separator)]/40 text-[var(--ios-label)] font-bold text-[14px] rounded-[14px] active:scale-[0.98] transition-transform cursor-pointer flex items-center justify-center gap-2 shadow-sm"
-                      style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}>
-                      <Download size={18} /> Cài ứng dụng (PWA)
-                    </button>
-                  )}
-                  <button type="button" onClick={handleResetLocalStorage} className="w-full py-3.5 bg-[var(--sys-danger-soft)] text-[var(--ios-red)] font-bold text-[14px] rounded-[14px] active:scale-[0.98] transition-transform cursor-pointer flex items-center justify-center gap-2 border border-[var(--ios-red)]/20">
-                    <AlertTriangle size={18} /> Xóa nhật ký Local Storage
-                  </button>
-                </section>
-
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        darkMode={darkMode}
+        setDarkMode={setDarkMode}
+        notificationsEnabled={notificationsEnabled}
+        toggleNotifications={toggleNotifications}
+        dbUrl={dbUrl}
+        setDbUrl={setDbUrl}
+        dbAnon={dbAnon}
+        setDbAnon={setDbAnon}
+        supabaseConnected={supabaseConnected}
+        handleSaveSupabaseConfig={handleSaveSupabaseConfig}
+        testSupabaseConnection={testSupabaseConnection}
+        tvSessionId={tvSessionId}
+        setTvSessionId={setTvSessionId}
+        tvSessionSign={tvSessionSign}
+        setTvSessionSign={setTvSessionSign}
+        browserlessToken={browserlessToken}
+        setBrowserlessToken={setBrowserlessToken}
+        tvSaveResult={tvSaveResult}
+        tvSaving={tvSaving}
+        saveTVCreds={saveTVCreds}
+        t5Accounts={t5Accounts}
+        t5Loading={t5Loading}
+        selectedT5AccountIds={selectedT5AccountIds}
+        setSelectedT5AccountIds={setSelectedT5AccountIds}
+        t5Email={t5Email}
+        setT5Email={setT5Email}
+        t5DsrToken={t5DsrToken}
+        setT5DsrToken={setT5DsrToken}
+        t5Saving={t5Saving}
+        t5Syncing={t5Syncing}
+        t5SaveResult={t5SaveResult}
+        loadT5Data={loadT5Data}
+        saveT5Creds={saveT5Creds}
+        syncT5Now={syncT5Now}
+        loadT5AccountTrades={loadT5AccountTrades}
+        sitePassword={sitePassword}
+        setSitePassword={setSitePassword}
+        deferredPrompt={deferredPrompt}
+        handleInstallAppPWA={handleInstallAppPWA}
+        handleResetLocalStorage={handleResetLocalStorage}
+        showToast={showToast}
+      />
 
       {/* Floating Action Button (FAB) - Quick Add */}
       <div className="fixed bottom-[calc(80px+env(safe-area-inset-bottom,0px))] md:bottom-8 right-4 z-40">
