@@ -81,7 +81,7 @@ export function NewsPanel({
           )}
         </div>
         <div className="flex flex-nowrap items-center gap-2 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
-          <div className="flex shrink-0 items-center gap-1 ios26-glass bg-transparent rounded-[10px] p-1">
+          <div className="flex shrink-0 items-center gap-1 ios26-glass bg-transparent shadow-none rounded-[10px] p-1">
             <button type="button" onClick={() => onPageChange(page - 1)} disabled={!canGoPrevious}
               className="w-8 h-8 rounded-full text-[var(--ios-blue)] flex items-center justify-center active:scale-90 transition-transform disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:bg-[var(--ios-surface)]">
               <ChevronLeft size={18} />
