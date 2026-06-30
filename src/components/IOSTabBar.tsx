@@ -21,7 +21,7 @@ export function IOSTabBar({ currentTab, setCurrentTab }: IOSTabBarProps) {
       id="ios-bottom-nav"
       className="md:hidden fixed z-40 left-3 right-3 flex items-center justify-around px-2 bg-[var(--ios-surface)]/70 border border-[var(--ios-separator)] rounded-[34px] shadow-ios-glass"
       style={{
-        bottom: "max(16px, env(safe-area-inset-bottom, 16px))",
+        bottom: "max(0.75rem, env(safe-area-inset-bottom, 0.75rem))",
         minHeight: "82px",
         backdropFilter: "saturate(180%) blur(34px)",
         WebkitBackdropFilter: "saturate(180%) blur(34px)",
