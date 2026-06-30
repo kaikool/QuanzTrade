@@ -70,18 +70,22 @@ export function NewsPanel({
 
   return (
     <div className="space-y-4 sm:space-y-5" id="news-panel">
-      {/* Header bar */}
-      <div className="flex items-center justify-between px-1">
-        <div className="flex items-center gap-2">
-          <span className="text-[13px] font-bold tracking-widest uppercase text-[var(--ios-secondary-label)]">{pageLabel}</span>
+      {/* Header bar — match CalendarView */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-1">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[13px] font-bold tracking-widest uppercase text-[var(--ios-secondary-label)]">Tin tức thị trường</span>
+            <span className="text-[12px] text-[var(--ios-tertiary-label)] font-mono">{pageLabel} · {newsItems.length} tin</span>
+          </div>
+          <p className="text-[13px] text-[var(--ios-secondary-label)] mt-1">Marketaux · TradingView · DeepL</p>
           {lastUpdatedAt && (
-            <span className="text-[12px] text-[var(--ios-tertiary-label)] font-mono">
+            <span className="block text-[12px] text-[var(--ios-tertiary-label)] font-mono mt-0.5">
               Cập nhật lúc {new Date(lastUpdatedAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
             </span>
           )}
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 bg-[var(--ios-fill)] border-0 rounded-[12px] p-1">
+        <div className="flex flex-nowrap items-center gap-2 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
+          <div className="flex shrink-0 items-center gap-1 bg-[var(--ios-fill)] border-0 rounded-[12px] p-1">
             <button type="button" onClick={() => onPageChange(page - 1)} disabled={!canGoPrevious}
               className="w-8 h-8 rounded-[8px] text-[var(--ios-blue)] flex items-center justify-center active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:bg-[var(--ios-surface)]">
               <ChevronLeft size={18} />

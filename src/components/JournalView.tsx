@@ -46,36 +46,61 @@ export function JournalView({
 }: JournalViewProps) {
   
   const [selectedTrade, setSelectedTrade] = useState<Trade | null>(null);
+  const filteredPnl = filteredTrades.reduce((sum, trade) => sum + Number(trade.pnl || 0), 0);
+  const openTrades = filteredTrades.filter((trade) => trade.status === "OPEN").length;
+  const closedTrades = filteredTrades.filter((trade) => trade.status === "CLOSED").length;
+  const winningTrades = filteredTrades.filter((trade) => Number(trade.pnl || 0) > 0).length;
+  const winRate = closedTrades > 0 ? Math.round((winningTrades / closedTrades) * 100) : 0;
+
+  const formatAccountLabel = (account: { accountId: string; name: string }) => {
+    if (account.accountId === "ALL") return "Tất cả";
+    const fromName = account.name.match(/\d{4,}/)?.[0];
+    const fromId = account.accountId.match(/\d{4,}/)?.[0];
+    return fromName || fromId || account.accountId;
+  };
+
+  const formatTradeDate = (value?: string | null) => {
+    if (!value || isNaN(new Date(value).getTime())) return "-";
+    return new Date(value).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
+  };
+
+  const formatTradeTime = (value?: string | null) => {
+    if (!value || isNaN(new Date(value).getTime())) return "-";
+    return new Date(value).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+  };
 
   // Master List Item
   const renderMasterItem = (t: Trade) => {
     const isSelected = selectedTrade?.id === t.id;
     return (
-      <button 
+      <button
         key={t.id} 
         onClick={() => setSelectedTrade(t)}
-        className={`w-full text-left p-4 sm:p-5 transition-colors cursor-pointer border-b border-[var(--ios-separator)]/60 last:border-0
-          ${isSelected ? "bg-[var(--ios-fill)]" : "hover:bg-[var(--ios-fill)]/50"}`}
+        className={`w-full text-left p-4 transition-colors cursor-pointer border-b border-[var(--ios-separator)]/50 last:border-0
+          ${isSelected ? "bg-[var(--sys-tint-soft)]" : "hover:bg-[var(--ios-fill)]/45"}`}
       >
-        <div className="flex justify-between items-start mb-1">
+        <div className="flex justify-between items-start gap-3 mb-2">
           <div className="flex items-center gap-2 min-w-0 pr-2">
             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide shrink-0 ${t.type === "BUY" ? "bg-[var(--sys-success-soft)] text-[var(--ios-green)]" : "bg-[var(--sys-danger-soft)] text-[var(--ios-red)]"}`}>
               {t.type}
             </span>
-            <span className="font-bold text-[16px] text-[var(--ios-label)] truncate">{t.pair}</span>
+            <span className="font-bold text-[17px] text-[var(--ios-label)] truncate">{t.pair}</span>
+            {t.status === "OPEN" && <span className="bg-[var(--sys-tint-soft)] text-[var(--ios-blue)] text-[9px] px-1.5 py-0.5 rounded-full font-bold shrink-0">OPEN</span>}
           </div>
           <span className={`text-[16px] font-bold font-mono tracking-tight ${Number(t.pnl || 0) >= 0 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`}>
             {Number(t.pnl || 0) >= 0 ? "+" : ""}${Number(t.pnl || 0).toFixed(0)}
           </span>
         </div>
-        <div className="flex justify-between items-center text-[12px]">
-          <span className="text-[var(--ios-secondary-label)] font-mono">
-            {t.entry_date && !isNaN(new Date(t.entry_date).getTime()) ? new Date(t.entry_date).toLocaleDateString("vi-VN") : "-"}
+        <div className="grid grid-cols-[1fr_auto] gap-3 text-[12px] text-[var(--ios-secondary-label)]">
+          <span className="min-w-0 truncate font-mono">
+            {formatTradeDate(t.entry_date)} · {formatTradeTime(t.entry_date)} · {t.timeframe || "N/A"}
           </span>
-          <div className="flex gap-1 items-center">
-            {t.status === "OPEN" && <span className="bg-[var(--sys-tint-soft)] text-[var(--ios-blue)] text-[9px] px-1.5 py-0.5 rounded-full font-bold">OPEN</span>}
-            {t.tag && <span className="text-[var(--ios-tertiary-label)] uppercase font-semibold">#{t.tag}</span>}
-          </div>
+          {t.tag && <span className="text-[var(--ios-tertiary-label)] uppercase font-semibold truncate max-w-[96px]">#{t.tag}</span>}
+        </div>
+        <div className="mt-2 flex items-center gap-2 text-[11px] font-mono text-[var(--ios-tertiary-label)]">
+          <span>Entry {t.entry_price ?? "-"}</span>
+          <span className="w-1 h-1 rounded-full bg-[var(--ios-separator)]" />
+          <span>Exit {t.exit_price ?? "-"}</span>
         </div>
       </button>
     );
@@ -84,37 +109,61 @@ export function JournalView({
   return (
     <div className="h-full flex flex-col md:h-[calc(100vh-140px)]" id="journal-standalone-section">
       
-      {/* Top Toolbar */}
-      <div className="flex flex-col lg:flex-row gap-3 mb-4 shrink-0">
-        <div className="relative flex-1 min-w-0">
+      {/* Header + filters */}
+      <div className="space-y-3 mb-4 shrink-0">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between px-1">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[13px] font-bold tracking-widest uppercase text-[var(--ios-secondary-label)]">Nhật ký giao dịch</span>
+              <span className={`text-[13px] font-mono font-bold ${filteredPnl > 0 ? "text-[var(--ios-green)]" : filteredPnl < 0 ? "text-[var(--ios-red)]" : "text-[var(--ios-secondary-label)]"}`}>
+                {filteredPnl > 0 ? "+" : ""}${filteredPnl.toFixed(0)}
+              </span>
+            </div>
+            <p className="text-[13px] text-[var(--ios-secondary-label)] mt-1">
+              {filteredTrades.length} lệnh · {openTrades} đang mở · Win rate {winRate}%
+            </p>
+          </div>
+          <button onClick={() => handleOpenAddTrade()} className="hidden sm:flex h-9 px-4 bg-[var(--ios-blue)] text-white rounded-[12px] items-center justify-center gap-2 shrink-0 cursor-pointer shadow-ios-sm active:scale-95 text-[13px] font-bold">
+            <Plus size={16} /> Ghi lệnh
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto] gap-2">
+        <div className="relative min-w-0">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--ios-secondary-label)]" />
           <input 
             type="text" 
             placeholder="Tìm kiếm..." 
             value={searchQuery} 
             onChange={(e) => setSearchQuery(e.target.value)} 
-            className="w-full pl-10 pr-4 py-2 bg-[var(--ios-fill)] rounded-[12px] text-[15px] focus:outline-none text-[var(--ios-label)] placeholder:text-[var(--ios-secondary-label)] border-0 focus:ring-2 focus:ring-[var(--ios-blue)]/50 transition-shadow shadow-sm" 
+            className="w-full h-10 pl-10 pr-4 bg-[var(--ios-fill)] rounded-[12px] text-[15px] focus:outline-none text-[var(--ios-label)] placeholder:text-[var(--ios-secondary-label)] border-0 focus:ring-2 focus:ring-[var(--ios-blue)]/50 transition-shadow shadow-sm"
           />
         </div>
 
-        <div className="flex flex-nowrap items-center gap-2 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1 lg:mx-0 lg:px-0 lg:pb-0 lg:overflow-visible">
+        <div className="grid grid-cols-[minmax(92px,0.85fr)_minmax(104px,1fr)_minmax(92px,0.8fr)_40px] gap-2 min-w-0">
           {journalAccountOptions.length > 0 && (
-            <div className="flex shrink-0 max-w-[78vw] sm:max-w-[360px] lg:max-w-[420px] overflow-x-auto no-scrollbar bg-[var(--ios-fill)] p-0.5 rounded-[12px] text-[13px] font-bold">
-              <button onClick={() => setSelectedJournalAccountId("ALL")} className={`shrink-0 h-8 px-3 rounded-[8px] transition-all cursor-pointer whitespace-nowrap ${selectedJournalAccountId === "ALL" ? "bg-[var(--ios-surface)] shadow-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>Tất cả</button>
-              {journalAccountOptions.filter((a) => a.accountId !== "ALL").map((a) => (
-                <button key={a.accountId} onClick={() => setSelectedJournalAccountId(a.accountId)} className={`shrink-0 h-8 max-w-[148px] px-3 rounded-[8px] transition-all cursor-pointer whitespace-nowrap truncate ${selectedJournalAccountId === a.accountId ? "bg-[var(--ios-surface)] shadow-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>{a.name}</button>
+            <select value={selectedJournalAccountId} onChange={(e) => setSelectedJournalAccountId(e.target.value)} className="min-w-0 h-10 bg-[var(--ios-fill)] border-0 px-3 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 cursor-pointer text-[var(--ios-label)] font-bold text-[13px] shadow-sm appearance-none truncate">
+              {journalAccountOptions.map((account) => (
+                <option key={account.accountId} value={account.accountId}>{formatAccountLabel(account)}</option>
               ))}
-            </div>
+            </select>
           )}
           
-          <select value={selectedPairFilter} onChange={(e) => setSelectedPairFilter(e.target.value)} className="shrink-0 w-[132px] h-9 bg-[var(--ios-fill)] border-0 px-3 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 cursor-pointer text-[var(--ios-label)] font-bold text-[13px] shadow-sm appearance-none truncate">
+          <select value={selectedPairFilter} onChange={(e) => setSelectedPairFilter(e.target.value)} className="min-w-0 h-10 bg-[var(--ios-fill)] border-0 px-3 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 cursor-pointer text-[var(--ios-label)] font-bold text-[13px] shadow-sm appearance-none truncate">
             <option value="ALL">Cặp (Tất cả)</option>
             {uniquePairs.filter(p => p !== "ALL").map(p => <option key={p} value={p}>{p}</option>)}
           </select>
+
+          <select value={selectedStatusFilter} onChange={(e) => setSelectedStatusFilter(e.target.value)} className="min-w-0 h-10 bg-[var(--ios-fill)] border-0 px-3 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 cursor-pointer text-[var(--ios-label)] font-bold text-[13px] shadow-sm appearance-none truncate">
+            <option value="ALL">Tất cả</option>
+            <option value="OPEN">Mở</option>
+            <option value="CLOSED">Đóng</option>
+          </select>
           
-          <button onClick={() => handleOpenAddTrade()} className="w-9 h-9 bg-[var(--ios-blue)] text-white rounded-[12px] flex items-center justify-center shrink-0 cursor-pointer shadow-ios-sm active:scale-95">
+          <button onClick={() => handleOpenAddTrade()} className="w-10 h-10 bg-[var(--ios-blue)] text-white rounded-[12px] flex items-center justify-center shrink-0 cursor-pointer shadow-ios-sm active:scale-95 sm:hidden">
             <Plus size={18} />
           </button>
+        </div>
         </div>
       </div>
 
@@ -128,7 +177,8 @@ export function JournalView({
             {filteredTrades.length === 0 ? (
               <div className="p-8 text-center text-[var(--ios-secondary-label)]">
                 <BookOpen size={40} className="mx-auto mb-3 opacity-30" />
-                <p className="font-bold text-[15px] text-[var(--ios-label)]">Trống</p>
+                <p className="font-bold text-[17px] text-[var(--ios-label)]">Chưa có giao dịch phù hợp</p>
+                <p className="text-[13px] mt-1">Đổi bộ lọc hoặc bấm + để ghi lệnh mới.</p>
               </div>
             ) : (
               <div className="flex flex-col">
@@ -152,9 +202,9 @@ export function JournalView({
                 <button onClick={() => setSelectedTrade(null)} className="md:hidden w-8 h-8 flex items-center justify-center bg-[var(--sys-tint-soft)] text-[var(--ios-blue)] rounded-full">
                   <ArrowLeft size={18} />
                 </button>
-                <div>
-                  <h2 className="text-[22px] font-bold text-[var(--ios-label)] leading-none">{selectedTrade.pair}</h2>
-                  <p className="text-[12px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-wider mt-1">{selectedTrade.type} • {selectedTrade.size} Lots</p>
+                <div className="min-w-0">
+                  <h2 className="text-[22px] font-bold text-[var(--ios-label)] leading-none truncate">{selectedTrade.pair}</h2>
+                  <p className="text-[12px] font-semibold text-[var(--ios-secondary-label)] mt-1">{selectedTrade.type} · {selectedTrade.size} lots · {selectedTrade.timeframe || "N/A"}</p>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -171,52 +221,52 @@ export function JournalView({
             <div className="flex-1 overflow-y-auto p-5 md:p-8 no-scrollbar min-h-0 h-full">
               
               {/* PnL Hero & Status */}
-              <div className="flex items-center justify-between mb-8 bg-[var(--sys-glass)] border border-[var(--sys-border)] p-6 rounded-[24px] shadow-ios-sm relative overflow-hidden">
+              <div className="flex items-center justify-between gap-4 mb-6 bg-[var(--sys-glass)] border border-[var(--sys-border)] p-5 rounded-[24px] shadow-ios-sm relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <Activity size={100} />
+                  <Activity size={82} />
                 </div>
                 <div className="relative z-10">
-                  <p className="text-[13px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)] mb-1">Lợi nhuận ròng</p>
-                  <p className={`text-[48px] font-bold font-mono tracking-tighter leading-none ${Number(selectedTrade.pnl || 0) > 0 ? "text-[var(--ios-green)]" : Number(selectedTrade.pnl || 0) < 0 ? "text-[var(--ios-red)]" : "text-[var(--ios-label)]"}`}>
+                  <p className="text-[12px] font-bold uppercase tracking-widest text-[var(--ios-secondary-label)] mb-1">Lợi nhuận ròng</p>
+                  <p className={`text-[34px] sm:text-[38px] font-bold font-mono tracking-tighter leading-none ${Number(selectedTrade.pnl || 0) > 0 ? "text-[var(--ios-green)]" : Number(selectedTrade.pnl || 0) < 0 ? "text-[var(--ios-red)]" : "text-[var(--ios-label)]"}`}>
                     {Number(selectedTrade.pnl || 0) > 0 ? "+" : ""}{Number(selectedTrade.pnl || 0).toFixed(2)}
                   </p>
                 </div>
                 <div className="relative z-10 text-right">
                   {selectedTrade.status === "OPEN" ? (
-                    <div className="bg-[var(--sys-tint-soft)] text-[var(--ios-blue)] px-4 py-1.5 rounded-full font-bold text-[14px] inline-block mb-2">ĐANG MỞ</div>
+                    <div className="bg-[var(--sys-tint-soft)] text-[var(--ios-blue)] px-3 py-1 rounded-full font-bold text-[12px] inline-block mb-2">Đang mở</div>
                   ) : (
-                    <div className={`px-4 py-1.5 rounded-full font-bold text-[14px] inline-block mb-2 ${Number(selectedTrade.pnl || 0) > 0 ? "bg-green-500/10 text-[var(--ios-green)]" : Number(selectedTrade.pnl || 0) < 0 ? "bg-red-500/10 text-[var(--ios-red)]" : "bg-gray-500/10 text-gray-500"}`}>
+                    <div className={`px-3 py-1 rounded-full font-bold text-[12px] inline-block mb-2 ${Number(selectedTrade.pnl || 0) > 0 ? "bg-green-500/10 text-[var(--ios-green)]" : Number(selectedTrade.pnl || 0) < 0 ? "bg-red-500/10 text-[var(--ios-red)]" : "bg-gray-500/10 text-gray-500"}`}>
                       {Number(selectedTrade.pnl || 0) > 0 ? "WIN" : Number(selectedTrade.pnl || 0) < 0 ? "LOSS" : "BREAKEVEN"}
                     </div>
                   )}
-                  <p className="text-[12px] font-mono text-[var(--ios-secondary-label)] mt-1">{selectedTrade.timeframe || "N/A"} • {selectedTrade.pair}</p>
+                  <p className="text-[12px] font-mono text-[var(--ios-secondary-label)] mt-1">{formatTradeDate(selectedTrade.entry_date)} · {formatTradeTime(selectedTrade.entry_date)}</p>
                 </div>
               </div>
 
               {/* Execution Stats Grid */}
-              <h3 className="text-[15px] font-bold text-[var(--ios-label)] uppercase tracking-wider mb-3">Điểm vào lệnh</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div className="bg-[var(--ios-fill)] p-4 rounded-[20px]">
-                  <p className="text-[12px] font-bold uppercase text-[var(--ios-secondary-label)] mb-1">Entry</p>
+              <h3 className="text-[13px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-widest mb-3">Vào / ra lệnh</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                <div className="bg-[var(--ios-fill)] p-4 rounded-[18px]">
+                  <p className="text-[11px] font-bold uppercase text-[var(--ios-secondary-label)] mb-1">Entry</p>
                   <p className="text-[18px] font-mono font-bold text-[var(--ios-label)]">{selectedTrade.entry_price}</p>
                 </div>
-                <div className="bg-[var(--ios-fill)] p-4 rounded-[20px]">
-                  <p className="text-[12px] font-bold uppercase text-[var(--ios-secondary-label)] mb-1">Exit</p>
+                <div className="bg-[var(--ios-fill)] p-4 rounded-[18px]">
+                  <p className="text-[11px] font-bold uppercase text-[var(--ios-secondary-label)] mb-1">Exit</p>
                   <p className="text-[18px] font-mono font-bold text-[var(--ios-label)]">{selectedTrade.exit_price || "-"}</p>
                 </div>
-                <div className="bg-red-500/5 p-4 rounded-[20px]">
-                  <p className="text-[12px] font-bold uppercase text-[var(--ios-red)] opacity-80 mb-1">Stop Loss</p>
+                <div className="bg-red-500/5 p-4 rounded-[18px]">
+                  <p className="text-[11px] font-bold uppercase text-[var(--ios-red)] opacity-80 mb-1">Stop Loss</p>
                   <p className="text-[18px] font-mono font-bold text-[var(--ios-red)]">{selectedTrade.stop_loss || "-"}</p>
                 </div>
-                <div className="bg-green-500/5 p-4 rounded-[20px]">
-                  <p className="text-[12px] font-bold uppercase text-[var(--ios-green)] opacity-80 mb-1">Take Profit</p>
+                <div className="bg-green-500/5 p-4 rounded-[18px]">
+                  <p className="text-[11px] font-bold uppercase text-[var(--ios-green)] opacity-80 mb-1">Take Profit</p>
                   <p className="text-[18px] font-mono font-bold text-[var(--ios-green)]">{selectedTrade.take_profit || "-"}</p>
                 </div>
               </div>
 
               {/* Context Stats */}
-              <div className="grid grid-cols-2 gap-4 mb-8">
-                <div className="bg-[var(--ios-fill)] p-4 rounded-[20px] flex items-center gap-3">
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                <div className="bg-[var(--ios-fill)] p-4 rounded-[18px] flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-[var(--sys-surface)] flex items-center justify-center shadow-sm">
                     <Calendar size={18} className="text-[var(--ios-blue)]" />
                   </div>
@@ -229,7 +279,7 @@ export function JournalView({
                     </p>
                   </div>
                 </div>
-                <div className="bg-[var(--ios-fill)] p-4 rounded-[20px] flex items-center gap-3">
+                <div className="bg-[var(--ios-fill)] p-4 rounded-[18px] flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-[var(--sys-surface)] flex items-center justify-center shadow-sm">
                     <Tag size={18} className="text-[var(--ios-orange)]" />
                   </div>
@@ -241,8 +291,8 @@ export function JournalView({
               </div>
 
               {/* Notes */}
-              <div className="mb-8">
-                <h3 className="text-[15px] font-bold text-[var(--ios-label)] uppercase tracking-wider mb-3">Ghi chú giao dịch</h3>
+              <div className="mb-6">
+                <h3 className="text-[13px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-widest mb-3">Bài học / ghi chú</h3>
                 {selectedTrade.notes ? (
                   <div className="bg-[var(--ios-fill)] shadow-sm p-5 rounded-[24px] text-[16px] text-[var(--ios-label)] leading-relaxed whitespace-pre-wrap font-medium">
                     {selectedTrade.notes}
@@ -250,7 +300,7 @@ export function JournalView({
                 ) : (
                   <div className="bg-[var(--ios-fill)] border border-dashed border-[var(--ios-separator)] p-6 rounded-[24px] flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[var(--sys-tint-soft)] transition-colors" onClick={() => handleBeginEditTrade(selectedTrade)}>
                     <Pencil size={24} className="text-[var(--ios-secondary-label)] mb-2" />
-                    <p className="text-[15px] font-bold text-[var(--ios-label)]">Chưa có bài học nào</p>
+                    <p className="text-[15px] font-bold text-[var(--ios-label)]">Chưa có bài học cho lệnh này</p>
                     <p className="text-[13px] text-[var(--ios-secondary-label)] mt-1">Bấm vào đây để thêm ghi chú hoặc bài học rút ra từ lệnh này.</p>
                   </div>
                 )}
@@ -258,7 +308,7 @@ export function JournalView({
 
               {/* Chart Snapshots */}
               <div>
-                <h3 className="text-[15px] font-bold text-[var(--ios-label)] uppercase tracking-wider mb-3">Hình ảnh phân tích</h3>
+                <h3 className="text-[13px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-widest mb-3">Hình ảnh phân tích</h3>
                 {selectedTrade.tv_snapshot_url || selectedTrade.tv_snapshot_url_close ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {selectedTrade.tv_snapshot_url && (
@@ -294,8 +344,8 @@ export function JournalView({
           <div className="hidden md:flex flex-1 items-center justify-center text-[var(--ios-secondary-label)]">
             <div className="text-center">
               <BookOpen size={48} className="mx-auto mb-4 opacity-30" />
-              <p className="text-[18px] font-bold text-[var(--ios-label)]">Chưa chọn giao dịch</p>
-              <p className="text-[15px] mt-2">Chọn một mục bên trái để xem chi tiết.</p>
+              <p className="text-[18px] font-bold text-[var(--ios-label)]">Chọn một giao dịch</p>
+              <p className="text-[15px] mt-2">Xem điểm vào/ra, P&L và bài học của từng lệnh.</p>
             </div>
           </div>
         )}

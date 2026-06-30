@@ -42,7 +42,7 @@ export function CalendarView({
             <span className="text-[13px] font-bold tracking-widest uppercase text-[var(--ios-secondary-label)]">Lịch kinh tế</span>
             <span className="text-[12px] text-[var(--ios-tertiary-label)] font-mono">{periodLabel} · {timezoneOffsetStr}</span>
           </div>
-          <p className="text-[13px] text-[var(--ios-secondary-label)] mt-1">ForexFactory · Lịch kinh tế riêng với News.</p>
+          <p className="text-[13px] text-[var(--ios-secondary-label)] mt-1">ForexFactory</p>
         </div>
 
         <div className="flex flex-nowrap items-center gap-2 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
