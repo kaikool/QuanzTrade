@@ -67,6 +67,11 @@ const DashboardView = lazy(() =>
     default: module.DashboardView,
   })),
 );
+const CalendarView = lazy(() =>
+  import("./components/CalendarView").then((module) => ({
+    default: module.CalendarView,
+  })),
+);
 
 const originalFetch = window.fetch;
 window.fetch = async (...args) => {
@@ -1900,227 +1905,19 @@ export default function App() {
 
         {/* 3. CALENDAR MASTER TAB SCREEN */}
         {currentTab === "calendar" && (
-          <div className="space-y-6" id="calendar-master-view">
-            <div
-              className="p-4 sm:p-6 bg-[var(--sys-surface)] rounded-[24px] border border-[var(--sys-border)] shadow-ios-sm max-w-full overflow-hidden"
-              id="calendar-card"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--sys-border)] dark:border-[var(--sys-border)] pb-3 mb-4 w-full min-w-0">
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[var(--sys-blue)]/10 dark:transparent text-[var(--sys-blue)] rounded-[16px] sm:rounded-[24px] flex items-center justify-center font-bold flex-shrink-0">
-                    <CalendarIcon size={18} className="sm:size-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg sm:text-lg font-semibold text-[var(--sys-text)]">
-                      Lịch Kinh Tế Vĩ Mô
-                    </h3>
-                    <p className="text-base sm:text-lg text-[var(--sys-text-secondary)] mt-0.5">
-                      Chỉ số USD quan trọng
-                    </p>
-                  </div>
-                </div>
-
-                {/* Filters row - Highly responsive layout for Mobile */}
-                <div className="grid grid-cols-[1.3fr_1.1fr_auto] gap-2 w-full sm:flex sm:flex-row sm:items-center sm:gap-1.5 sm:w-auto pb-1 sm:pb-0">
-                  {/* Segmented Period Selection */}
-                  <div
-                    className={`flex ${darkMode ? "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm" : "bg-[var(--sys-surface-2)]"} p-1 rounded-[16px] w-full sm:w-auto`}
-                  >
-                    <button
-                      onClick={() => setCalendarPeriodFilter("DAY")}
-                      className={`flex-1 py-1.5 sm:px-4 text-sm font-medium rounded-[12px] transition-all ease-[ease-out] cursor-pointer text-center ${
-                        calendarPeriodFilter === "DAY"
-                          ? darkMode
-                            ? "bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-blue)] shadow-xs"
-                            : "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-blue)] shadow-xs"
-                          : darkMode
-                            ? "text-[var(--sys-text-secondary)] hover:text-[var(--sys-text)]"
-                            : "text-[var(--sys-text-secondary)] hover:text-[var(--sys-text)]"
-                      }`}
-                    >
-                      Hôm Nay
-                    </button>
-                    <button
-                      onClick={() => setCalendarPeriodFilter("WEEK")}
-                      className={`flex-1 py-1.5 sm:px-4 text-sm font-medium rounded-[12px] transition-all ease-[ease-out] cursor-pointer text-center ${
-                        calendarPeriodFilter === "WEEK"
-                          ? darkMode
-                            ? "bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-blue)] shadow-xs"
-                            : "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-blue)] shadow-xs"
-                          : darkMode
-                            ? "text-[var(--sys-text-secondary)] hover:text-[var(--sys-text)]"
-                            : "text-[var(--sys-text-secondary)] hover:text-[var(--sys-text)]"
-                      }`}
-                    >
-                      Tuần Này
-                    </button>
-                  </div>
-
-                  {/* Beautiful Dot Markers as Interactive Filters */}
-                  <div
-                    className={`flex ${darkMode ? "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm" : "bg-[var(--sys-surface-2)]"} p-1 rounded-[16px] items-center justify-around w-full sm:w-auto sm:gap-1`}
-                  >
-                    <button
-                      onClick={() => setCalendarImpactFilter("ALL")}
-                      className={`px-3 py-1.5 rounded-[12px] flex items-center justify-center gap-1 transition-all ease-[ease-out] cursor-pointer flex-1 ${
-                        calendarImpactFilter === "ALL"
-                          ? darkMode
-                            ? "bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-blue)] shadow-xs"
-                            : "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-blue)] shadow-xs"
-                          : "opacity-40 hover:opacity-95"
-                      }`}
-                      title="Tất cả sự kiện kinh tế (Đỏ, Vàng, Xanh)"
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
-                    </button>
-                    <button
-                      onClick={() => setCalendarImpactFilter("MEDIUM")}
-                      className={`px-3 py-1.5 rounded-[12px] flex items-center justify-center gap-1 transition-all ease-[ease-out] cursor-pointer flex-1 ${
-                        calendarImpactFilter === "MEDIUM"
-                          ? darkMode
-                            ? "bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-blue)] shadow-xs"
-                            : "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-blue)] shadow-xs"
-                          : "opacity-40 hover:opacity-95"
-                      }`}
-                      title="Tin từ trung bình trở lên (Đỏ, Vàng)"
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                    </button>
-                    <button
-                      onClick={() => setCalendarImpactFilter("HIGH")}
-                      className={`px-3 py-1.5 rounded-[12px] flex items-center justify-center gap-1 transition-all ease-[ease-out] cursor-pointer flex-1 ${
-                        calendarImpactFilter === "HIGH"
-                          ? darkMode
-                            ? "bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-blue)] shadow-xs"
-                            : "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-blue)] shadow-xs"
-                          : "opacity-40 hover:opacity-95"
-                      }`}
-                      title="Chỉ sự kiện kinh tế quan trọng (Đỏ)"
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
-                    </button>
-                  </div>
-
-                  {/* Manual Refresh Call inside same line */}
-                  <button
-                    onClick={syncCalendar}
-                    className="p-2.5 bg-[var(--sys-surface-2)] dark:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:hover:bg-[var(--sys-surface-2)] border border-[var(--sys-border)] rounded-[16px] transition-all ease-[ease-out] cursor-pointer flex items-center justify-center min-w-[36px] min-h-[36px]"
-                    title="Cập nhật lịch kinh tế mới nhất"
-                  >
-                    <RefreshCw
-                      size={14}
-                      className={
-                        refreshingCalendar
-                          ? "animate-spin text-[var(--sys-blue)]"
-                          : "text-[var(--sys-text-secondary)]"
-                      }
-                    />
-                  </button>
-                </div>
-              </div>
-
-              {/* Day-by-Day Calendar Render list */}
-              {loadingCalendar ? (
-                <div className="py-24 text-center space-y-4">
-                  <RefreshCw
-                    className="animate-spin text-[var(--sys-blue)] mx-auto"
-                    size={32}
-                  />
-                  <p className="text-lg text-[var(--sys-text-secondary)]">
-                    Đang quét nguồn dữ liệu Forex Factory Live...
-                  </p>
-                </div>
-              ) : groupedEventsByDay.length === 0 ? (
-                <div className="py-20 text-center text-[var(--sys-text-secondary)]">
-                  <CloudLightning
-                    className="mx-auto text-[var(--sys-text-secondary)] dark:text-[var(--sys-text-secondary)] animate-pulse mb-3"
-                    size={48}
-                  />
-                  <p className="font-semibold text-lg">
-                    Không thấy sự kiện kinh tế USD tương thích
-                  </p>
-                  <p className="text-base text-[var(--sys-text-secondary)] mt-1">
-                    Vui lòng thử điều chỉnh lại bộ lọc tác động sự kiện.
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-8" id="calendar-days-feed">
-                  {groupedEventsByDay.map(([dayName, events]) => (
-                    <div key={dayName} className="space-y-4">
-                      <h4 className="text-base sm:text-base font-semibold uppercase tracking-widest text-[var(--sys-blue)] dark:text-[var(--sys-blue)] bg-[var(--sys-blue)]/10 dark:transparent px-3 py-1.5 rounded-[12px] inline-block">
-                        {dayName}
-                      </h4>
-
-                      <div className="flex flex-col gap-2">
-                        {events.map((ev, index) => {
-                          const style = getImpactColorClasses(ev.impact);
-                          const evTime = new Date(ev.date).toLocaleTimeString(
-                            "vi-VN",
-                            { hour: "2-digit", minute: "2-digit" },
-                          );
-
-                          return (
-                            <div
-                              key={`${dayName}-${index}`}
-                              className="flex items-center gap-2 sm:gap-4 p-2.5 sm:p-3.5 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:bg-[var(--sys-surface-2)]/45 rounded-[16px] border border-[var(--sys-border)]/15 dark:border-[var(--sys-border)] hover:bg-[var(--sys-surface-2)] transition-colors"
-                            >
-                              {/* Cột 1: Giờ & Impact */}
-                              <div className="flex flex-col items-center justify-center min-w-[48px] sm:min-w-[60px] flex-shrink-0">
-                                <span className="font-mono font-bold text-sm text-[var(--sys-text)]">{evTime}</span>
-                                <div className={`mt-1 rounded px-1.5 py-0.5 text-xs uppercase tracking-wider font-extrabold ${style.text} ${style.bg}`}>
-                                  {style.label}
-                                </div>
-                              </div>
-
-                              {/* Cột 2: Tiêu đề & Quốc gia */}
-                              <div className="flex-1 min-w-0 flex flex-col justify-center">
-                                <h5 className="font-bold text-sm sm:text-base text-[var(--sys-text)] truncate leading-snug mb-0.5">
-                                  {ev.title}
-                                </h5>
-                                <div className="flex items-center gap-1.5">
-                                  <span className="text-sm bg-[var(--sys-text)]/5 dark:bg-[var(--sys-text)]/10 px-1.5 py-0.5 rounded text-[var(--sys-text-secondary)] uppercase font-mono tracking-wider">
-                                    {ev.country}
-                                  </span>
-                                  <span className="text-xs text-[var(--sys-text-secondary)] hidden sm:inline-block">
-                                    {timezoneOffsetStr}
-                                  </span>
-                                </div>
-                              </div>
-
-                              {/* Cột 3: Desktop Stats */}
-                              <div className="hidden md:flex flex-col items-end flex-shrink-0 gap-1.5 border-l border-[var(--sys-border)]/20 pl-4">
-                                <div className="flex items-center gap-3 font-mono text-sm text-[var(--sys-text-secondary)]">
-                                  <span>Dự báo: <strong className="text-[var(--sys-text)]">{ev.forecast || "-"}</strong></span>
-                                  <span>Trước: <strong className="text-[var(--sys-text)]">{ev.previous || "-"}</strong></span>
-                                </div>
-                                <div className="font-mono text-base flex items-center gap-1.5">
-                                  <span className="text-sm uppercase font-bold text-[var(--sys-blue)] dark:text-[var(--sys-blue)]">Thực tế:</span>
-                                  <strong className="text-[var(--sys-blue)] dark:text-[var(--sys-blue)] font-black">{ev.actual || "Đợi tin"}</strong>
-                                </div>
-                              </div>
-
-                              {/* Cột 3: Mobile Stats */}
-                              <div className="flex md:hidden flex-col items-end justify-center flex-shrink-0 min-w-[70px]">
-                                <div className="font-mono text-xs text-[var(--sys-text-secondary)] mb-0.5 flex items-center gap-1">
-                                  <span className="opacity-60">DB:</span> <strong>{ev.forecast || "-"}</strong>
-                                </div>
-                                <div className="font-mono text-sm font-black text-[var(--sys-blue)] dark:text-[var(--sys-blue)] flex items-center gap-1">
-                                  <span className="opacity-60 text-xs uppercase">TT:</span> {ev.actual || "-"}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+          <CalendarView
+            loadingCalendar={loadingCalendar}
+            groupedEventsByDay={groupedEventsByDay}
+            calendarPeriodFilter={calendarPeriodFilter}
+            setCalendarPeriodFilter={setCalendarPeriodFilter}
+            calendarImpactFilter={calendarImpactFilter}
+            setCalendarImpactFilter={setCalendarImpactFilter}
+            syncCalendar={syncCalendar}
+            refreshingCalendar={refreshingCalendar}
+            timezoneOffsetStr={timezoneOffsetStr}
+            darkMode={darkMode}
+            getImpactColorClasses={getImpactColorClasses}
+          />
         )}
 
         {/* 4. FAST RSS NEWS TAB SCREEN */}
