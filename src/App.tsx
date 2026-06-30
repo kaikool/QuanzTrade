@@ -1373,14 +1373,14 @@ export default function App() {
           <div className="flex gap-1 sm:gap-1.5 flex-shrink-0">
             <button
               onClick={() => setCurrentTab("dashboard")}
-              className={`px-4 sm:px-6 py-2.5 rounded-[100px] text-base font-semibold transition-all ease-[ease-out] duration-200 active:scale-95 transition-transform flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "dashboard" ? "bg-[var(--ios-blue)]/10 text-[var(--ios-blue)] dark:transparent dark:text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)] dark:hover:text-[var(--ios-label)] dark:text-[var(--ios-secondary-label)]"}`}
+              className={`px-4 sm:px-6 py-2.5 rounded-[100px] text-base font-semibold transition-all ease-[ease-out] duration-200 active:scale-95 transition-transform flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "dashboard" ? "bg-[var(--ios-surface)] text-[var(--ios-label)] shadow-sm" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}
             >
               <BarChart2 size={16} className="flex-shrink-0" />
               <span>Tổng quan</span>
             </button>
             <button
               onClick={() => setCurrentTab("journal")}
-              className={`px-4 sm:px-6 py-2.5 rounded-[100px] text-base font-semibold transition-all ease-[ease-out] duration-200 active:scale-95 transition-transform flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "journal" ? "bg-[var(--ios-blue)]/10 text-[var(--ios-blue)] dark:transparent dark:text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)] dark:hover:text-[var(--ios-label)] dark:text-[var(--ios-secondary-label)]"}`}
+              className={`px-4 sm:px-6 py-2.5 rounded-[100px] text-base font-semibold transition-all ease-[ease-out] duration-200 active:scale-95 transition-transform flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "journal" ? "bg-[var(--ios-surface)] text-[var(--ios-label)] shadow-sm" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}
             >
               <FileText size={16} className="flex-shrink-0" />
               <span>
@@ -1392,14 +1392,14 @@ export default function App() {
             </button>
             <button
               onClick={() => setCurrentTab("calendar")}
-              className={`px-4 sm:px-6 py-2.5 rounded-[100px] text-base font-semibold transition-all ease-[ease-out] duration-200 active:scale-95 transition-transform flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "calendar" ? "bg-[var(--ios-blue)]/10 text-[var(--ios-blue)] dark:transparent dark:text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)] dark:hover:text-[var(--ios-label)] dark:text-[var(--ios-secondary-label)]"}`}
+              className={`px-4 sm:px-6 py-2.5 rounded-[100px] text-base font-semibold transition-all ease-[ease-out] duration-200 active:scale-95 transition-transform flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "calendar" ? "bg-[var(--ios-surface)] text-[var(--ios-label)] shadow-sm" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}
             >
               <CalendarIcon size={16} className="flex-shrink-0" />
               <span>Lịch kinh tế</span>
             </button>
             <button
               onClick={() => setCurrentTab("news")}
-              className={`px-4 sm:px-6 py-2.5 rounded-[100px] text-base font-semibold transition-all ease-[ease-out] duration-200 active:scale-95 transition-transform flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "news" ? "bg-[var(--ios-blue)]/10 text-[var(--ios-blue)] dark:transparent dark:text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)] dark:hover:text-[var(--ios-label)] dark:text-[var(--ios-secondary-label)]"}`}
+              className={`px-4 sm:px-6 py-2.5 rounded-[100px] text-base font-semibold transition-all ease-[ease-out] duration-200 active:scale-95 transition-transform flex items-center justify-center gap-2 whitespace-nowrap ${currentTab === "news" ? "bg-[var(--ios-surface)] text-[var(--ios-label)] shadow-sm" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}
             >
               <Newspaper size={16} className="flex-shrink-0" />
               <span>Tin tức thị trường</span>
@@ -1576,7 +1576,7 @@ export default function App() {
                     <p className="text-[13px] font-medium text-[var(--ios-secondary-label)]">Hệ thống & Tài khoản</p>
                   </div>
                 </div>
-                <button onClick={() => setIsSettingsOpen(false)} className="w-9 h-9 flex items-center justify-center bg-[var(--ios-surface-2)] text-[var(--ios-label)] rounded-full hover:bg-[var(--sys-tint-soft)] hover:text-[var(--ios-blue)] transition-colors active:scale-90 cursor-pointer">
+                <button onClick={() => setIsSettingsOpen(false)} className="w-9 h-9 flex items-center justify-center bg-[var(--ios-fill)] text-[var(--ios-label)] rounded-full hover:bg-[var(--sys-tint-soft)] hover:text-[var(--ios-blue)] transition-colors active:scale-90 cursor-pointer">
                   <X size={18} />
                 </button>
               </header>
@@ -1674,7 +1674,7 @@ export default function App() {
                 <section>
                   <h3 className="text-[13px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-wider ml-4 mb-2">Đồng bộ quỹ The5ers</h3>
                   <div className="ios-glass ios26-card bg-[var(--ios-surface)] rounded-[24px] overflow-hidden border border-[var(--ios-separator)]/30">
-                    <div className="p-4 sm:p-5 flex items-center justify-between border-b border-[var(--ios-separator)]/50 bg-[var(--ios-surface-2)]/50">
+                    <div className="p-4 sm:p-5 flex items-center justify-between border-b border-[var(--ios-separator)]/50 bg-[var(--ios-fill)]/50">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-[12px] bg-[var(--sys-success-soft)] text-[var(--ios-green)] flex items-center justify-center">
                           <TrendingUp size={20} />
@@ -1700,7 +1700,7 @@ export default function App() {
                             const checked = selectedT5AccountIds.includes(acc.accountId);
                             const isActive = acc.status === "active" || acc.status === "available";
                             return (
-                              <label key={acc.accountId} className={`flex items-center justify-between p-3 rounded-[16px] border transition-colors cursor-pointer ${checked ? "bg-[var(--sys-tint-soft)] border-[var(--ios-blue)]/30" : "bg-[var(--ios-surface-2)] border-transparent hover:bg-[var(--ios-surface-2)]/80"} ${!isActive ? "opacity-50" : ""}`}>
+                              <label key={acc.accountId} className={`flex items-center justify-between p-3 rounded-[16px] border transition-colors cursor-pointer ${checked ? "bg-[var(--sys-tint-soft)] border-[var(--ios-blue)]/30" : "bg-[var(--ios-fill)] border-transparent hover:bg-[var(--sys-tint-soft)]/50"} ${!isActive ? "opacity-50" : ""}`}>
                                 <div className="flex items-center gap-3">
                                   <input type="checkbox" checked={checked} onChange={() => { const next = checked ? selectedT5AccountIds.filter((id) => id !== acc.accountId) : [...selectedT5AccountIds, acc.accountId]; setSelectedT5AccountIds(next); localStorage.setItem("t5_selected_accounts", JSON.stringify(next)); if (!checked && !isActive) loadT5AccountTrades(acc.accountId); }} className="w-5 h-5 accent-[var(--ios-blue)] cursor-pointer" />
                                   <span className="text-[15px] font-bold text-[var(--ios-label)]">{acc.name}</span>
@@ -1820,7 +1820,7 @@ export default function App() {
               <div className="p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-[17px] font-semibold text-[var(--ios-label)]">Lệnh nhanh</h3>
-                <button onClick={() => setIsQuickAddOpen(false)} className="w-8 h-8 flex items-center justify-center bg-[var(--ios-surface-2)] rounded-full cursor-pointer active:scale-90 transition-transform">
+                <button onClick={() => setIsQuickAddOpen(false)} className="w-8 h-8 flex items-center justify-center bg-[var(--ios-fill)] rounded-full cursor-pointer active:scale-90 transition-transform">
                   <X size={16} />
                 </button>
               </div>

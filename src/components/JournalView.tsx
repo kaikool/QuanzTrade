@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {
   Search, Filter, Plus, BookOpen, Trash2, Pencil,
-  ChevronLeft, Calendar, Tag, Activity, Expand
+  ChevronLeft, Calendar, Tag, Activity, Expand, ArrowLeft, Edit2
 } from "lucide-react";
 import type { Trade } from "../types";
 import { motion, AnimatePresence } from "motion/react";

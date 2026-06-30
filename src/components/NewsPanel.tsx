@@ -92,8 +92,8 @@ export function NewsPanel({
               <ChevronRight size={18} />
             </button>
           </div>
-          <button onClick={onRefresh} type="button" className="w-10 h-10 bg-[var(--ios-blue)] text-white rounded-[12px] flex items-center justify-center active:scale-90 transition-transform cursor-pointer shadow-ios-sm">
-            <RefreshCw size={18} className={refreshing ? "animate-spin" : ""} />
+          <button onClick={onRefresh} type="button" className="h-[36px] w-[36px] flex items-center justify-center rounded-[12px] bg-[var(--ios-fill)] border-0 cursor-pointer active:scale-90 transition-transform shadow-sm" title="Cập nhật">
+            <RefreshCw size={16} className={refreshing ? "animate-spin text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"} />
           </button>
         </div>
       </div>
@@ -101,8 +101,8 @@ export function NewsPanel({
       {/* News cards */}
       {loading ? (
         <div className="space-y-4">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="h-32 rounded-[30px] bg-[var(--ios-surface-2)] animate-pulse border border-[var(--ios-separator)]/40" />
+          {[...Array(5)].map((_, index) => (
+            <div key={index} className="h-32 rounded-[30px] bg-[var(--ios-fill)] animate-pulse border-0" />
           ))}
         </div>
       ) : newsItems.length === 0 ? (
