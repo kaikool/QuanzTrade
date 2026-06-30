@@ -46,14 +46,14 @@ export function CalendarView({
         </div>
 
         <div className="flex flex-nowrap items-center gap-2 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
-          <div className="flex shrink-0 ios26-glass bg-[var(--ios-surface)]/[0.07] shadow-none gap-0.5 p-1 rounded-[10px] text-[13px] font-bold">
+          <div className="flex shrink-0 ios26-glass shadow-none gap-0.5 p-1 rounded-[10px] text-[13px] font-bold" style={{ background: "transparent" }}>
                       <button onClick={() => setCalendarPeriodFilter("DAY")}
               className={`h-8 px-3 rounded-[8px] transition-all cursor-pointer whitespace-nowrap ${calendarPeriodFilter === "DAY" ? "bg-[var(--ios-surface)] shadow-ios-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>Hôm nay</button>
             <button onClick={() => setCalendarPeriodFilter("WEEK")}
               className={`h-8 px-3 rounded-[8px] transition-all cursor-pointer whitespace-nowrap ${calendarPeriodFilter === "WEEK" ? "bg-[var(--ios-surface)] shadow-ios-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>Tuần này</button>
           </div>
 
-          <div className="flex shrink-0 ios26-glass bg-[var(--ios-surface)]/[0.07] shadow-none gap-0.5 p-1 rounded-[10px]">
+          <div className="flex shrink-0 ios26-glass shadow-none gap-0.5 p-1 rounded-[10px]" style={{ background: "transparent" }}>
             <button onClick={() => setCalendarImpactFilter("ALL")} className={`h-8 px-2 rounded-[8px] transition-all cursor-pointer flex items-center gap-1 ${calendarImpactFilter === "ALL" ? "bg-[var(--ios-surface)] shadow-ios-sm" : ""}`} title="Tất cả">
               <span className="w-2.5 h-2.5 rounded-full bg-[var(--sys-red)]" /><span className="w-2.5 h-2.5 rounded-full bg-amber-500" /><span className="w-2.5 h-2.5 rounded-full bg-[var(--sys-blue)]" />
             </button>
