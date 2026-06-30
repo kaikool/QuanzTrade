@@ -145,9 +145,9 @@ export function JournalView({
 
         {/* Right Pane (Detail View) */}
         {selectedTrade ? (
-          <div className="flex-1 flex flex-col ios-glass ios26-card bg-[var(--ios-surface)] border border-[var(--ios-separator)] shadow-ios-sm overflow-hidden absolute md:relative inset-0 z-20">
+          <div className="flex-1 flex flex-col ios-glass ios26-card bg-[var(--ios-surface)] border border-[var(--ios-separator)] shadow-ios-sm overflow-hidden absolute md:relative inset-0 z-20 h-full min-h-0">
             {/* Header Detail */}
-            <div className="flex items-center justify-between p-4 border-b border-[var(--ios-separator)] shrink-0">
+            <div className="flex items-center justify-between p-4 border-b border-[var(--ios-separator)] shrink-0 bg-[var(--ios-surface)]">
               <div className="flex items-center gap-2 md:gap-3 shrink-0">
                 <button onClick={() => setSelectedTrade(null)} className="md:hidden w-8 h-8 flex items-center justify-center bg-[var(--sys-tint-soft)] text-[var(--ios-blue)] rounded-full">
                   <ArrowLeft size={18} />
@@ -168,7 +168,7 @@ export function JournalView({
             </div>
 
             {/* Content Detail */}
-            <div className="flex-1 overflow-y-auto p-5 md:p-8 no-scrollbar">
+            <div className="flex-1 overflow-y-auto p-5 md:p-8 no-scrollbar min-h-0 h-full">
               
               {/* PnL Hero & Status */}
               <div className="flex items-center justify-between mb-8 bg-[var(--sys-glass)] border border-[var(--sys-border)] p-6 rounded-[24px] shadow-ios-sm relative overflow-hidden">
