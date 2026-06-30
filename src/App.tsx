@@ -74,70 +74,7 @@ window.fetch = async (...args) => {
 };
 
 
-const The5ersMetrics = ({ t5Accounts, selectedIds }: { t5Accounts: import('./types').T5AccountOverview[], selectedIds: string[] }) => {
-  const activeAccounts = t5Accounts.filter(a => selectedIds.includes(a.accountId));
-  if (activeAccounts.length === 0) return null;
 
-  return (
-    <div className="mb-6 overflow-x-auto no-scrollbar pb-2">
-      <div className="flex gap-4 min-w-max px-2">
-        {activeAccounts.map(acc => {
-          const dailyPnlVal = acc.dailyLoss || 0;
-          const dailyLossUsed = Math.max(0, -dailyPnlVal);
-          const dailyLimitVal = Math.abs(acc.dailyLossLimit || 0);
-          const dailyPct = dailyLimitVal > 0 ? Math.min(100, (dailyLossUsed / dailyLimitVal) * 100) : 0;
-          const isWarning = dailyPct > 80;
-          
-          const maxLossVal = Math.abs(acc.maxLoss || 0);
-          const pnlVal = (acc.pnl || 0);
-          
-          return (
-          <div key={acc.accountId} className="bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm rounded-[24px] p-5 shadow-ios-md flex flex-col justify-between w-[280px] sm:w-[320px] relative overflow-hidden flex-shrink-0">
-            <div className={`absolute top-0 left-0 w-full h-1.5 ${acc.type === "funded" ? "bg-[var(--sys-green)]/100" : "bg-[var(--sys-blue)]"}`} />
-            
-            <div>
-              <h3 className="font-bold text-lg text-[var(--sys-text)] flex justify-between items-center gap-2 mb-1 min-w-0">
-                {acc.name}
-                <span className={`text-sm px-2 py-0.5 rounded-full font-bold uppercase ${acc.type === "funded" ? "bg-[var(--sys-green)]/100/15 text-[var(--sys-green)] dark:text-[var(--sys-green)]" : "bg-[var(--sys-blue)]/15 text-[var(--sys-blue)]"}`}>{acc.type}</span>
-              </h3>
-              <div className="text-[var(--sys-text-secondary)] text-sm font-medium mb-4 truncate">Mã TK: {acc.accountId}</div>
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex justify-between items-end">
-                <div className="flex flex-col">
-                  <span className="text-[var(--sys-text-secondary)] text-sm font-medium mb-1">Lợi nhuận hiện tại</span>
-                  <span className={`font-bold text-xl ${pnlVal >= 0 ? "text-[var(--sys-green)]" : "text-[var(--sys-red)]"}`}>
-                    {pnlVal >= 0 ? '+' : ''}${pnlVal.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex flex-col text-right">
-                  <span className="text-[var(--sys-text-secondary)] text-sm font-medium mb-1">Max Loss</span>
-                  <span className="font-semibold text-[var(--sys-text)]">${maxLossVal.toFixed(2)}</span>
-                </div>
-              </div>
-
-              <div className="pt-3 border-t border-[var(--sys-border)]">
-                <div className="flex justify-between items-center text-sm mb-1.5">
-                  <span className="text-[var(--sys-text-secondary)] font-medium">Giới hạn lỗ trong ngày</span>
-                  <span className={`font-semibold ${isWarning ? "text-[var(--sys-red)]" : "text-[var(--sys-text)]"}`}>
-                    -${dailyLossUsed.toFixed(2)} / -${dailyLimitVal.toFixed(2)}
-                  </span>
-                </div>
-                <progress
-                  className={`ios26-progress ${isWarning ? "is-warning" : ""}`}
-                  value={dailyPct}
-                  max={100}
-                  aria-label="Daily loss usage"
-                />
-              </div>
-            </div>
-          </div>
-        )})}
-      </div>
-    </div>
-  );
-};
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem("trade_app_auth_token"));
@@ -1476,6 +1413,15 @@ export default function App() {
         {/* 1. OVERVIEW BENTO TAB SCREEN */}
         {currentTab === "dashboard" && (
           <div className="space-y-6" id="dashboard-bento-section">
+            {/* Numeric and graphs bento core statistics wrapper */}
+            <Suspense
+              fallback={
+                <div className="min-h-[260px] rounded-[24px] bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm shadow-ios-sm animate-pulse" />
+              }
+            >
+              <BentoStats trades={mergedTrades} darkMode={darkMode} />
+            </Suspense>
+
             <section className="ios26-card p-4 sm:p-5" id="t5-account-command-center">
               <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-4">
                 <div className="min-w-0">
@@ -1520,16 +1466,6 @@ export default function App() {
                 </div>
               )}
             </section>
-
-            {/* Numeric and graphs bento core statistics wrapper */}
-            <Suspense
-              fallback={
-                <div className="min-h-[260px] rounded-[24px] bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm shadow-ios-sm animate-pulse" />
-              }
-            >
-              <The5ersMetrics t5Accounts={followedT5Accounts} selectedIds={selectedT5AccountIds} />
-              <BentoStats trades={mergedTrades} darkMode={darkMode} />
-            </Suspense>
 
             {/* Mixed Bento Row: Calendar Fast-View (Large 2/3) + Recent Trade Activities (Medium 1/3) */}
             <div
@@ -3031,7 +2967,7 @@ export default function App() {
       </AnimatePresence>
 
       {/* Unified Floating Action Button (FAB) for Mobile & Desktop - M3 Centered Grid Align */}
-      <div className="fixed bottom-[calc(5.2rem+env(safe-area-inset-bottom,0px))] md:bottom-8 left-0 right-0 pointer-events-none z-40">
+      <div className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom,16px))] md:bottom-8 left-0 right-0 pointer-events-none z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-end">
           <button
             onClick={handleOpenAddTrade}
@@ -3049,7 +2985,7 @@ export default function App() {
 
       {/* Material 3 Bottom Navigation bar for mobile / bottom control menu */}
       <footer
-        className={`md:hidden fixed bottom-0 left-0 right-0 pb-[env(safe-area-inset-bottom,0px)] h-[calc(4.5rem+env(safe-area-inset-bottom,0px))] border-t ${darkMode ? "bg-[var(--sys-surface-2)]/95 border-[var(--sys-border)]" : "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm/95 border-[var(--sys-border)]"} backdrop-blur-xl flex items-center justify-around px-2 z-40 transition-colors ease-[ease-out]`}
+        className={`md:hidden fixed z-40 transition-colors ease-[ease-out] backdrop-blur-xl ${darkMode ? "bg-[var(--sys-surface-2)]/95 border-[var(--sys-border)]" : "bg-[var(--sys-surface)] border border-[var(--sys-border)] shadow-ios-lg/95"}`}
         id="ios-bottom-nav"
       >
         <button

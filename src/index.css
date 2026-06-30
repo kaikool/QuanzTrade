@@ -376,8 +376,8 @@ a[class*="bg-[var(--sys-surface-2)]"]:active {
 #ios-bottom-nav {
   left: 12px;
   right: 12px;
-  bottom: max(10px, env(safe-area-inset-bottom));
-  height: 72px;
+  bottom: max(16px, env(safe-area-inset-bottom, 16px));
+  height: 64px;
   border-radius: 28px;
   border-top: 1px solid var(--sys-border);
 }
@@ -1197,24 +1197,24 @@ table th span,
   grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: center;
   justify-items: stretch;
-  padding: 7px 12px max(7px, env(safe-area-inset-bottom));
-  height: calc(76px + env(safe-area-inset-bottom, 0px));
+  padding: 0 8px;
+  height: 64px;
 }
 
 #ios-bottom-nav button {
-  height: 58px;
+  height: 54px;
   min-width: 0;
-  padding: 4px 2px;
-  display: grid;
-  grid-template-rows: 30px 16px;
-  align-content: center;
-  justify-items: center;
-  gap: 3px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
 }
 
 #ios-bottom-nav button > div {
-  width: 56px;
-  height: 30px;
+  width: 48px;
+  height: 28px;
   display: grid;
   place-items: center;
   padding: 0;
@@ -1223,13 +1223,13 @@ table th span,
 
 #ios-bottom-nav button > span {
   display: block;
-  max-width: 68px;
-  height: 16px;
+  max-width: 100%;
+  height: auto;
   overflow: hidden;
   text-align: center;
   font-size: 11px;
   font-weight: 650;
-  line-height: 16px;
+  line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
