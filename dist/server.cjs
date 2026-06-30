@@ -1336,6 +1336,34 @@ async function startServer() {
         res.status(500).json({ success: false, message: err.message });
       }
     });
+    app.post("/api/trigger-scrape", async (req, res) => {
+      const token = process.env.GITHUB_PAT;
+      if (!token) {
+        return res.status(500).json({ success: false, message: "GITHUB_PAT not configured on server" });
+      }
+      try {
+        const response = await fetch(
+          "https://api.github.com/repos/kaikool/QuanzTrade/actions/workflows/scrape-the5ers.yml/dispatches",
+          {
+            method: "POST",
+            headers: {
+              "Authorization": "Bearer " + token,
+              "Content-Type": "application/json",
+              "User-Agent": "QuanzTrade-server"
+            },
+            body: JSON.stringify({ ref: "main" })
+          }
+        );
+        if (response.status === 204) {
+          res.json({ success: true, message: "GitHub Actions scraper da duoc kich hoat!" });
+        } else {
+          const text = await response.text();
+          res.status(response.status).json({ success: false, message: text });
+        }
+      } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+      }
+    });
     app.post("/api/save-site-password", async (req, res) => {
       const { sitePassword } = req.body || {};
       if (typeof sitePassword !== "string") {
@@ -1579,7 +1607,7 @@ async function startServer() {
       res.json({ status: "ok", uptime: process.uptime(), timestamp: (/* @__PURE__ */ new Date()).toISOString() });
     });
     app.get(/^(?!\/api).*$/, (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
+      res.sendFile(import_path.default.join(distPath, "index.html"));
     });
     app.use("/api", (req, res) => {
       res.status(404).json({ success: false, message: `Route ${req.method} ${req.originalUrl} not found` });

@@ -249,16 +249,6 @@ async function run() {
 
     fs.writeFileSync(path.join(DATA_DIR, 'profile.json'), JSON.stringify(profileData, null, 2));
 
-    const pubDataDir = path.join(process.cwd(), '../public/data');
-    if (!fs.existsSync(pubDataDir)) fs.mkdirSync(pubDataDir, { recursive: true });
-
-    fs.copyFileSync(path.join(DATA_DIR, 'profile.json'), path.join(pubDataDir, 'profile.json'));
-
-    for (const acc of profileData.accounts) {
-      const f = path.join(DATA_DIR, 'account_' + acc.accountId + '.json');
-      if (fs.existsSync(f)) fs.copyFileSync(f, path.join(pubDataDir, 'account_' + acc.accountId + '.json'));
-    }
-
     console.log('Hoan tat! Da dong bo du lieu.');
     if (supabase) console.log('Da dong bo len Supabase!');
 

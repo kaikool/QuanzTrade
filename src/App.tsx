@@ -2940,8 +2940,15 @@ export default function App() {
                     <label className="settings-field"><span>DSR token</span><textarea value={t5DsrToken} onChange={(e) => { const val = e.target.value.trim(); setT5DsrToken(val); localStorage.setItem("t5_dsr_token", val); }} placeholder="Dán token DSR" className="settings-input settings-textarea settings-input-mono" /></label>
                     <div className="settings-actions two">
                       <button type="button" onClick={saveT5Creds} disabled={t5Saving} className="settings-button primary">{t5Saving ? "Đang lưu..." : "Lưu DSR"}</button>
-                      <button type="button" onClick={syncT5Now} disabled={t5Syncing} className="settings-button success">{t5Syncing ? "Đang đồng bộ..." : "Đồng bộ ngay"}</button>
+                      <button type="button" onClick={syncT5Now} disabled={t5Syncing} className="settings-button success">{t5Syncing ? "Đang đồng bộ..." : "Đồng bộ server"}</button>
                     </div>
+                    <button type="button" onClick={async () => {
+                      try {
+                        const res = await fetch("/api/trigger-scrape", { method: "POST" });
+                        const json = await res.json();
+                        alert(json.message || "Đã trigger GitHub Actions!");
+                      } catch(e: any) { alert("Lỗi: " + e.message); }
+                    }} className="settings-button secondary full">🚀 Chạy GitHub Actions</button>
                     {t5SaveResult && <p className={`settings-result ${t5SaveResult.startsWith("✅") ? "is-ok" : "is-error"}`}>{t5SaveResult}</p>}
                   </div>
                 </section>

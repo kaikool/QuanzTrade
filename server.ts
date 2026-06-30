@@ -1574,10 +1574,10 @@ async function startServer() {
             pnl: statsData.totalNetProfit || 0,
             status: finalStatus,
             type: finalType,
-            maxLoss: balanceData.maxLoss || 0,
-            dailyLoss: balanceData.dailyProfitAndLoss || 0,
-            dailyLossLimit: balanceData.allowedDailyLosses || 0,
-            baseBalance: balanceData.baseBalance || 0,
+            maxLoss: (balanceData as any).maxLoss || 0,
+            dailyLoss: (balanceData as any).dailyProfitAndLoss || 0,
+            dailyLossLimit: (balanceData as any).allowedDailyLosses || 0,
+            baseBalance: (balanceData as any).baseBalance || 0,
           };
 
           const stats = { ...statsData, balanceDetails: balanceData, accountState: tsData };
@@ -1656,6 +1656,36 @@ async function startServer() {
         });
       } catch (err: any) {
         console.error("[sync] error:", err.message);
+        res.status(500).json({ success: false, message: err.message });
+      }
+    });
+
+    // ─── Trigger GitHub Actions scrape ──────────────────────────────────────
+    app.post("/api/trigger-scrape", async (req, res) => {
+      const token = process.env.GITHUB_PAT;
+      if (!token) {
+        return res.status(500).json({ success: false, message: "GITHUB_PAT not configured on server" });
+      }
+      try {
+        const response = await fetch(
+          "https://api.github.com/repos/kaikool/QuanzTrade/actions/workflows/scrape-the5ers.yml/dispatches",
+          {
+            method: "POST",
+            headers: {
+              "Authorization": "Bearer " + token,
+              "Content-Type": "application/json",
+              "User-Agent": "QuanzTrade-server",
+            },
+            body: JSON.stringify({ ref: "main" }),
+          }
+        );
+        if (response.status === 204) {
+          res.json({ success: true, message: "GitHub Actions scraper da duoc kich hoat!" });
+        } else {
+          const text = await response.text();
+          res.status(response.status).json({ success: false, message: text });
+        }
+      } catch (err: any) {
         res.status(500).json({ success: false, message: err.message });
       }
     });
