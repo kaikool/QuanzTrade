@@ -19,8 +19,12 @@ export function IOSTabBar({ currentTab, setCurrentTab }: IOSTabBarProps) {
   return (
     <nav
       id="ios-bottom-nav"
-      className="md:hidden fixed bottom-0 left-3 right-3 z-30 flex items-start justify-around px-2 pt-1.5 pb-[max(0.25rem,env(safe-area-inset-bottom,4px))] bg-[var(--ios-surface)]/85 backdrop-blur-2xl border border-[var(--ios-separator)] rounded-[28px] shadow-ios-glass"
-      style={{ bottom: 'max(16px, env(safe-area-inset-bottom, 16px))' }}
+      className="md:hidden fixed z-30 left-3 right-3 flex items-start justify-around px-2 pt-1.5 pb-[max(0.25rem,env(safe-area-inset-bottom,4px))] bg-[var(--ios-surface)]/70 border border-[var(--ios-separator)] rounded-[28px] shadow-ios-xl"
+      style={{
+        bottom: 'max(16px, env(safe-area-inset-bottom, 16px))',
+        backdropFilter: 'saturate(180%) blur(34px)',
+        WebkitBackdropFilter: 'saturate(180%) blur(34px)',
+      }}
     >
       {tabs.map(({ id, label, Icon }) => {
         const isActive = currentTab === id;
@@ -28,7 +32,7 @@ export function IOSTabBar({ currentTab, setCurrentTab }: IOSTabBarProps) {
           <button
             key={id}
             onClick={() => setCurrentTab(id)}
-            className={`flex flex-col items-center gap-0.5 justify-center flex-1 min-h-[48px] ${
+            className={`flex flex-col items-center gap-0.5 justify-center flex-1 min-h-[48px] rounded-[22px] ${
               isActive ? "text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)]"
             } active:scale-90 transition-all duration-150 cursor-pointer`}
           >
