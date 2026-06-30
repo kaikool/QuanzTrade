@@ -1333,7 +1333,7 @@ export default function App() {
         )}
 
         {/* iOS Brand Header */}
-        {(currentTab === "dashboard" || currentTab === "journal") && (
+        {(currentTab === "dashboard") && (
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2 sm:mt-4 px-1">
           <div className="flex items-center gap-3 sm:gap-4 min-w-0">
             <div
@@ -1372,11 +1372,11 @@ export default function App() {
 
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className="w-12 h-12 flex items-center justify-center bg-[var(--ios-fill)] border-0 rounded-full transition-transform active:scale-90 hover:bg-[var(--sys-tint-soft)]"
+              className="w-[42px] h-[42px] flex items-center justify-center bg-[var(--ios-fill)] rounded-full transition-all active:scale-90 hover:bg-[var(--sys-tint-soft)] shadow-sm"
               title="Giao diện sáng/tối"
               id="btn-darkmode"
             >
-              {darkMode ? <Sun size={20} className="text-amber-500" /> : <Moon size={20} className="text-[var(--ios-blue)]" />}
+              {darkMode ? <Sun size={18} className="text-amber-500" /> : <Moon size={18} className="text-[var(--ios-blue)]" />}
             </button>
           </div>
         </header>
@@ -1809,7 +1809,7 @@ export default function App() {
       <div className="fixed bottom-[calc(80px+env(safe-area-inset-bottom,0px))] md:bottom-8 right-4 z-40">
         <button
           onClick={() => setIsQuickAddOpen(true)}
-          className="w-14 h-14 bg-[var(--ios-blue)] text-white rounded-full flex items-center justify-center shadow-ios-xl active:scale-95 transition-transform cursor-pointer"
+          className="w-14 h-14 bg-gradient-to-br from-[var(--ios-blue)] to-[var(--ios-teal)] text-white rounded-full flex items-center justify-center shadow-ios-xl active:scale-90 transition-transform cursor-pointer border border-white/20"
           aria-label="Thêm lệnh nhanh"
         >
           <Plus size={28} />

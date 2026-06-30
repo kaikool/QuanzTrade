@@ -175,10 +175,10 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
           </div>
           
           {/* iOS Segmented Control for Chart */}
-          <div className="flex bg-[var(--ios-fill)] p-0.5 rounded-[10px]">
-            <button onClick={() => setSelectedChartRange("1W")} className={`px-3 py-1.5 text-[12px] font-bold rounded-[8px] transition-all ${selectedChartRange === "1W" ? "bg-[var(--ios-surface)] shadow-ios-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)]"}`}>1W</button>
-            <button onClick={() => setSelectedChartRange("1M")} className={`px-3 py-1.5 text-[12px] font-bold rounded-[8px] transition-all ${selectedChartRange === "1M" ? "bg-[var(--ios-surface)] shadow-ios-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)]"}`}>1M</button>
-            <button onClick={() => setSelectedChartRange("ALL")} className={`px-3 py-1.5 text-[12px] font-bold rounded-[8px] transition-all ${selectedChartRange === "ALL" ? "bg-[var(--ios-surface)] shadow-ios-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)]"}`}>ALL</button>
+          <div className="flex bg-[var(--ios-fill)] p-0.5 rounded-[10px] shadow-sm">
+            <button onClick={() => setSelectedChartRange("1W")} className={`px-3.5 py-1.5 text-[12px] font-bold rounded-[8px] transition-all ${selectedChartRange === "1W" ? "bg-[var(--ios-surface)] shadow-ios-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>1W</button>
+            <button onClick={() => setSelectedChartRange("1M")} className={`px-3.5 py-1.5 text-[12px] font-bold rounded-[8px] transition-all ${selectedChartRange === "1M" ? "bg-[var(--ios-surface)] shadow-ios-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>1M</button>
+            <button onClick={() => setSelectedChartRange("ALL")} className={`px-3.5 py-1.5 text-[12px] font-bold rounded-[8px] transition-all ${selectedChartRange === "ALL" ? "bg-[var(--ios-surface)] shadow-ios-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>ALL</button>
           </div>
         </div>
 

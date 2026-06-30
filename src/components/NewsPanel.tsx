@@ -73,30 +73,27 @@ export function NewsPanel({
       {/* Header bar — match CalendarView */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-1">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[13px] font-bold tracking-widest uppercase text-[var(--ios-secondary-label)]">Tin tức thị trường</span>
-            <span className="text-[12px] text-[var(--ios-tertiary-label)] font-mono">{pageLabel} · {newsItems.length} tin</span>
-          </div>
-          <p className="text-[13px] text-[var(--ios-secondary-label)] mt-1">Marketaux · TradingView · DeepL</p>
+          <span className="text-[13px] font-bold tracking-widest uppercase text-[var(--ios-secondary-label)]">Tin tức thị trường</span>
+          <p className="text-[12px] text-[var(--ios-tertiary-label)] font-mono mt-1">{pageLabel} · {newsItems.length} tin</p>
           {lastUpdatedAt && (
-            <span className="block text-[12px] text-[var(--ios-tertiary-label)] font-mono mt-0.5">
+            <p className="text-[12px] text-[var(--ios-tertiary-label)] font-mono mt-0.5">
               Cập nhật lúc {new Date(lastUpdatedAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
-            </span>
+            </p>
           )}
         </div>
         <div className="flex flex-nowrap items-center gap-2 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
-          <div className="flex shrink-0 items-center gap-1 bg-[var(--ios-fill)] border-0 rounded-[12px] p-1">
+          <div className="flex shrink-0 items-center gap-1 bg-[var(--ios-fill)] rounded-[10px] p-1 shadow-sm">
             <button type="button" onClick={() => onPageChange(page - 1)} disabled={!canGoPrevious}
-              className="w-8 h-8 rounded-[8px] text-[var(--ios-blue)] flex items-center justify-center active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:bg-[var(--ios-surface)]">
+              className="w-8 h-8 rounded-full text-[var(--ios-blue)] flex items-center justify-center active:scale-90 transition-transform disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:bg-[var(--ios-surface)]">
               <ChevronLeft size={18} />
             </button>
             <span className="min-w-[50px] text-center text-[12px] font-bold text-[var(--ios-label)]">{pageLabel}</span>
             <button type="button" onClick={() => onPageChange(page + 1)} disabled={!canGoNext}
-              className="w-8 h-8 rounded-[8px] text-[var(--ios-blue)] flex items-center justify-center active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:bg-[var(--ios-surface)]">
+              className="w-8 h-8 rounded-full text-[var(--ios-blue)] flex items-center justify-center active:scale-90 transition-transform disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:bg-[var(--ios-surface)]">
               <ChevronRight size={18} />
             </button>
           </div>
-          <button onClick={onRefresh} type="button" className="h-[36px] w-[36px] flex items-center justify-center rounded-[12px] bg-[var(--ios-fill)] border-0 cursor-pointer active:scale-90 transition-transform shadow-sm" title="Cập nhật">
+          <button onClick={onRefresh} type="button" className="w-[38px] h-[38px] flex items-center justify-center rounded-full bg-[var(--ios-fill)] cursor-pointer active:scale-90 transition-transform shadow-sm" title="Cập nhật">
             <RefreshCw size={16} className={refreshing ? "animate-spin text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"} />
           </button>
         </div>
