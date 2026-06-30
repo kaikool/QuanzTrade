@@ -1663,7 +1663,7 @@ export default function App() {
                       mergedTrades.slice(0, 4).map((t) => (
                         <div
                           key={t.id}
-                          <div className="flex items-center gap-3 p-2.5 hover:bg-[var(--sys-surface-2)] rounded-[16px] transition-all ease-[ease-out]"
+                          className="flex items-center gap-3 p-2.5 hover:bg-[var(--sys-surface-2)] rounded-[16px] transition-all ease-[ease-out]"
                         >
                           <div
                             className={`w-10 h-10 rounded-[16px] flex items-center justify-center font-bold text-base ${t.type === "BUY" ? "bg-[var(--sys-green)]/100/10 text-[var(--sys-green)]" : "bg-[var(--sys-red)]/100/10 text-[var(--sys-red)]"}`}
