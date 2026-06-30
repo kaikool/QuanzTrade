@@ -1,26 +1,21 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Trade } from "../types";
 import {
   TrendingUp,
   TrendingDown,
-  Percent,
   Activity,
-  Award,
   Calendar,
   Layers,
-  ChevronRight,
+  Sparkles,
 } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   AreaChart,
   Area,
+  ResponsiveContainer,
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  Cell,
 } from "recharts";
 
 interface BentoStatsProps {
@@ -29,380 +24,233 @@ interface BentoStatsProps {
 }
 
 export function BentoStats({ trades, darkMode }: BentoStatsProps) {
+  const [selectedChartRange, setSelectedChartRange] = useState<"ALL" | "1M" | "1W">("ALL");
+
   const stats = useMemo(() => {
     const total = trades.length;
     if (total === 0) {
-      return {
-        totalTrades: 0,
-        winRate: 0,
-        netPnl: 0,
-        profitFactor: 0,
-        averagePnl: 0,
-        winningTrades: 0,
-        losingTrades: 0,
-        bestTrade: 0,
-        worstTrade: 0,
-      };
+      return { totalTrades: 0, winRate: 0, netPnl: 0, profitFactor: 0, averagePnl: 0, bestPair: "-", bestPairWinRate: 0 };
     }
-
     const wins = trades.filter((t) => t.pnl > 0);
     const losses = trades.filter((t) => t.pnl < 0);
-    const winningTrades = wins.length;
-    const losingTrades = losses.length;
-    const winRate = total > 0 ? (winningTrades / total) * 100 : 0;
-
-    // Sum pnl
+    const winRate = total > 0 ? (wins.length / total) * 100 : 0;
     const netPnl = trades.reduce((sum, t) => sum + t.pnl, 0);
-
-    // Profit factor: Gross profits / Gross losses
     const grossProfit = wins.reduce((sum, t) => sum + t.pnl, 0);
     const grossLoss = Math.abs(losses.reduce((sum, t) => sum + t.pnl, 0));
-    const profitFactor =
-      grossLoss > 0 ? grossProfit / grossLoss : grossProfit > 0 ? 99.9 : 0;
-
+    const profitFactor = grossLoss > 0 ? grossProfit / grossLoss : grossProfit > 0 ? 99.9 : 0;
     const averagePnl = netPnl / total;
 
-    const pnlList = trades.map((t) => t.pnl);
-    const bestTrade = Math.max(...pnlList, 0);
-    const worstTrade = Math.min(...pnlList, 0);
+    // Find best pair
+    const pairStats: Record<string, { total: number; wins: number }> = {};
+    trades.forEach(t => {
+      if (!pairStats[t.pair]) pairStats[t.pair] = { total: 0, wins: 0 };
+      pairStats[t.pair].total += 1;
+      if (t.pnl > 0) pairStats[t.pair].wins += 1;
+    });
+    
+    let bestPair = "-";
+    let maxWins = 0;
+    let bestPairWinRate = 0;
+    Object.entries(pairStats).forEach(([pair, data]) => {
+      if (data.wins > maxWins && data.total >= 3) {
+        maxWins = data.wins;
+        bestPair = pair;
+        bestPairWinRate = (data.wins / data.total) * 100;
+      }
+    });
 
-    return {
-      totalTrades: total,
-      winRate,
-      netPnl,
-      profitFactor,
-      averagePnl,
-      winningTrades,
-      losingTrades,
-      bestTrade,
-      worstTrade,
-    };
+    return { totalTrades: total, winRate, netPnl, profitFactor, averagePnl, bestPair, bestPairWinRate };
   }, [trades]);
 
-  // Chart Data: Cumulative P&L over time
   const chartData = useMemo(() => {
-    // Sort trades by entry date ascending
-    const sortedTrades = [...trades].sort(
-      (a, b) =>
-        new Date(a.entry_date).getTime() - new Date(b.entry_date).getTime(),
-    );
+    let filteredTrades = [...trades].sort((a, b) => new Date(a.entry_date).getTime() - new Date(b.entry_date).getTime());
+    
+    if (selectedChartRange === "1W") {
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+      filteredTrades = filteredTrades.filter(t => new Date(t.entry_date) >= oneWeekAgo);
+    } else if (selectedChartRange === "1M") {
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+      filteredTrades = filteredTrades.filter(t => new Date(t.entry_date) >= oneMonthAgo);
+    }
 
     let runningSum = 0;
-    return sortedTrades.map((t, index) => {
+    return filteredTrades.map((t) => {
       runningSum += t.pnl;
       return {
-        tradeNum: `T${index + 1}`,
-        pnl: t.pnl,
         cumulative: runningSum,
+        date: new Date(t.entry_date).toLocaleDateString("vi-VN", { month: "short", day: "numeric" }),
+        pnl: t.pnl,
         pair: t.pair,
-        date: new Date(t.entry_date).toLocaleDateString(undefined, {
-          month: "short",
-          day: "numeric",
-        }),
       };
     });
-  }, [trades]);
+  }, [trades, selectedChartRange]);
 
-  // Map pairs distribution
-  const pairData = useMemo(() => {
-    const counts: { [key: string]: number } = {};
-    trades.forEach((t) => {
-      counts[t.pair] = (counts[t.pair] || 0) + 1;
-    });
-    return Object.entries(counts).map(([name, val]) => ({
-      name,
-      value: val,
-    }));
-  }, [trades]);
+  const winRateCircumference = 2 * Math.PI * 38;
+  const winRateStrokeDashoffset = winRateCircumference - (stats.winRate / 100) * winRateCircumference;
+
+  // Generate Smart Insight
+  const insightMessage = useMemo(() => {
+    if (stats.totalTrades === 0) return "Hãy ghi lại giao dịch đầu tiên của bạn để xem phân tích thông minh.";
+    if (stats.netPnl < 0) return "Tài khoản đang âm nhẹ. Hãy rà soát lại các lệnh lỗ và giữ kỷ luật quản lý vốn nhé!";
+    if (stats.bestPair !== "-") return `Phong độ xuất sắc! Bạn đang giao dịch cực tốt cặp ${stats.bestPair} với tỷ lệ thắng ${stats.bestPairWinRate.toFixed(0)}%.`;
+    if (stats.winRate > 60) return "Tỷ lệ thắng đang duy trì ở mức cao. Tiếp tục phát huy chiến lược hiện tại!";
+    return "Tài khoản đang tăng trưởng ổn định. Hãy giữ vững kỷ luật giao dịch.";
+  }, [stats]);
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto pb-10" id="ios-dashboard-container">
-      {/* 1. Hero Card: Apple Card / Wallet Style for Net Profit */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className="ios26-hero-card w-full rounded-[28px] overflow-hidden relative shadow-ios-md aspect-[1.8/1] sm:aspect-[2.2/1] flex flex-col justify-between p-6 sm:p-8"
+    <div className="space-y-4 md:space-y-6">
+      
+      {/* 1. Smart Insight Widget */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+        className="ios-glass ios26-card bg-[var(--ios-surface)] p-5 shadow-ios-md relative overflow-hidden"
       >
-        <div className="flex justify-between items-start text-white">
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-white/20 rounded-full backdrop-blur-md">
-              {stats.netPnl >= 0 ? (
-                <TrendingUp size={20} />
-              ) : (
-                <TrendingDown size={20} />
-              )}
-            </div>
-            <span className="text-white/90 font-medium text-lg tracking-wide truncate">
-              Tổng Tài Sản
-            </span>
-          </div>
-          <div className="ios26-brand-wordmark text-white/80 text-base font-black truncate">Táo Tầu Journal</div>
+        <div className="absolute top-0 right-0 p-4 opacity-10">
+          <Sparkles size={64} className="text-[var(--ios-blue)]" />
         </div>
-
-        <div className="text-white">
-          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-1">
-            {stats.netPnl >= 0 ? "+" : "-"}$
-            {Math.abs(stats.netPnl).toLocaleString("en-US", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
-          </h2>
-          <p className="text-white/80 text-base sm:text-lg font-medium">
-            Lợi nhuận ròng hiện tại
-          </p>
+        <div className="relative z-10 flex items-start gap-4">
+          <div className="w-10 h-10 rounded-full bg-[var(--sys-tint-soft)] text-[var(--ios-blue)] flex items-center justify-center flex-shrink-0 shadow-sm">
+            <Sparkles size={20} />
+          </div>
+          <div>
+            <h4 className="text-[13px] font-bold uppercase tracking-widest text-[var(--ios-blue)] mb-1">Gợi ý thông minh</h4>
+            <p className="text-[16px] md:text-[18px] font-medium text-[var(--ios-label)] leading-snug">
+              {insightMessage}
+            </p>
+          </div>
         </div>
       </motion.div>
 
-      {/* 2. Settings-Style Inset Grouped List for Secondary Stats */}
-      <div className="mt-8">
-        <h3 className="text-[var(--ios-secondary-label)] uppercase text-sm font-semibold tracking-wider ml-4 mb-2">
-          Hiệu Suất Giao Dịch
-        </h3>
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="ios26-list-group overflow-hidden"
+      {/* 2. Apple Fitness Style Activity Rings & Hero Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+        
+        {/* Total Assets (Apple Card style) */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
+          className="ios26-hero-card rounded-[30px] p-6 text-white shadow-ios-xl flex flex-col justify-between min-h-[180px]"
         >
-          {/* Row: Win Rate */}
-          <div className="flex items-center justify-between p-4 border-b border-[var(--ios-separator)]">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[var(--ios-blue)] flex items-center justify-center text-white">
-                <Percent size={18} />
-              </div>
-              <span className="text-[var(--ios-label)] font-medium text-lg truncate pr-2">Tỷ lệ thắng</span>
+          <div className="flex justify-between items-start">
+            <div className="p-2.5 bg-white/20 rounded-full backdrop-blur-md">
+              {stats.netPnl >= 0 ? <TrendingUp size={22} /> : <TrendingDown size={22} />}
             </div>
-            <div className="flex items-center gap-2 text-[var(--ios-secondary-label)]">
-              <span className="font-semibold text-[var(--ios-label)] text-lg">{stats.winRate.toFixed(1)}%</span>
-              <ChevronRight size={16} />
+            <span className="text-[13px] font-bold tracking-widest uppercase opacity-80">Lợi nhuận ròng</span>
+          </div>
+          <div>
+            <h2 className="text-[40px] md:text-[48px] font-bold font-mono tracking-tighter leading-none mb-1">
+              {stats.netPnl >= 0 ? "+" : "-"}${Math.abs(stats.netPnl).toLocaleString("en-US", { maximumFractionDigits: 0 })}
+            </h2>
+            <p className="text-[16px] font-medium opacity-90">Từ {stats.totalTrades} giao dịch</p>
+          </div>
+        </motion.div>
+
+        {/* Activity Rings (Win Rate & PF) */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15 }}
+          className="ios-glass ios26-card bg-[var(--ios-surface)] p-6 shadow-ios-md flex items-center justify-between"
+        >
+          <div className="space-y-4 flex-1">
+            <div>
+              <p className="text-[12px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)]">Tỷ lệ thắng</p>
+              <p className="text-[24px] font-bold font-mono text-[var(--ios-label)] leading-none mt-1">{stats.winRate.toFixed(1)}%</p>
+            </div>
+            <div>
+              <p className="text-[12px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)]">Profit Factor</p>
+              <p className="text-[24px] font-bold font-mono text-[var(--ios-label)] leading-none mt-1">{stats.profitFactor.toFixed(2)}</p>
             </div>
           </div>
 
-          {/* Row: Profit Factor */}
-          <div className="flex items-center justify-between p-4 border-b border-[var(--ios-separator)]">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[var(--ios-blue)] flex items-center justify-center text-white">
-                <Activity size={18} />
-              </div>
-              <span className="text-[var(--ios-label)] font-medium text-lg truncate pr-2">Hệ số lợi nhuận</span>
-            </div>
-            <div className="flex items-center gap-2 text-[var(--ios-secondary-label)]">
-              <span className="font-semibold text-[var(--ios-label)] text-lg">{stats.profitFactor.toFixed(2)}</span>
-              <ChevronRight size={16} />
+          <div className="relative w-[100px] h-[100px] flex-shrink-0 flex items-center justify-center">
+            {/* Background Ring */}
+            <svg className="w-full h-full transform -rotate-90">
+              <circle cx="50" cy="50" r="38" stroke="var(--ios-separator)" strokeWidth="10" fill="none" className="opacity-30" />
+              {/* Progress Ring */}
+              <circle 
+                cx="50" cy="50" r="38" 
+                stroke={stats.winRate >= 50 ? "var(--ios-green)" : "var(--ios-red)"} 
+                strokeWidth="10" fill="none" 
+                strokeLinecap="round"
+                strokeDasharray={winRateCircumference}
+                strokeDashoffset={winRateStrokeDashoffset}
+                className="transition-all duration-1000 ease-out"
+              />
+            </svg>
+            <div className="absolute flex flex-col items-center">
+              <Activity size={24} className={stats.winRate >= 50 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"} />
             </div>
           </div>
+        </motion.div>
+      </div>
 
-          {/* Row: Average Pnl */}
-          <div className="flex items-center justify-between p-4 border-b border-[var(--ios-separator)]">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[var(--ios-blue)] flex items-center justify-center text-white">
-                <Award size={18} />
-              </div>
-              <span className="text-[var(--ios-label)] font-medium text-lg truncate pr-2">Lệnh trung bình</span>
-            </div>
-            <div className="flex items-center gap-2 text-[var(--ios-secondary-label)]">
-              <span className={`font-semibold text-lg ${stats.averagePnl >= 0 ? 'text-[var(--ios-green)]' : 'text-[var(--ios-red)]'}`}>
-                {stats.averagePnl >= 0 ? "+" : ""}${stats.averagePnl.toLocaleString("en-US", { maximumFractionDigits: 0 })}
-              </span>
-              <ChevronRight size={16} />
-            </div>
+      {/* 3. Apple Stocks Style Chart */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+        className="ios-glass ios26-card bg-[var(--ios-surface)] shadow-ios-md p-5 pb-2"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-[18px] font-bold text-[var(--ios-label)]">Tăng trưởng</h3>
+            <p className="text-[13px] font-medium text-[var(--ios-secondary-label)]">P&L tích luỹ</p>
           </div>
           
-          {/* Row: Best Trade */}
-          <div className="flex items-center justify-between p-4 border-b border-[var(--ios-separator)]">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[var(--ios-green)] flex items-center justify-center text-white">
-                <TrendingUp size={18} />
-              </div>
-              <span className="text-[var(--ios-label)] font-medium text-lg truncate pr-2">Lệnh thắng lớn nhất</span>
-            </div>
-            <div className="flex items-center gap-2 text-[var(--ios-secondary-label)]">
-              <span className="font-semibold text-[var(--ios-green)] text-lg">+${stats.bestTrade.toLocaleString()}</span>
-              <ChevronRight size={16} />
-            </div>
+          {/* iOS Segmented Control for Chart */}
+          <div className="flex bg-[var(--ios-surface-2)] p-0.5 rounded-[10px]">
+            <button onClick={() => setSelectedChartRange("1W")} className={`px-3 py-1.5 text-[12px] font-bold rounded-[8px] transition-all ${selectedChartRange === "1W" ? "bg-[var(--ios-surface)] shadow-ios-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)]"}`}>1W</button>
+            <button onClick={() => setSelectedChartRange("1M")} className={`px-3 py-1.5 text-[12px] font-bold rounded-[8px] transition-all ${selectedChartRange === "1M" ? "bg-[var(--ios-surface)] shadow-ios-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)]"}`}>1M</button>
+            <button onClick={() => setSelectedChartRange("ALL")} className={`px-3 py-1.5 text-[12px] font-bold rounded-[8px] transition-all ${selectedChartRange === "ALL" ? "bg-[var(--ios-surface)] shadow-ios-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)]"}`}>ALL</button>
           </div>
+        </div>
 
-          {/* Row: Worst Trade */}
-          <div className="flex items-center justify-between p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[var(--ios-red)] flex items-center justify-center text-white">
-                <TrendingDown size={18} />
-              </div>
-              <span className="text-[var(--ios-label)] font-medium text-lg truncate pr-2">Lệnh lỗ lớn nhất</span>
+        <div className="w-full h-64 -ml-2">
+          {chartData.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-[var(--ios-secondary-label)]">
+              <Calendar size={32} className="mb-2 opacity-30" />
+              <p className="text-sm font-medium">Chưa có dữ liệu</p>
             </div>
-            <div className="flex items-center gap-2 text-[var(--ios-secondary-label)]">
-              <span className="font-semibold text-[var(--ios-red)] text-lg">${stats.worstTrade.toLocaleString()}</span>
-              <ChevronRight size={16} />
-            </div>
-          </div>
-        </motion.div>
-      </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData}>
+                <defs>
+                  <linearGradient id="stocksGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--ios-blue)" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="var(--ios-blue)" stopOpacity={0.0} />
+                  </linearGradient>
+                </defs>
+                {/* Remove Grid lines, keep axes minimal */}
+                <XAxis dataKey="date" hide={true} />
+                <YAxis hide={true} domain={['auto', 'auto']} />
+                <Tooltip 
+                  contentStyle={{
+                    borderRadius: "12px",
+                    background: "var(--sys-glass)",
+                    border: "1px solid var(--sys-border)",
+                    color: "var(--ios-label)",
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    backdropFilter: "blur(20px)",
+                    boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)"
+                  }}
+                  itemStyle={{ color: "var(--ios-label)", fontFamily: "monospace" }}
+                  formatter={(val: number) => [`$${val.toFixed(0)}`, "P&L"]}
+                  labelFormatter={(label) => label}
+                  cursor={{ stroke: "var(--ios-secondary-label)", strokeWidth: 1, strokeDasharray: "4 4" }}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="cumulative" 
+                  stroke="var(--ios-blue)" 
+                  strokeWidth={3} 
+                  fillOpacity={1} 
+                  fill="url(#stocksGradient)" 
+                  activeDot={{ r: 6, fill: "var(--ios-surface)", stroke: "var(--ios-blue)", strokeWidth: 3 }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+      </motion.div>
 
-      {/* 3. iOS Health / Stocks Style Chart Cards */}
-      <div className="mt-8 space-y-6">
-        <h3 className="text-[var(--ios-secondary-label)] uppercase text-sm font-semibold tracking-wider ml-4 mb-2">
-          Biểu Đồ Trực Quan
-        </h3>
-        
-        {/* Cumulative Profit Chart */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="ios26-chart-card p-6"
-        >
-          <div className="flex justify-between items-start mb-6">
-            <div>
-              <h4 className="text-xl font-bold text-[var(--ios-label)] tracking-tight">
-                Lợi Nhuận Tích Luỹ
-              </h4>
-              <p className="text-base text-[var(--ios-secondary-label)] mt-1 font-medium">
-                Sự tăng trưởng tài khoản qua các lệnh
-              </p>
-            </div>
-            <div className="w-8 h-8 rounded-full bg-[var(--ios-blue)]/10 text-[var(--ios-blue)] flex items-center justify-center">
-              <Activity size={16} />
-            </div>
-          </div>
-
-          <div className="w-full h-56 mt-2">
-            {chartData.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-[var(--ios-secondary-label)]">
-                <Calendar size={32} className="mb-2 opacity-50" />
-                <p className="text-base font-medium">Chưa có dữ liệu giao dịch.</p>
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={chartData}
-                  margin={{ left: -20, right: 0, top: 10, bottom: 0 }}
-                >
-                  <defs>
-                    <linearGradient id="colorCumulative" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--ios-blue)" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="var(--ios-blue)" stopOpacity={0.0} />
-                    </linearGradient>
-                  </defs>
-                  <XAxis
-                    dataKey="tradeNum"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: "var(--ios-secondary-label)", fontSize: 11, fontWeight: 500 }}
-                    dy={10}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: "var(--ios-secondary-label)", fontSize: 11, fontWeight: 500 }}
-                    tickFormatter={(val) => `$${val}`}
-                    dx={-10}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: "16px",
-                      background: "var(--ios-surface-2)",
-                      border: "1px solid var(--ios-separator)",
-                      color: "var(--ios-label)",
-                      fontSize: "13px",
-                      fontWeight: 500,
-                      boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)",
-                      backdropFilter: "blur(20px)"
-                    }}
-                    itemStyle={{ color: "var(--ios-blue)", fontWeight: 700 }}
-                    formatter={(value: any, name: string) => {
-                      if (name === "cumulative") return [`$${Number(value).toFixed(2)}`, "Lợi nhuận"];
-                      return [`$${value}`, "Lệnh"];
-                    }}
-                    labelFormatter={(label, items) => {
-                      return items?.[0]?.payload?.pair || label;
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="cumulative"
-                    stroke="var(--ios-blue)"
-                    strokeWidth={3}
-                    fillOpacity={1}
-                    fill="url(#colorCumulative)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            )}
-          </div>
-        </motion.div>
-
-        {/* Pair Performance Distribution */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="ios26-chart-card p-6"
-        >
-          <div className="flex justify-between items-start mb-6">
-            <div>
-              <h4 className="text-xl font-bold text-[var(--ios-label)] tracking-tight">
-                Tần Suất Cặp Tiền
-              </h4>
-              <p className="text-base text-[var(--ios-secondary-label)] mt-1 font-medium">
-                Các tài sản giao dịch nhiều nhất
-              </p>
-            </div>
-            <div className="w-8 h-8 rounded-full bg-[var(--ios-blue)]/10 text-[var(--ios-blue)] flex items-center justify-center">
-              <Layers size={16} />
-            </div>
-          </div>
-
-          <div className="w-full h-48 mt-2">
-            {pairData.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-[var(--ios-secondary-label)]">
-                <Layers size={32} className="mb-2 opacity-50" />
-                <p className="text-base font-medium">Chưa đủ dữ liệu</p>
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={pairData} margin={{ left: -20, right: 0, top: 10, bottom: 0 }}>
-                  <XAxis
-                    dataKey="name"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: "var(--ios-secondary-label)", fontSize: 11, fontWeight: 500 }}
-                    dy={10}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: "var(--ios-secondary-label)", fontSize: 11, fontWeight: 500 }}
-                    allowDecimals={false}
-                    dx={-10}
-                  />
-                  <Tooltip
-                    cursor={{ fill: 'var(--ios-separator)', opacity: 0.5 }}
-                    contentStyle={{
-                      borderRadius: "16px",
-                      background: "var(--ios-surface-2)",
-                      border: "1px solid var(--ios-separator)",
-                      color: "var(--ios-label)",
-                      fontSize: "13px",
-                      fontWeight: 500,
-                      boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)",
-                    }}
-                    itemStyle={{ color: "var(--ios-blue)", fontWeight: 700 }}
-                    formatter={(value) => [`${value} lệnh`, "Tần suất"]}
-                  />
-                  <Bar dataKey="value" radius={[8, 8, 8, 8]}>
-                    {pairData.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill="var(--ios-blue)"
-                        fillOpacity={index % 2 === 0 ? 1 : 0.6}
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </div>
-        </motion.div>
-      </div>
     </div>
   );
 }

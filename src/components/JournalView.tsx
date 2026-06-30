@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import {
-  FileText, Filter, Search, Pencil, Trash2, BookOpen, Plus, ChevronRight
+  Search, Filter, Plus, BookOpen, Trash2, Pencil,
+  ChevronLeft, Calendar, Tag, Activity, Expand
 } from "lucide-react";
 import type { Trade } from "../types";
+import { motion, AnimatePresence } from "motion/react";
 
 interface JournalViewProps {
   currentTab: string;
@@ -40,136 +42,211 @@ export function JournalView({
   handleDeleteTrade,
   handleOpenAddTrade,
 }: JournalViewProps) {
+  
+  const [selectedTrade, setSelectedTrade] = useState<Trade | null>(null);
+
+  // Master List Item
+  const renderMasterItem = (t: Trade) => {
+    const isSelected = selectedTrade?.id === t.id;
+    return (
+      <button 
+        key={t.id} 
+        onClick={() => setSelectedTrade(t)}
+        className={`w-full text-left p-4 sm:p-5 transition-colors cursor-pointer border-b border-[var(--ios-separator)]/60 last:border-0
+          ${isSelected ? "bg-[var(--sys-tint-soft)] dark:bg-[var(--ios-blue)]/10" : "hover:bg-[var(--ios-surface-2)]/40"}`}
+      >
+        <div className="flex justify-between items-start mb-1">
+          <div className="flex items-center gap-2">
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide ${t.type === "BUY" ? "bg-[var(--sys-success-soft)] text-[var(--ios-green)]" : "bg-[var(--sys-danger-soft)] text-[var(--ios-red)]"}`}>
+              {t.type}
+            </span>
+            <span className="font-bold text-[16px] text-[var(--ios-label)]">{t.pair}</span>
+          </div>
+          <span className={`text-[16px] font-bold font-mono tracking-tight ${(t.pnl || 0) >= 0 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`}>
+            {(t.pnl || 0) >= 0 ? "+" : ""}${(t.pnl || 0).toFixed(0)}
+          </span>
+        </div>
+        <div className="flex justify-between items-center text-[12px]">
+          <span className="text-[var(--ios-secondary-label)] font-mono">{new Date(t.entry_date).toLocaleDateString("vi-VN")}</span>
+          <div className="flex gap-1 items-center">
+            {t.status === "OPEN" && <span className="bg-[var(--sys-tint-soft)] text-[var(--ios-blue)] text-[9px] px-1.5 py-0.5 rounded-full font-bold">OPEN</span>}
+            {t.tag && <span className="text-[var(--ios-tertiary-label)] uppercase font-semibold">#{t.tag}</span>}
+          </div>
+        </div>
+      </button>
+    );
+  };
+
   return (
-    <div className="space-y-4" id="journal-standalone-section">
-      {/* Search */}
-      <div className="relative">
-        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--ios-secondary-label)]" />
-        <input 
-          type="text" 
-          placeholder="Tìm kiếm giao dịch, cặp tiền, tag..." 
-          value={searchQuery} 
-          onChange={(e) => setSearchQuery(e.target.value)} 
-          className="w-full pl-10 pr-4 py-2.5 bg-[var(--ios-surface-2)] rounded-[12px] text-[17px] focus:outline-none text-[var(--ios-label)] placeholder:text-[var(--ios-secondary-label)]/70 ios-glass border border-[var(--ios-separator)]/30 focus:border-[var(--ios-blue)]/50 transition-colors" 
-        />
-      </div>
+    <div className="h-full flex flex-col md:h-[calc(100vh-140px)]" id="journal-standalone-section">
+      
+      {/* Top Toolbar */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-4 shrink-0">
+        <div className="relative flex-1">
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--ios-secondary-label)]" />
+          <input 
+            type="text" 
+            placeholder="Tìm kiếm..." 
+            value={searchQuery} 
+            onChange={(e) => setSearchQuery(e.target.value)} 
+            className="w-full pl-10 pr-4 py-2 bg-[var(--ios-surface-2)] rounded-[12px] text-[15px] focus:outline-none text-[var(--ios-label)] placeholder:text-[var(--ios-secondary-label)] border border-[var(--ios-separator)]/30 focus:border-[var(--ios-blue)]/50 transition-colors shadow-sm" 
+          />
+        </div>
 
-      {/* Filters (Segmented Controls & Pills) */}
-      <div className="flex flex-wrap items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-        {journalAccountOptions.length > 0 && (
-          <div className="flex bg-[var(--ios-surface-2)] p-1 rounded-[12px] text-[13px] font-medium border border-[var(--ios-separator)] shrink-0">
-            <button onClick={() => setSelectedJournalAccountId("ALL")} className={`px-3 py-1.5 rounded-[8px] transition-all duration-200 cursor-pointer ${selectedJournalAccountId === "ALL" ? "bg-[var(--ios-surface)] shadow-ios-sm text-[var(--ios-label)] font-semibold" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>Tất cả TK</button>
-            {journalAccountOptions.map((a) => (
-              <button key={a.accountId} onClick={() => setSelectedJournalAccountId(a.accountId)} className={`px-3 py-1.5 rounded-[8px] transition-all duration-200 cursor-pointer ${selectedJournalAccountId === a.accountId ? "bg-[var(--ios-surface)] shadow-ios-sm text-[var(--ios-label)] font-semibold" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>{a.name}</button>
-            ))}
-          </div>
-        )}
-        
-        <div className="flex items-center gap-1.5 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] pl-3 pr-2 py-1 rounded-[12px] shrink-0 h-[36px]">
-          <Filter size={14} className="text-[var(--ios-secondary-label)]" />
-          <select value={selectedPairFilter} onChange={(e) => setSelectedPairFilter(e.target.value)} className="bg-transparent focus:outline-none cursor-pointer text-[var(--ios-label)] font-medium text-[13px] w-20 appearance-none">
-            <option value="ALL">Cặp</option>
-            {uniquePairs.filter(p => p !== "ALL").map(p => (
-              <option key={p} value={p}>{p}</option>
-            ))}
+        <div className="flex flex-wrap items-center gap-2">
+          {journalAccountOptions.length > 0 && (
+            <div className="flex bg-[var(--ios-surface-2)] p-0.5 rounded-[12px] text-[13px] font-bold border border-[var(--ios-separator)]">
+              <button onClick={() => setSelectedJournalAccountId("ALL")} className={`px-3 py-1.5 rounded-[8px] transition-all cursor-pointer ${selectedJournalAccountId === "ALL" ? "bg-[var(--ios-surface)] shadow-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>Tất cả</button>
+              {journalAccountOptions.map((a) => (
+                <button key={a.accountId} onClick={() => setSelectedJournalAccountId(a.accountId)} className={`px-3 py-1.5 rounded-[8px] transition-all cursor-pointer ${selectedJournalAccountId === a.accountId ? "bg-[var(--ios-surface)] shadow-sm text-[var(--ios-label)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>{a.name}</button>
+              ))}
+            </div>
+          )}
+          
+          <select value={selectedPairFilter} onChange={(e) => setSelectedPairFilter(e.target.value)} className="bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] px-3 py-2 rounded-[12px] focus:outline-none cursor-pointer text-[var(--ios-label)] font-bold text-[13px] shadow-sm appearance-none">
+            <option value="ALL">Cặp (Tất cả)</option>
+            {uniquePairs.filter(p => p !== "ALL").map(p => <option key={p} value={p}>{p}</option>)}
           </select>
+          
+          <button onClick={() => handleOpenAddTrade()} className="w-9 h-9 bg-[var(--ios-blue)] text-white rounded-[12px] flex items-center justify-center shrink-0 cursor-pointer shadow-ios-sm active:scale-95">
+            <Plus size={18} />
+          </button>
         </div>
-
-        <div className="flex bg-[var(--ios-surface-2)] p-1 rounded-[12px] text-[13px] font-medium border border-[var(--ios-separator)] shrink-0">
-          <button onClick={() => setSelectedStatusFilter("ALL")} className={`px-3 py-1.5 rounded-[8px] transition-all duration-200 cursor-pointer ${selectedStatusFilter === "ALL" ? "bg-[var(--ios-surface)] shadow-ios-sm text-[var(--ios-label)] font-semibold" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>Tất cả</button>
-          <button onClick={() => setSelectedStatusFilter("OPEN")} className={`px-3 py-1.5 rounded-[8px] transition-all duration-200 cursor-pointer ${selectedStatusFilter === "OPEN" ? "bg-[var(--ios-surface)] shadow-ios-sm text-[var(--ios-label)] font-semibold" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>Mở</button>
-          <button onClick={() => setSelectedStatusFilter("CLOSED")} className={`px-3 py-1.5 rounded-[8px] transition-all duration-200 cursor-pointer ${selectedStatusFilter === "CLOSED" ? "bg-[var(--ios-surface)] shadow-ios-sm text-[var(--ios-label)] font-semibold" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"}`}>Đã đóng</button>
-        </div>
-
-        <button onClick={() => handleOpenAddTrade()} className="h-[36px] px-3.5 bg-[var(--ios-blue)] text-white rounded-[12px] text-[13px] font-semibold cursor-pointer active:scale-95 transition-transform flex items-center gap-1.5 shrink-0 shadow-ios-sm ml-auto">
-          <Plus size={16} /> Thêm
-        </button>
       </div>
 
-      {/* iOS Inset Grouped List (Unified for Desktop & Mobile) */}
-      <div className="ios-glass ios26-card bg-[var(--ios-surface)] rounded-[24px] shadow-ios-md border border-[var(--ios-separator)]/50 overflow-hidden mb-6">
-        {filteredTrades.length === 0 ? (
-          <div className="text-center py-16 text-[var(--ios-secondary-label)]">
-            <BookOpen size={48} className="mx-auto mb-3 opacity-30" />
-            <p className="font-semibold text-[17px] text-[var(--ios-label)]">Không tìm thấy giao dịch</p>
-            <p className="text-[15px] mt-1">Vui lòng điều chỉnh bộ lọc hoặc thêm mới.</p>
+      {/* Split View Container */}
+      <div className="flex flex-1 overflow-hidden gap-4 pb-16 md:pb-0 relative">
+        
+        {/* Left Pane (Master List) */}
+        <div className={`w-full md:w-[320px] lg:w-[360px] shrink-0 flex flex-col ios-glass ios26-card bg-[var(--ios-surface)] border border-[var(--ios-separator)] shadow-ios-sm overflow-hidden
+          ${selectedTrade ? "hidden md:flex" : "flex"}`}>
+          <div className="overflow-y-auto flex-1 no-scrollbar p-0 m-0">
+            {filteredTrades.length === 0 ? (
+              <div className="p-8 text-center text-[var(--ios-secondary-label)]">
+                <BookOpen size={40} className="mx-auto mb-3 opacity-30" />
+                <p className="font-bold text-[15px] text-[var(--ios-label)]">Trống</p>
+              </div>
+            ) : (
+              <div className="flex flex-col">
+                {filteredTrades.slice(0, visibleCount).map(renderMasterItem)}
+              </div>
+            )}
+            {visibleCount < filteredTrades.length && (
+              <button onClick={() => setVisibleCount(prev => prev + 50)} className="w-full p-4 text-[14px] font-bold text-[var(--ios-blue)] hover:bg-[var(--sys-tint-soft)] cursor-pointer">
+                Tải thêm
+              </button>
+            )}
           </div>
-        ) : (
-          <div className="divide-y divide-[var(--ios-separator)]/60">
-            {filteredTrades.slice(0, visibleCount).map((t) => (
-              <div key={t.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-5 hover:bg-[var(--ios-surface-2)]/40 transition-colors group">
-                
-                {/* Left: Info */}
-                <div className="flex gap-4 w-full sm:w-auto items-start sm:items-center">
-                  <div className="hidden sm:block">
-                    {(t.tv_snapshot_url || t.tv_snapshot_url_close) ? (
-                      <div className="w-16 h-16 rounded-[12px] overflow-hidden bg-[var(--ios-surface-2)] border border-[var(--ios-separator)]">
-                        <img src={t.tv_snapshot_url || t.tv_snapshot_url_close} className="w-full h-full object-cover" alt="chart" />
+        </div>
+
+        {/* Right Pane (Detail View) */}
+        {selectedTrade ? (
+          <div className="flex-1 flex flex-col ios-glass ios26-card bg-[var(--ios-surface)] border border-[var(--ios-separator)] shadow-ios-sm overflow-hidden absolute md:relative inset-0 z-20">
+            {/* Header Detail */}
+            <div className="flex items-center justify-between p-4 border-b border-[var(--ios-separator)] shrink-0">
+              <div className="flex items-center gap-3">
+                <button onClick={() => setSelectedTrade(null)} className="md:hidden w-8 h-8 flex items-center justify-center bg-[var(--ios-surface-2)] text-[var(--ios-blue)] rounded-full">
+                  <ChevronLeft size={20} />
+                </button>
+                <div>
+                  <h2 className="text-[22px] font-bold text-[var(--ios-label)] leading-none">{selectedTrade.pair}</h2>
+                  <p className="text-[12px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-wider mt-1">{selectedTrade.type} • {selectedTrade.size} Lots</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => { handleBeginEditTrade(selectedTrade); setSelectedTrade(null); }} className="w-9 h-9 flex items-center justify-center bg-[var(--ios-surface-2)] text-[var(--ios-label)] rounded-full hover:bg-[var(--sys-tint-soft)] hover:text-[var(--ios-blue)] transition-colors" title="Sửa lệnh">
+                  <Pencil size={16} />
+                </button>
+                <button onClick={() => { handleDeleteTrade(selectedTrade.id); setSelectedTrade(null); }} className="w-9 h-9 flex items-center justify-center bg-[var(--ios-surface-2)] text-[var(--ios-label)] rounded-full hover:bg-[var(--sys-danger-soft)] hover:text-[var(--ios-red)] transition-colors" title="Xóa lệnh">
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* Content Detail */}
+            <div className="flex-1 overflow-y-auto p-5 md:p-8 no-scrollbar">
+              
+              {/* PnL Hero */}
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <p className="text-[13px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)] mb-1">Lợi nhuận ròng</p>
+                  <p className={`text-[48px] font-bold font-mono tracking-tighter leading-none ${(selectedTrade.pnl || 0) >= 0 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`}>
+                    {(selectedTrade.pnl || 0) >= 0 ? "+" : ""}${(selectedTrade.pnl || 0).toFixed(2)}
+                  </p>
+                </div>
+                {selectedTrade.status === "OPEN" && (
+                  <div className="bg-[var(--sys-tint-soft)] text-[var(--ios-blue)] px-4 py-1.5 rounded-full font-bold text-[14px]">OPEN</div>
+                )}
+              </div>
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div className="bg-[var(--ios-surface-2)] p-4 rounded-[20px]">
+                  <Activity size={16} className="text-[var(--ios-secondary-label)] mb-2" />
+                  <p className="text-[12px] font-bold uppercase text-[var(--ios-secondary-label)]">Entry</p>
+                  <p className="text-[18px] font-mono font-bold text-[var(--ios-label)]">{selectedTrade.entry_price}</p>
+                </div>
+                <div className="bg-[var(--ios-surface-2)] p-4 rounded-[20px]">
+                  <Activity size={16} className="text-[var(--ios-secondary-label)] mb-2 opacity-50" />
+                  <p className="text-[12px] font-bold uppercase text-[var(--ios-secondary-label)]">Exit</p>
+                  <p className="text-[18px] font-mono font-bold text-[var(--ios-label)]">{selectedTrade.exit_price || "-"}</p>
+                </div>
+                <div className="bg-[var(--ios-surface-2)] p-4 rounded-[20px]">
+                  <Calendar size={16} className="text-[var(--ios-secondary-label)] mb-2" />
+                  <p className="text-[12px] font-bold uppercase text-[var(--ios-secondary-label)]">Thời gian mở</p>
+                  <p className="text-[15px] font-bold text-[var(--ios-label)]">{new Date(selectedTrade.entry_date).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}</p>
+                  <p className="text-[12px] text-[var(--ios-secondary-label)]">{new Date(selectedTrade.entry_date).toLocaleDateString("vi-VN")}</p>
+                </div>
+                <div className="bg-[var(--ios-surface-2)] p-4 rounded-[20px]">
+                  <Tag size={16} className="text-[var(--ios-secondary-label)] mb-2" />
+                  <p className="text-[12px] font-bold uppercase text-[var(--ios-secondary-label)]">Tags / TF</p>
+                  <p className="text-[15px] font-bold text-[var(--ios-label)]">{selectedTrade.tag || "No Tag"}</p>
+                  <p className="text-[12px] font-mono text-[var(--ios-secondary-label)]">{selectedTrade.timeframe || "-"}</p>
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div className="mb-8">
+                <h3 className="text-[15px] font-bold text-[var(--ios-label)] uppercase tracking-wider mb-3">Ghi chú giao dịch</h3>
+                <div className="bg-[var(--ios-surface-2)] p-5 rounded-[24px] text-[16px] text-[var(--ios-label)] leading-relaxed whitespace-pre-wrap font-medium">
+                  {selectedTrade.notes || <span className="text-[var(--ios-secondary-label)] italic">Không có ghi chú...</span>}
+                </div>
+              </div>
+
+              {/* Chart Snapshots */}
+              {(selectedTrade.tv_snapshot_url || selectedTrade.tv_snapshot_url_close) && (
+                <div>
+                  <h3 className="text-[15px] font-bold text-[var(--ios-label)] uppercase tracking-wider mb-3">Hình ảnh phân tích</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {selectedTrade.tv_snapshot_url && (
+                      <div className="relative rounded-[24px] overflow-hidden border border-[var(--ios-separator)] group aspect-video bg-black/5">
+                        <img src={selectedTrade.tv_snapshot_url} className="w-full h-full object-cover" alt="Entry Chart" />
+                        <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md text-white px-3 py-1 text-[11px] font-bold rounded-full uppercase tracking-wider">Entry Chart</div>
                       </div>
-                    ) : (
-                      <div className="w-16 h-16 rounded-[12px] bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] flex items-center justify-center">
-                        <BookOpen size={20} className="text-[var(--ios-secondary-label)]/40" />
+                    )}
+                    {selectedTrade.tv_snapshot_url_close && (
+                      <div className="relative rounded-[24px] overflow-hidden border border-[var(--ios-separator)] group aspect-video bg-black/5">
+                        <img src={selectedTrade.tv_snapshot_url_close} className="w-full h-full object-cover" alt="Exit Chart" />
+                        <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md text-white px-3 py-1 text-[11px] font-bold rounded-full uppercase tracking-wider">Exit Chart</div>
                       </div>
                     )}
                   </div>
-                  
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold tracking-wide ${t.type === "BUY" ? "bg-[var(--sys-success-soft)] text-[var(--ios-green)]" : "bg-[var(--sys-danger-soft)] text-[var(--ios-red)]"}`}>{t.type}</span>
-                      <span className="font-bold text-[17px] text-[var(--ios-label)]">{t.pair}</span>
-                      {t.status === "OPEN" && <span className="bg-[var(--sys-tint-soft)] text-[var(--ios-blue)] text-[10px] px-1.5 py-0.5 rounded-full font-semibold">OPEN</span>}
-                    </div>
-                    <div className="text-[13px] text-[var(--ios-secondary-label)] font-mono tracking-tight flex items-center gap-1.5">
-                      {t.size} lots <span className="text-[var(--ios-separator)]">•</span> {t.entry_price}{t.exit_price ? ` → ${t.exit_price}` : ""}
-                    </div>
-                    <div className="flex items-center gap-2 mt-2">
-                      {t.tag && <span className="text-[11px] font-semibold text-[var(--ios-blue)] bg-[var(--sys-tint-soft)] px-2 py-0.5 rounded-md uppercase">{t.tag}</span>}
-                      <div className="flex gap-0.5">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <span key={i} className={`text-[12px] ${i < (t.rating || 0) ? "text-amber-500" : "text-[var(--ios-secondary-label)]/30"}`}>★</span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
                 </div>
+              )}
 
-                {/* Right: P&L & Actions */}
-                <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center w-full sm:w-auto mt-4 sm:mt-0 pt-4 sm:pt-0 border-t border-[var(--ios-separator)]/40 sm:border-0">
-                  <div className="text-left sm:text-right">
-                    <span className={`text-[20px] font-bold font-mono tracking-tight ${(t.pnl || 0) >= 0 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`}>
-                      {(t.pnl || 0) >= 0 ? "+" : ""}${(t.pnl || 0).toFixed(0)}
-                    </span>
-                    <div className="text-[12px] text-[var(--ios-secondary-label)] mt-0.5">
-                      {new Date(t.entry_date).toLocaleDateString("vi-VN")}
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-1.5 mt-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => handleBeginEditTrade(t)} className="w-8 h-8 rounded-full bg-[var(--ios-surface-2)] text-[var(--ios-label)] cursor-pointer active:scale-90 transition-all flex items-center justify-center hover:bg-[var(--sys-tint-soft)] hover:text-[var(--ios-blue)]" title="Sửa">
-                      <Pencil size={12} />
-                    </button>
-                    <button onClick={() => handleDeleteTrade(t.id)} className="w-8 h-8 rounded-full bg-[var(--ios-surface-2)] text-[var(--ios-label)] cursor-pointer active:scale-90 transition-all flex items-center justify-center hover:bg-[var(--sys-danger-soft)] hover:text-[var(--ios-red)]" title="Xoá">
-                      <Trash2 size={12} />
-                    </button>
-                    <div className="w-8 h-8 flex items-center justify-center text-[var(--ios-tertiary-label)] sm:hidden">
-                       <ChevronRight size={16} />
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            ))}
+            </div>
           </div>
-        )}
-        
-        {visibleCount < filteredTrades.length && (
-          <div className="text-center py-4 bg-[var(--ios-surface-2)]/30 cursor-pointer hover:bg-[var(--ios-surface-2)]/50 transition-colors" onClick={() => setVisibleCount(prev => prev + 50)}>
-            <span className="text-[15px] font-medium text-[var(--ios-blue)]">
-              Tải thêm {filteredTrades.length - visibleCount} giao dịch
-            </span>
+        ) : (
+          <div className="hidden md:flex flex-1 items-center justify-center text-[var(--ios-secondary-label)]">
+            <div className="text-center">
+              <BookOpen size={48} className="mx-auto mb-4 opacity-30" />
+              <p className="text-[18px] font-bold text-[var(--ios-label)]">Chưa chọn giao dịch</p>
+              <p className="text-[15px] mt-2">Chọn một mục bên trái để xem chi tiết.</p>
+            </div>
           </div>
         )}
       </div>
+
     </div>
   );
 }
