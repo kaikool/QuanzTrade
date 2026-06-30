@@ -77,6 +77,11 @@ const JournalView = lazy(() =>
     default: module.JournalView,
   })),
 );
+const AddTradeModalComponent = lazy(() =>
+  import("./components/AddTradeModal").then((module) => ({
+    default: module.AddTradeModal,
+  })),
+);
 
 const originalFetch = window.fetch;
 window.fetch = async (...args) => {
@@ -1536,479 +1541,56 @@ export default function App() {
         )}
       </div>
 
-      {/* 5. GORGEOUS ADD TRADE PANEL DIRECTIVE MODAL */}
-      <AnimatePresence>
-        {isAddOpen && (
-          <div
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
-            id="modal-container-root"
-          >
-            {/* Dark background blur */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsAddOpen(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-md animate-fade-in"
-            ></motion.div>
+      {/* Add Trade Modal */}
+      <AddTradeModalComponent
+        isOpen={isAddOpen}
+        onClose={() => setIsAddOpen(false)}
+        editingTradeId={editingTradeId}
+        formPair={formPair}
+        setFormPair={setFormPair}
+        formType={formType}
+        setFormType={setFormType}
+        formEntryPrice={formEntryPrice}
+        setFormEntryPrice={setFormEntryPrice}
+        formExitPrice={formExitPrice}
+        setFormExitPrice={setFormExitPrice}
+        formSize={formSize}
+        setFormSize={setFormSize}
+        formStopLoss={formStopLoss}
+        setFormStopLoss={setFormStopLoss}
+        formTakeProfit={formTakeProfit}
+        setFormTakeProfit={setFormTakeProfit}
+        formStatus={formStatus}
+        setFormStatus={setFormStatus}
+        formTimeframe={formTimeframe}
+        setFormTimeframe={setFormTimeframe}
+        formTag={formTag}
+        setFormTag={setFormTag}
+        formNotes={formNotes}
+        setFormNotes={setFormNotes}
+        formRating={formRating}
+        setFormRating={setFormRating}
+        formPnl={formPnl}
+        setFormPnl={setFormPnl}
+        formEntryDate={formEntryDate}
+        formExitDate={formExitDate}
+        formTVSnapshotUrl={formTVSnapshotUrl}
+        formTVSnapshotUrlClose={formTVSnapshotUrlClose}
+        isCapturingSnapshot={isCapturingSnapshot}
+        isCapturingSnapshotClose={isCapturingSnapshotClose}
+        setLightboxUrl={setLightboxUrl}
+        onSubmit={handleCreateTrade}
+        onCaptureSnapshot={handleCaptureSnapshot}
+        onCaptureSnapshotClose={handleCaptureSnapshotClose}
+        getEntryDatePart={getEntryDatePart}
+        handleEntryDateChange={handleEntryDateChange}
+        getExitDatePart={getExitDatePart}
+        handleExitDateChange={handleExitDateChange}
+        M3DatePicker={M3DatePicker}
+        M3TimePicker={M3TimePicker}
+      />
 
-            {/* Window panel container */}
-            <motion.div
-              initial={{ opacity: 0, y: 100 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 120 }}
-              transition={{ type: "spring", damping: 26, stiffness: 220 }}
-              className="relative w-full max-w-[100vw] sm:max-w-2xl bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm sm:rounded-[28px] rounded-t-[28px] shadow-ios-xl z-10 flex flex-col h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-x-hidden overflow-y-hidden"
-              id="new-trade-modal-window"
-            >
-              <div className="flex justify-between items-center px-5 sm:px-8 py-4 sm:py-6 border-b border-[var(--sys-border)] bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm z-20 shrink-0">
-                <div className="flex items-center gap-3">
-                  <div className="hidden sm:flex p-3 bg-[var(--sys-blue)]/10 text-[var(--sys-blue)] dark:transparent dark:text-[var(--sys-blue)] rounded-[16px]">
-                    <Plus size={18} />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-[var(--sys-text)] font-display">
-                      {editingTradeId
-                        ? "Cập Nhật Giao Dịch"
-                        : "Ghi Chép Giao Dịch Mới"}
-                    </h3>
-                    <p className="text-base text-[var(--sys-text-secondary)] mt-0.5">
-                      {editingTradeId
-                        ? "Cập nhật các số liệu, ghi chú hoặc tất toán giao dịch"
-                        : "Ghi nhận chi tiết để theo dõi biểu đồ tăng trưởng"}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsAddOpen(false)}
-                  className="p-2 sm:p-1.5 hover:bg-[var(--sys-surface-2)] dark:hover:bg-white/5 rounded-full transition-colors ease-[ease-out] text-[var(--sys-text-secondary)] hover:text-[var(--sys-text)] dark:hover:text-[var(--sys-text)] cursor-pointer"
-                  title="Đóng"
-                >
-                  <X size={24} className="sm:w-[20px] sm:h-[20px]" />
-                </button>
-              </div>
-
-              <form
-                onSubmit={handleCreateTrade}
-                className="flex flex-col flex-1 min-h-0 min-w-0"
-                id="trade-form"
-              >
-                <div className="overflow-y-auto flex-1 px-4 sm:px-8 py-5 sm:py-8 space-y-6 sm:space-y-7">
-                  {/* BUY SELL TOGGLE & Pairs Selection */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
-                    <div className="min-w-0">
-                      <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
-                        Cặp ngoại tệ
-                      </label>
-                      <select
-                        value={formPair}
-                        onChange={(e) => setFormPair(e.target.value)}
-                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm border border-[var(--sys-border)] rounded-[4px] text-lg focus:outline-none focus:ring-0 focus:border-[var(--sys-blue)] focus:border-2 text-[var(--sys-text)] transition-colors ease-[ease-out] font-bold cursor-pointer"
-                      >
-                        <option value="EUR/USD">EUR/USD</option>
-                        <option value="GBP/USD">GBP/USD</option>
-                        <option value="USD/JPY">USD/JPY</option>
-                        <option value="AUD/USD">AUD/USD</option>
-                        <option value="USD/CAD">USD/CAD</option>
-                        <option value="GBP/JPY">GBP/JPY</option>
-                        <option value="XAU/USD">XAU/USD (Vàng)</option>
-                      </select>
-                    </div>
-
-                    <div className="min-w-0">
-                      <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
-                        Hướng lệnh
-                      </label>
-                      <div className="flex border border-[var(--sys-border)] rounded-full w-full h-12 overflow-hidden text-base font-semibold">
-                        <button
-                          type="button"
-                          onClick={() => setFormType("BUY")}
-                          className={`flex-1 h-full flex items-center justify-center transition-colors ease-[ease-out] cursor-pointer active:scale-95 transition-transform border-r border-[var(--sys-border)] ${formType === "BUY" ? "bg-emerald-600 text-white" : "bg-transparent text-[var(--sys-text)]"}`}
-                        >
-                          MUA
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setFormType("SELL")}
-                          className={`flex-1 h-full flex items-center justify-center transition-colors ease-[ease-out] cursor-pointer active:scale-95 transition-transform ${formType === "SELL" ? "bg-rose-600 text-white" : "bg-transparent text-[var(--sys-text)]"}`}
-                        >
-                          BÁN
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Entry Price & Lots Size */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
-                    <div className="min-w-0">
-                      <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
-                        Giá vào lệnh *
-                      </label>
-                      <input
-                        type="number"
-                        step="any"
-                        required
-                        placeholder="VD: 1.0854"
-                        value={formEntryPrice}
-                        onChange={(e) => setFormEntryPrice(e.target.value)}
-                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm border border-[var(--sys-border)] rounded-[4px] text-lg focus:outline-none focus:ring-0 focus:border-[var(--sys-blue)] focus:border-2 text-[var(--sys-text)] transition-colors ease-[ease-out] font-mono"
-                      />
-                    </div>
-
-                    <div className="min-w-0">
-                      <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
-                        Khối lượng (Lots) *
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        required
-                        min="0.01"
-                        value={formSize}
-                        onChange={(e) => setFormSize(e.target.value)}
-                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm border border-[var(--sys-border)] rounded-[4px] text-lg focus:outline-none focus:ring-0 focus:border-[var(--sys-blue)] focus:border-2 text-[var(--sys-text)] transition-colors ease-[ease-out] font-mono font-bold"
-                      />
-                    </div>
-                  </div>
-
-                  {/* SL, TP Options */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
-                    <div className="min-w-0">
-                      <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
-                        Chặn lỗ
-                      </label>
-                      <input
-                        type="number"
-                        step="any"
-                        placeholder="Tùy chọn - SL"
-                        value={formStopLoss}
-                        onChange={(e) => setFormStopLoss(e.target.value)}
-                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm border border-[var(--sys-border)] rounded-[4px] text-lg focus:outline-none focus:ring-0 focus:border-[var(--sys-blue)] focus:border-2 text-[var(--sys-text)] transition-colors ease-[ease-out] font-mono"
-                      />
-                    </div>
-
-                    <div className="min-w-0">
-                      <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
-                        Chốt lời
-                      </label>
-                      <input
-                        type="number"
-                        step="any"
-                        placeholder="Tùy chọn - TP"
-                        value={formTakeProfit}
-                        onChange={(e) => setFormTakeProfit(e.target.value)}
-                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm border border-[var(--sys-border)] rounded-[4px] text-lg focus:outline-none focus:ring-0 focus:border-[var(--sys-blue)] focus:border-2 text-[var(--sys-text)] transition-colors ease-[ease-out] font-mono"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Status Switch Open / Closed & Timeframe */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
-                    <div className="min-w-0">
-                      <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
-                        Trạng thái giao dịch
-                      </label>
-                      <div className="flex border border-[var(--sys-border)] rounded-full w-full h-12 overflow-hidden text-base font-semibold text-base sm:text-lg">
-                        <button
-                          type="button"
-                          onClick={() => setFormStatus("CLOSED")}
-                          className={`flex-1 h-full flex items-center justify-center transition-colors ease-[ease-out] cursor-pointer active:scale-95 transition-transform border-r border-[var(--sys-border)] min-w-0 px-2 ${formStatus === "CLOSED" ? "bg-indigo-600 text-white" : "bg-transparent text-[var(--sys-text)]"}`}
-                        >
-                          <span className="truncate">ĐÃ ĐÓNG</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setFormStatus("OPEN")}
-                          className={`flex-1 h-full flex items-center justify-center transition-colors ease-[ease-out] cursor-pointer active:scale-95 transition-transform min-w-0 px-2 ${formStatus === "OPEN" ? "bg-cyan-600 text-white" : "bg-transparent text-[var(--sys-text)]"}`}
-                        >
-                          <span className="truncate">ĐANG MỞ</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="min-w-0">
-                      <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
-                        Khung thời gian
-                      </label>
-                      <select
-                        value={formTimeframe}
-                        onChange={(e) => setFormTimeframe(e.target.value)}
-                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm border border-[var(--sys-border)] rounded-[4px] text-lg focus:outline-none focus:ring-0 focus:border-[var(--sys-blue)] focus:border-2 text-[var(--sys-text)] transition-colors ease-[ease-out] font-bold cursor-pointer"
-                      >
-                        <option value="M5">M5 (5 phút)</option>
-                        <option value="M15">M15 (15 phút)</option>
-                        <option value="H1">H1 (1 giờ)</option>
-                        <option value="H4">H4 (4 giờ)</option>
-                        <option value="D1">D1 (1 ngày)</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Conditional exit fields if state is closed */}
-                  {formStatus === "CLOSED" && (
-                    <div className="p-3 sm:p-5 rounded-[16px] sm:rounded-[20px] bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm border border-[var(--sys-border)] grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
-                      <div className="min-w-0">
-                        <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
-                          Giá đóng lệnh
-                        </label>
-                        <input
-                          type="number"
-                          step="any"
-                          placeholder="VD: 1.0920"
-                          value={formExitPrice}
-                          onChange={(e) => setFormExitPrice(e.target.value)}
-                          className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm border border-[var(--sys-border)] rounded-[4px] text-lg focus:outline-none focus:ring-0 focus:border-[var(--sys-blue)] focus:border-2 text-[var(--sys-text)] transition-colors ease-[ease-out] font-mono"
-                        />
-                      </div>
-                      <div className="min-w-0">
-                        <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
-                          Ngày đóng lệnh
-                        </label>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          <M3DatePicker
-                            value={getExitDatePart()}
-                            onChange={handleExitDateChange}
-                            placeholder="Chọn ngày đóng"
-                          />
-                          <M3TimePicker
-                            value={getExitTimePart()}
-                            onChange={handleExitTimeChange}
-                            placeholder="Chọn giờ đóng"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Entry Date & Tags Row */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
-                    <div className="min-w-0">
-                      <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
-                        Ngày vào lệnh
-                      </label>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <M3DatePicker
-                          value={getEntryDatePart()}
-                          onChange={handleEntryDateChange}
-                          placeholder="Chọn ngày vào"
-                        />
-                        <M3TimePicker
-                          value={getEntryTimePart()}
-                          onChange={handleEntryTimeChange}
-                          placeholder="Chọn giờ vào"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="min-w-0">
-                      <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
-                        Chiến lược
-                      </label>
-                      <select
-                        value={formTag}
-                        onChange={(e) => setFormTag(e.target.value)}
-                        className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm border border-[var(--sys-border)] rounded-[4px] text-lg focus:outline-none focus:ring-0 focus:border-[var(--sys-blue)] focus:border-2 text-[var(--sys-text)] transition-colors ease-[ease-out] font-bold cursor-pointer"
-                      >
-                        <option value="News-Trade">
-                          Giao dịch theo tin tức
-                        </option>
-                        <option value="Trend-Follow">Đu theo xu hướng</option>
-                        <option value="Breakout">Bứt phá</option>
-                        <option value="Range-Trade">Giao dịch Vùng</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Notes Input */}
-                  <div>
-                    <label className="text-sm font-medium text-[var(--sys-text-secondary)] mb-1.5 block">
-                      Lý do vào lệnh
-                    </label>
-                    <textarea
-                      rows={2.5}
-                      placeholder="Tại sao bạn khớp lệnh này? Khung cảm xúc, phân tích kỹ thuật hoặc nhận định tin tức của bạn..."
-                      value={formNotes}
-                      onChange={(e) => setFormNotes(e.target.value)}
-                      className="w-full min-w-0 px-3 py-3 sm:p-3.5 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm border border-[var(--sys-border)] rounded-[4px] text-lg focus:outline-none focus:ring-0 focus:border-[var(--sys-blue)] focus:border-2 text-[var(--sys-text)] transition-colors ease-[ease-out] resize-none"
-                    ></textarea>
-                  </div>
-
-                  {/* TradingView Snapshot Open Feature */}
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="text-sm font-medium text-[var(--sys-text-secondary)] block">
-                        Ảnh biểu đồ Mở Lệnh (TradingView)
-                      </label>
-                      <button
-                        type="button"
-                        onClick={handleCaptureSnapshot}
-                        disabled={isCapturingSnapshot || !formPair}
-                        className="text-sm font-bold text-[var(--sys-blue)] flex items-center gap-1 hover:underline disabled:opacity-50"
-                      >
-                        {isCapturingSnapshot ? (
-                          <><RefreshCw size={12} className="animate-spin" /> Đang chụp...</>
-                        ) : (
-                          <><Camera size={12} /> Tự động chụp {formPair && `(${formPair})`}</>
-                        )}
-                      </button>
-                    </div>
-                    {formTVSnapshotUrl ? (
-                      <div className="relative border border-[var(--sys-border)] rounded-lg overflow-hidden group max-h-[160px] flex items-center justify-center bg-black/10 w-full">
-                        <button
-                          type="button"
-                          onClick={() => setLightboxUrl(formTVSnapshotUrl)}
-                          className="block w-full cursor-zoom-in"
-                          title="Xem ảnh lớn"
-                        >
-                          <img src={formTVSnapshotUrl} alt="Chart" className="w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                        </button>
-                        <div className="absolute top-2 right-2 z-10 flex gap-2">
-                          <button
-                            type="button"
-                            onClick={() => setLightboxUrl(formTVSnapshotUrl)}
-                            className="p-2.5 bg-black/60 text-white rounded-full shadow-lg hover:bg-black/80 transition-colors"
-                            title="Xem ảnh lớn"
-                          >
-                            <Maximize2 size={18} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setFormTVSnapshotUrl("")}
-                            className="p-2.5 bg-[var(--sys-red)]/100 text-white rounded-full shadow-lg hover:bg-rose-600 transition-colors"
-                            title="Xoá ảnh"
-                          >
-                            <X size={18} />
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="border border-dashed border-[var(--sys-border)] rounded-lg p-4 flex flex-col items-center justify-center text-[var(--sys-text-secondary)]/60 gap-2 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm">
-                        <Camera size={24} className="opacity-50" />
-                        <span className="text-sm">Chưa có ảnh chụp biểu đồ mở lệnh</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* TradingView Snapshot Close Feature */}
-                  {formStatus === "CLOSED" && (
-                    <div>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <label className="text-sm font-medium text-[var(--sys-text-secondary)] block">
-                          Ảnh biểu đồ Đóng Lệnh (TradingView)
-                        </label>
-                        <button
-                          type="button"
-                          onClick={handleCaptureSnapshotClose}
-                          disabled={isCapturingSnapshotClose || !formPair}
-                          className="text-sm font-bold text-[var(--sys-blue)] flex items-center gap-1 hover:underline disabled:opacity-50"
-                        >
-                          {isCapturingSnapshotClose ? (
-                            <><RefreshCw size={12} className="animate-spin" /> Đang chụp...</>
-                          ) : (
-                            <><Camera size={12} /> Tự động chụp {formPair && `(${formPair})`}</>
-                          )}
-                        </button>
-                      </div>
-                      {formTVSnapshotUrlClose ? (
-                        <div className="relative border border-[var(--sys-border)] rounded-lg overflow-hidden group max-h-[160px] flex items-center justify-center bg-black/10 w-full">
-                          <button
-                            type="button"
-                            onClick={() => setLightboxUrl(formTVSnapshotUrlClose)}
-                            className="block w-full cursor-zoom-in"
-                            title="Xem ảnh lớn"
-                          >
-                            <img src={formTVSnapshotUrlClose} alt="Chart" className="w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                          </button>
-                          <div className="absolute top-2 right-2 z-10 flex gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setLightboxUrl(formTVSnapshotUrlClose)}
-                              className="p-2.5 bg-black/60 text-white rounded-full shadow-lg hover:bg-black/80 transition-colors"
-                              title="Xem ảnh lớn"
-                            >
-                              <Maximize2 size={18} />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setFormTVSnapshotUrlClose("")}
-                              className="p-2.5 bg-[var(--sys-red)]/100 text-white rounded-full shadow-lg hover:bg-rose-600 transition-colors"
-                              title="Xoá ảnh"
-                            >
-                              <X size={18} />
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="border border-dashed border-[var(--sys-border)] rounded-lg p-4 flex flex-col items-center justify-center text-[var(--sys-text-secondary)]/60 gap-2 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm">
-                          <Camera size={24} className="opacity-50" />
-                          <span className="text-sm">Chưa có ảnh chụp biểu đồ đóng lệnh</span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Rating selection (Stars) */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-[var(--sys-surface)] rounded-[16px] border border-[var(--sys-border)]">
-                    <div>
-                      <span className="font-bold text-[var(--sys-text)] text-base block">
-                        Mức Độ Tuân Thủ Kỷ Luật
-                      </span>
-                      <span className="text-base text-[var(--sys-text-secondary)] mt-1 block">
-                        Bạn có làm đúng kế hoạch giao dịch ban đầu không?
-                      </span>
-                    </div>
-                    <div className="flex gap-2.5 items-center">
-                      <div className="flex gap-1.5">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <button
-                            key={i}
-                            type="button"
-                            onClick={() => setFormRating(i + 1)}
-                            className="text-xl transition-transform active:scale-125 focus:outline-none cursor-pointer"
-                          >
-                            <span
-                              className={
-                                i < formRating
-                                  ? "text-amber-500 drop-shadow-xs font-bold"
-                                  : "text-[var(--sys-text-secondary)] dark:text-[var(--sys-text-secondary)] hover:text-[var(--sys-text-secondary)]"
-                              }
-                            >
-                              ★
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                      <span className="text-base text-[var(--sys-text-secondary)] font-bold font-mono min-w-[45px]">
-                        ({formRating}/5 sao)
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Save controls */}
-                <div className="trade-form-actions px-5 sm:px-8 py-4 sm:py-5 border-t border-[var(--sys-border)] flex flex-col-reverse sm:flex-row gap-3 justify-end items-center z-20 shrink-0 pb-[max(1rem,env(safe-area-inset-bottom,16px))] sm:pb-5">
-                  <button
-                    type="button"
-                    onClick={() => setIsAddOpen(false)}
-                    className="w-full sm:w-auto px-6 py-2.5 bg-transparent border border-[var(--sys-border)] text-[var(--sys-blue)] rounded-[20px] text-base font-semibold active:scale-95 transition-transform cursor-pointer transition-colors ease-[ease-out] text-center"
-                  >
-                    Hủy bỏ
-                  </button>
-                  <button
-                    type="submit"
-                    className="trade-form-submit w-full sm:w-auto px-8 py-2.5 text-white rounded-[20px] text-base font-semibold active:scale-95 transition-transform active:scale-[0.98] transition-all ease-[ease-out] cursor-pointer text-center"
-                  >
-                    {editingTradeId ? "Cập nhật dữ liệu" : "Ghi lại giao dịch"}
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* 6. SYSTEM SETTINGS MODAL */}
+      {/* Settings Modal */}
       <AnimatePresence>
         {isSettingsOpen && (
           <div className="settings-modal-root" id="settings-modal-root">
