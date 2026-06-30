@@ -739,6 +739,29 @@ export default function App() {
       }
     }, [isLoggedIn]);
 
+  // ─── Keyboard Shortcuts ──────────────────────────────────────────────────
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    function handleKey(e: KeyboardEvent) {
+      // Don't trigger when typing in inputs
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement).tagName)) return;
+      if (e.key === 'n' || e.key === 'N') {
+        e.preventDefault();
+        setIsQuickAddOpen(true);
+      }
+      if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        document.getElementById('trade-search-input')?.focus();
+      }
+      if (e.key === 'Escape') {
+        setIsQuickAddOpen(false);
+        setIsAddOpen(false);
+      }
+    }
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [isLoggedIn]);
+
   // Auto-refresh The5ers data every 5 minutes (reads Supabase)
   useEffect(() => {
     if (!isLoggedIn) return;
@@ -1108,6 +1131,7 @@ export default function App() {
   }, [trades, followedT5Accounts, t5Trades, selectedT5AccountIds]);
 
   // Filters candidates
+  const [visibleCount, setVisibleCount] = useState(50);
   const uniquePairs = useMemo(() => {
     const set = new Set(mergedTrades.map((t) => t && t.pair).filter(Boolean));
     return ["ALL", ...Array.from(set)];
@@ -1817,7 +1841,7 @@ export default function App() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-ios-outline-variant/60 text-lg">
-                      {filteredTrades.map((t) => {
+                      {filteredTrades.slice(0, visibleCount).map((t) => {
                         const pnlBarWidth = Math.min(Math.abs(t.pnl) / 1000, 1) * 100;
                         return (
                           <tr
@@ -1944,6 +1968,13 @@ export default function App() {
                       })}
                     </tbody>
                   </table>
+                  {visibleCount < filteredTrades.length && (
+                    <div className="text-center py-4">
+                      <button onClick={() => setVisibleCount(prev => prev + 50)} className="px-6 py-2.5 rounded-full bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-text)] text-sm font-semibold hover:bg-[var(--sys-surface)] transition-all cursor-pointer">
+                        Xem thêm ({filteredTrades.length - visibleCount} giao dịch)
+                      </button>
+                    </div>
+                  )}
                 )}
               </div>
 
@@ -1963,7 +1994,7 @@ export default function App() {
                     </p>
                   </div>
                 ) : (
-                  filteredTrades.map((t) => {
+                  filteredTrades.slice(0, visibleCount).map((t) => {
                     const pnlBarWidth = Math.min(Math.abs(t.pnl) / 1000, 1) * 100;
                     return (
                       <div
@@ -2098,6 +2129,13 @@ export default function App() {
                       </div>
                     );
                   })
+                )}
+                {visibleCount < filteredTrades.length && (
+                  <div className="text-center py-3">
+                    <button onClick={() => setVisibleCount(prev => prev + 50)} className="px-5 py-2 rounded-full bg-[var(--sys-surface-2)] border border-[var(--sys-border)] text-[var(--sys-text)] text-sm font-semibold cursor-pointer">
+                      Xem thêm ({filteredTrades.length - visibleCount} giao dịch)
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -2322,7 +2360,6 @@ export default function App() {
                         })}
                       </div>
                     </div>
-                  ))}
                 </div>
               )}
             </div>
