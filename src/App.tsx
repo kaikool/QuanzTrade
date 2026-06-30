@@ -3016,35 +3016,16 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Unified Floating Action Button (FAB) for Mobile & Desktop - M3 Centered Grid Align */}
-      <div className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom,16px))] md:bottom-8 left-0 right-0 pointer-events-none z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-end">
-          <button
-            onClick={handleOpenAddTrade}
-            className="pointer-events-auto h-14 w-14 md:w-auto md:px-6 bg-[var(--sys-blue)] text-white rounded-[16px] flex items-center justify-center gap-2 shadow-ios-lg active:scale-95 transition-transform transition-all ease-[ease-out] cursor-pointer"
-            title="Thêm Giao Dịch"
-            id="ios-fab"
-          >
-            <Plus size={26} className="flex-shrink-0" />
-            <span className="hidden md:block text-base font-semibold">
-              Thêm giao dịch
-            </span>
-          </button>
-        </div>
+      {/* Floating Action Button (FAB) - Quick Add */}
+      <div className="fixed bottom-[calc(49px+env(safe-area-inset-bottom,0px)+12px)] md:bottom-8 right-4 z-40">
+        <button
+          onClick={() => setIsQuickAddOpen(true)}
+          className="w-14 h-14 bg-[var(--sys-blue)] text-white rounded-full flex items-center justify-center shadow-ios-xl active:scale-95 transition-transform cursor-pointer"
+          aria-label="Thêm lệnh nhanh"
+        >
+          <Plus size={28} />
+        </button>
       </div>
-
-      {/* FAB Quick Add */}
-      {currentTab === "dashboard" && (
-        <div className="fixed bottom-20 md:bottom-8 right-4 z-40">
-          <button
-            onClick={() => setIsQuickAddOpen(true)}
-            className="w-14 h-14 bg-[var(--sys-blue)] text-white rounded-full flex items-center justify-center shadow-ios-xl active:scale-95 transition-transform cursor-pointer"
-            aria-label="Thêm lệnh nhanh"
-          >
-            <Plus size={28} />
-          </button>
-        </div>
-      )}
 
       {/* Quick Add Mini Modal */}
       <AnimatePresence>
@@ -3141,7 +3122,7 @@ export default function App() {
       </div>
 
       <footer
-        className={`md:hidden fixed bottom-0 left-0 right-0 z-40 transition-colors ease-[ease-out] backdrop-blur-xl ${darkMode ? "bg-[var(--sys-surface-2)]/95 border-t border-[var(--sys-border)]" : "bg-[var(--sys-surface)] border-t border-[var(--sys-border)]"}`}
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-30 transition-colors ease-[ease-out] backdrop-blur-xl ${darkMode ? "bg-[var(--sys-surface-2)]/95 border-t border-[var(--sys-border)]" : "bg-[var(--sys-surface)] border-t border-[var(--sys-border)]"}`}
         id="ios-bottom-nav"
       >
         <button

@@ -1191,20 +1191,21 @@ table th span,
 }
 
 
-/* Journal and mobile dock fixes */
+/* iOS Tab Bar - Apple HIG 49pt */
 #ios-bottom-nav {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  align-items: center;
+  align-items: start;
   justify-items: stretch;
-  padding: 0 4px;
-  height: 49px;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding: 4px 4px;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 4px);
+  height: auto;
+  min-height: calc(49px + env(safe-area-inset-bottom, 0px));
   bottom: 0;
 }
 
 #ios-bottom-nav button {
-  height: 48px;
+  min-height: 48px;
   min-width: 0;
   padding: 0;
   display: flex;
