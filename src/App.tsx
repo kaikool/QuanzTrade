@@ -1442,6 +1442,7 @@ export default function App() {
               handleBeginEditTrade={handleBeginEditTrade}
               handleDeleteTrade={handleDeleteTrade}
               handleOpenAddTrade={handleOpenAddTrade}
+              setLightboxUrl={setLightboxUrl}
             />
           )}
               {/* 3. CALENDAR MASTER TAB SCREEN */}
@@ -1468,7 +1469,41 @@ export default function App() {
             loading={loadingNews}
             refreshing={refreshingNews}
             onRefresh={syncNews}
-                 setFormTimeframe={setFormTimeframe}
+            page={newsPage}
+            pageSize={NEWS_PAGE_SIZE}
+            onPageChange={loadNewsPage}
+            loadingOlder={loadingOlderNews}
+            hasMore={newsHasMore}
+            darkMode={darkMode}
+            lastUpdatedAt={newsLastUpdatedAt}
+            debug={newsDebug}
+          />
+        )}
+      </div>
+
+      {/* Add Trade Modal */}
+      <AddTradeModalComponent
+        isOpen={isAddOpen}
+        onClose={() => setIsAddOpen(false)}
+        editingTradeId={editingTradeId}
+        formPair={formPair}
+        setFormPair={setFormPair}
+        formType={formType}
+        setFormType={setFormType}
+        formEntryPrice={formEntryPrice}
+        setFormEntryPrice={setFormEntryPrice}
+        formExitPrice={formExitPrice}
+        setFormExitPrice={setFormExitPrice}
+        formSize={formSize}
+        setFormSize={setFormSize}
+        formStopLoss={formStopLoss}
+        setFormStopLoss={setFormStopLoss}
+        formTakeProfit={formTakeProfit}
+        setFormTakeProfit={setFormTakeProfit}
+        formStatus={formStatus}
+        setFormStatus={setFormStatus}
+        formTimeframe={formTimeframe}
+        setFormTimeframe={setFormTimeframe}
         formTag={formTag}
         setFormTag={setFormTag}
         formNotes={formNotes}

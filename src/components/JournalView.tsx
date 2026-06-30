@@ -27,6 +27,7 @@ interface JournalViewProps {
   handleBeginEditTrade: (trade: Trade) => void;
   handleDeleteTrade: (id: string) => void;
   handleOpenAddTrade: () => void;
+  setLightboxUrl: (url: string | null) => void;
 }
 
 export function JournalView({
@@ -41,6 +42,7 @@ export function JournalView({
   handleBeginEditTrade,
   handleDeleteTrade,
   handleOpenAddTrade,
+  setLightboxUrl,
 }: JournalViewProps) {
   
   const [selectedTrade, setSelectedTrade] = useState<Trade | null>(null);
@@ -219,15 +221,21 @@ export function JournalView({
                   <h3 className="text-[15px] font-bold text-[var(--ios-label)] uppercase tracking-wider mb-3">Hình ảnh phân tích</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {selectedTrade.tv_snapshot_url && (
-                      <div className="relative rounded-[24px] overflow-hidden border border-[var(--ios-separator)] group aspect-video bg-black/5">
-                        <img src={selectedTrade.tv_snapshot_url} className="w-full h-full object-cover" alt="Entry Chart" />
+                      <div onClick={() => setLightboxUrl(selectedTrade.tv_snapshot_url)} className="relative rounded-[24px] overflow-hidden border border-[var(--ios-separator)] group aspect-video bg-black/5 cursor-pointer">
+                        <img src={selectedTrade.tv_snapshot_url} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" alt="Entry Chart" />
                         <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md text-white px-3 py-1 text-[11px] font-bold rounded-full uppercase tracking-wider">Entry Chart</div>
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                           <Expand className="text-white opacity-0 group-hover:opacity-100 drop-shadow-md" size={32} />
+                        </div>
                       </div>
                     )}
                     {selectedTrade.tv_snapshot_url_close && (
-                      <div className="relative rounded-[24px] overflow-hidden border border-[var(--ios-separator)] group aspect-video bg-black/5">
-                        <img src={selectedTrade.tv_snapshot_url_close} className="w-full h-full object-cover" alt="Exit Chart" />
+                      <div onClick={() => setLightboxUrl(selectedTrade.tv_snapshot_url_close)} className="relative rounded-[24px] overflow-hidden border border-[var(--ios-separator)] group aspect-video bg-black/5 cursor-pointer">
+                        <img src={selectedTrade.tv_snapshot_url_close} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" alt="Exit Chart" />
                         <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md text-white px-3 py-1 text-[11px] font-bold rounded-full uppercase tracking-wider">Exit Chart</div>
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                           <Expand className="text-white opacity-0 group-hover:opacity-100 drop-shadow-md" size={32} />
+                        </div>
                       </div>
                     )}
                   </div>
