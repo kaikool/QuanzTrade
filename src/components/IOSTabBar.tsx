@@ -27,17 +27,17 @@ export function IOSTabBar({ currentTab, setCurrentTab }: IOSTabBarProps) {
           <button
             key={id}
             onClick={() => setCurrentTab(id)}
-            className={`relative flex flex-col items-center justify-center flex-1 h-[49px] transition-colors duration-150 cursor-pointer ${
+            className={`relative flex flex-col items-center flex-1 h-[49px] pt-[6px] transition-colors duration-150 cursor-pointer ${
               isActive ? "text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"
             }`}
           >
             <div className={`transition-transform duration-150 ${isActive ? "scale-105" : ""}`}>
               <Icon 
-                size={26} 
+                size={24} 
                 strokeWidth={isActive ? 2.5 : 2}
               />
             </div>
-            <span className={`text-[10px] tracking-wide mt-[1px] ${isActive ? "font-bold" : "font-medium"}`}>
+            <span className={`text-[10px] leading-none tracking-wide mt-[3px] ${isActive ? "font-bold" : "font-medium"}`}>
               {label}
             </span>
           </button>
