@@ -339,6 +339,7 @@ a[class*="bg-[var(--sys-surface-2)]"]:active {
 .ios26-list-group,
 .ios26-chart-card,
 .ios26-metric-card,
+#calendar-section article,
 #news-panel article {
   background: var(--sys-glass);
   border: 1px solid var(--sys-border);
@@ -356,10 +357,12 @@ a[class*="bg-[var(--sys-surface-2)]"]:active {
   border-radius: 26px;
 }
 
+#calendar-section article,
 #news-panel article {
   border-radius: 24px;
 }
 
+#calendar-section article:hover,
 #news-panel article:hover,
 .ios26-chart-card:hover {
   background: var(--sys-glass);
@@ -378,6 +381,13 @@ a[class*="bg-[var(--sys-surface-2)]"]:active {
 /* iOS Tab Bar glass morph */
 #ios-bottom-nav {
   box-shadow: 0 22px 70px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+#ios-bottom-nav button,
+#ios-bottom-nav button > div,
+#ios-bottom-nav svg {
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 /* iOS Glass utility — add to any card/container */
