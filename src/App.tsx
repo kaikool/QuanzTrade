@@ -1,21 +1,15 @@
 import React, { Suspense, lazy, useState, useEffect, useMemo } from "react";
 import {
   Plus,
-  Settings,
-  TrendingUp,
   Calendar as CalendarIcon,
   FileText,
   BarChart2,
   X,
   CloudLightning,
-  RefreshCw,
   Sun,
   Moon,
-  Download,
-  BellRing,
   AlertTriangle,
   Newspaper,
-  ShieldCheck,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -340,21 +334,6 @@ export default function App() {
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     return localStorage.getItem("trade_app_dark_mode") === "true";
   });
-
-  // Settings expand/collapse toggles
-  const [supabaseExpanded, setSupabaseExpanded] = useState(() => {
-    const v = localStorage.getItem("settings_supabase_expanded");
-    return v === "true" || !!(localStorage.getItem("trade_app_supabase_url"));
-  });
-  const [tvExpanded, setTvExpanded] = useState(() => {
-    const v = localStorage.getItem("settings_tv_expanded");
-    return v === "true" || !!(localStorage.getItem("tv_session_id"));
-  });
-  const [t5Expanded, setT5Expanded] = useState(() => {
-    const v = localStorage.getItem("settings_t5_expanded");
-    return v === "true" || !!(localStorage.getItem("t5_email"));
-  });
-  const [securityExpanded, setSecurityExpanded] = useState(false);
 
   // Progressive Web App (PWA) & Local Notification States
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
