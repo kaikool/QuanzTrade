@@ -1321,90 +1321,48 @@ export default function App() {
           </div>
         )}
 
-        {/* Google Workspace Style Tonal Top Header */}
+        {/* iOS Large Title Header */}
         {(currentTab === "dashboard" || currentTab === "journal") && (
-        <header
-          className="flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-6 bg-[var(--ios-surface)] rounded-[24px] border border-[var(--ios-separator)] shadow-ios-sm space-y-4 md:space-y-0"
-          id="google-ios-header"
-        >
-          <div className="flex items-center gap-3 sm:gap-4">
+        <header className="flex flex-col md:flex-row md:items-center justify-between pt-1 pb-2 gap-2 md:gap-0">
+          <div className="flex items-center gap-3">
             <div
-              className="w-11 h-11 sm:w-12 sm:h-12 bg-[var(--ios-blue)] text-white rounded-[16px] flex items-center justify-center shadow-ios-md font-extrabold flex-shrink-0"
+              className="w-11 h-11 sm:w-12 sm:h-12 bg-[var(--ios-blue)] text-white rounded-[14px] flex items-center justify-center shadow-ios-md flex-shrink-0"
               id="logo-icon"
             >
               <CloudLightning size={22} className="sm:w-6 sm:h-6" />
             </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-[var(--ios-label)] font-display truncate">
-                  {selectedT5AccountIds.length > 0 && t5Accounts.length > 0 ? "QuanzTrade" : "Táo Tầu Journal"}
-                </h1>
-              </div>
-              <p className="text-base sm:text-lg text-[var(--ios-secondary-label)] mt-1 leading-snug truncate">
+            <div>
+              <h1 className="text-[34px] font-bold tracking-tight text-[var(--ios-label)] leading-none">
+                {selectedT5AccountIds.length > 0 && t5Accounts.length > 0 ? "QuanzTrade" : "Táo Tầu Journal"}
+              </h1>
+              <p className="text-[13px] text-[var(--ios-secondary-label)] mt-1.5">
                 {summary.balance > 0 ? `Tổng tài sản: $${summary.balance.toLocaleString("en-US")}` : "Nhật ký giao dịch"}
               </p>
             </div>
           </div>
 
-          <div
-            className="flex items-center justify-between md:justify-end gap-3 sm:gap-6 w-full md:w-auto"
-            id="balance-badge-area"
-          >
-            {/* Dynamic Light/Dark Switch under Material 3 */}
+          <div className="flex items-center justify-between md:justify-end gap-3 sm:gap-4">
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className="p-2.5 sm:p-3 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-full transition-colors ease-[ease-out] cursor-pointer"
+              className="w-9 h-9 flex items-center justify-center bg-[var(--ios-surface-2)] rounded-full transition-colors cursor-pointer"
               title="Giao diện sáng/tối"
-              id="btn-darkmode"
             >
-              {darkMode ? (
-                <Sun size={16} className="text-amber-500" />
-              ) : (
-                <Moon size={16} className="text-[var(--ios-secondary-label)]" />
-              )}
+              {darkMode ? <Sun size={16} className="text-amber-500" /> : <Moon size={16} className="text-[var(--ios-secondary-label)]" />}
             </button>
 
-            {/* Account size indicator in dynamic style */}
-            <div className="text-right min-w-0">
-              <span className="text-base sm:text-sm font-medium tracking-wider text-[var(--ios-secondary-label)] uppercase block truncate">
-                Số Dư Tài Khoản
+            <div className="text-right">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ios-secondary-label)] block">
+                Số dư
               </span>
-              <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5 justify-end">
-                <span
-                  className="text-xl sm:text-2xl font-black text-[var(--ios-label)] font-display truncate"
-                  id="live-balance-text"
-                >
-                  $
-                  {summary.balance.toLocaleString("en-US", {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 2,
-                  })}
-                </span>
-                <span
-                  className={`text-base sm:text-base px-2 py-1 rounded-full font-bold flex items-center gap-0.5 flex-shrink-0 ${summary.pnl >= 0 ? "bg-[var(--ios-green)]/100/10 text-[var(--ios-green)] dark:text-[var(--ios-green)]" : "bg-[var(--ios-red)]/100/10 text-[var(--ios-red)] dark:text-[var(--ios-red)]"}`}
-                  id="summary-badge-pnl"
-                >
-                  {summary.pnl >= 0 ? "+" : ""}${summary.pnl.toFixed(0)}
-                </span>
-              </div>
+              <span className="text-[20px] font-bold text-[var(--ios-label)]" id="live-balance-text">
+                ${summary.balance.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              </span>
             </div>
-
-            {/* Profile Settings Click */}
-            <button
-              onClick={() => setIsSettingsOpen(true)}
-              className="w-10 h-10 sm:w-11 sm:h-11 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] active:scale-95 transition-transform dark:bg-[var(--ios-surface-2)] rounded-full flex items-center justify-center text-[var(--ios-label)] font-bold font-mono cursor-pointer relative shadow-ios-sm flex-shrink-0 text-lg"
-              id="avatar-button"
-            >
-              JD
-              <span className="absolute -bottom-0.5 -right-0.5 bg-[var(--ios-blue)] text-white rounded-[28px] active:scale-95 transition-transform p-1 border border-white dark:border-ios-surface shadow-xs text-base animate-pulse-once">
-                <Settings size={12} />
-              </span>
-            </button>
           </div>
         </header>
         )}
 
-        {/* Google-style Pill Navigation Tab Segment Manager */}
+        {/* Desktop Segmented Control */}
         <div
           className="hidden md:flex justify-between items-center bg-[var(--ios-surface)] rounded-full border border-[var(--ios-separator)] shadow-ios-sm p-1.5 overflow-x-auto no-scrollbar"
           id="segmented-controller"
