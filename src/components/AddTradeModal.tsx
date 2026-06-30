@@ -50,30 +50,132 @@ interface AddTradeModalProps {
   IOSTimePicker: React.FC<{value: string; onChange: (v: string) => void; placeholder?: string}>;
 }
 
-export function AddTradeModal({
-  isOpen, onClose, editingTradeId,
-  formPair, setFormPair,
-  formType, setFormType,
-  formEntryPrice, setFormEntryPrice,
-  formExitPrice, setFormExitPrice,
-  formSize, setFormSize,
-  formStopLoss, setFormStopLoss,
-  formTakeProfit, setFormTakeProfit,
-  formStatus, setFormStatus,
-  formTimeframe, setFormTimeframe,
-  formTag, setFormTag,
-  formNotes, setFormNotes,
-  formRating, setFormRating,
-  formPnl, setFormPnl,
-  formEntryDate, formExitDate,
-  formTVSnapshotUrl, formTVSnapshotUrlClose,
-  isCapturingSnapshot, isCapturingSnapshotClose,
-  setLightboxUrl,
-  onSubmit, onCaptureSnapshot, onCaptureSnapshotClose,
-  getEntryDatePart, handleEntryDateChange,
-  getExitDatePart, handleExitDateChange,
-  IOSDatePicker, IOSTimePicker,
-}: AddTradeModalProps) {
+/* ---------- reusable segmented control ---------- */
+function Segmented<T extends string>({
+  options,
+  value,
+  onChange,
+  size = "md",
+}: {
+  options: { key: T; label: string }[];
+  value: T;
+  onChange: (v: T) => void;
+  size?: "sm" | "md";
+}) {
+  const h = size === "sm" ? "h-9" : "h-11";
+  const px = size === "sm" ? "px-3" : "px-4";
+  const fs = size === "sm" ? "text-[13px]" : "text-[14px]";
+  return (
+    <div
+      className={`flex ${h} bg-[var(--ios-surface)] rounded-[12px] p-[3px] gap-[3px] shadow-sm border border-[var(--ios-separator)]/40`}
+      style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}
+    >
+      {options.map((opt) => {
+        const active = value === opt.key;
+        return (
+          <button
+            key={opt.key}
+            type="button"
+            onClick={() => onChange(opt.key)}
+            className={`flex-1 flex items-center justify-center rounded-[9px] ${px} ${fs} font-semibold transition-all cursor-pointer active:scale-[0.97] ${
+              active
+                ? "bg-[var(--ios-surface)] text-[var(--ios-label)] shadow-ios-sm"
+                : "bg-transparent text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"
+            }`}
+          >
+            {opt.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ---------- glass input ---------- */
+function GlassInput(props: React.InputHTMLAttributes<HTMLInputElement> & { label?: string }) {
+  const { label, className, ...rest } = props;
+  return (
+    <div>
+      {label && (
+        <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)] mb-1.5 block">
+          {label}
+        </label>
+      )}
+      <input
+        {...rest}
+        className={`w-full px-3.5 py-3 bg-[var(--ios-surface)] border border-[var(--ios-separator)]/40 rounded-[14px] text-[15px] text-[var(--ios-label)] font-mono placeholder:text-[var(--ios-tertiary-label)] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/40 transition-shadow ${className || ""}`}
+        style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}
+      />
+    </div>
+  );
+}
+
+/* ---------- glass select ---------- */
+function GlassSelect(props: React.SelectHTMLAttributes<HTMLSelectElement> & { label?: string; children: React.ReactNode }) {
+  const { label, children, className, ...rest } = props;
+  return (
+    <div>
+      {label && (
+        <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)] mb-1.5 block">
+          {label}
+        </label>
+      )}
+      <select
+        {...rest}
+        className={`w-full px-3.5 py-3 bg-[var(--ios-surface)] border border-[var(--ios-separator)]/40 rounded-[14px] text-[15px] text-[var(--ios-label)] font-semibold focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/40 cursor-pointer appearance-none ${className || ""}`}
+        style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}
+      >
+        {children}
+      </select>
+    </div>
+  );
+}
+
+/* ---------- glass textarea ---------- */
+function GlassTextarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label?: string }) {
+  const { label, className, ...rest } = props;
+  return (
+    <div>
+      {label && (
+        <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)] mb-1.5 block">
+          {label}
+        </label>
+      )}
+      <textarea
+        {...rest}
+        className={`w-full px-3.5 py-3 bg-[var(--ios-surface)] border border-[var(--ios-separator)]/40 rounded-[14px] text-[15px] text-[var(--ios-label)] placeholder:text-[var(--ios-tertiary-label)] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/40 resize-none transition-shadow ${className || ""}`}
+        style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}
+      />
+    </div>
+  );
+}
+
+/* ============================================ */
+export function AddTradeModal(props: AddTradeModalProps) {
+  const {
+    isOpen, onClose, editingTradeId,
+    formPair, setFormPair,
+    formType, setFormType,
+    formEntryPrice, setFormEntryPrice,
+    formExitPrice, setFormExitPrice,
+    formSize, setFormSize,
+    formStopLoss, setFormStopLoss,
+    formTakeProfit, setFormTakeProfit,
+    formStatus, setFormStatus,
+    formTimeframe, setFormTimeframe,
+    formTag, setFormTag,
+    formNotes, setFormNotes,
+    formRating, setFormRating,
+    formPnl, setFormPnl,
+    formTVSnapshotUrl, formTVSnapshotUrlClose,
+    isCapturingSnapshot, isCapturingSnapshotClose,
+    setLightboxUrl,
+    onSubmit, onCaptureSnapshot, onCaptureSnapshotClose,
+    getEntryDatePart, handleEntryDateChange,
+    getExitDatePart, handleExitDateChange,
+    IOSDatePicker, IOSTimePicker,
+  } = props;
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -93,7 +195,7 @@ export function AddTradeModal({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 120 }}
             transition={{ type: "spring", damping: 28, stiffness: 240 }}
-            className="relative w-full max-w-[100vw] sm:max-w-2xl ios-glass ios26-card sm:rounded-[30px] rounded-t-[30px] shadow-ios-xl z-10 flex flex-col h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-hidden"
+            className="relative w-full sm:max-w-2xl ios-glass ios26-card sm:rounded-[30px] rounded-t-[30px] shadow-ios-xl z-10 flex flex-col h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-hidden"
             id="new-trade-modal-window"
           >
             {/* Grabber */}
@@ -111,100 +213,93 @@ export function AddTradeModal({
                   {editingTradeId ? "Cập nhật số liệu hoặc tất toán" : "Ghi nhận chi tiết giao dịch"}
                 </p>
               </div>
-              <button type="button" onClick={onClose} className="w-9 h-9 flex items-center justify-center bg-[var(--ios-surface)] rounded-full text-[var(--ios-secondary-label)] cursor-pointer active:scale-90 transition-transform" title="Đóng">
+              <button type="button" onClick={onClose} className="w-9 h-9 flex items-center justify-center bg-[var(--ios-surface)] rounded-full text-[var(--ios-secondary-label)] cursor-pointer active:scale-90 transition-transform border border-[var(--ios-separator)]/40" title="Đóng">
                 <X size={18} />
               </button>
             </div>
 
             {/* Form */}
             <form onSubmit={onSubmit} className="flex flex-col flex-1 min-h-0" id="trade-form">
-              <div className="overflow-y-auto flex-1 px-4 sm:px-8 py-5 sm:py-8 space-y-5 sm:space-y-6">
+              <div className="overflow-y-auto flex-1 px-5 sm:px-8 py-5 sm:py-8 space-y-5 sm:space-y-6 no-scrollbar">
 
                 {/* BUY/SELL & Pair */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                  <GlassSelect label="Cặp ngoại tệ" value={formPair} onChange={e => setFormPair(e.target.value)}>
+                    <option value="EUR/USD">EUR/USD</option>
+                    <option value="GBP/USD">GBP/USD</option>
+                    <option value="USD/JPY">USD/JPY</option>
+                    <option value="AUD/USD">AUD/USD</option>
+                    <option value="USD/CAD">USD/CAD</option>
+                    <option value="GBP/JPY">GBP/JPY</option>
+                    <option value="XAU/USD">XAU/USD (Vàng)</option>
+                    <option value="BTC/USD">BTC/USD</option>
+                    <option value="ETH/USD">ETH/USD</option>
+                  </GlassSelect>
                   <div>
-                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Cặp ngoại tệ</label>
-                    <select value={formPair} onChange={e => setFormPair(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-fill)] border-0 rounded-[14px] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)] font-semibold cursor-pointer">
-                      <option value="EUR/USD">EUR/USD</option>
-                      <option value="GBP/USD">GBP/USD</option>
-                      <option value="USD/JPY">USD/JPY</option>
-                      <option value="AUD/USD">AUD/USD</option>
-                      <option value="USD/CAD">USD/CAD</option>
-                      <option value="GBP/JPY">GBP/JPY</option>
-                      <option value="XAU/USD">XAU/USD (Vàng)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Hướng lệnh</label>
-                    <div className="flex border border-[var(--ios-separator)] rounded-[12px] overflow-hidden h-11 text-sm font-semibold">
-                      <button type="button" onClick={() => setFormType("BUY")} className={`flex-1 flex items-center justify-center transition-colors cursor-pointer border-r border-[var(--ios-separator)] ${formType === "BUY" ? "bg-emerald-600 text-white" : "bg-transparent text-[var(--ios-label)]"}`}>MUA</button>
-                      <button type="button" onClick={() => setFormType("SELL")} className={`flex-1 flex items-center justify-center transition-colors cursor-pointer ${formType === "SELL" ? "bg-rose-600 text-white" : "bg-transparent text-[var(--ios-label)]"}`}>BÁN</button>
-                    </div>
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)] mb-1.5 block">
+                      Hướng lệnh
+                    </label>
+                    <Segmented
+                      options={[
+                        { key: "BUY", label: "MUA" },
+                        { key: "SELL", label: "BÁN" },
+                      ]}
+                      value={formType}
+                      onChange={(v) => setFormType(v)}
+                    />
                   </div>
                 </div>
 
                 {/* Entry Price & Lots */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                  <div>
-                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Giá vào lệnh *</label>
-                    <input type="number" step="any" required placeholder="VD: 1.0854" value={formEntryPrice} onChange={e => setFormEntryPrice(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-fill)] border-0 rounded-[14px] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)] font-mono" />
-                  </div>
-                  <div>
-                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Khối lượng (Lots) *</label>
-                    <input type="number" step="0.01" required min="0.01" value={formSize} onChange={e => setFormSize(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-fill)] border-0 rounded-[14px] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)] font-mono font-bold" />
-                  </div>
+                  <GlassInput label="Giá vào lệnh *" type="number" step="any" required placeholder="VD: 1.0854" value={formEntryPrice} onChange={e => setFormEntryPrice(e.target.value)} />
+                  <GlassInput label="Khối lượng (Lots) *" type="number" step="0.01" required min="0.01" value={formSize} onChange={e => setFormSize(e.target.value)} />
                 </div>
 
                 {/* SL, TP */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                  <div>
-                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Chặn lỗ</label>
-                    <input type="number" step="any" placeholder="Tùy chọn - SL" value={formStopLoss} onChange={e => setFormStopLoss(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-fill)] border-0 rounded-[14px] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)] font-mono" />
-                  </div>
-                  <div>
-                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Chốt lời</label>
-                    <input type="number" step="any" placeholder="Tùy chọn - TP" value={formTakeProfit} onChange={e => setFormTakeProfit(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-fill)] border-0 rounded-[14px] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)] font-mono" />
-                  </div>
+                  <GlassInput label="Chặn lỗ (SL)" type="number" step="any" placeholder="Tùy chọn" value={formStopLoss} onChange={e => setFormStopLoss(e.target.value)} />
+                  <GlassInput label="Chốt lời (TP)" type="number" step="any" placeholder="Tùy chọn" value={formTakeProfit} onChange={e => setFormTakeProfit(e.target.value)} />
                 </div>
 
                 {/* Status & Timeframe */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                   <div>
-                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Trạng thái</label>
-                    <div className="flex border border-[var(--ios-separator)] rounded-[12px] overflow-hidden h-11 text-sm font-semibold">
-                      <button type="button" onClick={() => setFormStatus("CLOSED")} className={`flex-1 flex items-center justify-center transition-colors cursor-pointer border-r border-[var(--ios-separator)] ${formStatus === "CLOSED" ? "bg-indigo-600 text-white" : "bg-transparent text-[var(--ios-label)]"}`}>ĐÃ ĐÓNG</button>
-                      <button type="button" onClick={() => setFormStatus("OPEN")} className={`flex-1 flex items-center justify-center transition-colors cursor-pointer ${formStatus === "OPEN" ? "bg-cyan-600 text-white" : "bg-transparent text-[var(--ios-label)]"}`}>ĐANG MỞ</button>
-                    </div>
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)] mb-1.5 block">
+                      Trạng thái
+                    </label>
+                    <Segmented
+                      options={[
+                        { key: "CLOSED", label: "ĐÃ ĐÓNG" },
+                        { key: "OPEN", label: "ĐANG MỞ" },
+                      ]}
+                      value={formStatus}
+                      onChange={(v) => setFormStatus(v as "OPEN" | "CLOSED")}
+                    />
                   </div>
-                  <div>
-                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Khung thời gian</label>
-                    <select value={formTimeframe} onChange={e => setFormTimeframe(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-fill)] border-0 rounded-[14px] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)] font-semibold cursor-pointer">
-                      <option value="M5">M5 (5 phút)</option>
-                      <option value="M15">M15 (15 phút)</option>
-                      <option value="H1">H1 (1 giờ)</option>
-                      <option value="H4">H4 (4 giờ)</option>
-                      <option value="D1">D1 (1 ngày)</option>
-                    </select>
-                  </div>
+                  <GlassSelect label="Khung thời gian" value={formTimeframe} onChange={e => setFormTimeframe(e.target.value)}>
+                    <option value="M5">M5 (5 phút)</option>
+                    <option value="M15">M15 (15 phút)</option>
+                    <option value="H1">H1 (1 giờ)</option>
+                    <option value="H4">H4 (4 giờ)</option>
+                    <option value="D1">D1 (1 ngày)</option>
+                  </GlassSelect>
                 </div>
 
                 {/* P&L */}
-                <div>
-                  <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">P&L ($)</label>
-                  <input type="number" step="any" placeholder="Kết quả lời/lỗ" value={formPnl} onChange={e => setFormPnl(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-fill)] border-0 rounded-[14px] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)] font-mono font-bold" />
-                </div>
+                <GlassInput label="P&L ($)" type="number" step="any" placeholder="Kết quả lời/lỗ" value={formPnl} onChange={e => setFormPnl(e.target.value)} />
 
                 {/* Closed: Exit fields */}
                 {formStatus === "CLOSED" && (
-                  <div className="p-4 rounded-[16px] bg-[var(--ios-surface)] border border-[var(--ios-separator)]/40 shadow-sm space-y-4">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-[var(--ios-secondary-label)]">Tất toán giao dịch</p>
+                  <div className="p-5 rounded-[20px] bg-[var(--ios-surface)] border border-[var(--ios-separator)]/40 shadow-sm space-y-4"
+                    style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}>
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)]">Tất toán giao dịch</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <GlassInput label="Giá đóng lệnh" type="number" step="any" placeholder="VD: 1.0920" value={formExitPrice} onChange={e => setFormExitPrice(e.target.value)} />
                       <div>
-                        <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Giá đóng lệnh</label>
-                        <input type="number" step="any" placeholder="VD: 1.0920" value={formExitPrice} onChange={e => setFormExitPrice(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-surface)] border border-[var(--ios-separator)] rounded-[12px] text-sm focus:outline-none focus:border-[var(--ios-blue)] text-[var(--ios-label)] font-mono" />
-                      </div>
-                      <div>
-                        <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Ngày đóng lệnh</label>
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)] mb-1.5 block">
+                          Ngày đóng lệnh
+                        </label>
                         <div className="grid grid-cols-2 gap-2">
                           <IOSDatePicker value={getExitDatePart()} onChange={handleExitDateChange} placeholder="Ngày" />
                           <IOSTimePicker value={getExitDatePart()} onChange={handleExitDateChange} placeholder="Giờ" />
@@ -217,85 +312,142 @@ export function AddTradeModal({
                 {/* Entry Date & Tag */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                   <div>
-                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Ngày vào lệnh</label>
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)] mb-1.5 block">
+                      Ngày vào lệnh
+                    </label>
                     <div className="grid grid-cols-2 gap-2">
                       <IOSDatePicker value={getEntryDatePart()} onChange={handleEntryDateChange} placeholder="Ngày" />
                       <IOSTimePicker value={getEntryDatePart()} onChange={handleEntryDateChange} placeholder="Giờ" />
                     </div>
                   </div>
-                  <div>
-                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Chiến lược</label>
-                    <select value={formTag} onChange={e => setFormTag(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-fill)] border-0 rounded-[14px] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)] font-semibold cursor-pointer">
-                      <option value="News-Trade">Giao dịch theo tin tức</option>
-                      <option value="Trend-Follow">Đu theo xu hướng</option>
-                      <option value="Breakout">Bứt phá</option>
-                      <option value="Range-Trade">Giao dịch Vùng</option>
-                    </select>
-                  </div>
+                  <GlassSelect label="Chiến lược" value={formTag} onChange={e => setFormTag(e.target.value)}>
+                    <option value="News-Trade">Giao dịch theo tin tức</option>
+                    <option value="Trend-Follow">Đu theo xu hướng</option>
+                    <option value="Breakout">Bứt phá</option>
+                    <option value="Range-Trade">Giao dịch Vùng</option>
+                  </GlassSelect>
                 </div>
 
                 {/* Rating */}
                 <div>
-                  <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Đánh giá</label>
-                  <div className="flex gap-1">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)] mb-1.5 block">
+                    Đánh giá
+                  </label>
+                  <div className="flex gap-0.5">
                     {Array.from({ length: 5 }).map((_, i) => (
-                      <button key={i} type="button" onClick={() => setFormRating(i + 1)} className={`text-lg p-1 ${i < formRating ? "text-amber-500" : "text-[var(--ios-secondary-label)]/40"} cursor-pointer`}>★</button>
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setFormRating(i + 1)}
+                        className={`w-9 h-9 rounded-full flex items-center justify-center text-[18px] transition-all cursor-pointer active:scale-90 ${
+                          i < formRating
+                            ? "text-amber-400 bg-amber-500/10"
+                            : "text-[var(--ios-tertiary-label)]/40 bg-transparent hover:text-[var(--ios-secondary-label)]"
+                        }`}
+                      >
+                        ★
+                      </button>
                     ))}
+                    {formRating > 0 && (
+                      <span className="text-[13px] font-semibold text-[var(--ios-secondary-label)] ml-2 self-center">
+                        {formRating}/5
+                      </span>
+                    )}
                   </div>
                 </div>
 
                 {/* Notes */}
-                <div>
-                  <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Lý do vào lệnh</label>
-                  <textarea rows={3} placeholder="Tại sao bạn khớp lệnh này? Phân tích kỹ thuật hoặc nhận định tin tức..." value={formNotes} onChange={e => setFormNotes(e.target.value)} className="w-full px-3 py-3 bg-[var(--ios-fill)] border-0 rounded-[14px] text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)] resize-none" />
-                </div>
+                <GlassTextarea
+                  label="Lý do vào lệnh"
+                  rows={3}
+                  placeholder="Tại sao bạn khớp lệnh này? Phân tích kỹ thuật hoặc nhận định tin tức..."
+                  value={formNotes}
+                  onChange={e => setFormNotes(e.target.value)}
+                />
 
                 {/* TradingView Snapshot Open */}
                 <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] uppercase tracking-wider">Ảnh biểu đồ Mở Lệnh</label>
-                    <button type="button" onClick={onCaptureSnapshot} disabled={isCapturingSnapshot || !formPair} className="text-xs font-semibold text-[var(--ios-blue)] flex items-center gap-1 hover:underline disabled:opacity-50 cursor-pointer">
-                      {isCapturingSnapshot ? <><RefreshCw size={12} className="animate-spin" /> Đang chụp...</> : <><Camera size={12} /> Chụp {formPair}</>}
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)]">
+                      Ảnh biểu đồ Mở Lệnh
+                    </label>
+                    <button
+                      type="button"
+                      onClick={onCaptureSnapshot}
+                      disabled={isCapturingSnapshot || !formPair}
+                      className="text-[11px] font-bold text-[var(--ios-blue)] flex items-center gap-1 hover:underline disabled:opacity-50 cursor-pointer"
+                    >
+                      {isCapturingSnapshot ? (
+                        <><RefreshCw size={12} className="animate-spin" /> Đang chụp...</>
+                      ) : (
+                        <><Camera size={12} /> Chụp {formPair}</>
+                      )}
                     </button>
                   </div>
                   {formTVSnapshotUrl ? (
-                    <div className="relative border border-[var(--ios-separator)] rounded-lg overflow-hidden group max-h-[140px] bg-black/10">
+                    <div className="relative rounded-[14px] overflow-hidden border border-[var(--ios-separator)]/40 max-h-[140px] bg-black/10 shadow-sm">
                       <button type="button" onClick={() => setLightboxUrl(formTVSnapshotUrl)} className="block w-full cursor-zoom-in">
-                        <img src={formTVSnapshotUrl} alt="Chart Mở" className="w-full object-cover transition-transform group-hover:scale-105" />
+                        <img src={formTVSnapshotUrl} alt="Chart Mở" className="w-full object-cover transition-transform hover:scale-105" />
                       </button>
                     </div>
                   ) : (
-                    <div className="h-20 rounded-[14px] border border-dashed border-[var(--ios-separator)] flex items-center justify-center bg-[var(--ios-fill)] text-[var(--ios-secondary-label)]/70 text-sm font-medium">Chưa có ảnh</div>
+                    <div className="h-[72px] rounded-[14px] border border-dashed border-[var(--ios-separator)]/40 flex items-center justify-center bg-[var(--ios-surface)] text-[var(--ios-tertiary-label)] text-[13px] font-medium"
+                      style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}>
+                      Chưa có ảnh
+                    </div>
                   )}
                 </div>
 
                 {/* TradingView Snapshot Close */}
                 <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-semibold text-[var(--ios-secondary-label)] uppercase tracking-wider">Ảnh biểu đồ Đóng Lệnh</label>
-                    <button type="button" onClick={onCaptureSnapshotClose} disabled={isCapturingSnapshotClose || !formPair} className="text-xs font-semibold text-[var(--ios-blue)] flex items-center gap-1 hover:underline disabled:opacity-50 cursor-pointer">
-                      {isCapturingSnapshotClose ? <><RefreshCw size={12} className="animate-spin" /> Đang chụp...</> : <><Camera size={12} /> Chụp {formPair}</>}
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)]">
+                      Ảnh biểu đồ Đóng Lệnh
+                    </label>
+                    <button
+                      type="button"
+                      onClick={onCaptureSnapshotClose}
+                      disabled={isCapturingSnapshotClose || !formPair}
+                      className="text-[11px] font-bold text-[var(--ios-blue)] flex items-center gap-1 hover:underline disabled:opacity-50 cursor-pointer"
+                    >
+                      {isCapturingSnapshotClose ? (
+                        <><RefreshCw size={12} className="animate-spin" /> Đang chụp...</>
+                      ) : (
+                        <><Camera size={12} /> Chụp {formPair}</>
+                      )}
                     </button>
                   </div>
                   {formTVSnapshotUrlClose ? (
-                    <div className="relative border border-[var(--ios-separator)] rounded-lg overflow-hidden group max-h-[140px] bg-black/10">
+                    <div className="relative rounded-[14px] overflow-hidden border border-[var(--ios-separator)]/40 max-h-[140px] bg-black/10 shadow-sm">
                       <button type="button" onClick={() => setLightboxUrl(formTVSnapshotUrlClose)} className="block w-full cursor-zoom-in">
-                        <img src={formTVSnapshotUrlClose} alt="Chart Đóng" className="w-full object-cover transition-transform group-hover:scale-105" />
+                        <img src={formTVSnapshotUrlClose} alt="Chart Đóng" className="w-full object-cover transition-transform hover:scale-105" />
                       </button>
                     </div>
                   ) : (
-                    <div className="h-20 rounded-[14px] border border-dashed border-[var(--ios-separator)] flex items-center justify-center bg-[var(--ios-fill)] text-[var(--ios-secondary-label)]/70 text-sm font-medium">Chưa có ảnh</div>
+                    <div className="h-[72px] rounded-[14px] border border-dashed border-[var(--ios-separator)]/40 flex items-center justify-center bg-[var(--ios-surface)] text-[var(--ios-tertiary-label)] text-[13px] font-medium"
+                      style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}>
+                      Chưa có ảnh
+                    </div>
                   )}
                 </div>
 
               </div>
 
               {/* Footer */}
-              <div className="px-4 sm:px-8 py-4 border-t border-[var(--ios-separator)] bg-[var(--ios-surface)] shrink-0 flex items-center gap-3">
-                <button type="submit" className="flex-1 py-3 rounded-[12px] bg-[var(--ios-blue)] text-white font-semibold text-sm cursor-pointer active:scale-[0.98] transition-transform">
+              <div className="px-5 sm:px-8 py-4 border-t border-[var(--ios-separator)]/40 shrink-0 flex items-center gap-3"
+                style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}>
+                <button
+                  type="submit"
+                  className="flex-1 py-3 rounded-[14px] bg-[var(--ios-blue)] text-white font-semibold text-[15px] cursor-pointer active:scale-[0.97] transition-transform shadow-ios-sm"
+                >
                   {editingTradeId ? "Cập nhật giao dịch" : "Thêm lệnh"}
                 </button>
-                <button type="button" onClick={onClose} className="px-5 py-3 rounded-[14px] bg-[var(--ios-fill)] border-0 text-[var(--ios-label)] text-[15px] font-semibold cursor-pointer active:scale-[0.98] transition-transform">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-6 py-3 rounded-[14px] bg-[var(--ios-surface)] text-[var(--ios-label)] text-[15px] font-semibold cursor-pointer active:scale-[0.97] transition-transform border border-[var(--ios-separator)]/40"
+                  style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}
+                >
                   Hủy
                 </button>
               </div>
