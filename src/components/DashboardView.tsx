@@ -94,9 +94,9 @@ export function DashboardView({
           { label: "P&L", value: `${summary.pnl >= 0 ? "+" : ""}$${summary.pnl.toFixed(0)}`, color: summary.pnl >= 0 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]" },
           { label: "Đang mở", value: (t5Metrics?.totalOpenTrades ?? openCount).toString(), color: "text-[var(--ios-blue)]" },
         ].map((stat, i) => (
-          <div key={i} className="p-4 sm:p-5 ios-glass bg-[var(--ios-surface)] rounded-[24px] shadow-ios-sm">
+          <div key={i} className="p-4 sm:p-5 ios-glass ios26-card bg-[var(--ios-surface)] shadow-ios-sm">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ios-secondary-label)]">{stat.label}</p>
-            <p className={`text-[28px] font-bold mt-1 leading-none ${stat.color}`}>{stat.value}</p>
+            <p className={`text-[28px] font-bold font-mono tracking-tight mt-1 leading-none ${stat.color}`}>{stat.value}</p>
           </div>
         ))}
       </div>
@@ -114,7 +114,7 @@ export function DashboardView({
               const dailyRisk = dailyLimit > 0 ? Math.min(100, (dailyUsed / dailyLimit) * 100) : 0;
               const riskLabel = dailyRisk >= 80 ? "Nguy hiểm" : dailyRisk >= 55 ? "Cần chú ý" : "Ổn";
               return (
-                <button key={account.accountId} type="button" onClick={() => { setSelectedJournalAccountId(account.accountId); setCurrentTab("journal"); }} className="p-4 sm:p-5 ios-glass bg-[var(--ios-surface)] rounded-[24px] shadow-ios-sm text-left transition-all hover:border-[var(--ios-blue)]/40 cursor-pointer active:scale-[0.98] border border-[var(--ios-separator)]">
+                <button key={account.accountId} type="button" onClick={() => { setSelectedJournalAccountId(account.accountId); setCurrentTab("journal"); }} className="p-4 sm:p-5 ios-glass ios26-card bg-[var(--ios-surface)] shadow-ios-sm text-left transition-all hover:border-[var(--ios-blue)]/40 cursor-pointer active:scale-[0.98] border border-[var(--ios-separator)]">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="font-semibold text-sm text-[var(--ios-label)] truncate">{account.name || account.accountId}</p>
@@ -123,8 +123,8 @@ export function DashboardView({
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${account.status === "active" || account.status === "available" ? "text-[var(--ios-green)] bg-[var(--ios-green)]/10" : "text-[var(--ios-secondary-label)] bg-[var(--ios-surface-2)]"}`}>{account.status}</span>
                   </div>
                   <div className="flex items-center justify-between mt-3">
-                    <div><p className="text-[10px] font-semibold text-[var(--ios-secondary-label)]">Balance</p><p className="text-[17px] font-bold text-[var(--ios-label)]">${account.balance?.toLocaleString("en-US", { maximumFractionDigits: 0 })}</p></div>
-                    <div className="text-right"><p className="text-[10px] font-semibold text-[var(--ios-secondary-label)]">P&L</p><p className={`text-[17px] font-bold ${(account.pnl || 0) >= 0 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`}>{(account.pnl || 0) >= 0 ? "+" : ""}${(account.pnl || 0).toFixed(0)}</p></div>
+                    <div><p className="text-[10px] font-semibold text-[var(--ios-secondary-label)]">Balance</p><p className="text-[17px] font-bold font-mono tracking-tight text-[var(--ios-label)]">${account.balance?.toLocaleString("en-US", { maximumFractionDigits: 0 })}</p></div>
+                    <div className="text-right"><p className="text-[10px] font-semibold text-[var(--ios-secondary-label)]">P&L</p><p className={`text-[17px] font-bold font-mono tracking-tight ${(account.pnl || 0) >= 0 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`}>{(account.pnl || 0) >= 0 ? "+" : ""}${(account.pnl || 0).toFixed(0)}</p></div>
                   </div>
                   <div className="mt-3">
                     <div className="flex items-center justify-between text-[10px] text-[var(--ios-secondary-label)] mb-1"><span>Daily risk</span><span>{riskLabel}</span></div>
@@ -140,12 +140,12 @@ export function DashboardView({
       )}
 
       {/* BentoStats Chart */}
-      <Suspense fallback={<div className="h-[240px] bg-[var(--ios-surface)] rounded-[24px] shadow-ios-sm animate-pulse" />}>
+      <Suspense fallback={<div className="h-[240px] bg-[var(--ios-surface)] ios26-card shadow-ios-sm animate-pulse" />}>
         <BentoStats trades={mergedTrades} darkMode={darkMode} />
       </Suspense>
 
       {/* Recent Trades — iOS List Style */}
-      <div className="ios-glass bg-[var(--ios-surface)] rounded-[24px] shadow-ios-sm overflow-hidden">
+      <div className="ios-glass ios26-card bg-[var(--ios-surface)] shadow-ios-sm overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--ios-separator)]">
           <h3 className="text-[13px] font-semibold text-[var(--ios-secondary-label)] uppercase tracking-wider">Giao dịch gần đây</h3>
           <button onClick={() => setCurrentTab("journal")} className="text-[13px] font-medium text-[var(--ios-blue)] cursor-pointer flex items-center gap-0.5">Xem tất cả <ChevronRight size={14} /></button>

@@ -33,7 +33,7 @@ import {
   deleteTradeFromDB,
   getSavedSupabaseKeys,
 } from "./lib/supabase";
-import { M3DatePicker, M3TimePicker } from "./components/M3DatePicker";
+import { IOSDatePicker, IOSTimePicker } from "./components/IOSDatePicker";
 import { NewsPanel } from "./components/NewsPanel";
 import { fetchT5Accounts, fetchT5AccountDetail, fetchT5Purchases } from "./lib/supabase-the5ers";
 import { LoginScreen } from "./LoginScreen";
@@ -1536,8 +1536,8 @@ export default function App() {
         handleEntryDateChange={handleEntryDateChange}
         getExitDatePart={getExitDatePart}
         handleExitDateChange={handleExitDateChange}
-        M3DatePicker={M3DatePicker}
-        M3TimePicker={M3TimePicker}
+        IOSDatePicker={IOSDatePicker}
+        IOSTimePicker={IOSTimePicker}
       />
 
       {/* Settings Modal */}

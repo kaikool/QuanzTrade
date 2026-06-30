@@ -46,8 +46,8 @@ interface AddTradeModalProps {
   handleEntryDateChange: (v: string) => void;
   getExitDatePart: () => string;
   handleExitDateChange: (v: string) => void;
-  M3DatePicker: React.FC<{value: string; onChange: (v: string) => void; placeholder?: string}>;
-  M3TimePicker: React.FC<{value: string; onChange: (v: string) => void; placeholder?: string}>;
+  IOSDatePicker: React.FC<{value: string; onChange: (v: string) => void; placeholder?: string}>;
+  IOSTimePicker: React.FC<{value: string; onChange: (v: string) => void; placeholder?: string}>;
 }
 
 export function AddTradeModal({
@@ -72,7 +72,7 @@ export function AddTradeModal({
   onSubmit, onCaptureSnapshot, onCaptureSnapshotClose,
   getEntryDatePart, handleEntryDateChange,
   getExitDatePart, handleExitDateChange,
-  M3DatePicker, M3TimePicker,
+  IOSDatePicker, IOSTimePicker,
 }: AddTradeModalProps) {
   return (
     <AnimatePresence>
@@ -93,7 +93,7 @@ export function AddTradeModal({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 120 }}
             transition={{ type: "spring", damping: 28, stiffness: 240 }}
-            className="relative w-full max-w-[100vw] sm:max-w-2xl ios-glass bg-[var(--ios-surface)] sm:rounded-[28px] rounded-t-[28px] shadow-ios-xl z-10 flex flex-col h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-hidden"
+            className="relative w-full max-w-[100vw] sm:max-w-2xl ios-glass ios26-card bg-[var(--ios-surface)] sm:rounded-[30px] rounded-t-[30px] shadow-ios-xl z-10 flex flex-col h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-hidden"
             id="new-trade-modal-window"
           >
             {/* Grabber */}
@@ -206,8 +206,8 @@ export function AddTradeModal({
                       <div>
                         <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Ngày đóng lệnh</label>
                         <div className="grid grid-cols-2 gap-2">
-                          <M3DatePicker value={getExitDatePart()} onChange={handleExitDateChange} placeholder="Ngày" />
-                          <M3TimePicker value={getExitDatePart()} onChange={handleExitDateChange} placeholder="Giờ" />
+                          <IOSDatePicker value={getExitDatePart()} onChange={handleExitDateChange} placeholder="Ngày" />
+                          <IOSTimePicker value={getExitDatePart()} onChange={handleExitDateChange} placeholder="Giờ" />
                         </div>
                       </div>
                     </div>
@@ -219,8 +219,8 @@ export function AddTradeModal({
                   <div>
                     <label className="text-xs font-semibold text-[var(--ios-secondary-label)] mb-1.5 block uppercase tracking-wider">Ngày vào lệnh</label>
                     <div className="grid grid-cols-2 gap-2">
-                      <M3DatePicker value={getEntryDatePart()} onChange={handleEntryDateChange} placeholder="Ngày" />
-                      <M3TimePicker value={getEntryDatePart()} onChange={handleEntryDateChange} placeholder="Giờ" />
+                      <IOSDatePicker value={getEntryDatePart()} onChange={handleEntryDateChange} placeholder="Ngày" />
+                      <IOSTimePicker value={getEntryDatePart()} onChange={handleEntryDateChange} placeholder="Giờ" />
                     </div>
                   </div>
                   <div>

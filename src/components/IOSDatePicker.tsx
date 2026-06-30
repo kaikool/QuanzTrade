@@ -2,15 +2,15 @@ import React, { useState, useEffect, useRef } from "react";
 import { Calendar, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 
 // ==========================================
-// 📅 1. GORGEOUS MATERIAL DESIGN 3 CALENDAR DATE PICKER
+// 📅 1. SPATIAL IOS 26 CALENDAR DATE PICKER
 // ==========================================
-interface M3DatePickerProps {
+interface IOSDatePickerProps {
   value: string; // "YYYY-MM-DD"
   onChange: (val: string) => void;
   placeholder?: string;
 }
 
-export const M3DatePicker: React.FC<M3DatePickerProps> = ({
+export const IOSDatePicker: React.FC<IOSDatePickerProps> = ({
   value,
   onChange,
   placeholder = "Chọn ngày",
@@ -188,15 +188,15 @@ export const M3DatePicker: React.FC<M3DatePickerProps> = ({
 };
 
 // ==========================================
-// 🕒 2. GORGEOUS MATERIAL DESIGN 3 TIME PICKER
+// 🕒 2. SPATIAL IOS 26 TIME PICKER
 // ==========================================
-interface M3TimePickerProps {
+interface IOSTimePickerProps {
   value: string; // "HH:MM"
   onChange: (val: string) => void;
   placeholder?: string;
 }
 
-export const M3TimePicker: React.FC<M3TimePickerProps> = ({
+export const IOSTimePicker: React.FC<IOSTimePickerProps> = ({
   value,
   onChange,
   placeholder = "Chọn giờ",
