@@ -1285,7 +1285,7 @@ export default function App() {
         {/* Google Workspace Style Tonal Top Header */}
         {(currentTab === "dashboard" || currentTab === "journal") && (
         <header
-          className={`flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-6 ${darkMode ? "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm" : "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm"} rounded-[24px] shadow-ios-sm space-y-4 md:space-y-0`}
+          className="flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-6 bg-[var(--sys-surface)] rounded-[24px] border border-[var(--sys-border)] shadow-ios-sm space-y-4 md:space-y-0"
           id="google-ios-header"
         >
           <div className="flex items-center gap-3 sm:gap-4">
@@ -1370,7 +1370,7 @@ export default function App() {
 
         {/* Google-style Pill Navigation Tab Segment Manager */}
         <div
-          className={`hidden md:flex justify-between items-center ${darkMode ? "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm" : "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm"} p-1.5 rounded-full shadow-ios-sm overflow-x-auto no-scrollbar`}
+          className="hidden md:flex justify-between items-center bg-[var(--sys-surface)] rounded-full border border-[var(--sys-border)] shadow-ios-sm p-1.5 overflow-x-auto no-scrollbar"
           id="segmented-controller"
         >
           <div className="flex gap-1 sm:gap-1.5 flex-shrink-0">
@@ -1416,7 +1416,7 @@ export default function App() {
             {/* Numeric and graphs bento core statistics wrapper */}
             <Suspense
               fallback={
-                <div className="min-h-[260px] rounded-[24px] bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm shadow-ios-sm animate-pulse" />
+                <div className="min-h-[260px] bg-[var(--sys-surface)] rounded-[24px] border border-[var(--sys-border)] shadow-ios-sm animate-pulse" />
               }
             >
               <BentoStats trades={mergedTrades} darkMode={darkMode} />
@@ -1474,7 +1474,7 @@ export default function App() {
             >
               {/* Calendar Feed Fast-View Card */}
               <div
-                className={`lg:col-span-2 p-5 sm:p-6 ${darkMode ? "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm" : "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm"} rounded-[24px] shadow-ios-sm flex flex-col justify-between`}
+                className="lg:col-span-2 p-5 sm:p-6 bg-[var(--sys-surface)] rounded-[24px] border border-[var(--sys-border)] shadow-ios-sm flex flex-col justify-between"
                 id="bento-calendar-fastview"
               >
                 <div>
@@ -1607,7 +1607,7 @@ export default function App() {
 
               {/* Recent Trade History Widget Panel */}
               <div
-                className={`p-5 sm:p-6 ${darkMode ? "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm" : "bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm"} rounded-[24px] shadow-ios-sm flex flex-col justify-between`}
+                className="p-5 sm:p-6 bg-[var(--sys-surface)] rounded-[24px] border border-[var(--sys-border)] shadow-ios-sm flex flex-col justify-between"
                 id="bento-recent-history"
               >
                 <div>
@@ -1636,7 +1636,7 @@ export default function App() {
                       mergedTrades.slice(0, 4).map((t) => (
                         <div
                           key={t.id}
-                          className="flex items-center gap-3 p-2.5 hover:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:hover:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm/20 rounded-[16px] transition-all ease-[ease-out]"
+                          <div className="flex items-center gap-3 p-2.5 hover:bg-[var(--sys-surface-2)] rounded-[16px] transition-all ease-[ease-out]"
                         >
                           <div
                             className={`w-10 h-10 rounded-[16px] flex items-center justify-center font-bold text-base ${t.type === "BUY" ? "bg-[var(--sys-green)]/100/10 text-[var(--sys-green)]" : "bg-[var(--sys-red)]/100/10 text-[var(--sys-red)]"}`}
@@ -1691,7 +1691,7 @@ export default function App() {
             id="journal-standalone-section"
           >
             <div
-              className="p-4 sm:p-6 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm rounded-[24px] shadow-ios-sm max-w-full overflow-hidden"
+              className="p-4 sm:p-6 bg-[var(--sys-surface)] rounded-[24px] border border-[var(--sys-border)] shadow-ios-sm max-w-full overflow-hidden"
               id="journal-master-card"
             >
               {/* Journal controls header */}
@@ -1719,7 +1719,7 @@ export default function App() {
                     >
                       <option
                         value="ALL"
-                        className="bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-text)]"
+                        className="bg-[var(--sys-surface)] text-[var(--sys-text)]"
                       >
                         Cặp: Tất cả
                       </option>
@@ -1729,7 +1729,7 @@ export default function App() {
                           <option
                             key={p}
                             value={p}
-                            className="bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-text)]"
+                            className="bg-[var(--sys-surface)] text-[var(--sys-text)]"
                           >
                             {p}
                           </option>
@@ -1746,19 +1746,19 @@ export default function App() {
                     >
                       <option
                         value="ALL"
-                        className="bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-text)]"
+                        className="bg-[var(--sys-surface)] text-[var(--sys-text)]"
                       >
                         Tất cả lệnh
                       </option>
                       <option
                         value="OPEN"
-                        className="bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-text)]"
+                        className="bg-[var(--sys-surface)] text-[var(--sys-text)]"
                       >
                         Lệnh Mở (OPEN)
                       </option>
                       <option
                         value="CLOSED"
-                        className="bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm text-[var(--sys-text)]"
+                        className="bg-[var(--sys-surface)] text-[var(--sys-text)]"
                       >
                         Đã Đóng (CLOSED)
                       </option>
@@ -1777,7 +1777,7 @@ export default function App() {
                   placeholder="Nhập cặp tiền hoặc phân tích để tìm kiếm nhanh..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-[var(--sys-surface-2)] rounded-[12px] text-base border border-[var(--sys-border)]/50 dark:border-[var(--sys-border)] focus:border-[var(--sys-blue)] focus:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm dark:focus:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm focus:outline-none focus:ring-1 focus:ring-[var(--sys-blue)] transition-all ease-[ease-out] font-sans"
+                  className="w-full pl-10 pr-4 py-2 bg-[var(--sys-surface-2)] rounded-[12px] text-base border border-[var(--sys-border)]/50 dark:border-[var(--sys-border)] focus:border-[var(--sys-blue)] focus:bg-[var(--sys-surface)] focus:outline-none focus:ring-1 focus:ring-[var(--sys-blue)] transition-all ease-[ease-out] font-sans"
                   id="trade-search-input"
                 />
               </div>
@@ -2105,7 +2105,7 @@ export default function App() {
         {currentTab === "calendar" && (
           <div className="space-y-6" id="calendar-master-view">
             <div
-              className="p-4 sm:p-6 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm rounded-[24px] shadow-ios-sm max-w-full overflow-hidden"
+              className="p-4 sm:p-6 bg-[var(--sys-surface)] rounded-[24px] border border-[var(--sys-border)] shadow-ios-sm max-w-full overflow-hidden"
               id="calendar-card"
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--sys-border)] dark:border-[var(--sys-border)] pb-3 mb-4 w-full min-w-0">
@@ -2367,7 +2367,7 @@ export default function App() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 120 }}
               transition={{ type: "spring", damping: 26, stiffness: 220 }}
-              className="relative w-full max-w-[100vw] sm:max-w-2xl bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm sm:rounded-[28px] rounded-t-[28px] shadow-level5 z-10 flex flex-col h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-x-hidden overflow-y-hidden"
+              className="relative w-full max-w-[100vw] sm:max-w-2xl bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm sm:rounded-[28px] rounded-t-[28px] shadow-ios-xl z-10 flex flex-col h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-x-hidden overflow-y-hidden"
               id="new-trade-modal-window"
             >
               <div className="flex justify-between items-center px-5 sm:px-8 py-4 sm:py-6 border-b border-[var(--sys-border)] bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm z-20 shrink-0">
@@ -2758,7 +2758,7 @@ export default function App() {
                   )}
 
                   {/* Rating selection (Stars) */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm/50 dark:bg-[var(--sys-surface)] rounded-2xl border border-[var(--sys-border)] shadow-ios-sm/30 rounded-[16px] border border-[var(--sys-border)] dark:border-[var(--sys-border)]">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-[var(--sys-surface)] rounded-[16px] border border-[var(--sys-border)]">
                     <div>
                       <span className="font-bold text-[var(--sys-text)] text-base block">
                         Mức Độ Tuân Thủ Kỷ Luật
@@ -2990,57 +2990,57 @@ export default function App() {
         </div>
       </div>
 
-      {/* Material 3 Bottom Navigation bar for mobile / bottom control menu */}
+      {/* iOS Tab Bar (Apple HIG 49pt) */}
       <footer
-        className={`md:hidden fixed z-40 transition-colors ease-[ease-out] backdrop-blur-xl ${darkMode ? "bg-[var(--sys-surface-2)]/95 border-[var(--sys-border)]" : "bg-[var(--sys-surface)] border border-[var(--sys-border)] shadow-ios-lg/95"}`}
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-40 transition-colors ease-[ease-out] backdrop-blur-xl ${darkMode ? "bg-[var(--sys-surface-2)]/95 border-t border-[var(--sys-border)]" : "bg-[var(--sys-surface)] border-t border-[var(--sys-border)]"}`}
         id="ios-bottom-nav"
       >
         <button
           onClick={() => setCurrentTab("dashboard")}
-          className={`flex flex-col items-center gap-1.5 justify-center flex-1 py-1.5 ${currentTab === "dashboard" ? "text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)]"}`}
+          className={`flex flex-col items-center gap-0.5 justify-center flex-1 ${currentTab === "dashboard" ? "text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)]"}`}
         >
           <div
-            className={`px-5 py-1.5 rounded-full ${currentTab === "dashboard" ? "bg-[var(--sys-blue)]/10 dark:transparent text-[var(--sys-blue)] dark:text-[var(--sys-blue)]" : ""}`}
+            className={`p-1.5 rounded-full ${currentTab === "dashboard" ? "bg-[var(--sys-blue)]/10 dark:transparent" : ""}`}
           >
-            <BarChart2 size={20} />
+            <BarChart2 size={28} />
           </div>
-          <span className="text-sm font-medium tracking-wide">Tổng quan</span>
+          <span className="text-[10px] font-[400]">Tổng quan</span>
         </button>
 
         <button
           onClick={() => setCurrentTab("journal")}
-          className={`flex flex-col items-center gap-1.5 justify-center flex-1 py-1.5 ${currentTab === "journal" ? "text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)]"}`}
+          className={`flex flex-col items-center gap-0.5 justify-center flex-1 ${currentTab === "journal" ? "text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)]"}`}
         >
           <div
-            className={`px-5 py-1.5 rounded-full ${currentTab === "journal" ? "bg-[var(--sys-blue)]/10 dark:transparent text-[var(--sys-blue)] dark:text-[var(--sys-blue)]" : ""}`}
+            className={`p-1.5 rounded-full ${currentTab === "journal" ? "bg-[var(--sys-blue)]/10 dark:transparent" : ""}`}
           >
-            <FileText size={20} />
+            <FileText size={28} />
           </div>
-          <span className="text-sm font-medium tracking-wide">Nhật ký</span>
+          <span className="text-[10px] font-[400]">Nhật ký</span>
         </button>
 
         <button
           onClick={() => setCurrentTab("calendar")}
-          className={`flex flex-col items-center gap-1.5 justify-center flex-1 py-1.5 ${currentTab === "calendar" ? "text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)]"}`}
+          className={`flex flex-col items-center gap-0.5 justify-center flex-1 ${currentTab === "calendar" ? "text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)]"}`}
         >
           <div
-            className={`px-5 py-1.5 rounded-full ${currentTab === "calendar" ? "bg-[var(--sys-blue)]/10 dark:transparent text-[var(--sys-blue)] dark:text-[var(--sys-blue)]" : ""}`}
+            className={`p-1.5 rounded-full ${currentTab === "calendar" ? "bg-[var(--sys-blue)]/10 dark:transparent" : ""}`}
           >
-            <CalendarIcon size={20} />
+            <CalendarIcon size={28} />
           </div>
-          <span className="text-sm font-medium tracking-wide">Kinh tế</span>
+          <span className="text-[10px] font-[400]">Kinh tế</span>
         </button>
 
         <button
           onClick={() => setCurrentTab("news")}
-          className={`flex flex-col items-center gap-1.5 justify-center flex-1 py-1.5 ${currentTab === "news" ? "text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)]"}`}
+          className={`flex flex-col items-center gap-0.5 justify-center flex-1 ${currentTab === "news" ? "text-[var(--sys-blue)]" : "text-[var(--sys-text-secondary)]"}`}
         >
           <div
-            className={`px-5 py-1.5 rounded-full ${currentTab === "news" ? "bg-[var(--sys-blue)]/10 dark:transparent text-[var(--sys-blue)] dark:text-[var(--sys-blue)]" : ""}`}
+            className={`p-1.5 rounded-full ${currentTab === "news" ? "bg-[var(--sys-blue)]/10 dark:transparent" : ""}`}
           >
-            <Newspaper size={20} />
+            <Newspaper size={28} />
           </div>
-          <span className="text-sm font-medium tracking-wide">Tin tức</span>
+          <span className="text-[10px] font-[400]">Tin tức</span>
         </button>
       </footer>
 

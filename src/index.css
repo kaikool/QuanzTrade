@@ -1197,12 +1197,14 @@ table th span,
   grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: center;
   justify-items: stretch;
-  padding: 0 8px;
-  height: 64px;
+  padding: 0 4px;
+  height: 49px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  bottom: 0;
 }
 
 #ios-bottom-nav button {
-  height: 54px;
+  height: 48px;
   min-width: 0;
   padding: 0;
   display: flex;
