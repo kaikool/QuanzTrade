@@ -201,19 +201,19 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
                 <XAxis dataKey="date" hide={true} />
                 <YAxis hide={true} domain={['auto', 'auto']} />
                 <Tooltip 
-                  contentStyle={{
-                    borderRadius: "12px",
-                    background: "var(--sys-glass)",
-                    border: "1px solid var(--sys-border)",
-                    color: "var(--ios-label)",
-                    fontSize: "14px",
-                    fontWeight: "bold",
-                    backdropFilter: "blur(20px)",
-                    boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)"
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="bg-[var(--sys-glass)] border border-[var(--sys-border)] p-3 rounded-[12px] shadow-ios-md backdrop-blur-[20px]">
+                          <p className="text-[12px] font-bold text-[var(--ios-secondary-label)] mb-1">{label}</p>
+                          <p className="text-[14px] font-bold font-mono text-[var(--ios-label)]">
+                            P&L: ${Number(payload[0].value).toFixed(0)}
+                          </p>
+                        </div>
+                      );
+                    }
+                    return null;
                   }}
-                  itemStyle={{ color: "var(--ios-label)", fontFamily: "monospace" }}
-                  formatter={(val: number) => [`$${val.toFixed(0)}`, "P&L"]}
-                  labelFormatter={(label) => label}
                   cursor={{ stroke: "var(--ios-secondary-label)", strokeWidth: 1, strokeDasharray: "4 4" }}
                 />
                 <Area 

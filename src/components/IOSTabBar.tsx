@@ -19,13 +19,7 @@ export function IOSTabBar({ currentTab, setCurrentTab }: IOSTabBarProps) {
   return (
     <nav
       id="ios-tab-bar"
-      className="md:hidden fixed z-40 bottom-0 left-0 right-0 flex items-center justify-around ios-glass bg-[var(--sys-surface)]/80 border-t border-[var(--sys-border)]"
-      style={{
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-        height: 'calc(49px + env(safe-area-inset-bottom, 0px))',
-        backdropFilter: 'saturate(180%) blur(30px)',
-        WebkitBackdropFilter: 'saturate(180%) blur(30px)',
-      }}
+      className="md:hidden fixed z-40 bottom-0 left-0 right-0 flex items-center justify-around ios-glass bg-[var(--sys-surface)]/80 border-t border-[var(--sys-border)] pb-[env(safe-area-inset-bottom,0px)] h-[calc(49px+env(safe-area-inset-bottom,0px))] backdrop-saturate-[1.8] backdrop-blur-[30px]"
     >
       {tabs.map(({ id, label, Icon }) => {
         const isActive = currentTab === id;
