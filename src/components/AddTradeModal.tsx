@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Plus, X, RefreshCw, Camera, Lightbulb } from "lucide-react";
+import { X, RefreshCw, Camera } from "lucide-react";
 
 interface AddTradeModalProps {
   isOpen: boolean;
@@ -92,27 +92,27 @@ export function AddTradeModal({
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 120 }}
-            transition={{ type: "spring", damping: 26, stiffness: 220 }}
-            className="relative w-full max-w-[100vw] sm:max-w-2xl bg-[var(--ios-surface)] border border-[var(--ios-separator)] shadow-ios-sm sm:rounded-[28px] rounded-t-[28px] shadow-ios-xl z-10 flex flex-col h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-hidden"
+            transition={{ type: "spring", damping: 28, stiffness: 240 }}
+            className="relative w-full max-w-[100vw] sm:max-w-2xl bg-[var(--ios-surface)] sm:rounded-[28px] rounded-t-[28px] shadow-ios-xl z-10 flex flex-col h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-hidden"
             id="new-trade-modal-window"
           >
+            {/* Grabber */}
+            <div className="flex justify-center pt-2 sm:hidden">
+              <div className="w-9 h-1 rounded-full bg-[var(--ios-separator)]" />
+            </div>
+
             {/* Header */}
-            <div className="flex justify-between items-center px-5 sm:px-8 py-4 sm:py-6 border-b border-[var(--ios-separator)] bg-[var(--ios-surface)] shadow-ios-sm z-20 shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="hidden sm:flex p-3 bg-[var(--ios-blue)]/10 text-[var(--ios-blue)] rounded-[16px]">
-                  <Plus size={18} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-[var(--ios-label)]">
-                    {editingTradeId ? "Cập Nhật Giao Dịch" : "Ghi Chép Giao Dịch Mới"}
-                  </h3>
-                  <p className="text-sm text-[var(--ios-secondary-label)] mt-0.5">
-                    {editingTradeId ? "Cập nhật các số liệu, ghi chú hoặc tất toán giao dịch" : "Ghi nhận chi tiết để theo dõi biểu đồ tăng trưởng"}
-                  </p>
-                </div>
+            <div className="flex justify-between items-center px-5 sm:px-8 py-3 sm:py-5 shrink-0">
+              <div>
+                <h3 className="text-[20px] font-bold text-[var(--ios-label)]">
+                  {editingTradeId ? "Cập Nhật Giao Dịch" : "Giao Dịch Mới"}
+                </h3>
+                <p className="text-[12px] text-[var(--ios-secondary-label)] mt-0.5">
+                  {editingTradeId ? "Cập nhật số liệu hoặc tất toán" : "Ghi nhận chi tiết giao dịch"}
+                </p>
               </div>
-              <button type="button" onClick={onClose} className="p-2 hover:bg-[var(--ios-surface-2)] rounded-full transition-colors text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)] cursor-pointer" title="Đóng">
-                <X size={20} />
+              <button type="button" onClick={onClose} className="w-9 h-9 flex items-center justify-center bg-[var(--ios-surface-2)] rounded-full text-[var(--ios-secondary-label)] cursor-pointer active:scale-90 transition-transform" title="Đóng">
+                <X size={18} />
               </button>
             </div>
 

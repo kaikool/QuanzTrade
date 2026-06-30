@@ -1703,7 +1703,7 @@ export default function App() {
         </button>
       </div>
 
-      {/* Quick Add Mini Modal */}
+      {/* Quick Add Mini Modal — iOS Sheet */}
       <AnimatePresence>
         {isQuickAddOpen && (
           <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" id="quick-add-modal-root">
@@ -1712,14 +1712,20 @@ export default function App() {
               initial={{ opacity: 0, y: 120 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 120 }}
-              transition={{ type: "spring", damping: 26, stiffness: 220 }}
-              className="relative w-full sm:max-w-md bg-[var(--ios-surface)] rounded-t-[28px] sm:rounded-[28px] border border-[var(--ios-separator)] shadow-ios-xl z-10 p-5 pb-8"
+              transition={{ type: "spring", damping: 28, stiffness: 240 }}
+              className="relative w-full sm:max-w-md bg-[var(--ios-surface)] rounded-t-[28px] sm:rounded-[28px] shadow-ios-xl z-10"
               id="quick-add-modal-window"
             >
+              {/* Grabber */}
+              <div className="flex justify-center pt-2 sm:hidden">
+                <div className="w-9 h-1 rounded-full bg-[var(--ios-separator)]" />
+              </div>
+
+              <div className="p-5">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-[var(--ios-label)]">Lệnh nhanh</h3>
-                <button onClick={() => setIsQuickAddOpen(false)} className="p-2 rounded-full hover:bg-[var(--ios-surface-2)] cursor-pointer">
-                  <X size={20} />
+                <h3 className="text-[17px] font-semibold text-[var(--ios-label)]">Lệnh nhanh</h3>
+                <button onClick={() => setIsQuickAddOpen(false)} className="w-8 h-8 flex items-center justify-center bg-[var(--ios-surface-2)] rounded-full cursor-pointer active:scale-90 transition-transform">
+                  <X size={16} />
                 </button>
               </div>
               <form onSubmit={async (e) => {
@@ -1780,18 +1786,19 @@ export default function App() {
                   <button type="submit" className="flex-1 py-3 rounded-[12px] bg-[var(--ios-blue)] text-white font-semibold cursor-pointer">Thêm lệnh</button>
                 </div>
               </form>
+            </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
       
-      {/* Toast Notifications */}
-      <div className="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none" id="toast-container">
+      {/* Toast Notifications — iOS Banner Style */}
+      <div className="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none max-w-sm" id="toast-container">
         {toasts.map(t => (
-          <div key={t.id} className={`pointer-events-auto px-4 py-3 rounded-[16px] shadow-ios-lg backdrop-blur-xl text-sm font-medium animate-in slide-in-from-right-2
+          <div key={t.id} className={`pointer-events-auto px-4 py-3 rounded-[14px] shadow-ios-lg backdrop-blur-xl text-sm font-semibold transition-all
             ${t.type === 'success' ? 'bg-[var(--ios-green)] text-white' : 
               t.type === 'error' ? 'bg-[var(--ios-red)] text-white' : 
-              'bg-[var(--ios-surface)] border border-[var(--ios-separator)] text-[var(--ios-label)]'}`}>
+              'bg-[var(--ios-surface)] text-[var(--ios-label)] border border-[var(--ios-separator)]'}`}>
             {t.message}
           </div>
         ))}
