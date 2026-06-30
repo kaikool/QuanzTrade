@@ -58,11 +58,11 @@ export function JournalView({
           ${isSelected ? "bg-[var(--sys-tint-soft)] dark:bg-[var(--ios-blue)]/10" : "hover:bg-[var(--ios-surface-2)]/40"}`}
       >
         <div className="flex justify-between items-start mb-1">
-          <div className="flex items-center gap-2">
-            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide ${t.type === "BUY" ? "bg-[var(--sys-success-soft)] text-[var(--ios-green)]" : "bg-[var(--sys-danger-soft)] text-[var(--ios-red)]"}`}>
+          <div className="flex items-center gap-2 min-w-0 pr-2">
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide shrink-0 ${t.type === "BUY" ? "bg-[var(--sys-success-soft)] text-[var(--ios-green)]" : "bg-[var(--sys-danger-soft)] text-[var(--ios-red)]"}`}>
               {t.type}
             </span>
-            <span className="font-bold text-[16px] text-[var(--ios-label)]">{t.pair}</span>
+            <span className="font-bold text-[16px] text-[var(--ios-label)] truncate">{t.pair}</span>
           </div>
           <span className={`text-[16px] font-bold font-mono tracking-tight ${(t.pnl || 0) >= 0 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`}>
             {(t.pnl || 0) >= 0 ? "+" : ""}${(t.pnl || 0).toFixed(0)}
@@ -146,9 +146,9 @@ export function JournalView({
           <div className="flex-1 flex flex-col ios-glass ios26-card bg-[var(--ios-surface)] border border-[var(--ios-separator)] shadow-ios-sm overflow-hidden absolute md:relative inset-0 z-20">
             {/* Header Detail */}
             <div className="flex items-center justify-between p-4 border-b border-[var(--ios-separator)] shrink-0">
-              <div className="flex items-center gap-3">
-                <button onClick={() => setSelectedTrade(null)} className="md:hidden w-8 h-8 flex items-center justify-center bg-[var(--ios-surface-2)] text-[var(--ios-blue)] rounded-full">
-                  <ChevronLeft size={20} />
+              <div className="flex items-center gap-2 md:gap-3 shrink-0">
+                <button onClick={() => setSelectedTrade(null)} className="md:hidden w-8 h-8 flex items-center justify-center bg-[var(--sys-tint-soft)] text-[var(--ios-blue)] rounded-full">
+                  <ArrowLeft size={18} />
                 </button>
                 <div>
                   <h2 className="text-[22px] font-bold text-[var(--ios-label)] leading-none">{selectedTrade.pair}</h2>
@@ -156,10 +156,10 @@ export function JournalView({
                 </div>
               </div>
               <div className="flex gap-2">
-                <button onClick={() => { handleBeginEditTrade(selectedTrade); setSelectedTrade(null); }} className="w-9 h-9 flex items-center justify-center bg-[var(--ios-surface-2)] text-[var(--ios-label)] rounded-full hover:bg-[var(--sys-tint-soft)] hover:text-[var(--ios-blue)] transition-colors" title="Sửa lệnh">
-                  <Pencil size={16} />
+                <button onClick={() => { handleBeginEditTrade(selectedTrade); setSelectedTrade(null); }} className="w-9 h-9 flex items-center justify-center bg-[var(--sys-tint-soft)] text-[var(--ios-blue)] rounded-full hover:scale-105 transition-transform" title="Sửa lệnh">
+                  <Edit2 size={16} />
                 </button>
-                <button onClick={() => { handleDeleteTrade(selectedTrade.id); setSelectedTrade(null); }} className="w-9 h-9 flex items-center justify-center bg-[var(--ios-surface-2)] text-[var(--ios-label)] rounded-full hover:bg-[var(--sys-danger-soft)] hover:text-[var(--ios-red)] transition-colors" title="Xóa lệnh">
+                <button onClick={() => { handleDeleteTrade(selectedTrade.id); setSelectedTrade(null); }} className="w-9 h-9 flex items-center justify-center bg-[var(--sys-danger-soft)] text-[var(--ios-red)] rounded-full hover:scale-105 transition-transform" title="Xóa lệnh">
                   <Trash2 size={16} />
                 </button>
               </div>
@@ -183,23 +183,23 @@ export function JournalView({
 
               {/* Stats Grid */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div className="bg-[var(--ios-surface-2)] p-4 rounded-[20px]">
+                <div className="bg-[var(--ios-surface)] border border-[var(--ios-separator)]/30 shadow-sm p-4 rounded-[20px]">
                   <Activity size={16} className="text-[var(--ios-secondary-label)] mb-2" />
                   <p className="text-[12px] font-bold uppercase text-[var(--ios-secondary-label)]">Entry</p>
                   <p className="text-[18px] font-mono font-bold text-[var(--ios-label)]">{selectedTrade.entry_price}</p>
                 </div>
-                <div className="bg-[var(--ios-surface-2)] p-4 rounded-[20px]">
+                <div className="bg-[var(--ios-surface)] border border-[var(--ios-separator)]/30 shadow-sm p-4 rounded-[20px]">
                   <Activity size={16} className="text-[var(--ios-secondary-label)] mb-2 opacity-50" />
                   <p className="text-[12px] font-bold uppercase text-[var(--ios-secondary-label)]">Exit</p>
                   <p className="text-[18px] font-mono font-bold text-[var(--ios-label)]">{selectedTrade.exit_price || "-"}</p>
                 </div>
-                <div className="bg-[var(--ios-surface-2)] p-4 rounded-[20px]">
+                <div className="bg-[var(--ios-surface)] border border-[var(--ios-separator)]/30 shadow-sm p-4 rounded-[20px]">
                   <Calendar size={16} className="text-[var(--ios-secondary-label)] mb-2" />
                   <p className="text-[12px] font-bold uppercase text-[var(--ios-secondary-label)]">Thời gian mở</p>
                   <p className="text-[15px] font-bold text-[var(--ios-label)]">{new Date(selectedTrade.entry_date).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}</p>
                   <p className="text-[12px] text-[var(--ios-secondary-label)]">{new Date(selectedTrade.entry_date).toLocaleDateString("vi-VN")}</p>
                 </div>
-                <div className="bg-[var(--ios-surface-2)] p-4 rounded-[20px]">
+                <div className="bg-[var(--ios-surface)] border border-[var(--ios-separator)]/30 shadow-sm p-4 rounded-[20px]">
                   <Tag size={16} className="text-[var(--ios-secondary-label)] mb-2" />
                   <p className="text-[12px] font-bold uppercase text-[var(--ios-secondary-label)]">Tags / TF</p>
                   <p className="text-[15px] font-bold text-[var(--ios-label)]">{selectedTrade.tag || "No Tag"}</p>
@@ -210,7 +210,7 @@ export function JournalView({
               {/* Notes */}
               <div className="mb-8">
                 <h3 className="text-[15px] font-bold text-[var(--ios-label)] uppercase tracking-wider mb-3">Ghi chú giao dịch</h3>
-                <div className="bg-[var(--ios-surface-2)] p-5 rounded-[24px] text-[16px] text-[var(--ios-label)] leading-relaxed whitespace-pre-wrap font-medium">
+                <div className="bg-[var(--ios-surface)] border border-[var(--ios-separator)]/30 shadow-sm p-5 rounded-[24px] text-[16px] text-[var(--ios-label)] leading-relaxed whitespace-pre-wrap font-medium">
                   {selectedTrade.notes || <span className="text-[var(--ios-secondary-label)] italic">Không có ghi chú...</span>}
                 </div>
               </div>

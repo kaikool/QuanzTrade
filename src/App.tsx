@@ -684,7 +684,16 @@ export default function App() {
 
     // 3. Collect pure manual trades (ones that are NOT from T5)
     const t5Ids = new Set(t5MappedTrades.map(t => t.id));
-    const pureManualTrades = trades.filter((t) => !t5Ids.has(t.id));
+    const pureManualTrades = trades.filter((t) => {
+      if (t.id.startsWith("t5-")) {
+        if (t5Ids.has(t.id)) return false;
+        // It's a T5 trade saved in local storage. Only include if its account is selected.
+        const match = t.notes?.match(/The5ers\s*-\s*(.+)$/);
+        const accId = match?.[1] || "UNKNOWN";
+        return selectedT5AccountIds.includes(accId);
+      }
+      return true; // Actual manual trades
+    });
 
     // Combine and sort by entry date descending
     return [...enrichedT5Trades, ...pureManualTrades].sort(
@@ -1326,17 +1335,17 @@ export default function App() {
         <header className="mb-2 px-1 flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-0" id="google-ios-header">
           <div className="min-w-0">
             <h1 className="text-[34px] font-bold tracking-tight text-[var(--ios-label)] leading-none truncate">
-              {selectedT5AccountIds.length > 0 && t5Accounts.length > 0 ? "QuanzTrade" : "Táo Tầu Journal"}
+              Táo Tầu Journal
             </h1>
             <p className="text-[15px] font-medium text-[var(--ios-secondary-label)] mt-2 truncate">
               {summary.balance > 0 ? `Tổng tài sản: $${summary.balance.toLocaleString("en-US")}` : "Nhật ký giao dịch"}
             </p>
           </div>
 
-          <div className="flex items-center gap-4 w-full md:w-auto">
+          <div className="flex items-center gap-3 w-full md:w-auto">
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className="w-11 h-11 flex items-center justify-center bg-[var(--ios-surface-2)] shadow-ios-sm rounded-full transition-colors cursor-pointer active:scale-90"
+              className="w-11 h-11 flex items-center justify-center bg-[var(--sys-tint-soft)] text-[var(--ios-blue)] rounded-full transition-transform active:scale-90"
               title="Giao diện sáng/tối"
               id="btn-darkmode"
             >
@@ -1779,7 +1788,7 @@ export default function App() {
       </AnimatePresence>
 
       {/* Floating Action Button (FAB) - Quick Add */}
-      <div className="fixed bottom-[calc(49px+env(safe-area-inset-bottom,0px)+12px)] md:bottom-8 right-4 z-40">
+      <div className="fixed bottom-[calc(80px+env(safe-area-inset-bottom,0px))] md:bottom-8 right-4 z-40">
         <button
           onClick={() => setIsQuickAddOpen(true)}
           className="w-14 h-14 bg-[var(--ios-blue)] text-white rounded-full flex items-center justify-center shadow-ios-xl active:scale-95 transition-transform cursor-pointer"

@@ -136,7 +136,7 @@ export function NewsPanel({
                 </div>
                 
                 {/* Summary */}
-                <p className="text-[15px] text-[var(--ios-secondary-label)] leading-relaxed line-clamp-3 mb-3">{compactSummary(item)}</p>
+                <p className="text-[15px] text-[var(--ios-label)] leading-relaxed line-clamp-3 mb-3">{compactSummary(item)}</p>
                 
                 {/* Assets & Tags */}
                 <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-[var(--ios-separator)]/40">

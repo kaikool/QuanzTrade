@@ -87,10 +87,12 @@ export function CalendarView({
                   const evTime = new Date(ev.date).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
                   
                   return (
-                    <div key={`${dayName}-${index}`} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-5 py-4 hover:bg-[var(--ios-surface-2)]/40 transition-colors">
-                      {/* Time & Impact Dot */}
-                      <div className="flex items-center gap-3 sm:min-w-[80px]">
-                        <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${style.indicator || 'bg-gray-400'}`} shadow-sm />
+                    <div key={`${dayName}-${index}`} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-5 py-4 hover:bg-[var(--sys-tint-soft)] transition-colors border-b border-[var(--ios-separator)]/40 last:border-0 bg-[var(--ios-surface)]">
+                      {/* Time & Impact Label */}
+                      <div className="flex items-center gap-3 sm:min-w-[100px]">
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${style.indicator} text-white shadow-sm shrink-0 uppercase tracking-wide`}>
+                           {ev.impact === 'High' ? 'ĐỎ' : ev.impact === 'Medium' ? 'CAM' : ev.impact === 'Low' ? 'VÀNG' : 'TRẮNG'}
+                        </span>
                         <span className="font-mono font-bold text-[17px] text-[var(--ios-label)] tracking-tight">{evTime}</span>
                       </div>
                       

@@ -19,9 +19,10 @@ export function IOSTabBar({ currentTab, setCurrentTab }: IOSTabBarProps) {
   return (
     <nav
       id="ios-bottom-nav"
-      className="md:hidden fixed z-40 left-4 right-4 flex items-center justify-around px-2 py-2 ios-glass bg-[var(--ios-surface)]/70 border border-[var(--ios-separator)]/50 rounded-full shadow-ios-xl"
+      className="md:hidden fixed z-40 bottom-0 left-0 right-0 flex items-center justify-around ios-glass bg-[var(--ios-surface)]/80 border-t border-[var(--ios-separator)]/40"
       style={{
-        bottom: 'max(20px, env(safe-area-inset-bottom, 20px))',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        height: 'calc(49px + env(safe-area-inset-bottom, 0px))',
         backdropFilter: 'saturate(200%) blur(40px)',
         WebkitBackdropFilter: 'saturate(200%) blur(40px)',
       }}
@@ -32,26 +33,19 @@ export function IOSTabBar({ currentTab, setCurrentTab }: IOSTabBarProps) {
           <button
             key={id}
             onClick={() => setCurrentTab(id)}
-            className={`relative flex flex-col items-center justify-center flex-1 h-[48px] rounded-full transition-all duration-300 ease-out cursor-pointer ${
-              isActive ? "text-[var(--ios-blue)] scale-105" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"
+            className={`relative flex flex-col items-center justify-center flex-1 h-[49px] transition-colors duration-150 cursor-pointer ${
+              isActive ? "text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)] hover:text-[var(--ios-label)]"
             }`}
           >
-            {/* Active Pill Background */}
-            {isActive && (
-              <div className="absolute inset-0 bg-[var(--ios-blue)]/10 rounded-full shadow-sm" />
-            )}
-            
-            <div className={`relative z-10 transition-transform ${isActive ? "translate-y-[-2px]" : "translate-y-0.5"}`}>
+            <div className={`transition-transform duration-150 ${isActive ? "scale-105" : ""}`}>
               <Icon 
-                size={24} 
+                size={26} 
                 strokeWidth={isActive ? 2.5 : 2}
               />
             </div>
-            {isActive && (
-              <span className="relative z-10 text-[10px] font-bold mt-0.5 tracking-wide">
-                {label}
-              </span>
-            )}
+            <span className={`text-[10px] tracking-wide mt-[1px] ${isActive ? "font-bold" : "font-medium"}`}>
+              {label}
+            </span>
           </button>
         );
       })}
