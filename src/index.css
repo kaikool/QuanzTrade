@@ -390,7 +390,6 @@ a[class*="bg-[var(--sys-surface-2)]"]:active {
 
 /* iOS Tab Bar glass morph */
 #ios-bottom-nav {
-  position: fixed !important;
   box-shadow: 0 22px 70px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.6);
 }
 
