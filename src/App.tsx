@@ -1699,7 +1699,7 @@ export default function App() {
       </AnimatePresence>
       
       {/* Toast Notifications — iOS Notification Banner / Dynamic Island Style */}
-      <div className="fixed top-2 sm:top-6 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 pointer-events-none w-[90vw] sm:w-auto sm:min-w-[300px] max-w-md" id="toast-container">
+      <div className="fixed top-[calc(0.5rem+env(safe-area-inset-top,0px))] sm:top-[calc(1.5rem+env(safe-area-inset-top,0px))] left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 pointer-events-none w-[90vw] sm:w-auto sm:min-w-[300px] max-w-md" id="toast-container">
         <AnimatePresence>
           {toasts.map(t => (
             <motion.div 
