@@ -65,6 +65,11 @@ const AddTradeModalComponent = lazy(() =>
     default: module.AddTradeModal,
   })),
 );
+const IOSTabBar = lazy(() =>
+  import("./components/IOSTabBar").then((module) => ({
+    default: module.IOSTabBar,
+  })),
+);
 
 const originalFetch = window.fetch;
 window.fetch = async (...args) => {
@@ -1834,58 +1839,7 @@ export default function App() {
         ))}
       </div>
 
-      <footer
-        className={`md:hidden fixed bottom-0 left-0 right-0 z-30 transition-colors ease-[ease-out] backdrop-blur-xl ${darkMode ? "bg-[var(--ios-surface-2)]/95 border-t border-[var(--ios-separator)]" : "bg-[var(--ios-surface)] border-t border-[var(--ios-separator)]"}`}
-        id="ios-bottom-nav"
-      >
-        <button
-          onClick={() => setCurrentTab("dashboard")}
-          className={`flex flex-col items-center gap-0.5 justify-center flex-1 ${currentTab === "dashboard" ? "text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)]"}`}
-        >
-          <div
-            className={`p-1.5 rounded-full ${currentTab === "dashboard" ? "bg-[var(--ios-blue)]/10 dark:transparent" : ""}`}
-          >
-            <BarChart2 size={28} />
-          </div>
-          <span className="text-[10px] font-[400]">Tổng quan</span>
-        </button>
-
-        <button
-          onClick={() => setCurrentTab("journal")}
-          className={`flex flex-col items-center gap-0.5 justify-center flex-1 ${currentTab === "journal" ? "text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)]"}`}
-        >
-          <div
-            className={`p-1.5 rounded-full ${currentTab === "journal" ? "bg-[var(--ios-blue)]/10 dark:transparent" : ""}`}
-          >
-            <FileText size={28} />
-          </div>
-          <span className="text-[10px] font-[400]">Nhật ký</span>
-        </button>
-
-        <button
-          onClick={() => setCurrentTab("calendar")}
-          className={`flex flex-col items-center gap-0.5 justify-center flex-1 ${currentTab === "calendar" ? "text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)]"}`}
-        >
-          <div
-            className={`p-1.5 rounded-full ${currentTab === "calendar" ? "bg-[var(--ios-blue)]/10 dark:transparent" : ""}`}
-          >
-            <CalendarIcon size={28} />
-          </div>
-          <span className="text-[10px] font-[400]">Kinh tế</span>
-        </button>
-
-        <button
-          onClick={() => setCurrentTab("news")}
-          className={`flex flex-col items-center gap-0.5 justify-center flex-1 ${currentTab === "news" ? "text-[var(--ios-blue)]" : "text-[var(--ios-secondary-label)]"}`}
-        >
-          <div
-            className={`p-1.5 rounded-full ${currentTab === "news" ? "bg-[var(--ios-blue)]/10 dark:transparent" : ""}`}
-          >
-            <Newspaper size={28} />
-          </div>
-          <span className="text-[10px] font-[400]">Tin tức</span>
-        </button>
-      </footer>
+      <IOSTabBar currentTab={currentTab} setCurrentTab={setCurrentTab} />
 
       {/* Lightbox Modal */}
       <AnimatePresence>
