@@ -107,7 +107,7 @@ export function NewsPanel({
           ))}
         </div>
       ) : newsItems.length === 0 ? (
-        <div className="py-20 text-center text-[var(--ios-secondary-label)] ios-glass ios26-card bg-[var(--ios-surface)]">
+        <div className="py-20 text-center text-[var(--ios-secondary-label)] ios-glass ios26-card">
           <Layers size={40} className="mx-auto mb-3 opacity-30" />
           <p className="font-semibold text-[17px] text-[var(--ios-label)]">Chưa có tin tức</p>
           <p className="text-[15px] mt-1">Bấm làm mới hoặc quay lại trang trước.</p>
@@ -117,7 +117,7 @@ export function NewsPanel({
           {newsItems.map((item) => {
             const effect = deriveEffectLabel(item.sentiment);
             return (
-              <article key={item.id} className="ios-glass ios26-card bg-[var(--ios-surface)] p-5 transition-colors group">
+              <article key={item.id} className="ios-glass ios26-card p-5 transition-colors group">
                 {/* Meta row */}
                 <div className="flex flex-wrap items-center gap-2 mb-3">
                   <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wide ${impactColors[item.impact]}`}>{item.impact}</span>

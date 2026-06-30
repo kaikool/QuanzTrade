@@ -128,7 +128,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
         {/* Activity Rings (Win Rate & PF) */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15 }}
-          className="ios-glass ios26-card bg-[var(--ios-surface)] p-6 shadow-ios-md flex items-center justify-between"
+          className="ios-glass ios26-card p-6 shadow-ios-md flex items-center justify-between"
         >
           <div className="space-y-4 flex-1">
             <div>
@@ -166,7 +166,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
       {/* 3. Apple Stocks Style Chart */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-        className="ios-glass ios26-card bg-[var(--ios-surface)] shadow-ios-md p-5 pb-2"
+        className="ios-glass ios26-card shadow-ios-md p-5 pb-2"
       >
         <div className="flex items-center justify-between mb-4">
           <div>

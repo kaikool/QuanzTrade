@@ -76,13 +76,13 @@ export function DashboardView({
       {t5Loading ? (
         <div className="space-y-4 md:space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-            <div className="h-[180px] bg-[var(--ios-surface)] ios26-card shadow-ios-sm animate-pulse" />
-            <div className="h-[180px] bg-[var(--ios-surface)] ios26-card shadow-ios-sm animate-pulse" />
+            <div className="h-[180px] ios26-card shadow-ios-sm animate-pulse" />
+            <div className="h-[180px] ios26-card shadow-ios-sm animate-pulse" />
           </div>
-          <div className="h-[320px] bg-[var(--ios-surface)] ios26-card shadow-ios-sm animate-pulse" />
+          <div className="h-[320px] ios26-card shadow-ios-sm animate-pulse" />
         </div>
       ) : (
-        <Suspense fallback={<div className="h-[240px] bg-[var(--ios-surface)] ios26-card shadow-ios-sm animate-pulse" />}>
+        <Suspense fallback={<div className="h-[240px] ios26-card shadow-ios-sm animate-pulse" />}>
           <BentoStats trades={mergedTrades} darkMode={darkMode} />
         </Suspense>
       )}
@@ -92,9 +92,9 @@ export function DashboardView({
         <div className="space-y-4 pt-2">
           <h2 className="text-[15px] font-bold text-[var(--ios-label)] uppercase tracking-wider px-1">Tài khoản Quỹ (The5ers)</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-             <div className="h-[160px] bg-[var(--ios-surface)] ios26-card shadow-ios-sm animate-pulse border border-[var(--ios-separator)]" />
-             <div className="h-[160px] bg-[var(--ios-surface)] ios26-card shadow-ios-sm animate-pulse border border-[var(--ios-separator)] hidden sm:block" />
-             <div className="h-[160px] bg-[var(--ios-surface)] ios26-card shadow-ios-sm animate-pulse border border-[var(--ios-separator)] hidden lg:block" />
+             <div className="h-[160px] ios26-card shadow-ios-sm animate-pulse border border-[var(--ios-separator)]" />
+             <div className="h-[160px] ios26-card shadow-ios-sm animate-pulse border border-[var(--ios-separator)] hidden sm:block" />
+             <div className="h-[160px] ios26-card shadow-ios-sm animate-pulse border border-[var(--ios-separator)] hidden lg:block" />
           </div>
         </div>
       ) : followedT5Accounts.length > 0 && (
@@ -112,7 +112,7 @@ export function DashboardView({
                   key={account.accountId} 
                   type="button" 
                   onClick={() => { setSelectedJournalAccountId(account.accountId); setCurrentTab("journal"); }} 
-                  className="p-5 ios-glass ios26-card bg-[var(--ios-surface)] shadow-ios-sm text-left transition-all active:scale-[0.98] border border-[var(--ios-separator)] flex flex-col justify-between cursor-pointer"
+                  className="p-5 ios-glass ios26-card shadow-ios-sm text-left transition-all active:scale-[0.98] border border-[var(--ios-separator)] flex flex-col justify-between cursor-pointer"
                 >
                   <div className="flex items-start justify-between gap-2 mb-4">
                     <div className="min-w-0">

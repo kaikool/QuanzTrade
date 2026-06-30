@@ -1604,7 +1604,7 @@ export default function App() {
                 {/* 1. Appearance */}
                 <section>
                   <h3 className="text-[13px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-wider ml-4 mb-2">Giao diện</h3>
-                  <div className="ios-glass ios26-card bg-[var(--ios-surface)] rounded-[24px] p-2 flex gap-2">
+                  <div className="ios-glass ios26-card rounded-[24px] p-2 flex gap-2">
                     <button type="button" onClick={() => setDarkMode(false)} className={`flex-1 flex flex-col items-center justify-center p-4 rounded-[18px] transition-all cursor-pointer ${!darkMode ? "bg-[var(--ios-blue)] text-white shadow-ios-sm" : "text-[var(--ios-secondary-label)] hover:bg-[var(--ios-fill)]"}`}>
                       <Sun size={24} className="mb-2" />
                       <span className="text-[15px] font-bold">Sáng</span>
@@ -1619,7 +1619,7 @@ export default function App() {
                 {/* 2. Supabase */}
                 <section>
                   <h3 className="text-[13px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-wider ml-4 mb-2">Đồng bộ đám mây (Supabase)</h3>
-                  <div className="ios-glass ios26-card bg-[var(--ios-surface)] rounded-[24px] divide-y divide-[var(--ios-separator)]/50 overflow-hidden">
+                  <div className="ios-glass ios26-card rounded-[24px] divide-y divide-[var(--ios-separator)]/50 overflow-hidden">
                     <div className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <span className="text-[16px] font-bold text-[var(--ios-label)]">Supabase URL</span>
                       <input type="text" value={dbUrl} onChange={(e) => setDbUrl(e.target.value)} placeholder="https://...supabase.co" className="w-full sm:w-2/3 px-4 py-2 bg-[var(--ios-fill)] rounded-[12px] border-0 text-[15px] font-mono focus:outline-none focus:ring-2 focus:ring-[var(--ios-blue)]/50 text-[var(--ios-label)]" />
@@ -1644,7 +1644,7 @@ export default function App() {
                 {/* 3. Notifications */}
                 <section>
                   <h3 className="text-[13px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-wider ml-4 mb-2">Thông báo</h3>
-                  <div className="ios-glass ios26-card bg-[var(--ios-surface)] rounded-[24px] p-4 sm:p-5 flex items-center justify-between">
+                  <div className="ios-glass ios26-card rounded-[24px] p-4 sm:p-5 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-[12px] bg-rose-500 text-white flex items-center justify-center">
                         <BellRing size={20} />
@@ -1663,7 +1663,7 @@ export default function App() {
                 {/* 4. TradingView */}
                 <section>
                   <h3 className="text-[13px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-wider ml-4 mb-2">TradingView Automation</h3>
-                  <div className="ios-glass ios26-card bg-[var(--ios-surface)] rounded-[24px] divide-y divide-[var(--ios-separator)]/50 overflow-hidden">
+                  <div className="ios-glass ios26-card rounded-[24px] divide-y divide-[var(--ios-separator)]/50 overflow-hidden">
                     <div className="p-4 sm:p-5 space-y-3">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <span className="text-[16px] font-bold text-[var(--ios-label)]">Session ID</span>
@@ -1690,7 +1690,7 @@ export default function App() {
                 {/* 5. The5ers */}
                 <section>
                   <h3 className="text-[13px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-wider ml-4 mb-2">Đồng bộ quỹ The5ers</h3>
-                  <div className="ios-glass ios26-card bg-[var(--ios-surface)] rounded-[24px] overflow-hidden border border-[var(--ios-separator)]/30">
+                  <div className="ios-glass ios26-card rounded-[24px] overflow-hidden border border-[var(--ios-separator)]/30">
                     <div className="p-4 sm:p-5 flex items-center justify-between border-b border-[var(--ios-separator)]/50 bg-[var(--ios-fill)]/50">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-[12px] bg-[var(--sys-success-soft)] text-[var(--ios-green)] flex items-center justify-center">
@@ -1768,7 +1768,7 @@ export default function App() {
                 {/* 6. Security */}
                 <section>
                   <h3 className="text-[13px] font-bold text-[var(--ios-secondary-label)] uppercase tracking-wider ml-4 mb-2">Bảo mật</h3>
-                  <div className="ios-glass ios26-card bg-[var(--ios-surface)] rounded-[24px] p-4 sm:p-5 border border-[var(--ios-separator)]/30">
+                  <div className="ios-glass ios26-card rounded-[24px] p-4 sm:p-5 border border-[var(--ios-separator)]/30">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-10 h-10 rounded-[12px] bg-slate-500 text-white flex items-center justify-center">
                         <ShieldCheck size={20} />

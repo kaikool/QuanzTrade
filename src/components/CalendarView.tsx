@@ -79,7 +79,7 @@ export function CalendarView({
           ))}
         </div>
       ) : groupedEventsByDay.length === 0 ? (
-        <div className="py-20 text-center text-[var(--ios-secondary-label)] ios-glass ios26-card bg-[var(--ios-surface)]">
+        <div className="py-20 text-center text-[var(--ios-secondary-label)] ios-glass ios26-card">
           <CloudLightning size={40} className="mx-auto mb-3 opacity-30" />
           <p className="font-semibold text-[17px] text-[var(--ios-label)]">Không có sự kiện</p>
           <p className="text-[15px] mt-1">Lịch trống hoặc bị lọc hết.</p>
@@ -100,7 +100,7 @@ export function CalendarView({
                   const impactLabel = ev.impact === "High" ? "High impact" : ev.impact === "Medium" ? "Medium impact" : ev.impact === "Low" ? "Low impact" : "Normal";
 
                   return (
-                    <article key={`${dayName}-${index}`} className="ios-glass ios26-card bg-[var(--ios-surface)] p-5 transition-colors group">
+                    <article key={`${dayName}-${index}`} className="ios-glass ios26-card p-5 transition-colors group">
                       <div className="flex flex-wrap items-center gap-2 mb-3">
                         <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wide ${style.indicator} text-white shadow-sm`}>{impactLabel}</span>
                         <span className="text-[13px] tracking-tight text-[var(--ios-secondary-label)] font-mono">{evTime}</span>
