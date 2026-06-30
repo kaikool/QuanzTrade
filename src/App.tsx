@@ -1321,44 +1321,33 @@ export default function App() {
           </div>
         )}
 
-        {/* iOS Workspace Header */}
+        {/* iOS Large Title Header */}
         {(currentTab === "dashboard" || currentTab === "journal") && (
-        <header
-          className="flex flex-col md:flex-row md:items-center justify-between ios-glass bg-[var(--ios-surface)] border border-[var(--ios-separator)] shadow-ios-sm gap-4 md:gap-0"
-          id="google-ios-header"
-        >
-          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-            <div
-              className="w-11 h-11 sm:w-12 sm:h-12 bg-[var(--ios-blue)] text-white rounded-[16px] flex items-center justify-center shadow-ios-md flex-shrink-0"
-              id="logo-icon"
-            >
-              <CloudLightning size={22} className="sm:w-6 sm:h-6" />
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-[24px] sm:text-[28px] font-bold tracking-tight text-[var(--ios-label)] leading-none truncate">
-                {selectedT5AccountIds.length > 0 && t5Accounts.length > 0 ? "QuanzTrade" : "Táo Tầu Journal"}
-              </h1>
-              <p className="text-[13px] sm:text-[15px] text-[var(--ios-secondary-label)] mt-1.5 truncate">
-                {summary.balance > 0 ? `Tổng tài sản: $${summary.balance.toLocaleString("en-US")}` : "Nhật ký giao dịch"}
-              </p>
-            </div>
+        <header className="mb-2 px-1 flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-0" id="google-ios-header">
+          <div className="min-w-0">
+            <h1 className="text-[34px] font-bold tracking-tight text-[var(--ios-label)] leading-none truncate">
+              {selectedT5AccountIds.length > 0 && t5Accounts.length > 0 ? "QuanzTrade" : "Táo Tầu Journal"}
+            </h1>
+            <p className="text-[15px] font-medium text-[var(--ios-secondary-label)] mt-2 truncate">
+              {summary.balance > 0 ? `Tổng tài sản: $${summary.balance.toLocaleString("en-US")}` : "Nhật ký giao dịch"}
+            </p>
           </div>
 
-          <div className="flex items-center justify-between md:justify-end gap-3 sm:gap-5 w-full md:w-auto">
+          <div className="flex items-center gap-4 w-full md:w-auto">
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className="w-10 h-10 flex items-center justify-center bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-full transition-colors cursor-pointer"
+              className="w-11 h-11 flex items-center justify-center bg-[var(--ios-surface-2)] shadow-ios-sm rounded-full transition-colors cursor-pointer active:scale-90"
               title="Giao diện sáng/tối"
               id="btn-darkmode"
             >
-              {darkMode ? <Sun size={16} className="text-amber-500" /> : <Moon size={16} className="text-[var(--ios-secondary-label)]" />}
+              {darkMode ? <Sun size={18} className="text-amber-500" /> : <Moon size={18} className="text-[var(--ios-secondary-label)]" />}
             </button>
 
-            <div className="text-right min-w-0">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ios-secondary-label)] block">
+            <div className="text-right min-w-0 bg-[var(--ios-surface-2)] shadow-ios-sm px-4 py-1.5 rounded-[16px]">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)] block leading-tight">
                 Số dư
               </span>
-              <span className="text-[22px] font-bold text-[var(--ios-label)]" id="live-balance-text">
+              <span className="text-[18px] font-bold font-mono tracking-tight text-[var(--ios-label)] leading-tight" id="live-balance-text">
                 ${summary.balance.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
               </span>
             </div>
@@ -1796,16 +1785,24 @@ export default function App() {
         )}
       </AnimatePresence>
       
-      {/* Toast Notifications — iOS Banner Style */}
-      <div className="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none max-w-sm" id="toast-container">
-        {toasts.map(t => (
-          <div key={t.id} className={`pointer-events-auto px-4 py-3 rounded-[14px] shadow-ios-lg backdrop-blur-xl text-sm font-semibold transition-all
-            ${t.type === 'success' ? 'bg-[var(--ios-green)] text-white' : 
-              t.type === 'error' ? 'bg-[var(--ios-red)] text-white' : 
-              'bg-[var(--ios-surface)] text-[var(--ios-label)] border border-[var(--ios-separator)]'}`}>
-            {t.message}
-          </div>
-        ))}
+      {/* Toast Notifications — iOS Notification Banner / Dynamic Island Style */}
+      <div className="fixed top-2 sm:top-6 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 pointer-events-none w-[90vw] sm:w-auto sm:min-w-[300px] max-w-md" id="toast-container">
+        <AnimatePresence>
+          {toasts.map(t => (
+            <motion.div 
+              key={t.id} 
+              initial={{ opacity: 0, y: -50, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.9 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className={`pointer-events-auto px-5 py-3.5 rounded-[24px] shadow-ios-xl ios-glass text-[14px] font-semibold flex items-center justify-center text-center
+              ${t.type === 'success' ? 'bg-[var(--sys-success-soft)] text-[var(--ios-green)] border border-[var(--ios-green)]/30' : 
+                t.type === 'error' ? 'bg-[var(--sys-danger-soft)] text-[var(--ios-red)] border border-[var(--ios-red)]/30' : 
+                'bg-[var(--ios-surface)] text-[var(--ios-label)] border border-[var(--ios-separator)]'}`}>
+              {t.message}
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
 
       <IOSTabBar currentTab={currentTab} setCurrentTab={setCurrentTab} />

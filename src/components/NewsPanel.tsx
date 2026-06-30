@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, ExternalLink, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, ExternalLink, RefreshCw, Layers } from "lucide-react";
 import { NewsDebugInfo, NewsItem } from "../types";
 
 interface NewsPanelProps {
@@ -17,22 +17,22 @@ interface NewsPanelProps {
 }
 
 const categoryColors: Record<string, string> = {
-  Forex: "bg-[var(--ios-green)]/10 text-[var(--ios-green)]",
-  Macro: "bg-[var(--ios-blue)]/10 text-[var(--ios-blue)]",
-  "Central Bank": "bg-[var(--ios-blue)]/10 text-[var(--ios-indigo)]",
+  Forex: "bg-[var(--sys-success-soft)] text-[var(--ios-green)]",
+  Macro: "bg-[var(--sys-tint-soft)] text-[var(--ios-blue)]",
+  "Central Bank": "bg-indigo-500/10 text-indigo-500",
   Energy: "bg-amber-500/10 text-amber-600",
 };
 
 const impactColors: Record<string, string> = {
-  High: "bg-[var(--ios-red)] text-white",
-  Medium: "bg-orange-500 text-white",
-  Low: "bg-yellow-400 text-yellow-900",
+  High: "bg-[var(--sys-red)] text-white shadow-sm",
+  Medium: "bg-amber-500 text-white shadow-sm",
+  Low: "bg-yellow-400 text-yellow-900 shadow-sm",
 };
 
 const effectColors: Record<string, string> = {
-  Tốt: "bg-[var(--ios-green)]/10 text-[var(--ios-green)]",
-  Xấu: "bg-[var(--ios-red)]/10 text-[var(--ios-red)]",
-  "Trung lập": "bg-[var(--ios-surface-2)] text-[var(--ios-secondary-label)]",
+  Tốt: "text-[var(--ios-green)] font-bold",
+  Xấu: "text-[var(--ios-red)] font-bold",
+  "Trung lập": "text-[var(--ios-secondary-label)] font-medium",
 };
 
 function deriveEffectLabel(sentiment: NewsItem["sentiment"]) {
@@ -62,109 +62,98 @@ function compactSummary(item: NewsItem) {
 export function NewsPanel({
   newsItems, loading, refreshing, onRefresh,
   page, pageSize, onPageChange, loadingOlder, hasMore,
-  darkMode, lastUpdatedAt,
+  lastUpdatedAt,
 }: NewsPanelProps) {
   const pageLabel = `Trang ${page + 1}`;
-  const pageStart = page * pageSize + 1;
-  const pageEnd = page * pageSize + newsItems.length;
   const canGoPrevious = page > 0 && !loadingOlder;
   const canGoNext = hasMore && !loadingOlder;
 
   return (
-    <div className="space-y-4" id="news-panel">
+    <div className="space-y-4 sm:space-y-5" id="news-panel">
       {/* Header bar */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between px-1">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-[var(--ios-secondary-label)]">{pageLabel}</span>
+          <span className="text-[13px] font-bold tracking-widest uppercase text-[var(--ios-secondary-label)]">{pageLabel}</span>
           {lastUpdatedAt && (
-            <span className="text-[11px] text-[var(--ios-secondary-label)] font-mono">
-              {new Date(lastUpdatedAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
+            <span className="text-[12px] text-[var(--ios-tertiary-label)] font-mono">
+              Cập nhật lúc {new Date(lastUpdatedAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
             </span>
           )}
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 bg-[var(--ios-surface-2)] rounded-[10px] p-0.5">
+          <div className="flex items-center gap-1 bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] rounded-[12px] p-1">
             <button type="button" onClick={() => onPageChange(page - 1)} disabled={!canGoPrevious}
-              className="w-8 h-8 rounded-[8px] text-[var(--ios-blue)] flex items-center justify-center active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
-              <ChevronLeft size={16} />
+              className="w-8 h-8 rounded-[8px] text-[var(--ios-blue)] flex items-center justify-center active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:bg-[var(--ios-surface)]">
+              <ChevronLeft size={18} />
             </button>
-            <span className="min-w-[60px] text-center text-[11px] font-medium text-[var(--ios-label)]">{pageLabel}</span>
+            <span className="min-w-[50px] text-center text-[12px] font-bold text-[var(--ios-label)]">{pageLabel}</span>
             <button type="button" onClick={() => onPageChange(page + 1)} disabled={!canGoNext}
-              className="w-8 h-8 rounded-[8px] text-[var(--ios-blue)] flex items-center justify-center active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
-              <ChevronRight size={16} />
+              className="w-8 h-8 rounded-[8px] text-[var(--ios-blue)] flex items-center justify-center active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:bg-[var(--ios-surface)]">
+              <ChevronRight size={18} />
             </button>
           </div>
-          <button onClick={onRefresh} type="button" className="w-8 h-8 bg-[var(--ios-blue)] text-white rounded-[8px] flex items-center justify-center active:scale-90 transition-transform cursor-pointer">
-            <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
+          <button onClick={onRefresh} type="button" className="w-10 h-10 bg-[var(--ios-blue)] text-white rounded-[12px] flex items-center justify-center active:scale-90 transition-transform cursor-pointer shadow-ios-sm">
+            <RefreshCw size={18} className={refreshing ? "animate-spin" : ""} />
           </button>
         </div>
       </div>
 
       {/* News cards */}
       {loading ? (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="h-20 rounded-[14px] bg-[var(--ios-surface-2)] animate-pulse" />
+            <div key={index} className="h-32 rounded-[30px] bg-[var(--ios-surface-2)] animate-pulse border border-[var(--ios-separator)]/40" />
           ))}
         </div>
       ) : newsItems.length === 0 ? (
-        <div className="py-16 text-center text-[var(--ios-secondary-label)]">
-          <p className="font-semibold text-sm">Chưa có tin trong trang này.</p>
-          <p className="text-xs mt-1">Bấm làm mới hoặc quay lại trang trước.</p>
+        <div className="py-20 text-center text-[var(--ios-secondary-label)] ios-glass ios26-card bg-[var(--ios-surface)]">
+          <Layers size={40} className="mx-auto mb-3 opacity-30" />
+          <p className="font-semibold text-[17px] text-[var(--ios-label)]">Chưa có tin tức</p>
+          <p className="text-[15px] mt-1">Bấm làm mới hoặc quay lại trang trước.</p>
         </div>
       ) : (
-        <div className="divide-y divide-[var(--ios-separator)] ios-glass bg-[var(--ios-surface)] rounded-[14px] shadow-ios-sm overflow-hidden">
+        <div className="space-y-4">
           {newsItems.map((item) => {
             const effect = deriveEffectLabel(item.sentiment);
             return (
-              <article key={item.id} className="p-3 hover:bg-[var(--ios-surface-2)] transition-colors">
-                {/* Impact badges row */}
-                <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
-                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${impactColors[item.impact]}`}>{item.impact}</span>
-                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${effectColors[effect]}`}>{effect}</span>
-                  {item.affectedAssets.map((asset) => (
-                    <span key={asset} className="px-1.5 py-0.5 rounded bg-[var(--ios-surface-2)] text-[10px] text-[var(--ios-secondary-label)] font-mono">{asset}</span>
-                  ))}
-                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${categoryColors[item.category] || "bg-[var(--ios-surface-2)] text-[var(--ios-secondary-label)]"}`}>{item.category}</span>
-                  <span className="text-[10px] text-[var(--ios-secondary-label)]">{item.source} · {formatRelativeTime(item.publishedAt)}</span>
+              <article key={item.id} className="ios-glass ios26-card bg-[var(--ios-surface)] p-5 transition-colors hover:border-[var(--ios-blue)]/30 group">
+                {/* Meta row */}
+                <div className="flex flex-wrap items-center gap-2 mb-3">
+                  <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wide ${impactColors[item.impact]}`}>{item.impact}</span>
+                  <span className={`text-[13px] tracking-tight ${effectColors[effect]}`}>{effect}</span>
+                  <div className="w-1 h-1 rounded-full bg-[var(--ios-separator)]"></div>
+                  <span className={`px-2 py-0.5 rounded-md text-[11px] font-bold ${categoryColors[item.category] || "bg-[var(--ios-surface-2)] text-[var(--ios-secondary-label)]"}`}>{item.category}</span>
+                  <div className="w-1 h-1 rounded-full bg-[var(--ios-separator)]"></div>
+                  <span className="text-[12px] font-medium text-[var(--ios-secondary-label)]">{item.source} · {formatRelativeTime(item.publishedAt)}</span>
                 </div>
+                
                 {/* Title */}
-                <div className="flex items-start justify-between gap-2">
-                  <h4 className="text-[15px] font-semibold text-[var(--ios-label)] leading-snug flex-1">{item.titleVi || item.title}</h4>
-                  <a href={item.link} target="_blank" rel="noreferrer" className="w-7 h-7 rounded-full bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] text-[var(--ios-blue)] flex items-center justify-center flex-shrink-0 active:scale-90 transition-transform" title="Mở tin gốc">
-                    <ExternalLink size={12} />
+                <div className="flex items-start justify-between gap-4 mb-2">
+                  <h4 className="text-[18px] sm:text-[20px] font-bold text-[var(--ios-label)] leading-tight flex-1">{item.titleVi || item.title}</h4>
+                  <a href={item.link} target="_blank" rel="noreferrer" className="w-9 h-9 rounded-full bg-[var(--ios-surface-2)] border border-[var(--ios-separator)] text-[var(--ios-blue)] flex items-center justify-center flex-shrink-0 active:scale-90 transition-transform hover:bg-[var(--sys-tint-soft)] opacity-80 group-hover:opacity-100" title="Đọc chi tiết gốc">
+                    <ExternalLink size={16} />
                   </a>
                 </div>
+                
                 {/* Summary */}
-                <p className="text-[12px] text-[var(--ios-secondary-label)] mt-1 line-clamp-2">{compactSummary(item)}</p>
-                {/* Tags */}
-                {item.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-1.5">
-                    {item.tags.map((tag) => (
-                      <span key={tag} className="px-1.5 py-0.5 rounded bg-[var(--ios-surface-2)] text-[9px] text-[var(--ios-secondary-label)] font-mono">{tag}</span>
-                    ))}
-                  </div>
-                )}
+                <p className="text-[15px] text-[var(--ios-secondary-label)] leading-relaxed line-clamp-3 mb-3">{compactSummary(item)}</p>
+                
+                {/* Assets & Tags */}
+                <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-[var(--ios-separator)]/40">
+                  {item.affectedAssets.map((asset) => (
+                    <span key={asset} className="px-2 py-1 rounded-md bg-[var(--sys-tint-soft)] text-[var(--ios-blue)] text-[12px] font-mono font-bold tracking-widest uppercase">{asset}</span>
+                  ))}
+                  {item.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 ml-2">
+                      {item.tags.map((tag) => (
+                        <span key={tag} className="text-[12px] text-[var(--ios-tertiary-label)] font-mono">#{tag.toLowerCase()}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </article>
             );
           })}
-        </div>
-      )}
-
-      {/* Footer pagination */}
-      {newsItems.length > 0 && (
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] text-[var(--ios-secondary-label)]">Tin {pageStart}-{pageEnd}</span>
-          <div className="flex gap-2">
-            <button type="button" onClick={() => onPageChange(page - 1)} disabled={!canGoPrevious}
-              className="px-3 py-1.5 rounded-[8px] border border-[var(--ios-separator)] bg-[var(--ios-surface)] text-[var(--ios-blue)] text-xs font-medium flex items-center gap-1 active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
-              <ChevronLeft size={12} /> Mới hơn
-            </button>
-            <button type="button" onClick={() => onPageChange(page + 1)} disabled={!canGoNext}
-              className="px-3 py-1.5 rounded-[8px] border border-[var(--ios-separator)] bg-[var(--ios-surface)] text-[var(--ios-blue)] text-xs font-medium flex items-center gap-1 active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
-              Cũ hơn <ChevronRight size={12} />
-            </button>
-          </div>
         </div>
       )}
     </div>
