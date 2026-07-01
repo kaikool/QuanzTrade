@@ -641,6 +641,7 @@ export default function App() {
         status: (t.closeTime ? "CLOSED" : "OPEN") as "CLOSED" | "OPEN",
         entry_date: t.openTime || new Date().toISOString(),
         exit_date: t.closeTime,
+        accountId: t.accountId,
         notes: `The5ers - ${t.accountId}`,
         timeframe: "N/A",
         rating: 0,
@@ -701,6 +702,7 @@ export default function App() {
   }, [t5Accounts]);
 
   const getTradeAccountId = (trade: Trade) => {
+    if (trade.accountId) return trade.accountId;
     if (!trade.id.startsWith("t5-")) return "MANUAL";
     const match = trade.notes?.match(/The5ers\s*-\s*(.+)$/);
     return match?.[1] || "UNKNOWN";

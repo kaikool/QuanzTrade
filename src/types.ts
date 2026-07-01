@@ -9,6 +9,7 @@ export interface Trade {
   status: "OPEN" | "CLOSED";
   entry_date: string; // ISO string
   exit_date: string | null; // ISO string
+  accountId?: string;
   notes: string;
   timeframe: string; // e.g., M5, M15, H1, H4, D1
   rating: number; // 1 to 5 stars
