@@ -705,10 +705,18 @@ export default function App() {
   }, [t5Accounts]);
 
   const getTradeAccountId = (trade: Trade) => {
-    if (trade.accountId) return trade.accountId;
+    if (trade.accountId) return String(trade.accountId);
     if (trade.tag !== "The5ers") return "MANUAL";
+    // Try notes: "The5ers - 123456"
     const match = trade.notes?.match(/The5ers\s*-\s*(.+)$/);
-    return match?.[1] || "UNKNOWN";
+    if (match?.[1]) return match[1].trim();
+    // Fallback: scan all accounts, check if trade id matches account pattern
+    for (const acc of t5Accounts) {
+      if (trade.id.includes(acc.accountId) || trade.notes?.includes(acc.accountId)) {
+        return String(acc.accountId);
+      }
+    }
+    return "UNKNOWN";
   };
 
   const followedT5Accounts = useMemo(() => {
