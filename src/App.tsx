@@ -540,11 +540,11 @@ export default function App() {
       });
       const json = await res.json();
       if (json.success) {
-        if (json.email && !t5Email) {
+        if (json.email) {
           setT5Email(json.email);
           localStorage.setItem("t5_email", json.email);
         }
-        if (json.dsrToken && !t5DsrToken) {
+        if (json.dsrToken) {
           setT5DsrToken(json.dsrToken);
           localStorage.setItem("t5_dsr_token", json.dsrToken);
         }
@@ -559,15 +559,15 @@ export default function App() {
       });
       const json = await res.json();
       if (json.success) {
-        if (json.sessionId && !tvSessionId) {
+        if (json.sessionId) {
           setTvSessionId(json.sessionId);
           localStorage.setItem("tv_session_id", json.sessionId);
         }
-        if (json.sessionSign && !tvSessionSign) {
+        if (json.sessionSign) {
           setTvSessionSign(json.sessionSign);
           localStorage.setItem("tv_session_sign", json.sessionSign);
         }
-        if (json.browserlessToken && !browserlessToken) {
+        if (json.browserlessToken) {
           setBrowserlessToken(json.browserlessToken);
           localStorage.setItem("browserless_token", json.browserlessToken);
         }
