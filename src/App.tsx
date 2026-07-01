@@ -653,6 +653,8 @@ export default function App() {
 
   const getTradeAccountId = (trade: Trade) => {
     if (trade.accountId) return String(trade.accountId);
+    const anyTrade = trade as any;
+    if (anyTrade.account_id) return String(anyTrade.account_id);
     const match = trade.notes?.match(/The5ers\s*-\s*(.+)$/);
     if (match?.[1]) return match[1].trim();
     for (const acc of t5Accounts) {
