@@ -685,13 +685,9 @@ export default function App() {
       // Skip if already in enriched T5 list (by id or by matching accountId)
       if (t5Ids.has(t.id)) return false;
       if (t.accountId && t5RawIds.has(t.id)) return false;
-      if (t.tag === "The5ers") {
-        if (t5Ids.has(t.id)) return false;
-        const match = t.notes?.match(/The5ers\s*-\s*(.+)$/);
-        const accId = match?.[1] || "UNKNOWN";
-        return selectedT5AccountIds.includes(accId);
-      }
-      return true; // Actual manual trades
+      // Trades from merged DB: only include if their account is selected
+      const tradeAccountId = getTradeAccountId(t);
+      return tradeAccountId === "UNKNOWN" || selectedT5AccountIds.includes(tradeAccountId);
     });
 
     // Combine and sort by entry date descending
@@ -706,7 +702,6 @@ export default function App() {
 
   const getTradeAccountId = (trade: Trade) => {
     if (trade.accountId) return String(trade.accountId);
-    if (trade.tag !== "The5ers") return "MANUAL";
     // Try notes: "The5ers - 123456"
     const match = trade.notes?.match(/The5ers\s*-\s*(.+)$/);
     if (match?.[1]) return match[1].trim();
@@ -731,7 +726,6 @@ export default function App() {
         accountId: account.accountId,
         name: account.name || account.accountId,
       })),
-      { accountId: "MANUAL", name: "Lệnh thủ công" },
     ];
   }, [followedT5Accounts]);
 
