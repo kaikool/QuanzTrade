@@ -77,6 +77,7 @@ export async function saveTradeToDB(trade: Trade): Promise<Trade> {
           status: trade.status,
           entry_date: trade.entry_date,
           exit_date: trade.exit_date,
+          accountId: trade.accountId || null,
           notes: trade.notes,
           timeframe: trade.timeframe,
           rating: trade.rating,
