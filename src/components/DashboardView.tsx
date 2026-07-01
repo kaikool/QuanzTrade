@@ -1,6 +1,5 @@
 import React, { useMemo, Suspense } from "react";
 import {
-  AlertTriangle,
   Plus,
   Settings,
   ShieldAlert,
@@ -57,19 +56,6 @@ export function DashboardView({
         </div>
 
         {/* Red Alert Banner */}
-        {upcomingRedEvents.length > 0 && (
-          <div className="p-4 bg-[var(--sys-danger-soft)] border border-[var(--ios-red)]/30 rounded-[20px] flex items-start gap-3 shadow-ios-sm">
-            <div className="p-2 bg-[var(--ios-red)] text-white rounded-full flex-shrink-0">
-              <AlertTriangle size={18} />
-            </div>
-            <div>
-              <p className="text-[14px] font-bold text-[var(--ios-red)] uppercase tracking-wider mb-0.5">Sự kiện rủi ro cao</p>
-              <p className="text-[15px] font-medium text-[var(--ios-label)]">
-                {upcomingRedEvents.map(e => `${e.title} (${new Date(e.date).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })})`).join(" • ")}
-              </p>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* 2. Apple Health / Stocks Style Analytics (BentoStats) */}
