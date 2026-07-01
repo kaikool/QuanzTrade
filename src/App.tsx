@@ -651,6 +651,18 @@ export default function App() {
       }));
   }, [t5Trades, selectedT5AccountIds]);
 
+  const getTradeAccountId = (trade: Trade) => {
+    if (trade.accountId) return String(trade.accountId);
+    const match = trade.notes?.match(/The5ers\s*-\s*(.+)$/);
+    if (match?.[1]) return match[1].trim();
+    for (const acc of t5Accounts) {
+      if (trade.id.includes(acc.accountId) || trade.notes?.includes(acc.accountId)) {
+        return String(acc.accountId);
+      }
+    }
+    return "UNKNOWN";
+  };
+
   // Merged trades for display: manual + The5ers
   const mergedTrades = useMemo(() => {
     // 1. Map manual trades by ID for quick lookup
@@ -699,20 +711,6 @@ export default function App() {
   const accountById = useMemo(() => {
     return new Map(t5Accounts.map((account) => [account.accountId, account]));
   }, [t5Accounts]);
-
-  const getTradeAccountId = (trade: Trade) => {
-    if (trade.accountId) return String(trade.accountId);
-    // Try notes: "The5ers - 123456"
-    const match = trade.notes?.match(/The5ers\s*-\s*(.+)$/);
-    if (match?.[1]) return match[1].trim();
-    // Fallback: scan all accounts, check if trade id matches account pattern
-    for (const acc of t5Accounts) {
-      if (trade.id.includes(acc.accountId) || trade.notes?.includes(acc.accountId)) {
-        return String(acc.accountId);
-      }
-    }
-    return "UNKNOWN";
-  };
 
   const followedT5Accounts = useMemo(() => {
     const selectedIds = new Set(selectedT5AccountIds);
