@@ -659,7 +659,7 @@ export default function App() {
 
     // 2. Process T5 trades: if the user added notes/images, merge them into the Live T5 data
     const enrichedT5Trades = t5MappedTrades.map((t5) => {
-      const manual = manualTradesMap.get(t5.id);
+      const manual = manualTradesMap.get(t5.id) || manualTradesMap.get(t5.id.replace(/^t5-/, ""));
       if (manual) {
         // If the scraper says the trade is closed, but the manual version is still open, 
         // the scraper has fresh exit data. Update the manual version with the scraper's exit data.
@@ -685,7 +685,7 @@ export default function App() {
       // Skip if already in enriched T5 list (by id or by matching accountId)
       if (t5Ids.has(t.id)) return false;
       if (t.accountId && t5RawIds.has(t.id)) return false;
-      if (t.id.startsWith("t5-")) {
+      if (t.tag === "The5ers") {
         if (t5Ids.has(t.id)) return false;
         const match = t.notes?.match(/The5ers\s*-\s*(.+)$/);
         const accId = match?.[1] || "UNKNOWN";
@@ -706,7 +706,7 @@ export default function App() {
 
   const getTradeAccountId = (trade: Trade) => {
     if (trade.accountId) return trade.accountId;
-    if (!trade.id.startsWith("t5-")) return "MANUAL";
+    if (trade.tag !== "The5ers") return "MANUAL";
     const match = trade.notes?.match(/The5ers\s*-\s*(.+)$/);
     return match?.[1] || "UNKNOWN";
   };
