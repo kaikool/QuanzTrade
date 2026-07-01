@@ -702,13 +702,10 @@ export default function App() {
     // 3. Collect pure manual trades (ones that are NOT from T5)
     const t5Ids = new Set(t5MappedTrades.map(t => t.id));
     const t5RawIds = new Set(t5MappedTrades.map(t => t.id.replace(/^t5-/, "")));
-    // Fix: derive status from exit_date if missing (merged t5_trades has no status column)
+    // Fix: derive status from exit data (merged DB may have wrong status column)
     const derivedTrades = trades.map((t) => {
-      if (!t.status) {
-        const hasExit = t.exit_date && t.exit_price != null && t.exit_price !== t.entry_price;
-        return { ...t, status: hasExit ? "CLOSED" as const : "OPEN" as const };
-      }
-      return t;
+      const hasCloseData = t.exit_date && t.exit_price != null && String(t.exit_price) !== String(t.entry_price);
+      return { ...t, status: hasCloseData ? "CLOSED" as const : "OPEN" as const };
     });
     const pureManualTrades = derivedTrades.filter((t) => {
       // Skip if already in enriched T5 list
