@@ -694,12 +694,10 @@ export default function App() {
     const t5Ids = new Set(t5MappedTrades.map(t => t.id));
     const t5RawIds = new Set(t5MappedTrades.map(t => t.id.replace(/^t5-/, "")));
     const pureManualTrades = trades.filter((t) => {
-      // Skip if already in enriched T5 list (by id or by matching accountId)
+      // Skip if already in enriched T5 list
       if (t5Ids.has(t.id)) return false;
       if (t.accountId && t5RawIds.has(t.id)) return false;
-      // Trades from merged DB: only include if their account is selected
-      const tradeAccountId = getTradeAccountId(t);
-      return tradeAccountId === "UNKNOWN" || selectedT5AccountIds.includes(tradeAccountId);
+      return true;
     });
 
     // Combine and sort by entry date descending
