@@ -1339,7 +1339,7 @@ export default function App() {
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 min-w-0">
-                <h1 className="text-[32px] md:text-[42px] font-black tracking-[-0.05em] leading-none bg-gradient-to-r from-[var(--ios-teal)] via-[var(--ios-blue)] to-[var(--ios-indigo)] bg-clip-text text-transparent truncate">
+                <h1 className="ios26-brand-wordmark text-[32px] md:text-[42px] font-bold tracking-[-0.05em] leading-none bg-gradient-to-r from-[var(--ios-teal)] via-[var(--ios-blue)] to-[var(--ios-indigo)] bg-clip-text text-transparent truncate">
                   Táo Tầu Journal
                 </h1>
               </div>
