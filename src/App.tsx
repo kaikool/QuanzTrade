@@ -680,10 +680,13 @@ export default function App() {
 
     // 3. Collect pure manual trades (ones that are NOT from T5)
     const t5Ids = new Set(t5MappedTrades.map(t => t.id));
+    const t5RawIds = new Set(t5MappedTrades.map(t => t.id.replace(/^t5-/, "")));
     const pureManualTrades = trades.filter((t) => {
+      // Skip if already in enriched T5 list (by id or by matching accountId)
+      if (t5Ids.has(t.id)) return false;
+      if (t.accountId && t5RawIds.has(t.id)) return false;
       if (t.id.startsWith("t5-")) {
         if (t5Ids.has(t.id)) return false;
-        // It's a T5 trade saved in local storage. Only include if its account is selected.
         const match = t.notes?.match(/The5ers\s*-\s*(.+)$/);
         const accId = match?.[1] || "UNKNOWN";
         return selectedT5AccountIds.includes(accId);

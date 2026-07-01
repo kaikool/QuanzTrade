@@ -97,7 +97,7 @@ export function DashboardView({
                 <button 
                   key={account.accountId} 
                   type="button" 
-                  onClick={() => { setSelectedJournalAccountId(account.accountId); setCurrentTab("journal"); }} 
+                  onClick={() => { setSelectedJournalAccountId(account.accountId); setCurrentTab("journal"); loadT5AccountTrades(account.accountId).catch(() => {}); }} 
                   className="p-5 ios-glass ios26-card shadow-ios-sm text-left transition-all active:scale-[0.98] border border-[var(--ios-separator)] flex flex-col justify-between cursor-pointer"
                 >
                   <div className="flex items-start justify-between gap-2 mb-4">
