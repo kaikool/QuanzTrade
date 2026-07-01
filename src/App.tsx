@@ -657,6 +657,13 @@ export default function App() {
     if (anyTrade.account_id) return String(anyTrade.account_id);
     const match = trade.notes?.match(/The5ers\s*-\s*(.+)$/);
     if (match?.[1]) return match[1].trim();
+    // Fallback: scan t5Trades for a matching tradeId to get its accountId
+    const rawId = trade.id.replace(/^t5-/, "");
+    for (const t5 of t5Trades) {
+      if (t5.tradeId === rawId || t5.tradeId === trade.id) {
+        return String(t5.accountId);
+      }
+    }
     for (const acc of t5Accounts) {
       if (trade.id.includes(acc.accountId) || trade.notes?.includes(acc.accountId)) {
         return String(acc.accountId);
@@ -1173,7 +1180,7 @@ export default function App() {
         selectedJournalAccountId === tradeAccountId;
       return matchSearch && matchPair && matchStatus && matchAccount;
     });
-  }, [mergedTrades, searchQuery, selectedPairFilter, selectedStatusFilter, selectedJournalAccountId, t5Accounts]);
+  }, [mergedTrades, searchQuery, selectedPairFilter, selectedStatusFilter, selectedJournalAccountId, t5Accounts, t5Trades]);
 
   // Filtered Calendar Events
   const filteredEventsByFilters = useMemo(() => {
