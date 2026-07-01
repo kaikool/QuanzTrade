@@ -72,12 +72,18 @@ export function JournalView({
   // Master List Item
   const renderMasterItem = (t: Trade) => {
     const isSelected = selectedTrade?.id === t.id;
+    const isOpen = t.status === "OPEN";
+    const pnl = Number(t.pnl || 0);
     return (
       <button
         key={t.id} 
         onClick={() => setSelectedTrade(t)}
-        className={`w-full text-left p-4 transition-all cursor-pointer ios26-glass rounded-[20px] border border-[var(--ios-separator)]/40 shadow-sm ${
-          isSelected ? "bg-[var(--sys-tint-soft)]" : "hover:bg-[var(--sys-tint-soft)]/50"
+        className={`w-full text-left p-4 transition-all cursor-pointer ios26-glass rounded-[20px] border shadow-sm ${
+          isOpen
+            ? "border-[var(--ios-blue)]/30 bg-[var(--sys-tint-soft)]/5"
+            : "border-[var(--ios-separator)]/40"
+        } ${
+          isSelected ? "ring-2 ring-[var(--ios-blue)]/40 bg-[var(--sys-tint-soft)]/30" : "hover:bg-[var(--sys-tint-soft)]/10"
         }`}
       >
         <div className="flex justify-between items-start gap-3 mb-2">
@@ -86,10 +92,14 @@ export function JournalView({
               {t.type}
             </span>
             <span className="font-bold text-[17px] text-[var(--ios-label)] truncate">{t.pair}</span>
-            {t.status === "OPEN" && <span className="bg-[var(--sys-tint-soft)] text-[var(--ios-blue)] text-[9px] px-1.5 py-0.5 rounded-full font-bold shrink-0">OPEN</span>}
+            {isOpen ? (
+              <span className="bg-[var(--sys-tint-soft)] text-[var(--ios-blue)] text-[9px] px-1.5 py-0.5 rounded-full font-bold shrink-0">OPEN</span>
+            ) : (
+              <span className="bg-[var(--ios-fill)]/50 text-[var(--ios-secondary-label)] text-[9px] px-1.5 py-0.5 rounded-full font-bold shrink-0">CLOSED</span>
+            )}
           </div>
-          <span className={`text-[16px] font-bold font-mono tracking-tight ${Number(t.pnl || 0) >= 0 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`}>
-            {Number(t.pnl || 0) >= 0 ? "+" : ""}${Number(t.pnl || 0).toFixed(0)}
+          <span className={`text-[16px] font-bold font-mono tracking-tight ${isOpen ? "text-[var(--ios-blue)]" : pnl >= 0 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`}>
+            {pnl >= 0 ? "+" : ""}${pnl.toFixed(0)}
           </span>
         </div>
         <div className="grid grid-cols-[1fr_auto] gap-3 text-[12px] text-[var(--ios-secondary-label)]">
@@ -101,7 +111,7 @@ export function JournalView({
         <div className="mt-2 flex items-center gap-2 text-[11px] font-mono text-[var(--ios-tertiary-label)]">
           <span>Entry {t.entry_price ?? "-"}</span>
           <span className="w-1 h-1 rounded-full bg-[var(--ios-separator)]" />
-          <span>Exit {t.exit_price ?? "-"}</span>
+          <span>{isOpen ? "🔴 Open" : `Exit ${t.exit_price ?? "-"}`}</span>
         </div>
       </button>
     );
