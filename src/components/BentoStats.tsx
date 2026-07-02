@@ -111,70 +111,92 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
           </div>
         </motion.div>
       </div>
-      {/* Stats cards — separated, not overloaded */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-          className="ios-glass ios26-card shadow-ios-md p-6 min-h-[170px] flex items-center justify-between gap-5"
-        >
-          <div className="min-w-0">
-            <p className="text-[12px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)]">Tỷ lệ thắng</p>
-            <p className="text-[34px] font-black font-mono text-[var(--ios-label)] leading-none mt-2">{stats.winRate.toFixed(1)}%</p>
-            <p className="text-[14px] font-medium text-[var(--ios-secondary-label)] mt-2">{stats.winCount} thắng · {stats.lossCount} thua</p>
-            {stats.totalTrades > 0 && (
-              <div className="flex h-2 rounded-full overflow-hidden mt-4 bg-[var(--ios-separator)]/30 max-w-[260px]">
-                <div className="bg-[var(--ios-green)] h-full transition-all" style={{ width: `${stats.winRate}%` }} />
-                <div className="bg-[var(--ios-red)] h-full transition-all" style={{ width: `${100 - stats.winRate}%` }} />
+      {/* Performance board — calmer, finance-dashboard hierarchy */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+        className="ios-glass ios26-card shadow-ios-md overflow-hidden"
+      >
+        <div className="p-5 md:p-6 border-b border-[var(--ios-separator)]/35 flex items-center justify-between gap-4">
+          <div>
+            <p className="text-[12px] font-bold uppercase tracking-[0.16em] text-[var(--ios-secondary-label)]">Hiệu suất giao dịch</p>
+            <h3 className="text-[22px] md:text-[24px] font-bold text-[var(--ios-label)] mt-1">Win rate · PF · PNL TB</h3>
+          </div>
+          <span className="shrink-0 px-3 py-1.5 rounded-full bg-[var(--ios-fill)] text-[12px] font-bold text-[var(--ios-secondary-label)]">
+            {stats.totalTrades} lệnh
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-4 p-4 md:p-5">
+          <div className="rounded-[24px] bg-gradient-to-br from-[var(--ios-green)]/16 via-[var(--ios-blue)]/10 to-transparent border border-[var(--ios-green)]/20 p-5 md:p-6 flex items-center justify-between gap-5 min-h-[210px]">
+            <div className="min-w-0">
+              <p className="text-[13px] font-semibold text-[var(--ios-secondary-label)]">Tỷ lệ thắng</p>
+              <div className="flex items-end gap-3 mt-2">
+                <p className="text-[48px] md:text-[56px] font-black font-mono text-[var(--ios-label)] leading-none tracking-[-0.06em]">
+                  {stats.winRate.toFixed(1)}%
+                </p>
+                <p className="pb-1.5 text-[14px] font-semibold text-[var(--ios-secondary-label)]">
+                  {stats.winCount}W / {stats.lossCount}L
+                </p>
               </div>
-            )}
-          </div>
-          <div className="relative w-[116px] h-[116px] shrink-0 flex items-center justify-center">
-            <svg className="w-full h-full transform -rotate-90">
-              <circle cx="58" cy="58" r="46" stroke="var(--ios-separator)" strokeWidth="9" fill="none" className="opacity-30" />
-              <circle cx="58" cy="58" r="46" stroke={stats.winRate >= 50 ? "var(--ios-green)" : "var(--ios-red)"} strokeWidth="9" fill="none" strokeLinecap="round" strokeDasharray={289} strokeDashoffset={289 - (stats.winRate / 100) * 289} className="transition-all duration-1000 ease-out" />
-            </svg>
-            <Activity size={22} className={`absolute ${stats.winRate >= 50 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`} />
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}
-          className="ios-glass ios26-card shadow-ios-md p-6 min-h-[170px] flex flex-col justify-between"
-        >
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-[12px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)]">Profit Factor</p>
-              <p className="text-[34px] font-black font-mono text-[var(--ios-label)] leading-none mt-2">{stats.profitFactor.toFixed(2)}</p>
+              <div className="mt-5 max-w-[320px]">
+                <div className="flex h-3 rounded-full overflow-hidden bg-[var(--ios-fill)] shadow-inner">
+                  <div className="bg-[var(--ios-green)] h-full transition-all" style={{ width: `${stats.winRate}%` }} />
+                  <div className="bg-[var(--ios-red)]/80 h-full transition-all" style={{ width: `${100 - stats.winRate}%` }} />
+                </div>
+                <div className="flex justify-between mt-2 text-[12px] font-semibold text-[var(--ios-secondary-label)]">
+                  <span>Win</span>
+                  <span>Loss</span>
+                </div>
+              </div>
             </div>
-            <div className={`px-3 py-1.5 rounded-full text-[12px] font-bold ${stats.profitFactor >= 1.5 ? "bg-[var(--ios-green)]/12 text-[var(--ios-green)]" : stats.profitFactor >= 1 ? "bg-[var(--ios-orange)]/12 text-[var(--ios-orange)]" : "bg-[var(--ios-red)]/12 text-[var(--ios-red)]"}`}>
-              {stats.profitFactor >= 1.5 ? "Tốt" : stats.profitFactor >= 1 ? "Ổn" : "Yếu"}
+
+            <div className="relative w-[128px] h-[128px] shrink-0 hidden sm:flex items-center justify-center">
+              <svg className="w-full h-full transform -rotate-90 drop-shadow-sm">
+                <circle cx="64" cy="64" r="51" stroke="var(--ios-fill)" strokeWidth="12" fill="none" />
+                <circle cx="64" cy="64" r="51" stroke={stats.winRate >= 50 ? "var(--ios-green)" : "var(--ios-red)"} strokeWidth="12" fill="none" strokeLinecap="round" strokeDasharray={320.4} strokeDashoffset={320.4 - (stats.winRate / 100) * 320.4} className="transition-all duration-1000 ease-out" />
+              </svg>
+              <Activity size={24} className={`absolute ${stats.winRate >= 50 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`} />
             </div>
           </div>
-          <p className="text-[14px] font-medium text-[var(--ios-secondary-label)] leading-snug">Đo hiệu quả lời/lỗ. Trên 1.5 là vùng đẹp để giữ chiến lược.</p>
-        </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.21 }}
-          className="ios-glass ios26-card shadow-ios-md p-6 min-h-[150px]"
-        >
-          <p className="text-[12px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)]">PNL trung bình / lệnh</p>
-          <p className={`text-[32px] font-black font-mono leading-none mt-3 ${stats.averagePnl >= 0 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`}>
-            {stats.averagePnl >= 0 ? "+" : "-"}${Math.abs(stats.averagePnl).toFixed(0)}
-          </p>
-          <p className="text-[14px] font-medium text-[var(--ios-secondary-label)] mt-3">Tính trên {stats.totalTrades} giao dịch đang hiển thị</p>
-        </motion.div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+            <div className="rounded-[24px] bg-[var(--ios-surface)]/70 border border-[var(--ios-separator)]/35 p-5 shadow-ios-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--ios-secondary-label)]">Profit Factor</p>
+                  <p className="text-[36px] font-black font-mono text-[var(--ios-label)] leading-none mt-2">{stats.profitFactor.toFixed(2)}</p>
+                </div>
+                <span className={`px-3 py-1.5 rounded-full text-[12px] font-bold ${stats.profitFactor >= 1.5 ? "bg-[var(--ios-green)]/12 text-[var(--ios-green)]" : stats.profitFactor >= 1 ? "bg-[var(--ios-orange)]/12 text-[var(--ios-orange)]" : "bg-[var(--ios-red)]/12 text-[var(--ios-red)]"}`}>
+                  {stats.profitFactor >= 1.5 ? "Tốt" : stats.profitFactor >= 1 ? "Ổn" : "Yếu"}
+                </span>
+              </div>
+              <p className="text-[13px] font-medium text-[var(--ios-secondary-label)] mt-3">Gross profit / gross loss</p>
+            </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.24 }}
-          className="ios-glass ios26-card shadow-ios-md p-6 min-h-[150px]"
-        >
-          <p className="text-[12px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)]">Cặp tốt nhất</p>
-          <p className="text-[28px] font-black font-mono text-[var(--ios-label)] leading-none mt-3 truncate">{stats.bestPair}</p>
-          <p className="text-[14px] font-medium text-[var(--ios-secondary-label)] mt-3">
-            {stats.bestPair === "-" ? "Cần ít nhất 3 lệnh cùng cặp" : `${stats.bestPairWinRate.toFixed(0)}% tỷ lệ thắng`}
-          </p>
-        </motion.div>
-      </div>
+            <div className="rounded-[24px] bg-[var(--ios-surface)]/70 border border-[var(--ios-separator)]/35 p-5 shadow-ios-sm">
+              <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--ios-secondary-label)]">PNL TB / lệnh</p>
+              <p className={`text-[36px] font-black font-mono leading-none mt-2 ${stats.averagePnl >= 0 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`}>
+                {stats.averagePnl >= 0 ? "+" : "-"}${Math.abs(stats.averagePnl).toFixed(0)}
+              </p>
+              <p className="text-[13px] font-medium text-[var(--ios-secondary-label)] mt-3">
+                Avg win ${stats.avgWin.toFixed(0)} · Avg loss ${stats.avgLoss.toFixed(0)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="px-4 md:px-5 pb-4 md:pb-5">
+          <div className="rounded-[22px] bg-[var(--ios-fill)]/55 border border-[var(--ios-separator)]/25 px-4 py-3 flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--ios-secondary-label)]">Cặp tốt nhất</p>
+              <p className="text-[18px] font-bold font-mono text-[var(--ios-label)] truncate mt-0.5">{stats.bestPair}</p>
+            </div>
+            <p className="shrink-0 text-[15px] font-bold font-mono text-[var(--ios-green)]">
+              {stats.bestPair === "-" ? "—" : `${stats.bestPairWinRate.toFixed(0)}% WR`}
+            </p>
+          </div>
+        </div>
+      </motion.div>
 
       {/* 3. Apple Stocks Style Chart */}
       <motion.div 
