@@ -115,7 +115,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
         initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
         className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4"
       >
-        <div className="ios-glass rounded-[22px] border border-[var(--ios-separator)]/25 bg-[var(--ios-surface)]/45 p-4 shadow-ios-sm">
+        <div className="ios-glass rounded-[22px] border border-[var(--ios-separator)]/25 bg-[var(--ios-surface)]/45 p-4 shadow-ios-sm min-h-[112px] flex flex-col justify-between">
           <div className="flex items-center justify-between gap-3 mb-3">
             <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--ios-secondary-label)]">Tỷ lệ thắng</p>
             <span className="text-[12px] font-bold text-[var(--ios-secondary-label)]">{stats.winCount}W / {stats.lossCount}L</span>
@@ -133,7 +133,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
           </div>
         </div>
 
-        <div className="ios-glass rounded-[22px] border border-[var(--ios-separator)]/25 bg-[var(--ios-surface)]/45 p-4 shadow-ios-sm">
+        <div className="ios-glass rounded-[22px] border border-[var(--ios-separator)]/25 bg-[var(--ios-surface)]/45 p-4 shadow-ios-sm min-h-[112px] flex flex-col justify-between">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--ios-secondary-label)]">Profit Factor</p>
@@ -143,7 +143,6 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
               {stats.profitFactor >= 1.5 ? "Tốt" : stats.profitFactor >= 1 ? "Ổn" : "Yếu"}
             </span>
           </div>
-          <p className="text-[12px] font-medium text-[var(--ios-secondary-label)] mt-3">Gross profit / gross loss</p>
         </div>
       </motion.div>
 
