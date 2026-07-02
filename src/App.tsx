@@ -681,20 +681,14 @@ export default function App() {
           ...t5,
           ...enriched,
           accountId: String(t5.accountId),
+          status: t5.status,
+          exit_price: t5.exit_price,
+          exit_date: t5.exit_date,
+          pnl: t5.pnl,
           notes: enriched.notes || t5.notes,
         };
-        // If the scraper says the trade is closed, but the enriched version is still open,
-        // the scraper has fresh exit data. Update with the scraper's exit data.
-        if (t5.status === "CLOSED" && enriched.status === "OPEN") {
-          return {
-            ...enrichedWithT5Identity,
-            status: "CLOSED",
-            exit_price: t5.exit_price,
-            exit_date: t5.exit_date,
-            pnl: t5.pnl,
-          };
-        }
-        // Otherwise, use the user's enriched edit (which contains their snapshot URL and notes)
+        // The5ers DB state is authoritative for status/close data.
+        // Enriched DB rows are only for user notes/snapshots/metadata.
         return enrichedWithT5Identity;
       }
       return t5;
@@ -703,12 +697,7 @@ export default function App() {
     // 3. Collect trades without corresponding T5 data (user-modified only)
     const t5Ids = new Set(t5MappedTrades.map(t => t.id));
     const t5RawIds = new Set(t5MappedTrades.map(t => t.id.replace(/^t5-/, "")));
-    // Fix: derive status from exit data (merged DB may have wrong status column)
-    const derivedTrades = trades.map((t) => {
-      const hasCloseData = t.exit_date && t.exit_price != null && String(t.exit_price) !== String(t.entry_price);
-      return { ...t, status: hasCloseData ? "CLOSED" as const : "OPEN" as const };
-    });
-    const userModifiedOnly = derivedTrades.filter((t) => {
+    const userModifiedOnly = trades.filter((t) => {
       // Skip if already in enriched T5 list
       if (t5Ids.has(t.id)) return false;
       if (t5RawIds.has(t.id)) return false;
