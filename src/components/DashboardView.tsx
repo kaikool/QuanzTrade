@@ -22,7 +22,7 @@ interface DashboardViewProps {
   mergedTrades: Trade[];
   filteredTrades: Trade[];
   upcomingRedEvents: { title: string; date: string; impact: string }[];
-  selectedT5AccountIds: string[];
+  selectedT5AccountIds?: string[];
   t5Accounts: any[];
   followedT5Accounts: any[];
   t5Trades: any[];
@@ -34,7 +34,7 @@ interface DashboardViewProps {
 
 export function DashboardView({
   darkMode, currentTab, setCurrentTab,
-  summary, mergedTrades, selectedT5AccountIds,
+  summary, mergedTrades,
   upcomingRedEvents, followedT5Accounts, t5Trades,
   setSelectedJournalAccountId, loadT5AccountTrades,
   setIsQuickAddOpen, setIsSettingsOpen, t5Loading,
@@ -69,7 +69,7 @@ export function DashboardView({
         </div>
       ) : (
         <Suspense fallback={<div className="h-[240px] ios26-card shadow-ios-sm animate-pulse" />}>
-          <BentoStats trades={selectedT5AccountIds.length === 0 ? [] : mergedTrades} darkMode={darkMode} />
+          <BentoStats trades={mergedTrades} darkMode={darkMode} />
         </Suspense>
       )}
 

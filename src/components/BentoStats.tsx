@@ -29,7 +29,7 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
   const stats = useMemo(() => {
     const total = trades.length;
     if (total === 0) {
-      return { totalTrades: 0, winRate: 0, netPnl: 0, profitFactor: 0, averagePnl: 0, bestPair: "-", bestPairWinRate: 0 };
+      return { totalTrades: 0, winRate: 0, netPnl: 0, profitFactor: 0, averagePnl: 0, bestPair: "-", bestPairWinRate: 0, winCount: 0, lossCount: 0, avgWin: 0, avgLoss: 0 };
     }
     const wins = trades.filter((t) => t.pnl > 0);
     const losses = trades.filter((t) => t.pnl < 0);
@@ -58,8 +58,10 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
         bestPairWinRate = (data.wins / data.total) * 100;
       }
     });
+    const avgWin = wins.length > 0 ? grossProfit / wins.length : 0;
+    const avgLoss = losses.length > 0 ? grossLoss / losses.length : 0;
 
-    return { totalTrades: total, winRate, netPnl, profitFactor, averagePnl, bestPair, bestPairWinRate };
+    return { totalTrades: total, winRate, netPnl, profitFactor, averagePnl, bestPair, bestPairWinRate, winCount: wins.length, lossCount: losses.length, avgWin, avgLoss };
   }, [trades]);
 
   const chartData = useMemo(() => {
@@ -125,39 +127,73 @@ export function BentoStats({ trades, darkMode }: BentoStatsProps) {
           </div>
         </motion.div>
 
-        {/* Activity Rings (Win Rate & PF) */}
+        {/* Enhanced Stats Card — Win Rate, PF, Avg P&L, Best Pair */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15 }}
           className="ios-glass ios26-card p-6 shadow-ios-md flex items-center justify-between"
         >
           <div className="space-y-4 flex-1">
-            <div>
-              <p className="text-[12px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)]">Tỷ lệ thắng</p>
-              <p className="text-[24px] font-bold font-mono text-[var(--ios-label)] leading-none mt-1">{stats.winRate.toFixed(1)}%</p>
+            <div className="space-y-3">
+              <div>
+                <p className="text-[12px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)]">Tỷ lệ thắng</p>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <p className="text-[24px] font-bold font-mono text-[var(--ios-label)] leading-none">{stats.winRate.toFixed(1)}%</p>
+                  <span className="text-[13px] font-mono text-[var(--ios-tertiary-label)]">
+                    {stats.winCount}W / {stats.lossCount}L
+                  </span>
+                </div>
+                {/* Mini win/loss bar */}
+                {stats.totalTrades > 0 && (
+                  <div className="flex h-1.5 rounded-full overflow-hidden mt-2 bg-[var(--ios-separator)]/30">
+                    <div className="bg-[var(--ios-green)] h-full rounded-full transition-all" style={{ width: `${stats.winRate}%` }} />
+                    <div className="bg-[var(--ios-red)] h-full rounded-full transition-all" style={{ width: `${100 - stats.winRate}%` }} />
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-4">
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)]">Profit Factor</p>
+                  <p className="text-[18px] font-bold font-mono text-[var(--ios-label)] leading-none mt-1">{stats.profitFactor.toFixed(2)}</p>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)]">PNL TB</p>
+                  <p className={`text-[18px] font-bold font-mono leading-none mt-1 ${stats.averagePnl >= 0 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`}>
+                    {stats.averagePnl >= 0 ? "+" : ""}${Math.abs(stats.averagePnl).toFixed(0)}
+                  </p>
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="text-[12px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)]">Profit Factor</p>
-              <p className="text-[24px] font-bold font-mono text-[var(--ios-label)] leading-none mt-1">{stats.profitFactor.toFixed(2)}</p>
-            </div>
+            {stats.bestPair !== "-" && (
+              <div className="pt-2 border-t border-[var(--ios-separator)]/30">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--ios-secondary-label)]">Cặp tốt nhất</p>
+                <p className="text-[15px] font-bold font-mono text-[var(--ios-label)] mt-0.5">
+                  {stats.bestPair} 
+                  <span className="text-[var(--ios-green)] ml-2 text-[13px]">({stats.bestPairWinRate.toFixed(0)}% WR)</span>
+                </p>
+              </div>
+            )}
           </div>
 
-          <div className="relative w-[100px] h-[100px] flex-shrink-0 flex items-center justify-center">
+          <div className="relative w-[110px] h-[110px] flex-shrink-0 flex items-center justify-center ml-4">
             {/* Background Ring */}
             <svg className="w-full h-full transform -rotate-90">
-              <circle cx="50" cy="50" r="38" stroke="var(--ios-separator)" strokeWidth="10" fill="none" className="opacity-30" />
-              {/* Progress Ring */}
+              <circle cx="55" cy="55" r="44" stroke="var(--ios-separator)" strokeWidth="10" fill="none" className="opacity-30" />
+              {/* Win Rate Ring */}
               <circle 
-                cx="50" cy="50" r="38" 
+                cx="55" cy="55" r="44" 
                 stroke={stats.winRate >= 50 ? "var(--ios-green)" : "var(--ios-red)"} 
                 strokeWidth="10" fill="none" 
                 strokeLinecap="round"
-                strokeDasharray={winRateCircumference}
-                strokeDashoffset={winRateStrokeDashoffset}
+                strokeDasharray={285}
+                strokeDashoffset={285 - (stats.winRate / 100) * 285}
                 className="transition-all duration-1000 ease-out"
               />
             </svg>
             <div className="absolute flex flex-col items-center">
-              <Activity size={24} className={stats.winRate >= 50 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"} />
+              <span className={`text-[20px] font-black font-mono ${stats.winRate >= 50 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"}`}>
+                {stats.winRate.toFixed(0)}%
+              </span>
+              <Activity size={16} className={stats.winRate >= 50 ? "text-[var(--ios-green)]" : "text-[var(--ios-red)]"} />
             </div>
           </div>
         </motion.div>

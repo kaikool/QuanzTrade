@@ -720,6 +720,21 @@ export default function App() {
     );
   }, [trades, t5MappedTrades]);
 
+  // Trades filtered by accounts selected in Settings — drives dashboard + journal
+  const visibleTrades = useMemo(() => {
+    if (selectedT5AccountIds.length === 0) return [];
+    const selectedSet = new Set(selectedT5AccountIds);
+    return mergedTrades.filter(t => {
+      if (t.accountId && selectedSet.has(String(t.accountId))) return true;
+      const match = t.notes?.match(/The5ers\s*-\s*(.+)$/);
+      if (match?.[1] && selectedSet.has(match[1].trim())) return true;
+      for (const accId of selectedSet) {
+        if (t.id.includes(accId) || t.notes?.includes(accId)) return true;
+      }
+      return false;
+    });
+  }, [mergedTrades, selectedT5AccountIds]);
+
   const accountById = useMemo(() => {
     return new Map(t5Accounts.map((account) => [account.accountId, account]));
   }, [t5Accounts]);
@@ -1127,8 +1142,8 @@ export default function App() {
     const selectedAccounts = followedT5Accounts;
     const t5Balance = selectedAccounts.reduce((s, a) => s + (a.balance || 0), 0);
     const t5Pnl = selectedAccounts.reduce((s, a) => s + (a.pnl || 0), 0);
-    const t5OpenTrades = t5Trades.filter(t => t && t.accountId && selectedIds.has(t.accountId) && !t.closeTime).length;
-    const t5ClosedTrades = t5Trades.filter(t => t && t.accountId && selectedIds.has(t.accountId) && t.closeTime).length;
+    const t5OpenTrades = t5Trades.filter(t => t && t.accountId && selectedIds.has(String(t.accountId)) && !t.closeTime).length;
+    const t5ClosedTrades = t5Trades.filter(t => t && t.accountId && selectedIds.has(String(t.accountId)) && t.closeTime).length;
 
     // Use account-level PnL (authoritative), avoid double-counting with individual trade PnL
     return {
@@ -1142,13 +1157,13 @@ export default function App() {
   // Filters candidates
   const [visibleCount, setVisibleCount] = useState(50);
   const uniquePairs = useMemo(() => {
-    const set = new Set(mergedTrades.map((t) => t && t.pair).filter(Boolean));
+    const set = new Set(visibleTrades.map((t) => t && t.pair).filter(Boolean));
     return ["ALL", ...Array.from(set)];
-  }, [mergedTrades]);
+  }, [visibleTrades]);
 
   // Filtered trades list to display
   const filteredTrades = useMemo(() => {
-    return mergedTrades.filter((t) => {
+    return visibleTrades.filter((t) => {
       const matchSearch =
         t.pair.toLowerCase().includes(searchQuery.toLowerCase()) ||
         t.notes.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -1163,7 +1178,7 @@ export default function App() {
         selectedJournalAccountId === tradeAccountId;
       return matchSearch && matchPair && matchStatus && matchAccount;
     });
-  }, [mergedTrades, searchQuery, selectedPairFilter, selectedStatusFilter, selectedJournalAccountId, t5Accounts, t5Trades]);
+  }, [visibleTrades, searchQuery, selectedPairFilter, selectedStatusFilter, selectedJournalAccountId, t5Accounts, t5Trades]);
 
   // Filtered Calendar Events
   const filteredEventsByFilters = useMemo(() => {
@@ -1368,7 +1383,7 @@ export default function App() {
               <span>
                 Nhật ký{" "}
                 <span className="text-base font-mono text-[var(--ios-secondary-label)]">
-                  ({mergedTrades.length})
+                  ({visibleTrades.length})
                 </span>
               </span>
             </button>
@@ -1397,10 +1412,9 @@ export default function App() {
             currentTab={currentTab}
             setCurrentTab={setCurrentTab}
             summary={summary}
-            mergedTrades={mergedTrades}
+            mergedTrades={visibleTrades}
             filteredTrades={filteredTrades}
             upcomingRedEvents={upcomingRedEvents}
-            selectedT5AccountIds={selectedT5AccountIds}
             t5Accounts={t5Accounts}
             followedT5Accounts={followedT5Accounts}
             t5Trades={t5Trades}
@@ -1429,7 +1443,7 @@ export default function App() {
               filteredTrades={filteredTrades}
               visibleCount={visibleCount}
               setVisibleCount={setVisibleCount}
-              mergedTrades={mergedTrades}
+              mergedTrades={visibleTrades}
               darkMode={darkMode}
               handleBeginEditTrade={handleBeginEditTrade}
               handleDeleteTrade={handleDeleteTrade}
