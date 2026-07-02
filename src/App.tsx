@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useState, useEffect, useMemo } from "react";
+import React, { Suspense, lazy, useState, useEffect, useMemo, useRef } from "react";
 import {
   Plus,
   Calendar as CalendarIcon,
@@ -187,9 +187,9 @@ export default function App() {
 
   // ─── Toast System ──────────────────────────────────────────────────────────
   const [toasts, setToasts] = useState<{id: number; message: string; type: 'success' | 'error' | 'info'}[]>([]);
-  let toastId = 0;
+  const toastIdRef = useRef(0);
   function showToast(message: string, type: 'success' | 'error' | 'info' = 'info') {
-    const id = ++toastId;
+    const id = ++toastIdRef.current;
     setToasts(prev => [...prev, {id, message, type}]);
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 4000);
   }
@@ -1019,32 +1019,11 @@ export default function App() {
     }
   };
 
-  const handleCaptureSnapshot = async () => {
-    setIsCapturingSnapshot(true);
-    try {
-      // Encode the symbol e.g., EUR/USD -> EURUSD
-      const encodedSymbol = encodeURIComponent("FX:" + formPair.replace("/", ""));
-      const token = localStorage.getItem("trade_app_auth_token") || "";
-      const tvId = encodeURIComponent(tvSessionId);
-      const tvSign = encodeURIComponent(tvSessionSign);
-      const url = `/api/tv-snapshot?symbol=${encodedSymbol}&auth_token=${token}&tv_session_id=${tvId}&tv_session_sign=${tvSign}`;
-      
-      const res = await fetch(url);
-      const json = await res.json();
-      if (!res.ok || !json.success) {
-        throw new Error(json.message || "Lỗi khi gọi API chụp ảnh");
-      }
-      
-      setFormTVSnapshotUrl(json.url);
-    } catch (e: any) {
-      if (e?.message !== "error") showToast("Chụp ảnh thất bại: " + e.message, "error");
-    } finally {
-      setIsCapturingSnapshot(false);
-    }
-  };
-
-  const handleCaptureSnapshotClose = async () => {
-    setIsCapturingSnapshotClose(true);
+  // Handle TV Snapshot capture (reused for both Entry and Close)
+  const handleCaptureSnapshot = async (close = false) => {
+    const setUrl = close ? setFormTVSnapshotUrlClose : setFormTVSnapshotUrl;
+    const setCapturing = close ? setIsCapturingSnapshotClose : setIsCapturingSnapshot;
+    setCapturing(true);
     try {
       const encodedSymbol = encodeURIComponent("FX:" + formPair.replace("/", ""));
       const token = localStorage.getItem("trade_app_auth_token") || "";
@@ -1058,11 +1037,11 @@ export default function App() {
         throw new Error(json.message || "Lỗi khi gọi API chụp ảnh");
       }
       
-      setFormTVSnapshotUrlClose(json.url);
+      setUrl(json.url);
     } catch (e: any) {
       if (e?.message !== "error") showToast("Chụp ảnh thất bại: " + e.message, "error");
     } finally {
-      setIsCapturingSnapshotClose(false);
+      setCapturing(false);
     }
   };
 
@@ -1079,11 +1058,10 @@ export default function App() {
     const sizeNum = parseFloat(formSize);
     const slNum = formStopLoss ? parseFloat(formStopLoss) : undefined;
     const tpNum = formTakeProfit ? parseFloat(formTakeProfit) : undefined;
-    const pnlNum = formPnl ? parseFloat(formPnl) : 0;
 
     // User requested to completely remove the custom PnL calculation because it's incorrect.
     // Use the PnL value from form input (or 0 if not provided).
-    const calculatedPnl = pnlNum;
+    const calculatedPnl = parseFloat(formPnl) || 0;
 
     const targetId = editingTradeId || "t" + Date.now();
 
@@ -1151,9 +1129,23 @@ export default function App() {
     const t5OpenTrades = t5Trades.filter(t => t && t.accountId && selectedIds.has(t.accountId) && !t.closeTime).length;
     const t5ClosedTrades = t5Trades.filter(t => t && t.accountId && selectedIds.has(t.accountId) && t.closeTime).length;
 
-    const totalPnl = trades.filter(t => t && t.id && !t.id.startsWith("t5-")).reduce((sum, t) => sum + (t.pnl || 0), 0);
-    const openCount = trades.filter(t => t && t.status === "OPEN" && !t.id.startsWith("t5-")).length;
-    const closedCount = trades.filter(t => t && t.status === "CLOSED" && !t.id.startsWith("t5-")).length;
+    // Filter DB trades to only those matching selected accounts
+    const matchedTrades = trades.filter(t => {
+      if (!t || !t.id || t.id.startsWith("t5-")) return false;
+      // Match by accountId directly (most reliable)
+      if (t.accountId && selectedIds.has(String(t.accountId))) return true;
+      // Match by notes: "The5ers - <accountId>"
+      const match = t.notes?.match(/The5ers\s*-\s*(.+)$/);
+      if (match?.[1] && selectedIds.has(match[1].trim())) return true;
+      // Fallback: check if any selected account ID appears in trade id or notes
+      for (const accId of selectedIds) {
+        if (t.id.includes(accId) || t.notes?.includes(accId)) return true;
+      }
+      return false;
+    });
+    const totalPnl = matchedTrades.reduce((sum, t) => sum + (t.pnl || 0), 0);
+    const openCount = matchedTrades.filter(t => t.status === "OPEN").length;
+    const closedCount = matchedTrades.filter(t => t.status === "CLOSED").length;
 
     return {
       balance: t5Balance,
@@ -1208,8 +1200,8 @@ export default function App() {
           objDate.getMonth() === baseDate.getMonth() &&
           objDate.getDate() === baseDate.getDate();
       } else if (calendarPeriodFilter === "WEEK") {
-        // Within +/- 3.5 days of May 22
-        passPeriod = Math.abs(diffDays) <= 4;
+        // Next 7 days (current + forecast)
+        passPeriod = diffDays >= 0 && diffDays <= 7;
       }
 
       // Impact Filter
@@ -1562,7 +1554,7 @@ export default function App() {
         setLightboxUrl={setLightboxUrl}
         onSubmit={handleCreateTrade}
         onCaptureSnapshot={handleCaptureSnapshot}
-        onCaptureSnapshotClose={handleCaptureSnapshotClose}
+        onCaptureSnapshotClose={() => handleCaptureSnapshot(true)}
         getEntryDatePart={getEntryDatePart}
         handleEntryDateChange={handleEntryDateChange}
         getExitDatePart={getExitDatePart}

@@ -241,7 +241,8 @@ button {
 #avatar-button,
 #ios-fab,
 button[class*="bg-[var(--sys-blue)]"],
-a[class*="bg-[var(--sys-surface-2)]"] {
+a[class*="bg-[var(--sys-surface-2)]"],
+.ios26-card {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.36), 0 8px 20px rgba(20, 24, 32, 0.08);
   transition: transform 180ms cubic-bezier(.2,.8,.2,1), box-shadow 180ms ease, background 180ms ease, border-color 180ms ease;
 }
@@ -320,33 +321,7 @@ a[class*="bg-[var(--sys-surface-2)]"]:active {
   max-width: none;
 }
 
-.ios26-hero-card {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.38);
-  background:
-    linear-gradient(145deg, color-mix(in srgb, var(--sys-blue) 86%, white 8%), color-mix(in srgb, var(--sys-violet) 78%, black 8%)),
-    var(--sys-blue);
-  box-shadow: 0 28px 70px rgba(0, 122, 255, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.45);
-}
 
-.ios26-hero-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(120deg, rgba(255, 255, 255, 0.32), transparent 38%),
-    repeating-linear-gradient(120deg, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px 12px);
-  mix-blend-mode: screen;
-  pointer-events: none;
-}
-
-.ios26-hero-card > * {
-  position: relative;
-  z-index: 1;
-}
-
-.ios26-list-group,
 .ios26-chart-card,
 .ios26-metric-card,
 #calendar-section article,
@@ -427,13 +402,6 @@ a[class*="bg-[var(--sys-surface-2)]"]:active {
   background: linear-gradient(145deg, rgba(255,255,255,0.7), var(--ios-surface-2));
   border: 1px solid rgba(255,255,255,0.5);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 16px 34px rgba(0,0,0,0.08);
-}
-
-.ios26-primary-button {
-  min-height: 52px;
-  border-radius: 999px;
-  background: linear-gradient(145deg, var(--sys-blue, #007aff), var(--sys-teal, #00c7be));
-  box-shadow: 0 16px 34px rgba(0, 122, 255, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.42);
 }
 
 .ios-input,

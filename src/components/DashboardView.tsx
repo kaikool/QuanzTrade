@@ -27,7 +27,7 @@ interface DashboardViewProps {
   followedT5Accounts: any[];
   t5Trades: any[];
   setSelectedJournalAccountId: (v: string) => void;
-  loadT5AccountTrades: (accountId: string) => void;
+  loadT5AccountTrades: (accountId: string) => Promise<void>;
   setIsQuickAddOpen: (v: boolean) => void;
   setIsSettingsOpen: (v: boolean) => void;
 }
