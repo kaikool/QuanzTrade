@@ -1122,6 +1122,7 @@ export default function App() {
     if (selectedT5AccountIds.length === 0) {
       return { balance: 0, pnl: 0, openCount: 0, closedCount: 0 };
     }
+
     const selectedIds = new Set(selectedT5AccountIds);
     const selectedAccounts = followedT5Accounts;
     const t5Balance = selectedAccounts.reduce((s, a) => s + (a.balance || 0), 0);
@@ -1129,29 +1130,12 @@ export default function App() {
     const t5OpenTrades = t5Trades.filter(t => t && t.accountId && selectedIds.has(t.accountId) && !t.closeTime).length;
     const t5ClosedTrades = t5Trades.filter(t => t && t.accountId && selectedIds.has(t.accountId) && t.closeTime).length;
 
-    // Filter DB trades to only those matching selected accounts
-    const matchedTrades = trades.filter(t => {
-      if (!t || !t.id || t.id.startsWith("t5-")) return false;
-      // Match by accountId directly (most reliable)
-      if (t.accountId && selectedIds.has(String(t.accountId))) return true;
-      // Match by notes: "The5ers - <accountId>"
-      const match = t.notes?.match(/The5ers\s*-\s*(.+)$/);
-      if (match?.[1] && selectedIds.has(match[1].trim())) return true;
-      // Fallback: check if any selected account ID appears in trade id or notes
-      for (const accId of selectedIds) {
-        if (t.id.includes(accId) || t.notes?.includes(accId)) return true;
-      }
-      return false;
-    });
-    const totalPnl = matchedTrades.reduce((sum, t) => sum + (t.pnl || 0), 0);
-    const openCount = matchedTrades.filter(t => t.status === "OPEN").length;
-    const closedCount = matchedTrades.filter(t => t.status === "CLOSED").length;
-
+    // Use account-level PnL (authoritative), avoid double-counting with individual trade PnL
     return {
       balance: t5Balance,
-      pnl: totalPnl + t5Pnl,
-      openCount: openCount + t5OpenTrades,
-      closedCount: closedCount + t5ClosedTrades,
+      pnl: t5Pnl,
+      openCount: t5OpenTrades,
+      closedCount: t5ClosedTrades,
     };
   }, [trades, followedT5Accounts, t5Trades, selectedT5AccountIds]);
 
@@ -1313,31 +1297,6 @@ export default function App() {
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-[calc(1rem+env(safe-area-inset-top,0px))] md:pt-5 space-y-3.5 sm:space-y-6"
         id="app-grid-frame"
       >
-        {/* Red Event Alert Banner */}
-        {upcomingRedEvents.length > 0 && (
-          <div className="bg-rose-600 text-white p-3 sm:p-4 rounded-[20px] shadow-ios-md flex flex-row items-start sm:items-center gap-3 sm:gap-4 animate-pulse-once border border-rose-500">
-            <div className="bg-white/20 p-2 rounded-full flex-shrink-0">
-              <AlertTriangle size={24} className="text-white" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <h4 className="font-bold text-lg font-semibold uppercase tracking-wider flex items-center flex-wrap gap-2">
-                Cảnh báo tin đỏ sắp ra mắt
-                <span className="text-sm font-medium bg-white text-[var(--ios-red)] px-2 py-0.5 rounded-full font-black">
-                  CAO
-                </span>
-              </h4>
-              <p className="text-lg text-white/90 mt-1 line-clamp-2 sm:line-clamp-none">
-                {upcomingRedEvents
-                  .map(
-                    (e) =>
-                      `${e.title} (${new Date(e.date).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })})`,
-                  )
-                  .join(" • ")}
-              </p>
-            </div>
-          </div>
-        )}
-
         {/* iOS Brand Header */}
         {(currentTab === "dashboard") && (
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2 sm:mt-4 px-1">
