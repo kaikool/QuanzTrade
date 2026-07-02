@@ -1141,6 +1141,9 @@ export default function App() {
 
   // Compute stats for header and badges
   const summary = useMemo(() => {
+    if (selectedT5AccountIds.length === 0) {
+      return { balance: 0, pnl: 0, openCount: 0, closedCount: 0 };
+    }
     const selectedIds = new Set(selectedT5AccountIds);
     const selectedAccounts = followedT5Accounts;
     const t5Balance = selectedAccounts.reduce((s, a) => s + (a.balance || 0), 0);

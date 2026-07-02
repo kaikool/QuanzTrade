@@ -34,7 +34,7 @@ interface DashboardViewProps {
 
 export function DashboardView({
   darkMode, currentTab, setCurrentTab,
-  summary, mergedTrades,
+  summary, mergedTrades, selectedT5AccountIds,
   upcomingRedEvents, followedT5Accounts, t5Trades,
   setSelectedJournalAccountId, loadT5AccountTrades,
   setIsQuickAddOpen, setIsSettingsOpen, t5Loading,
@@ -69,7 +69,7 @@ export function DashboardView({
         </div>
       ) : (
         <Suspense fallback={<div className="h-[240px] ios26-card shadow-ios-sm animate-pulse" />}>
-          <BentoStats trades={mergedTrades} darkMode={darkMode} />
+          <BentoStats trades={selectedT5AccountIds.length === 0 ? [] : mergedTrades} darkMode={darkMode} />
         </Suspense>
       )}
 
@@ -97,7 +97,7 @@ export function DashboardView({
                 <button 
                   key={account.accountId} 
                   type="button" 
-                  onClick={() => { setSelectedJournalAccountId(account.accountId); setCurrentTab("journal"); loadT5AccountTrades(account.accountId).catch(() => {}); }} 
+                  onClick={() => { setSelectedJournalAccountId(account.accountId); setCurrentTab("journal"); loadT5AccountTrades(account.accountId); }} 
                   className="p-5 ios-glass ios26-card shadow-ios-sm text-left transition-all active:scale-[0.98] border border-[var(--ios-separator)] flex flex-col justify-between cursor-pointer"
                 >
                   <div className="flex items-start justify-between gap-2 mb-4">
