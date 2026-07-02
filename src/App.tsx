@@ -598,7 +598,7 @@ export default function App() {
       const allTrades: T5Trade[] = [];
       for (const acc of accounts) {
         const isActive = acc.status === "active" || acc.status === "available";
-        const isSelected = selectedIds.has(acc.accountId);
+        const isSelected = selectedIds.has(String(acc.accountId));
         // Load active + already selected. Skip disabled not-yet-selected.
         if (!isActive && !isSelected) continue;
         const { trades } = await fetchT5AccountDetail(acc.accountId);
@@ -629,7 +629,7 @@ export default function App() {
   const t5MappedTrades = useMemo(() => {
     const activeIds = new Set(selectedT5AccountIds);
     return t5Trades
-      .filter(t => t && t.accountId && (!selectedT5AccountIds.length || activeIds.has(t.accountId)))
+      .filter(t => t && t.accountId && (!selectedT5AccountIds.length || activeIds.has(String(t.accountId))))
       .map(t => ({
         id: `t5-${t.tradeId}`,
         pair: (t.instrument || "Unknown").replace(/(.{3})/, "$1/"),
@@ -741,7 +741,7 @@ export default function App() {
 
   const followedT5Accounts = useMemo(() => {
     const selectedIds = new Set(selectedT5AccountIds);
-    return t5Accounts.filter((account) => selectedIds.has(account.accountId));
+    return t5Accounts.filter((account) => selectedIds.has(String(account.accountId)));
   }, [t5Accounts, selectedT5AccountIds]);
 
   const journalAccountOptions = useMemo(() => {
