@@ -32,9 +32,22 @@ export async function syncAccount(accountData, statsData = null) {
 
 export async function syncTrades(accountId, tradesArray) {
     if (!supabase || !tradesArray || tradesArray.length === 0) return;
-    const rows = tradesArray.map(t => ({
+    const normalizeTradeStatus = (t) => {
+        const raw = String(t.status ?? t.positionStatus ?? t.state ?? t.statusName ?? '').trim().toLowerCase();
+        if (raw) {
+            if (['open', 'opened', 'active', 'running', 'live'].some(token => raw.includes(token))) return 'OPEN';
+            if (['closed', 'close', 'history', 'completed', 'done'].some(token => raw.includes(token))) return 'CLOSED';
+        }
+        if (t.isOpen === true) return 'OPEN';
+        if (t.isClosed === true) return 'CLOSED';
+        return (t.closeDate || t.closeTime || t.closedAt) ? 'CLOSED' : 'OPEN';
+    };
+    const rows = tradesArray.map(t => {
+        const status = normalizeTradeStatus(t);
+        return ({
         trade_id: String(t.id || t._id),
         account_id: accountId,
+        status,
         symbol: t.symbol || 'Unknown',
         side: t.side || 'Unknown',
         quantity: parseFloat(t.quantity) || 0,
@@ -43,9 +56,16 @@ export async function syncTrades(accountId, tradesArray) {
         pips: t.pips ? parseFloat(t.pips) : null,
         profit: parseFloat(t.profitAndLoss) || 0,
         open_date: t.openDate || new Date().toISOString(),
-        close_date: t.closeDate || null
-    }));
+        close_date: status === 'CLOSED' ? (t.closeDate || t.closeTime || t.closedAt || t.updatedAt || t.openDate || new Date().toISOString()) : null
+    });
+    });
     const { error } = await supabase.from('t5_trades').upsert(rows, { onConflict: 'trade_id' });
+    if (error && /status|column/i.test(error.message || '')) {
+        const fallbackRows = rows.map(({ status, ...row }) => row);
+        const retry = await supabase.from('t5_trades').upsert(fallbackRows, { onConflict: 'trade_id' });
+        if (retry.error) console.error('[Supabase] Loi sync trades:', retry.error.message);
+        return;
+    }
     if (error) console.error('[Supabase] Loi sync trades:', error.message);
 }
 

@@ -1556,6 +1556,17 @@ async function startServer() {
           try { tsData = await t5Fetch(`/account/ts/${accId}`, sessionToken); } catch(e) {}
           try { balanceData = await t5Fetch(`/account/${accId}/balance`, sessionToken); } catch(e) {}
           try { statsData = await t5Fetch(`/account/${accId}/stats`, sessionToken); } catch(e) {}
+          const normalizeTradeStatus = (t: any): "OPEN" | "CLOSED" => {
+            const raw = String(t.status ?? t.positionStatus ?? t.state ?? t.statusName ?? "").trim().toLowerCase();
+            if (raw) {
+              if (["open", "opened", "active", "running", "live"].some(token => raw.includes(token))) return "OPEN";
+              if (["closed", "close", "history", "completed", "done"].some(token => raw.includes(token))) return "CLOSED";
+            }
+            if (t.isOpen === true) return "OPEN";
+            if (t.isClosed === true) return "CLOSED";
+            return (t.closeDate || t.closeTime || t.closedAt) ? "CLOSED" : "OPEN";
+          };
+
           try {
             const d = await t5Fetch(`/position/all/${accId}?page=1&limit=50`, sessionToken);
             positions = Array.isArray(d) ? d : (d.results || d.data || d.positions || []);
@@ -1601,9 +1612,12 @@ async function startServer() {
             else syncedAccounts++;
 
             if (positions.length > 0) {
-              const tradeRows = positions.map((t: any) => ({
+              const tradeRows = positions.map((t: any) => {
+                const status = normalizeTradeStatus(t);
+                return ({
                 trade_id: String(t.id || t._id),
                 account_id: accId,
+                status,
                 symbol: t.symbol || "Unknown",
                 side: t.side || "Unknown",
                 quantity: parseFloat(t.quantity) || 0,
@@ -1612,9 +1626,17 @@ async function startServer() {
                 pips: t.pips ? parseFloat(t.pips) : null,
                 profit: parseFloat(t.profitAndLoss) || 0,
                 open_date: t.openDate || new Date().toISOString(),
-                close_date: t.closeDate || null,
-              }));
+                close_date: status === "CLOSED" ? (t.closeDate || t.closeTime || t.closedAt || t.updatedAt || t.openDate || new Date().toISOString()) : null,
+              });
+              });
               const { error: trErr } = await supabase.from("t5_trades").upsert(tradeRows, { onConflict: "trade_id" });
+              if (trErr && /status|column/i.test(trErr.message || "")) {
+                const fallbackRows = tradeRows.map(({ status, ...row }) => row);
+                const retry = await supabase.from("t5_trades").upsert(fallbackRows, { onConflict: "trade_id" });
+                if (retry.error) console.error("[sync] upsert trades error:", retry.error.message);
+                else syncedTrades += fallbackRows.length;
+                continue;
+              }
               if (trErr) console.error("[sync] upsert trades error:", trErr.message);
               else syncedTrades += tradeRows.length;
             }

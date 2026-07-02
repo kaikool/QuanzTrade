@@ -18,6 +18,7 @@ CREATE TABLE t5_accounts (
 CREATE TABLE t5_trades (
     trade_id TEXT PRIMARY KEY,
     account_id TEXT REFERENCES t5_accounts(account_id) ON DELETE CASCADE,
+    status TEXT,
     symbol TEXT NOT NULL,
     side TEXT NOT NULL,
     quantity NUMERIC NOT NULL,
@@ -28,6 +29,8 @@ CREATE TABLE t5_trades (
     open_date TIMESTAMP WITH TIME ZONE NOT NULL,
     close_date TIMESTAMP WITH TIME ZONE
 );
+
+ALTER TABLE t5_trades ADD COLUMN IF NOT EXISTS status TEXT;
 
 CREATE TABLE t5_purchases (
     purchase_id TEXT PRIMARY KEY,

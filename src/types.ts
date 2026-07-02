@@ -175,6 +175,7 @@ export interface T5AccountDetail {
 export interface T5Trade {
   tradeId: string;
   accountId: string;
+  status?: 'OPEN' | 'CLOSED';
   instrument: string;
   direction: 'buy' | 'sell';
   volume: number;

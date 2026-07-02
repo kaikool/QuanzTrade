@@ -639,7 +639,7 @@ export default function App() {
         exit_price: t.closePrice,
         size: t.volume,
         pnl: t.pnl || 0,
-        status: (t.closeTime ? "CLOSED" : "OPEN") as "CLOSED" | "OPEN",
+        status: (t.status || (t.closeTime ? "CLOSED" : "OPEN")) as "CLOSED" | "OPEN",
         entry_date: t.openTime || new Date().toISOString(),
         exit_date: t.closeTime,
         accountId: t.accountId,

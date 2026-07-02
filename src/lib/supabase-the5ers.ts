@@ -1,6 +1,15 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import type { T5AccountOverview, T5Trade, T5Purchase } from "../types";
 
+function normalizeTradeStatus(rawStatus: any, closeDate: any): 'OPEN' | 'CLOSED' {
+  const value = String(rawStatus ?? '').trim().toLowerCase();
+  if (value) {
+    if (['open', 'opened', 'active', 'running', 'live'].some(token => value.includes(token))) return 'OPEN';
+    if (['closed', 'close', 'history', 'completed', 'done'].some(token => value.includes(token))) return 'CLOSED';
+  }
+  return closeDate ? 'CLOSED' : 'OPEN';
+}
+
 function getSupabase(): SupabaseClient | null {
   const metaEnv = (import.meta as any).env || {};
   const url = (window as any).ENV?.SUPABASE_URL || metaEnv.VITE_SUPABASE_URL || "";
@@ -78,6 +87,7 @@ export async function fetchT5AccountDetail(accountId: string): Promise<{
     trades = tradeData.map((t: any) => ({
       tradeId: t.trade_id,
       accountId: String(t.account_id),
+      status: normalizeTradeStatus(t.status, t.close_date),
       instrument: t.symbol || "Unknown",
       direction:
         String(t.side).toLowerCase() === "0" ||

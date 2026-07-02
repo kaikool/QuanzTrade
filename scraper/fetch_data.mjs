@@ -159,10 +159,21 @@ async function run() {
             const posRes = await fetchApi('/position/all/' + accId + '?page=1&limit=50');
             positionsData = Array.isArray(posRes) ? posRes : (posRes.results || posRes.data || posRes.positions || []);
             
+            const normalizeTradeStatus = (t) => {
+                const raw = String(t.status ?? t.positionStatus ?? t.state ?? t.statusName ?? '').trim().toLowerCase();
+                if (raw) {
+                    if (['open', 'opened', 'active', 'running', 'live'].some(token => raw.includes(token))) return 'OPEN';
+                    if (['closed', 'close', 'history', 'completed', 'done'].some(token => raw.includes(token))) return 'CLOSED';
+                }
+                if (t.isOpen === true) return 'OPEN';
+                if (t.isClosed === true) return 'CLOSED';
+                return (t.closeDate || t.closeTime || t.closedAt) ? 'CLOSED' : 'OPEN';
+            };
+
             // Check for new trades to snapshot, or trades that have just closed
             for (const t of positionsData) {
                 const tid = String(t.id || t._id);
-                const isClosedNow = !!(t.closeDate || t.exit || t.closeTime);
+                const isClosedNow = normalizeTradeStatus(t) === 'CLOSED';
 
                 if (!existingTradeIds.has(tid)) {
                     // NEW TRADE DETECTED! Take open snapshot!
