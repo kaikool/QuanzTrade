@@ -166,7 +166,7 @@ export default function App() {
   const [selectedT5AccountIds, setSelectedT5AccountIds] = useState<string[]>(() => {
     try {
       const saved = JSON.parse(localStorage.getItem("t5_selected_accounts") || "null");
-      if (saved && Array.isArray(saved)) return saved;
+      if (saved && Array.isArray(saved)) return saved.map(String);
     } catch {}
     return [];
   });
@@ -590,7 +590,7 @@ export default function App() {
       // Step 2: Load trades for available accounts first, skip disabled
       const activeIds = accounts
         .filter(a => a.status === "active" || a.status === "available")
-        .map(a => a.accountId);
+        .map(a => String(a.accountId));
       const selectedIds = new Set(selectedT5AccountIds.length > 0
         ? selectedT5AccountIds
         : activeIds);
@@ -620,8 +620,9 @@ export default function App() {
 
   // Load trades for a single account (called when user selects a disabled account)
   async function loadT5AccountTrades(accountId: string) {
-    if (t5Trades.some(t => t.accountId === accountId)) return; // already loaded
-    const { trades } = await fetchT5AccountDetail(accountId);
+    const normalizedAccountId = String(accountId);
+    if (t5Trades.some(t => String(t.accountId) === normalizedAccountId)) return; // already loaded
+    const { trades } = await fetchT5AccountDetail(normalizedAccountId);
     setT5Trades(prev => [...prev, ...trades]);
   }
 
@@ -651,25 +652,19 @@ export default function App() {
       }));
   }, [t5Trades, selectedT5AccountIds]);
 
+  const t5TradeAccountById = useMemo(() => {
+    return new Map(
+      t5Trades
+        .filter(t => t?.tradeId && t?.accountId)
+        .map(t => [String(t.tradeId).replace(/^t5-/, ""), String(t.accountId)]),
+    );
+  }, [t5Trades]);
+
   const getTradeAccountId = (trade: Trade) => {
     if (trade.accountId) return String(trade.accountId);
     const anyTrade = trade as any;
     if (anyTrade.account_id) return String(anyTrade.account_id);
-    const match = trade.notes?.match(/The5ers\s*-\s*(.+)$/);
-    if (match?.[1]) return match[1].trim();
-    // Fallback: scan t5Trades for a matching tradeId to get its accountId
-    const rawId = trade.id.replace(/^t5-/, "");
-    for (const t5 of t5Trades) {
-      if (t5.tradeId === rawId || t5.tradeId === trade.id) {
-        return String(t5.accountId);
-      }
-    }
-    for (const acc of t5Accounts) {
-      if (trade.id.includes(acc.accountId) || trade.notes?.includes(acc.accountId)) {
-        return String(acc.accountId);
-      }
-    }
-    return "UNKNOWN";
+    return t5TradeAccountById.get(String(trade.id).replace(/^t5-/, "")) ?? null;
   };
 
   // Merged trades for display: enriched + live T5 data
@@ -682,11 +677,17 @@ export default function App() {
     const enrichedT5Trades = t5MappedTrades.map((t5) => {
       const enriched = enrichedTradesMap.get(t5.id) || enrichedTradesMap.get(t5.id.replace(/^t5-/, ""));
       if (enriched) {
+        const enrichedWithT5Identity = {
+          ...t5,
+          ...enriched,
+          accountId: String(t5.accountId),
+          notes: enriched.notes || t5.notes,
+        };
         // If the scraper says the trade is closed, but the enriched version is still open,
         // the scraper has fresh exit data. Update with the scraper's exit data.
         if (t5.status === "CLOSED" && enriched.status === "OPEN") {
           return {
-            ...enriched,
+            ...enrichedWithT5Identity,
             status: "CLOSED",
             exit_price: t5.exit_price,
             exit_date: t5.exit_date,
@@ -694,7 +695,7 @@ export default function App() {
           };
         }
         // Otherwise, use the user's enriched edit (which contains their snapshot URL and notes)
-        return enriched;
+        return enrichedWithT5Identity;
       }
       return t5;
     });
@@ -710,7 +711,7 @@ export default function App() {
     const userModifiedOnly = derivedTrades.filter((t) => {
       // Skip if already in enriched T5 list
       if (t5Ids.has(t.id)) return false;
-      if (t.accountId && t5RawIds.has(t.id)) return false;
+      if (t5RawIds.has(t.id)) return false;
       return true;
     });
 
@@ -725,18 +726,13 @@ export default function App() {
     if (selectedT5AccountIds.length === 0) return [];
     const selectedSet = new Set(selectedT5AccountIds);
     return mergedTrades.filter(t => {
-      if (t.accountId && selectedSet.has(String(t.accountId))) return true;
-      const match = t.notes?.match(/The5ers\s*-\s*(.+)$/);
-      if (match?.[1] && selectedSet.has(match[1].trim())) return true;
-      for (const accId of selectedSet) {
-        if (t.id.includes(accId) || t.notes?.includes(accId)) return true;
-      }
-      return false;
+      const accountId = getTradeAccountId(t);
+      return !!accountId && selectedSet.has(accountId);
     });
-  }, [mergedTrades, selectedT5AccountIds]);
+  }, [mergedTrades, selectedT5AccountIds, t5TradeAccountById]);
 
   const accountById = useMemo(() => {
-    return new Map(t5Accounts.map((account) => [account.accountId, account]));
+    return new Map(t5Accounts.map((account) => [String(account.accountId), account]));
   }, [t5Accounts]);
 
   const followedT5Accounts = useMemo(() => {
@@ -748,8 +744,8 @@ export default function App() {
     return [
       { accountId: "ALL", name: "Tất cả tài khoản" },
       ...followedT5Accounts.map((account) => ({
-        accountId: account.accountId,
-        name: account.name || account.accountId,
+        accountId: String(account.accountId),
+        name: account.name || String(account.accountId),
       })),
     ];
   }, [followedT5Accounts]);
@@ -1143,20 +1139,12 @@ export default function App() {
     const t5Balance = selectedAccounts.reduce((s, a) => s + (a.balance || 0), 0);
     const t5Pnl = selectedAccounts.reduce((s, a) => s + (a.pnl || 0), 0);
 
-    // Use DB trades for open/closed counts, filtered by selected account IDs.
-    // t5Trades may not be fully loaded yet (async loading), but trades is always fresh from Supabase.
-    const filteredTradesForSummary = trades.filter(t => {
-      if (!t || !t.id || t.id.startsWith("t5-")) return false;
-      if (t.accountId && selectedIds.has(String(t.accountId))) return true;
-      const match = t.notes?.match(/The5ers\s*-\s*(.+)$/);
-      if (match?.[1] && selectedIds.has(match[1].trim())) return true;
-      for (const accId of selectedIds) {
-        if (t.id.includes(accId) || t.notes?.includes(accId)) return true;
-      }
-      return false;
+    const selectedTrades = visibleTrades.filter(t => {
+      const accountId = getTradeAccountId(t);
+      return !!accountId && selectedIds.has(accountId);
     });
-    const openCount = filteredTradesForSummary.filter(t => t.status === "OPEN").length;
-    const closedCount = filteredTradesForSummary.filter(t => t.status === "CLOSED").length;
+    const openCount = selectedTrades.filter(t => t.status === "OPEN").length;
+    const closedCount = selectedTrades.filter(t => t.status === "CLOSED").length;
 
     return {
       balance: t5Balance,
@@ -1164,7 +1152,7 @@ export default function App() {
       openCount,
       closedCount,
     };
-  }, [trades, followedT5Accounts, t5Trades, selectedT5AccountIds]);
+  }, [followedT5Accounts, selectedT5AccountIds, visibleTrades, t5TradeAccountById]);
 
   // Filters candidates
   const [visibleCount, setVisibleCount] = useState(50);

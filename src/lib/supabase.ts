@@ -40,7 +40,7 @@ export async function fetchTradesFromDB(): Promise<Trade[]> {
         .order("entry_date", { ascending: false });
       
       if (error) throw error;
-      if (data) return data.map((t: any) => ({ ...t, accountId: t.account_id || undefined })) as Trade[];
+      if (data) return data.map((t: any) => ({ ...t, accountId: t.account_id ? String(t.account_id) : undefined })) as Trade[];
     } catch (err: any) {
       console.warn("Supabase fetch failed, falling back to local storage:", err.message);
     }

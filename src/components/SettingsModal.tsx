@@ -380,12 +380,13 @@ export function SettingsModal(props: SettingsModalProps) {
                         ) : (
                           <div className="max-h-[160px] overflow-y-auto space-y-[6px] no-scrollbar">
                             {t5Accounts.map((acc: any) => {
-                              const checked = selectedT5AccountIds.includes(acc.accountId);
+                              const accountId = String(acc.accountId);
+                              const checked = selectedT5AccountIds.includes(accountId);
                               const active = acc.status === "active" || acc.status === "available";
                               return (
-                                <label key={acc.accountId} className={`flex items-center justify-between px-[12px] py-[8px] rounded-[10px] transition-colors cursor-pointer ${checked ? "bg-[var(--ios-blue)]/10 border border-[var(--ios-blue)]/25" : "bg-[var(--ios-bg)] border border-transparent"} ${!active ? "opacity-50" : ""}`}>
+                                <label key={accountId} className={`flex items-center justify-between px-[12px] py-[8px] rounded-[10px] transition-colors cursor-pointer ${checked ? "bg-[var(--ios-blue)]/10 border border-[var(--ios-blue)]/25" : "bg-[var(--ios-bg)] border border-transparent"} ${!active ? "opacity-50" : ""}`}>
                                   <div className="flex items-center gap-[10px] min-w-0">
-                                    <input type="checkbox" checked={checked} onChange={() => { const next = checked ? selectedT5AccountIds.filter(id => id !== acc.accountId) : [...selectedT5AccountIds, acc.accountId]; setSelectedT5AccountIds(next); localStorage.setItem("t5_selected_accounts", JSON.stringify(next)); if (!checked && !active) loadT5AccountTrades(acc.accountId); }} className="w-4 h-4 accent-[var(--ios-blue)] cursor-pointer shrink-0" />
+                                    <input type="checkbox" checked={checked} onChange={() => { const next = checked ? selectedT5AccountIds.filter(id => id !== accountId) : [...selectedT5AccountIds, accountId]; setSelectedT5AccountIds(next); localStorage.setItem("t5_selected_accounts", JSON.stringify(next)); if (!checked && !active) loadT5AccountTrades(accountId); }} className="w-4 h-4 accent-[var(--ios-blue)] cursor-pointer shrink-0" />
                                     <span className="text-[14px] font-semibold text-[var(--ios-label)] truncate">{acc.name}</span>
                                   </div>
                                   <span className={`px-[6px] py-[2px] rounded-[4px] text-[9px] font-bold uppercase shrink-0 ${
@@ -400,7 +401,7 @@ export function SettingsModal(props: SettingsModalProps) {
                             })}
                           </div>
                         )}
-                        <button onClick={() => { const ids = t5Accounts.filter((a: any) => a.status === "active" || a.status === "available").map((a: any) => a.accountId); setSelectedT5AccountIds(ids); localStorage.setItem("t5_selected_accounts", JSON.stringify(ids)); }} className="w-full py-[8px] bg-[var(--ios-surface)]/80 rounded-[10px] text-[var(--ios-blue)] text-[13px] font-semibold active:scale-95 transition-transform cursor-pointer border border-[var(--ios-separator)]/30">
+                        <button onClick={() => { const ids = t5Accounts.filter((a: any) => a.status === "active" || a.status === "available").map((a: any) => String(a.accountId)); setSelectedT5AccountIds(ids); localStorage.setItem("t5_selected_accounts", JSON.stringify(ids)); }} className="w-full py-[8px] bg-[var(--ios-surface)]/80 rounded-[10px] text-[var(--ios-blue)] text-[13px] font-semibold active:scale-95 transition-transform cursor-pointer border border-[var(--ios-separator)]/30">
                           Chọn Active
                         </button>
                       </div>

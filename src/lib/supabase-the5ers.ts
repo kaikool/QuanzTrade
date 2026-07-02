@@ -28,7 +28,7 @@ export async function fetchT5Accounts(): Promise<T5AccountOverview[]> {
   }
 
   const mapped: T5AccountOverview[] = (data || []).map((acc: any) => ({
-    accountId: acc.account_id,
+    accountId: String(acc.account_id),
     name: acc.name,
     type: acc.type,
     status: acc.status,
@@ -77,7 +77,7 @@ export async function fetchT5AccountDetail(accountId: string): Promise<{
   } else if (tradeData) {
     trades = tradeData.map((t: any) => ({
       tradeId: t.trade_id,
-      accountId: t.account_id,
+      accountId: String(t.account_id),
       instrument: t.symbol || "Unknown",
       direction:
         String(t.side).toLowerCase() === "0" ||
