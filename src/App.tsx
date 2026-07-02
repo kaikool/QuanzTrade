@@ -1142,15 +1142,27 @@ export default function App() {
     const selectedAccounts = followedT5Accounts;
     const t5Balance = selectedAccounts.reduce((s, a) => s + (a.balance || 0), 0);
     const t5Pnl = selectedAccounts.reduce((s, a) => s + (a.pnl || 0), 0);
-    const t5OpenTrades = t5Trades.filter(t => t && t.accountId && selectedIds.has(String(t.accountId)) && !t.closeTime).length;
-    const t5ClosedTrades = t5Trades.filter(t => t && t.accountId && selectedIds.has(String(t.accountId)) && t.closeTime).length;
 
-    // Use account-level PnL (authoritative), avoid double-counting with individual trade PnL
+    // Use DB trades for open/closed counts, filtered by selected account IDs.
+    // t5Trades may not be fully loaded yet (async loading), but trades is always fresh from Supabase.
+    const filteredTradesForSummary = trades.filter(t => {
+      if (!t || !t.id || t.id.startsWith("t5-")) return false;
+      if (t.accountId && selectedIds.has(String(t.accountId))) return true;
+      const match = t.notes?.match(/The5ers\s*-\s*(.+)$/);
+      if (match?.[1] && selectedIds.has(match[1].trim())) return true;
+      for (const accId of selectedIds) {
+        if (t.id.includes(accId) || t.notes?.includes(accId)) return true;
+      }
+      return false;
+    });
+    const openCount = filteredTradesForSummary.filter(t => t.status === "OPEN").length;
+    const closedCount = filteredTradesForSummary.filter(t => t.status === "CLOSED").length;
+
     return {
       balance: t5Balance,
       pnl: t5Pnl,
-      openCount: t5OpenTrades,
-      closedCount: t5ClosedTrades,
+      openCount,
+      closedCount,
     };
   }, [trades, followedT5Accounts, t5Trades, selectedT5AccountIds]);
 
