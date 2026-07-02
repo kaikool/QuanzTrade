@@ -625,7 +625,7 @@ export default function App() {
     setT5Trades(prev => [...prev, ...trades]);
   }
 
-  // Map T5 trade to manual Trade format for unified display
+  // Map T5 trade to unified display format
   const t5MappedTrades = useMemo(() => {
     const activeIds = new Set(selectedT5AccountIds);
     return t5Trades
@@ -672,34 +672,34 @@ export default function App() {
     return "UNKNOWN";
   };
 
-  // Merged trades for display: manual + The5ers
+  // Merged trades for display: enriched + live T5 data
   const mergedTrades = useMemo(() => {
-    // 1. Map manual trades by ID for quick lookup
-    const manualTradesMap = new Map<string, Trade>();
-    trades.forEach((t) => manualTradesMap.set(t.id, t));
+    // 1. Map enriched trades by ID for quick lookup
+    const enrichedTradesMap = new Map<string, Trade>();
+    trades.forEach((t) => enrichedTradesMap.set(t.id, t));
 
     // 2. Process T5 trades: if the user added notes/images, merge them into the Live T5 data
     const enrichedT5Trades = t5MappedTrades.map((t5) => {
-      const manual = manualTradesMap.get(t5.id) || manualTradesMap.get(t5.id.replace(/^t5-/, ""));
-      if (manual) {
-        // If the scraper says the trade is closed, but the manual version is still open, 
-        // the scraper has fresh exit data. Update the manual version with the scraper's exit data.
-        if (t5.status === "CLOSED" && manual.status === "OPEN") {
+      const enriched = enrichedTradesMap.get(t5.id) || enrichedTradesMap.get(t5.id.replace(/^t5-/, ""));
+      if (enriched) {
+        // If the scraper says the trade is closed, but the enriched version is still open,
+        // the scraper has fresh exit data. Update with the scraper's exit data.
+        if (t5.status === "CLOSED" && enriched.status === "OPEN") {
           return {
-            ...manual,
+            ...enriched,
             status: "CLOSED",
             exit_price: t5.exit_price,
             exit_date: t5.exit_date,
             pnl: t5.pnl,
           };
         }
-        // Otherwise, use the user's manual edit (which contains their snapshot URL and notes)
-        return manual;
+        // Otherwise, use the user's enriched edit (which contains their snapshot URL and notes)
+        return enriched;
       }
       return t5;
     });
 
-    // 3. Collect pure manual trades (ones that are NOT from T5)
+    // 3. Collect trades without corresponding T5 data (user-modified only)
     const t5Ids = new Set(t5MappedTrades.map(t => t.id));
     const t5RawIds = new Set(t5MappedTrades.map(t => t.id.replace(/^t5-/, "")));
     // Fix: derive status from exit data (merged DB may have wrong status column)
@@ -707,7 +707,7 @@ export default function App() {
       const hasCloseData = t.exit_date && t.exit_price != null && String(t.exit_price) !== String(t.entry_price);
       return { ...t, status: hasCloseData ? "CLOSED" as const : "OPEN" as const };
     });
-    const pureManualTrades = derivedTrades.filter((t) => {
+    const userModifiedOnly = derivedTrades.filter((t) => {
       // Skip if already in enriched T5 list
       if (t5Ids.has(t.id)) return false;
       if (t.accountId && t5RawIds.has(t.id)) return false;
@@ -715,7 +715,7 @@ export default function App() {
     });
 
     // Combine and sort by entry date descending
-    return [...enrichedT5Trades, ...pureManualTrades].sort(
+    return [...enrichedT5Trades, ...userModifiedOnly].sort(
       (a, b) => new Date(b.entry_date).getTime() - new Date(a.entry_date).getTime(),
     );
   }, [trades, t5MappedTrades]);
@@ -1082,7 +1082,7 @@ export default function App() {
     const pnlNum = formPnl ? parseFloat(formPnl) : 0;
 
     // User requested to completely remove the custom PnL calculation because it's incorrect.
-    // Instead, we just use the manually inputted PnL (or 0 if not provided).
+    // Use the PnL value from form input (or 0 if not provided).
     const calculatedPnl = pnlNum;
 
     const targetId = editingTradeId || "t" + Date.now();
@@ -1152,7 +1152,6 @@ export default function App() {
     const t5ClosedTrades = t5Trades.filter(t => t && t.accountId && selectedIds.has(t.accountId) && t.closeTime).length;
 
     const totalPnl = trades.filter(t => t && t.id && !t.id.startsWith("t5-")).reduce((sum, t) => sum + (t.pnl || 0), 0);
-    const manualPnl = trades.filter(t => t && t.id && t.status === "CLOSED" && !t.id.startsWith("t5-")).reduce((sum, t) => sum + (t.pnl || 0), 0);
     const openCount = trades.filter(t => t && t.status === "OPEN" && !t.id.startsWith("t5-")).length;
     const closedCount = trades.filter(t => t && t.status === "CLOSED" && !t.id.startsWith("t5-")).length;
 
@@ -1171,7 +1170,7 @@ export default function App() {
     return ["ALL", ...Array.from(set)];
   }, [mergedTrades]);
 
-  // Filtered trades list to display (manual + The5ers)
+  // Filtered trades list to display
   const filteredTrades = useMemo(() => {
     return mergedTrades.filter((t) => {
       const matchSearch =
